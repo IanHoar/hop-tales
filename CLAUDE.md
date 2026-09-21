@@ -47,7 +47,7 @@ iOS read-aloud game for early readers. SwiftUI shell + SpriteKit world, on-devic
 
 - Open `Wordhop.xcworkspace`, not the `.xcodeproj` — the local package lives in the workspace.
 - Build: `xcodebuild -workspace Wordhop.xcworkspace -scheme Wordhop -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -skipMacroValidation build`
-- Tests: same, with `test` and a package test scheme (`SpeechTests`, `ReadingTests`, `AppFeature`).
+- Tests: same command with `test` — the `Wordhop` scheme runs all three package test targets.
   `WordMatcherTests` must stay green; they encode the tolerance rules.
 - `-skipMacroValidation` is required from the CLI: the package macros need one-time approval that
   only the Xcode UI can give.
