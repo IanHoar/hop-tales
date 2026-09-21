@@ -49,3 +49,7 @@ schemes:
       config: Debug
     test:
       config: Debug
+      targets:
+        - package: WordhopPackage/AppFeatureTests
+        - package: WordhopPackage/ReadingTests
+        - package: WordhopPackage/SpeechTests
