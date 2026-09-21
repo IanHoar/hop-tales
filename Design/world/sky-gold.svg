@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2340" height="844" viewBox="0 0 2340 844">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3E8FC9"/>
+      <stop offset="0.28" stop-color="#7FBFE3"/>
+      <stop offset="0.5" stop-color="#C9DFE8"/>
+      <stop offset="0.68" stop-color="#F6DDB6"/>
+      <stop offset="0.85" stop-color="#FBC98A"/>
+      <stop offset="1" stop-color="#F7B96F"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#FFF0C4" stop-opacity="1"/>
+      <stop offset="0.22" stop-color="#FFD98C" stop-opacity="0.8"/>
+      <stop offset="0.55" stop-color="#FFB86A" stop-opacity="0.3"/>
+      <stop offset="1" stop-color="#FFB86A" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sunDisc" cx="0.4" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#FFF9E0"/>
+      <stop offset="0.5" stop-color="#FFDC84"/>
+      <stop offset="1" stop-color="#FFAE45"/>
+    </radialGradient>
+    <linearGradient id="cloud" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFF8EE"/>
+      <stop offset="0.6" stop-color="#FDE9D3"/>
+      <stop offset="1" stop-color="#E7B9A0"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="10"/></filter>
+    <filter id="softer" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="26"/></filter>
+    <filter id="rays" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="20"/></filter>
+    <filter id="grain" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="12" result="n"/>
+      <feColorMatrix in="n" type="saturate" values="0" result="g"/>
+      <feComponentTransfer in="g" result="a"><feFuncA type="linear" slope="0.07" intercept="0"/></feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="a" mode="multiply"/>
+    </filter>
+    <g id="cloudBig">
+      <g filter="url(#soft)" opacity="0.4" fill="#B0688A" transform="translate(-6,22)">
+        <circle cx="0" cy="0" r="46"/><circle cx="58" cy="-18" r="62"/><circle cx="126" cy="-2" r="50"/><circle cx="180" cy="18" r="34"/>
+        <rect x="-30" y="0" width="240" height="40" rx="20"/>
+      </g>
+      <g fill="url(#cloud)">
+        <circle cx="0" cy="0" r="46"/><circle cx="58" cy="-18" r="62"/><circle cx="126" cy="-2" r="50"/><circle cx="180" cy="18" r="34"/>
+        <rect x="-30" y="4" width="240" height="40" rx="20"/>
+      </g>
+      <g fill="#FFF3DC" opacity="0.95">
+        <circle cx="-8" cy="-26" r="22"/><circle cx="40" cy="-46" r="26"/>
+      </g>
+      <path d="M-28 30 C 30 42 130 46 206 30 C 140 52 40 52 -28 30 Z" fill="#D89A86" opacity="0.7"/>
+    </g>
+    <g id="cloudSmall">
+      <g filter="url(#soft)" opacity="0.35" fill="#B0688A" transform="translate(-4,12)">
+        <circle cx="0" cy="0" r="24"/><circle cx="34" cy="-10" r="32"/><circle cx="72" cy="2" r="24"/>
+        <rect x="-18" y="0" width="112" height="22" rx="11"/>
+      </g>
+      <g fill="url(#cloud)">
+        <circle cx="0" cy="0" r="24"/><circle cx="34" cy="-10" r="32"/><circle cx="72" cy="2" r="24"/>
+        <rect x="-18" y="2" width="112" height="22" rx="11"/>
+      </g>
+      <path d="M-16 18 C 20 26 70 28 96 18 C 60 32 10 32 -16 18 Z" fill="#D89A86" opacity="0.6"/>
+    </g>
+  </defs>
+
+  <g filter="url(#grain)">
+  <rect width="2340" height="844" fill="url(#sky)"/>
+
+  <g opacity="0.6" filter="url(#softer)" fill="#FFE3B8">
+    <ellipse cx="300" cy="500" rx="800" ry="120"/>
+    <ellipse cx="1600" cy="560" rx="900" ry="90"/>
+  </g>
+
+  <g filter="url(#rays)" opacity="0.38" fill="#FFE2A8">
+    <path d="M64 246 L 700 -80 L 820 -20 Z"/>
+    <path d="M64 246 L 1000 80 L 1040 200 Z"/>
+    <path d="M64 246 L 1100 420 L 1080 520 Z"/>
+    <path d="M64 246 L 700 760 L 560 780 Z"/>
+    <path d="M64 246 L 240 800 L 120 820 Z"/>
+  </g>
+
+  <circle cx="64" cy="246" r="300" fill="url(#sunGlow)"/>
+  <circle cx="64" cy="246" r="40" fill="url(#sunDisc)"/>
+  <circle cx="64" cy="246" r="40" fill="none" stroke="#FFF1C6" stroke-width="6" opacity="0.8"/>
+  <circle cx="64" cy="246" r="58" fill="none" stroke="#FFE7B0" stroke-width="2" opacity="0.35"/>
+
+  <g opacity="0.8" transform="translate(150,86) scale(0.55)"><use href="#cloudSmall"/></g>
+  <g transform="translate(262,128) scale(0.82)"><use href="#cloudBig"/></g>
+  <g opacity="0.85" transform="translate(760,180) scale(0.6)"><use href="#cloudSmall"/></g>
+  <g transform="translate(1080,120) scale(0.95)"><use href="#cloudBig"/></g>
+  <g opacity="0.8" transform="translate(1560,220) scale(0.7)"><use href="#cloudSmall"/></g>
+  <g transform="translate(1800,110) scale(0.7)"><use href="#cloudBig"/></g>
+  <g opacity="0.8" transform="translate(2180,200) scale(0.5)"><use href="#cloudSmall"/></g>
+
+  <g stroke="#3A2E4A" stroke-width="2.2" stroke-linecap="round" opacity="0.45" fill="none">
+    <path d="M150 178 q7 -7 14 0"/><path d="M164 178 q7 -7 14 0"/>
+    <path d="M196 200 q5 -5 10 0"/><path d="M206 200 q5 -5 10 0"/>
+    <path d="M1300 150 q7 -7 14 0"/><path d="M1314 150 q7 -7 14 0"/>
+    <path d="M1350 176 q5 -5 10 0"/><path d="M1360 176 q5 -5 10 0"/>
+  </g>
+  </g>
+</svg>

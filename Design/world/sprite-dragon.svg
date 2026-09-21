@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="-300 -230 640 420">
+  <defs>
+    <radialGradient id="dragonBody" cx="0.4" cy="0.35" r="0.8">
+      <stop offset="0" stop-color="#9C7CE0"/>
+      <stop offset="0.55" stop-color="#7150B8"/>
+      <stop offset="1" stop-color="#4A3282"/>
+    </radialGradient>
+    <linearGradient id="bodyStroke" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8A68D0"/>
+      <stop offset="1" stop-color="#553B94"/>
+    </linearGradient>
+    <linearGradient id="wingNear" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#5A3F9C"/>
+      <stop offset="0.45" stop-color="#7A5AC4"/>
+      <stop offset="1" stop-color="#B08CF0" stop-opacity="0.85"/>
+    </linearGradient>
+    <linearGradient id="wingFar" x1="1" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#33244F"/>
+      <stop offset="1" stop-color="#5A4488"/>
+    </linearGradient>
+    <linearGradient id="belly" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F6C25C"/>
+      <stop offset="1" stop-color="#C98A2C"/>
+    </linearGradient>
+    <linearGradient id="horn" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#C98A2C"/>
+      <stop offset="1" stop-color="#FFE3A0"/>
+    </linearGradient>
+  </defs>
+  <rect x="-300" y="-230" width="640" height="420" fill="#3A2A66"/>
+
+  <g id="dragon">
+    <!-- far wing (behind) -->
+    <path d="M-20 -36 C -50 -96 -90 -150 -100 -186 Q -130 -160 -140 -150 Q -150 -128 -150 -112 Q -100 -70 -20 -36 Z" fill="url(#wingFar)"/>
+    <g stroke="#26193F" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.9">
+      <path d="M-20 -36 C -50 -96 -90 -150 -100 -186"/>
+      <path d="M-20 -36 C -70 -80 -120 -120 -140 -150"/>
+      <path d="M-20 -36 C -70 -66 -120 -96 -150 -112"/>
+    </g>
+
+    <!-- tail -->
+    <path d="M60 8 C 100 26 130 20 150 4" stroke="url(#bodyStroke)" stroke-width="28" stroke-linecap="round" fill="none"/>
+    <path d="M150 4 C 168 -12 186 -24 200 -26" stroke="#5E4399" stroke-width="16" stroke-linecap="round" fill="none"/>
+    <path d="M200 -26 C 210 -28 218 -24 222 -18" stroke="#5E4399" stroke-width="8" stroke-linecap="round" fill="none"/>
+    <path d="M218 -22 C 222 -46 242 -56 256 -40 C 250 -22 238 -10 218 -22 Z" fill="url(#belly)"/><path d="M220 -24 C 228 -36 240 -44 250 -40" stroke="#FFE3A0" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.8"/>
+
+    <!-- hind leg -->
+    <path d="M34 28 C 40 40 42 50 40 60" stroke="#553B94" stroke-width="14" stroke-linecap="round" fill="none"/>
+    <path d="M40 60 L28 66 M40 60 L38 70 M40 60 L50 66" stroke="#FFE3A0" stroke-width="4" stroke-linecap="round"/>
+    <!-- front leg -->
+    <path d="M-34 24 C -40 36 -42 46 -40 56" stroke="#553B94" stroke-width="13" stroke-linecap="round" fill="none"/>
+    <path d="M-40 56 L-52 62 M-40 56 L-42 66 M-40 56 L-30 62" stroke="#FFE3A0" stroke-width="4" stroke-linecap="round"/>
+
+    <!-- neck -->
+    <path d="M-50 -14 C -80 -24 -100 -46 -118 -74" stroke="url(#bodyStroke)" stroke-width="36" stroke-linecap="round" fill="none"/>
+
+    <!-- body -->
+    <ellipse cx="0" cy="0" rx="74" ry="42" fill="url(#dragonBody)" transform="rotate(-8)"/>
+
+    <!-- belly -->
+    <path d="M-48 18 C -20 42 30 46 66 24" stroke="url(#belly)" stroke-width="18" stroke-linecap="round" fill="none"/>
+    <g stroke="#B57A22" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.7">
+      <path d="M-36 30 q6 4 14 5"/><path d="M-16 38 q6 3 14 3"/><path d="M6 41 q7 1 14 0"/><path d="M28 39 q7 -1 14 -4"/><path d="M50 32 q6 -3 10 -6"/>
+    </g>
+    <!-- neck underside -->
+    <path d="M-52 16 C -82 0 -106 -26 -126 -58" stroke="#E0A63E" stroke-width="11" stroke-linecap="round" fill="none" opacity="0.9"/>
+
+    <!-- scales -->
+    <g stroke="#4A3282" stroke-width="1.6" fill="none" opacity="0.5">
+      <path d="M-30 -14 q6 -6 12 0"/><path d="M-14 -18 q6 -6 12 0"/><path d="M2 -20 q6 -6 12 0"/><path d="M18 -18 q6 -6 12 0"/><path d="M34 -12 q6 -6 12 0"/>
+      <path d="M-22 -4 q6 -6 12 0"/><path d="M-6 -8 q6 -6 12 0"/><path d="M10 -8 q6 -6 12 0"/><path d="M26 -4 q6 -6 12 0"/>
+      <path d="M-14 6 q6 -6 12 0"/><path d="M2 4 q6 -6 12 0"/><path d="M18 6 q6 -6 12 0"/>
+    </g>
+
+    <path d="M-60 -26 C -40 -42 -6 -46 30 -38" stroke="#BDA3F2" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.5"/>
+    <path d="M-64 -30 C -88 -40 -104 -56 -116 -74" stroke="#BDA3F2" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.45"/>
+    <path d="M-46 30 C -14 52 34 54 66 30" stroke="#3A2670" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.35"/>
+    <!-- head -->
+    <ellipse cx="-138" cy="-88" rx="32" ry="24" fill="url(#dragonBody)"/>
+    <rect x="-192" y="-100" width="58" height="26" rx="13" fill="url(#dragonBody)"/>
+    <path d="M-144 -76 C -160 -68 -178 -66 -192 -70 L -186 -56 C -170 -56 -156 -60 -144 -68 Z" fill="#5A3F9C"/>
+    <path d="M-158 -72 C -168 -68 -178 -68 -186 -70" stroke="#E9A23B" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <g fill="#FFF1B8">
+      <path d="M-186 -75 l3 6 l3 -6 Z"/><path d="M-176 -74 l2.6 5 l2.6 -5 Z"/><path d="M-166 -73 l2.4 4.5 l2.4 -4.5 Z"/>
+      <path d="M-184 -58 l2.5 -5 l2.5 5 Z"/><path d="M-174 -58 l2.5 -5 l2.5 5 Z"/>
+    </g>
+    <circle cx="-182" cy="-92" r="2" fill="#2E1F4C"/>
+    <path d="M-160 -100 C -154 -104 -146 -104 -140 -100" stroke="#3F2C6E" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+    <ellipse cx="-150" cy="-93" rx="7" ry="6" fill="#FFE9A8"/>
+    <circle cx="-151" cy="-93" r="2.8" fill="#2E1F4C"/>
+    <circle cx="-152.5" cy="-95.5" r="1.1" fill="#FFFFFF"/>
+    <path d="M-128 -108 C -128 -126 -116 -140 -100 -142 C -108 -130 -114 -118 -116 -104 Z" fill="url(#horn)"/>
+    <path d="M-142 -110 C -144 -124 -138 -134 -130 -138 C -132 -128 -134 -118 -134 -108 Z" fill="url(#horn)"/>
+    <path d="M-118 -80 C -116 -86 -114 -90 -114 -96" stroke="#E9A23B" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.8"/>
+
+    <path d="M-166 -104 C -156 -110 -142 -110 -130 -104" stroke="#BDA3F2" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.5"/>
+    <!-- spine spikes -->
+    <g fill="url(#belly)">
+      <path d="M-106 -94 L-100 -110 L-92 -96 Z"/>
+      <path d="M-88 -66 L-84 -84 L-74 -70 Z"/>
+      <path d="M-66 -44 L-62 -62 L-52 -48 Z"/>
+      <path d="M-40 -36 L-34 -56 L-24 -40 Z"/>
+      <path d="M-8 -40 L-2 -60 L8 -44 Z"/>
+      <path d="M24 -38 L30 -56 L40 -40 Z"/>
+      <path d="M54 -28 L60 -44 L68 -30 Z"/>
+      <path d="M86 8 L94 -8 L100 8 Z"/>
+      <path d="M122 6 L130 -8 L136 6 Z"/>
+      <path d="M156 -12 L164 -28 L170 -16 Z"/>
+    </g>
+
+    <!-- near wing -->
+    <path d="M10 -36 C 30 -90 80 -140 130 -170 Q 140 -136 170 -130 Q 156 -102 180 -80 Q 152 -62 150 -40 Q 80 -34 10 -36 Z" fill="url(#wingNear)"/>
+    <path d="M10 -36 C 30 -90 80 -140 130 -170 C 110 -150 90 -120 70 -90 C 50 -62 30 -46 10 -36 Z" fill="#C0A4F5" opacity="0.28"/>
+    <g stroke="#3F2C6E" stroke-width="4" stroke-linecap="round" fill="none">
+      <path d="M10 -36 C 30 -90 80 -140 130 -170"/>
+      <path d="M10 -36 C 60 -80 120 -110 170 -130"/>
+      <path d="M10 -36 C 60 -60 130 -74 180 -80"/>
+      <path d="M10 -36 C 60 -44 110 -42 150 -40"/>
+    </g>
+    <g stroke="#D9C8FA" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.55">
+      <path d="M14 -40 C 34 -92 84 -140 128 -168"/>
+      <path d="M14 -38 C 62 -82 120 -110 166 -128"/>
+    </g>
+    <!-- shoulder -->
+    <ellipse cx="14" cy="-30" rx="18" ry="12" fill="#7150B8"/>
+  </g>
+</svg>

@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wordhop — parallax motion demo</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Andika:wght@400;700&amp;display=swap">
+<style>
+body { margin: 0; font-family: Fredoka, system-ui, sans-serif; background: #EAF6E4; -webkit-font-smoothing: antialiased; }
+a { color: #2E2A3B; }
+a:hover { opacity: 0.85; }
+.px-far { animation: pxFar 48s linear infinite alternate; }
+.px-mid { animation: pxMid 48s linear infinite alternate; }
+.px-near { animation: pxNear 48s linear infinite alternate; }
+.px-sky-day { animation: pxSkyDay 48s linear infinite alternate; }
+.px-sky-gold { animation: pxSkyGold 48s linear infinite alternate; }
+.px-sky-dusk { animation: pxSkyDusk 48s linear infinite alternate; }
+.px-grade-bg { animation: pxGradeBg 48s linear infinite alternate; }
+.px-grade-fg { animation: pxGradeFg 48s linear infinite alternate; }
+.px-lights { animation: pxLights 48s linear infinite alternate; }
+.px-hop { animation: pxHop 0.72s cubic-bezier(0.3, 0, 0.2, 1) infinite alternate; }
+.px-bob { animation: pxBob 0.36s ease-in-out infinite alternate; }
+@keyframes pxFar { from { transform: translateX(0px); } to { transform: translateX(-585px); } }
+@keyframes pxMid { from { transform: translateX(0px); } to { transform: translateX(-1170px); } }
+@keyframes pxNear { from { transform: translateX(0px); } to { transform: translateX(-1950px); } }
+@keyframes pxSkyDay { 0%, 36% { opacity: 1; } 54%, 100% { opacity: 0; } }
+@keyframes pxSkyGold { 0%, 30% { opacity: 0; } 48%, 62% { opacity: 1; } 82%, 100% { opacity: 0; } }
+@keyframes pxSkyDusk { 0%, 64% { opacity: 0; } 86%, 100% { opacity: 1; } }
+@keyframes pxGradeBg {
+  0%, 34% { filter: brightness(1) saturate(1) sepia(0) hue-rotate(0deg) contrast(1); }
+  50%, 64% { filter: brightness(1.02) saturate(1.18) sepia(0.24) hue-rotate(0deg) contrast(1.03); }
+  88%, 100% { filter: brightness(0.48) saturate(0.7) sepia(0.4) hue-rotate(205deg) contrast(1.08); }
+}
+@keyframes pxGradeFg {
+  0%, 34% { filter: brightness(1) saturate(1) sepia(0) hue-rotate(0deg) contrast(1); }
+  50%, 64% { filter: brightness(1.02) saturate(1.18) sepia(0.24) hue-rotate(0deg) contrast(1.03); }
+  88%, 100% { filter: brightness(0.58) saturate(0.75) sepia(0.15) hue-rotate(18deg) contrast(1.06); }
+}
+@keyframes pxLights { 0%, 70% { opacity: 0; } 88%, 100% { opacity: 1; } }
+@keyframes pxHop { from { transform: translateY(0px); } to { transform: translateY(-26px); } }
+@keyframes pxBob { from { transform: translateY(0px); } to { transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) {
+  .px-far, .px-mid, .px-near, .px-sky-day, .px-sky-gold, .px-sky-dusk, .px-grade-bg, .px-grade-fg, .px-lights, .px-hop, .px-bob { animation: none; }
+}
+</style>
+</helmet>
+
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #0F0D2A;">
+
+  <img class="px-sky-dusk" src="./sky-dusk.svg" alt="" style="position: absolute; left: 0px; top: 0px; width: 2340px; height: 844px;">
+  <img class="px-sky-gold" src="./sky-gold.svg" alt="" style="position: absolute; left: 0px; top: 0px; width: 2340px; height: 844px;">
+  <img class="px-sky-day" src="./sky-day.svg" alt="" style="position: absolute; left: 0px; top: 0px; width: 2340px; height: 844px;">
+
+  <div style="position: absolute; left: 0px; top: 0px; width: 390px; height: 844px; overflow: hidden;">
+    <div class="px-far" style="position: absolute; left: 0px; top: 0px; width: 2340px; height: 844px;">
+      <img class="px-grade-bg" src="./layer-far.svg" alt="" style="position: absolute; left: 0px; top: 0px; width: 2340px; height: 844px;">
+    </div>
+    <div class="px-mid" style="position: absolute; left: 0px; top: 0px; width: 2340px; height: 844px;">
+      <img class="px-grade-bg" src="./layer-mid.svg" alt="" style="position: absolute; left: 0px; top: 0px; width: 2340px; height: 844px;">
+    </div>
+    <div class="px-near" style="position: absolute; left: 0px; top: 0px; width: 2340px; height: 844px;">
+      <img class="px-grade-fg" src="./layer-near.svg" alt="" style="position: absolute; left: 0px; top: 0px; width: 2340px; height: 844px;">
+    </div>
+  </div>
+
+  <div class="px-lights" style="position: absolute; left: 0px; top: 0px; width: 390px; height: 844px; overflow: hidden;">
+    <div style="position: absolute; left: -60px; top: 300px; width: 520px; height: 220px; background: linear-gradient(180deg, rgba(240,120,70,0) 0%, rgba(240,120,70,0.28) 50%, rgba(240,120,70,0) 100%); mix-blend-mode: screen;"></div>
+    <div class="px-mid" style="position: absolute; left: 0px; top: 0px; width: 2340px; height: 844px;">
+      <svg width="2340" height="844" viewBox="0 0 2340 844" fill="none" xmlns="http://www.w3.org/2000/svg" style="position: absolute; left: 0; top: 0;" aria-hidden="true">
+        <defs>
+          <radialGradient id="glowWarmM" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0" stop-color="#FFC96B" stop-opacity="0.85"></stop>
+            <stop offset="0.4" stop-color="#FFA24A" stop-opacity="0.35"></stop>
+            <stop offset="1" stop-color="#FFA24A" stop-opacity="0"></stop>
+          </radialGradient>
+          <filter id="blurSmM" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"></feGaussianBlur></filter>
+        </defs>
+        <rect x="1446" y="270" width="16" height="24" rx="8" fill="#FFB23F" opacity="0.6" filter="url(#blurSmM)"></rect>
+        <rect x="1448" y="272" width="12" height="20" rx="6" fill="#FFD27A"></rect>
+        <rect x="1448" y="314" width="12" height="20" rx="6" fill="#FFC45E"></rect>
+        <rect x="1452" y="354" width="12" height="22" rx="6" fill="#FFB23F"></rect>
+        <circle cx="1458" cy="330" r="40" fill="url(#glowWarmM)" opacity="0.5"></circle>
+        <circle cx="836" cy="330" r="70" fill="url(#glowWarmM)" opacity="0.45"></circle>
+        <g fill="#FFD27A">
+          <rect x="758" y="290" width="10" height="18" rx="5"></rect><rect x="758" y="328" width="10" height="18" rx="5"></rect><rect x="758" y="364" width="10" height="16" rx="5"></rect>
+          <rect x="900" y="300" width="9" height="16" rx="4.5"></rect><rect x="900" y="338" width="9" height="16" rx="4.5"></rect>
+          <rect x="794" y="316" width="10" height="16" rx="5"></rect><rect x="826" y="316" width="10" height="16" rx="5"></rect><rect x="854" y="316" width="10" height="16" rx="5"></rect>
+        </g>
+      </svg>
+    </div>
+    <div class="px-near" style="position: absolute; left: 0px; top: 0px; width: 2340px; height: 844px;">
+      <div style="position: absolute; left: 1970px; top: 40px; width: 420px; height: 420px; border-radius: 210px; background: radial-gradient(circle, rgba(255,138,61,0.5) 0%, rgba(255,120,60,0.18) 40%, rgba(255,120,60,0) 70%); mix-blend-mode: screen;"></div>
+      <svg width="2340" height="844" viewBox="0 0 2340 844" fill="none" xmlns="http://www.w3.org/2000/svg" style="position: absolute; left: 0; top: 0;" aria-hidden="true">
+        <defs>
+          <radialGradient id="glowWarmN" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0" stop-color="#FFC96B" stop-opacity="0.85"></stop>
+            <stop offset="0.4" stop-color="#FFA24A" stop-opacity="0.35"></stop>
+            <stop offset="1" stop-color="#FFA24A" stop-opacity="0"></stop>
+          </radialGradient>
+          <radialGradient id="glowFireN" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0" stop-color="#FFB24A" stop-opacity="0.9"></stop>
+            <stop offset="0.45" stop-color="#FF7A2F" stop-opacity="0.4"></stop>
+            <stop offset="1" stop-color="#FF7A2F" stop-opacity="0"></stop>
+          </radialGradient>
+          <radialGradient id="fireflyN" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0" stop-color="#FFF3A0" stop-opacity="1"></stop>
+            <stop offset="0.3" stop-color="#FFE27A" stop-opacity="0.6"></stop>
+            <stop offset="1" stop-color="#FFE27A" stop-opacity="0"></stop>
+          </radialGradient>
+          <linearGradient id="flameN" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0" stop-color="#FF6A2A"></stop>
+            <stop offset="0.5" stop-color="#FFB23F"></stop>
+            <stop offset="1" stop-color="#FFF1B8"></stop>
+          </linearGradient>
+          <filter id="blurSmN" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"></feGaussianBlur></filter>
+          <filter id="blurMdN" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8"></feGaussianBlur></filter>
+        </defs>
+        <g transform="translate(2170,212) scale(0.62)">
+      <ellipse cx="-240" cy="-60" rx="96" ry="48" fill="url(#glowFireN)"></ellipse>
+      <path d="M-184 -70 C -218 -94 -260 -88 -290 -58 C -264 -46 -224 -42 -184 -52 Z" fill="#FF6A2A" opacity="0.55" filter="url(#blurMdN)"></path>
+      <path d="M-184 -68 C -216 -88 -254 -84 -282 -58 C -258 -48 -222 -44 -184 -54 Z" fill="#FF7A2F" opacity="0.95"></path>
+      <path d="M-186 -66 C -210 -78 -238 -74 -258 -60 C -238 -52 -212 -50 -186 -56 Z" fill="#FFB23F"></path>
+      <path d="M-188 -64 C -204 -70 -222 -68 -232 -60 C -222 -56 -204 -56 -188 -58 Z" fill="#FFF1B8"></path>
+      <g fill="#FF9A44">
+        <circle cx="-300" cy="-72" r="3"></circle><circle cx="-292" cy="-46" r="2.4"></circle><circle cx="-314" cy="-58" r="1.8"></circle><circle cx="-278" cy="-84" r="2"></circle><circle cx="-326" cy="-66" r="1.4"></circle>
+      </g>
+      <circle cx="-150" cy="-93" r="11" fill="#FFE27A" opacity="0.7" filter="url(#blurSmN)"></circle>
+      <ellipse cx="-150" cy="-93" rx="6" ry="5" fill="#FFF3B0"></ellipse>
+      <circle cx="-151" cy="-93" r="2.6" fill="#2E2A3B"></circle>
+      <path d="M-48 18 C -20 42 30 46 66 24" stroke="#FFB84A" stroke-width="22" stroke-linecap="round" fill="none" opacity="0.3" filter="url(#blurSmN)"></path>
+      <path d="M-52 16 C -82 0 -106 -26 -126 -58" stroke="#FFB84A" stroke-width="14" stroke-linecap="round" fill="none" opacity="0.25" filter="url(#blurSmN)"></path>
+    </g>
+        <g>
+          <circle cx="2000" cy="380" r="34" fill="url(#glowWarmN)"></circle>
+          <path d="M2000 364 C 1992 372 1992 382 2000 388 C 2008 382 2008 372 2000 364 Z" fill="url(#flameN)"></path>
+          <path d="M2000 372 C 1996 376 1996 382 2000 385 C 2004 382 2004 376 2000 372 Z" fill="#FFF6D0"></path>
+          <circle cx="2240" cy="374" r="34" fill="url(#glowWarmN)"></circle>
+          <path d="M2240 358 C 2232 366 2232 376 2240 382 C 2248 376 2248 366 2240 358 Z" fill="url(#flameN)"></path>
+          <path d="M2240 366 C 2236 370 2236 376 2240 379 C 2244 376 2244 370 2240 366 Z" fill="#FFF6D0"></path>
+        </g>
+        <g fill="url(#fireflyN)">
+          <circle cx="1700" cy="400" r="6"></circle><circle cx="1800" cy="380" r="5"></circle><circle cx="1900" cy="420" r="6"></circle>
+          <circle cx="2010" cy="392" r="7"></circle><circle cx="2072" cy="368" r="6"></circle><circle cx="2126" cy="404" r="7"></circle>
+          <circle cx="2280" cy="436" r="6"></circle><circle cx="1968" cy="416" r="5"></circle><circle cx="2190" cy="380" r="5"></circle><circle cx="2300" cy="300" r="5"></circle>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <svg width="390" height="844" viewBox="0 0 390 844" fill="none" xmlns="http://www.w3.org/2000/svg" style="position: absolute; left: 0; top: 0;" aria-hidden="true">
+    <defs>
+      <radialGradient id="foxBodyX" cx="0.4" cy="0.3" r="0.8">
+        <stop offset="0" stop-color="#FFB070"></stop>
+        <stop offset="0.6" stop-color="#EE8F50"></stop>
+        <stop offset="1" stop-color="#C96A34"></stop>
+      </radialGradient>
+      <radialGradient id="foxHeadX" cx="0.45" cy="0.35" r="0.75">
+        <stop offset="0" stop-color="#FFBE82"></stop>
+        <stop offset="1" stop-color="#E4823F"></stop>
+      </radialGradient>
+      <filter id="softShadowX" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5"></feGaussianBlur></filter>
+    </defs>
+    <ellipse cx="152" cy="438" rx="34" ry="7" fill="#1E3A20" opacity="0.26" filter="url(#softShadowX)"></ellipse>
+    <g transform="translate(150,432)">
+    <g class="px-bob">
+      <path d="M-20 -22 C -36 -30 -52 -42 -48 -58 C -36 -48 -28 -36 -16 -28 Z" fill="url(#foxBodyX)"></path>
+      <path d="M-48 -58 C -52 -52 -50 -44 -44 -42 C -46 -48 -46 -54 -48 -58 Z" fill="#FFF3E6"></path>
+      <path d="M-14 -14 C -18 -8 -24 -2 -26 2" stroke="#B85F32" stroke-width="7" stroke-linecap="round"></path>
+      <path d="M10 -14 C 14 -8 20 -4 24 -2" stroke="#B85F32" stroke-width="7" stroke-linecap="round"></path>
+      <path d="M-20 -20 C -18 -34 -4 -38 8 -34 C 16 -30 18 -20 14 -12 C 6 -6 -14 -6 -20 -20 Z" fill="url(#foxBodyX)"></path>
+      <ellipse cx="0" cy="-16" rx="10" ry="6" fill="#FFF3E6"></ellipse>
+      <path d="M-6 -12 C -4 -6 0 -2 4 0" stroke="#EE8F50" stroke-width="7" stroke-linecap="round"></path>
+      <path d="M16 -16 C 20 -10 24 -8 28 -6" stroke="#EE8F50" stroke-width="7" stroke-linecap="round"></path>
+      <circle cx="18" cy="-34" r="11.5" fill="url(#foxHeadX)"></circle>
+      <path d="M9 -41 L11 -56 L20 -44 Z" fill="#D9743B"></path>
+      <path d="M11 -43 L12 -51 L17 -45 Z" fill="#FFD3A5"></path>
+      <path d="M22 -42 L28 -55 L31 -41 Z" fill="#D9743B"></path>
+      <ellipse cx="26" cy="-30" rx="6.5" ry="5" fill="#FFF3E6"></ellipse>
+      <circle cx="30.5" cy="-31" r="2" fill="#2E2A3B"></circle>
+      <circle cx="20" cy="-36" r="2.5" fill="#2E2A3B"></circle>
+      <circle cx="21" cy="-37" r="0.9" fill="#FFFFFF"></circle>
+    </g>
+    </g>
+  </svg>
+
+  <div style="position: absolute; left: 0; top: 48px; width: 390px; box-sizing: border-box; padding: 0 20px; display: flex; align-items: center; justify-content: space-between;">
+    <button type="button" aria-label="Back to stories" style="width: 48px; height: 48px; border-radius: 24px; border: 0; background: #FFF8EC; box-shadow: 0 4px 0 rgba(46,42,59,0.12); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2E2A3B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5 L8 12 L15 19"></path></svg>
+    </button>
+    <div style="background: rgba(255,248,236,0.92); border-radius: 999px; padding: 9px 16px; font-size: 11px; font-weight: 600; letter-spacing: 0.16em; color: #5C5670;">MOTION DEMO · 48 S</div>
+    <div style="height: 48px; border-radius: 24px; background: #FFF8EC; box-shadow: 0 4px 0 rgba(46,42,59,0.12); display: flex; align-items: center; gap: 6px; padding: 0 16px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="#FFB23F" aria-hidden="true"><path d="M12 2.5 l2.9 6.2 6.6 .9 -4.8 4.7 1.2 6.7 -5.9 -3.2 -5.9 3.2 1.2 -6.7 -4.8 -4.7 6.6 -.9 Z"></path></svg>
+      <span style="font-size: 16px; font-weight: 600; color: #2E2A3B;">12</span>
+    </div>
+  </div>
+
+  <div style="position: absolute; left: 16px; top: 452px; width: 358px; height: 196px; box-sizing: border-box; background: #FFF8EC; border-radius: 34px; box-shadow: 0 12px 0 rgba(46,42,59,0.10), 0 24px 40px rgba(0,0,0,0.22); overflow: hidden;">
+    <svg width="358" height="78" viewBox="0 0 358 78" fill="none" xmlns="http://www.w3.org/2000/svg" style="position: absolute; left: 0; top: 14px;" aria-hidden="true">
+      <path d="M92 62 Q 135 8 179 50" stroke="#2E2A3B" stroke-opacity="0.16" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 9" fill="none"></path>
+      <ellipse cx="179" cy="70" rx="17" ry="4" fill="#2E2A3B" opacity="0.14"></ellipse>
+    </svg>
+    <div class="px-hop" style="position: absolute; left: 160px; top: 43px; width: 38px; height: 38px;">
+      <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <radialGradient id="ballX" cx="0.35" cy="0.3" r="0.8">
+            <stop offset="0" stop-color="#FFD9A8"></stop>
+            <stop offset="0.35" stop-color="#FFA552"></stop>
+            <stop offset="1" stop-color="#D96A1B"></stop>
+          </radialGradient>
+        </defs>
+        <circle cx="19" cy="19" r="19" fill="url(#ballX)"></circle>
+        <circle cx="12" cy="11" r="5" fill="#FFF1DC" opacity="0.9"></circle>
+      </svg>
+    </div>
+    <div style="position: absolute; left: 0; top: 96px; width: 358px; height: 84px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+      <span style="font-family: Andika, Georgia, serif; font-size: 22px; font-weight: 700; color: #8A5A12; background: #FFE0A8; border-radius: 10px; padding: 3px 9px;">The</span>
+      <span style="font-family: Andika, Georgia, serif; font-size: 22px; font-weight: 700; color: #8A5A12; background: #FFE0A8; border-radius: 10px; padding: 3px 9px;">cat</span>
+      <span style="font-family: Andika, Georgia, serif; font-size: 64px; font-weight: 700; color: #2E2A3B; letter-spacing: -0.01em; line-height: 1;">sat</span>
+      <span style="font-family: Andika, Georgia, serif; font-size: 22px; font-weight: 700; color: #6E6780;">on</span>
+      <span style="font-family: Andika, Georgia, serif; font-size: 22px; font-weight: 700; color: #9A94A6;">the</span>
+    </div>
+  </div>
+
+  <div style="position: absolute; left: 28px; top: 674px; width: 334px; background: rgba(255,248,236,0.9); border-radius: 22px; padding: 16px 18px; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.18);">
+    <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.16em; color: #5C5670; margin-bottom: 10px;">LAYER SPEEDS</div>
+    <div style="display: flex; flex-direction: column; gap: 7px; font-size: 14px; color: #2E2A3B;">
+      <div style="display: flex; justify-content: space-between;"><span>Sky · crossfades day → gold → dusk</span><span style="font-weight: 600; color: #6E6780;">0×</span></div>
+      <div style="display: flex; justify-content: space-between;"><span>Mountains + fog</span><span style="font-weight: 600; color: #6E6780;">0.3×</span></div>
+      <div style="display: flex; justify-content: space-between;"><span>Hills, castle, keep</span><span style="font-weight: 600; color: #6E6780;">0.6×</span></div>
+      <div style="display: flex; justify-content: space-between;"><span>Ground, knight, dragon, lights</span><span style="font-weight: 600; color: #6E6780;">1×</span></div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

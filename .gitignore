@@ -1,0 +1,32 @@
+## macOS
+.DS_Store
+
+## Xcode
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+## Xcode workspace / project local state
+*.xcworkspace/xcuserdata/
+*.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/
+
+## Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+## Generated assets (source of truth is Design/world/*.svg — see scripts/render-assets.sh)
+Wordhop/Assets.xcassets/World/
+
+## Handoff archive
+wordhop-handoff.zip

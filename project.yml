@@ -1,0 +1,51 @@
+name: Wordhop
+options:
+  bundleIdPrefix: com.ianhoar
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: "27.0"
+  groupSortPosition: top
+  minimumXcodeGenVersion: "2.44.0"
+
+settings:
+  base:
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+    SWIFT_VERSION: "6.0"
+    DEVELOPMENT_TEAM: ""
+
+packages:
+  WordhopPackage:
+    path: WordhopPackage
+
+targets:
+  Wordhop:
+    type: application
+    platform: iOS
+    deploymentTarget: "27.0"
+    sources:
+      - path: Wordhop
+        excludes:
+          - Info.plist
+    dependencies:
+      - package: WordhopPackage
+        product: AppFeature
+    settings:
+      base:
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CURRENT_PROJECT_VERSION: 1
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: Wordhop/Info.plist
+        MARKETING_VERSION: "0.1.0"
+        PRODUCT_BUNDLE_IDENTIFIER: com.ianhoar.wordhop
+        PRODUCT_NAME: Wordhop
+        TARGETED_DEVICE_FAMILY: "1,2"
+
+schemes:
+  Wordhop:
+    build:
+      targets:
+        Wordhop: all
+    run:
+      config: Debug
+    test:
+      config: Debug

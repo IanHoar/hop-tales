@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wordhop — world layers</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Andika:wght@400;700&amp;display=swap">
+<style>
+body { margin: 0; font-family: Fredoka, system-ui, sans-serif; background: #FFF8EC; -webkit-font-smoothing: antialiased; }
+a { color: #2E2A3B; }
+a:hover { opacity: 0.85; }
+</style>
+</helmet>
+
+<div style="width: 1250px; height: 2200px; position: relative; overflow: hidden; background: #FFF8EC; box-sizing: border-box; padding: 40px;">
+
+  <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 18px;">
+    <div style="font-size: 28px; font-weight: 600; color: #2E2A3B;">World assets</div>
+    <div style="font-size: 14px; color: #6E6780;">One 2340 px world, six phone-widths long. Every screen is a crop of it.</div>
+  </div>
+
+  <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.16em; color: #6E6780; margin-bottom: 10px;">COMPOSITE · SKY-DAY + ALL LAYERS AT OFFSET 0</div>
+  <div style="position: relative; width: 1170px; height: 422px; overflow: hidden; border-radius: 18px; background: #0F0D2A;">
+    <img src="./sky-day.svg" alt="" style="position: absolute; left: 0px; top: 0px; width: 1170px; height: 422px;">
+    <img src="./layer-far.svg" alt="" style="position: absolute; left: 0px; top: 0px; width: 1170px; height: 422px;">
+    <img src="./layer-mid.svg" alt="" style="position: absolute; left: 0px; top: 0px; width: 1170px; height: 422px;">
+    <img src="./layer-near.svg" alt="" style="position: absolute; left: 0px; top: 0px; width: 1170px; height: 422px;">
+    <div style="position: absolute; left: 0px; top: 0px; width: 195px; height: 422px; box-sizing: border-box; border: 3px dashed rgba(255,248,236,0.9); border-radius: 14px;"></div>
+    <div style="position: absolute; left: 500px; top: 0px; width: 195px; height: 422px; box-sizing: border-box; border: 3px dashed rgba(255,248,236,0.9); border-radius: 14px;"></div>
+    <div style="position: absolute; left: 975px; top: 0px; width: 195px; height: 422px; box-sizing: border-box; border: 3px dashed rgba(255,248,236,0.9); border-radius: 14px;"></div>
+    <div style="position: absolute; left: 12px; top: 12px; background: rgba(46,42,59,0.85); color: #FFF8EC; border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 600; letter-spacing: 0.1em;">STAGE 1 · x 0</div>
+    <div style="position: absolute; left: 512px; top: 12px; background: rgba(46,42,59,0.85); color: #FFF8EC; border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 600; letter-spacing: 0.1em;">STAGE 3 · x 1000</div>
+    <div style="position: absolute; left: 987px; top: 12px; background: rgba(46,42,59,0.85); color: #FFF8EC; border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 600; letter-spacing: 0.1em;">STAGE 6 · x 1950</div>
+  </div>
+  <div style="font-size: 13px; color: #6E6780; margin-top: 10px; margin-bottom: 34px;">Dashed frames are the phone viewport on the ground layer. Farther layers slide less, so the castle and mountains you see at stage 3 sit further left in their own files than 1000 px.</div>
+
+  <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px;">
+    <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.16em; color: #6E6780;">LAYER-FAR.SVG · SPEED 0.3×</div>
+    <div style="font-size: 13px; color: #6E6780;">Two mountain ranges, snow caps, fog band, far tree line</div>
+  </div>
+  <div style="position: relative; width: 1170px; height: 422px; overflow: hidden; border-radius: 18px; background: #2E2A3B;">
+    <img src="./layer-far.svg" alt="" style="position: absolute; left: 0px; top: 0px; width: 1170px; height: 422px;">
+  </div>
+
+  <div style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 34px; margin-bottom: 10px;">
+    <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.16em; color: #6E6780;">LAYER-MID.SVG · SPEED 0.6×</div>
+    <div style="font-size: 13px; color: #6E6780;">Rolling hills, windmill, castle, ruined keep, tree clusters turning to pines</div>
+  </div>
+  <div style="position: relative; width: 1170px; height: 422px; overflow: hidden; border-radius: 18px; background: #2E2A3B;">
+    <img src="./layer-mid.svg" alt="" style="position: absolute; left: 0px; top: 0px; width: 1170px; height: 422px;">
+  </div>
+
+  <div style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 34px; margin-bottom: 10px;">
+    <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.16em; color: #6E6780;">LAYER-NEAR.SVG · SPEED 1×</div>
+    <div style="font-size: 13px; color: #6E6780;">Ground, path, fence, flowers, big trees, signpost, mounted knight, dragon, unlit torches</div>
+  </div>
+  <div style="position: relative; width: 1170px; height: 422px; overflow: hidden; border-radius: 18px; background: #2E2A3B;">
+    <img src="./layer-near.svg" alt="" style="position: absolute; left: 0px; top: 0px; width: 1170px; height: 422px;">
+  </div>
+
+  <div style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 34px; margin-bottom: 10px;">
+    <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.16em; color: #6E6780;">SKIES · SPEED 0× · CROSSFADED BY STORY PROGRESS</div>
+    <div style="font-size: 13px; color: #6E6780;">Layers are painted once in daylight; each stage adds a colour grade and light sprites</div>
+  </div>
+  <div style="display: flex; gap: 20px;">
+    <div style="position: relative; width: 376px; height: 136px; overflow: hidden; border-radius: 14px;">
+      <img src="./sky-day.svg" alt="" style="position: absolute; left: 0px; top: 0px; width: 376px; height: 136px;">
+      <div style="position: absolute; left: 10px; bottom: 10px; background: rgba(46,42,59,0.85); color: #FFF8EC; border-radius: 999px; padding: 5px 10px; font-size: 11px; font-weight: 600; letter-spacing: 0.1em;">SKY-DAY · no grade</div>
+    </div>
+    <div style="position: relative; width: 376px; height: 136px; overflow: hidden; border-radius: 14px;">
+      <img src="./sky-gold.svg" alt="" style="position: absolute; left: 0px; top: 0px; width: 376px; height: 136px;">
+      <div style="position: absolute; left: 10px; bottom: 10px; background: rgba(46,42,59,0.85); color: #FFF8EC; border-radius: 999px; padding: 5px 10px; font-size: 11px; font-weight: 600; letter-spacing: 0.1em;">SKY-GOLD · warm grade</div>
+    </div>
+    <div style="position: relative; width: 376px; height: 136px; overflow: hidden; border-radius: 14px;">
+      <img src="./sky-dusk.svg" alt="" style="position: absolute; left: 0px; top: 0px; width: 376px; height: 136px;">
+      <div style="position: absolute; left: 10px; bottom: 10px; background: rgba(46,42,59,0.85); color: #FFF8EC; border-radius: 999px; padding: 5px 10px; font-size: 11px; font-weight: 600; letter-spacing: 0.1em;">SKY-DUSK · night grade + lights</div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1250,"height":2200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

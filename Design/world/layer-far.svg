@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2340" height="844" viewBox="0 0 2340 844">
+  <defs>
+    <linearGradient id="mtBack" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#B9D3E8"/>
+      <stop offset="1" stop-color="#93B4D3"/>
+    </linearGradient>
+    <linearGradient id="mtFront" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#A3BFD9"/>
+      <stop offset="0.6" stop-color="#7E9CBE"/>
+      <stop offset="1" stop-color="#6F8DB0"/>
+    </linearGradient>
+    <linearGradient id="mtShade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5D7BA0" stop-opacity="0"/>
+      <stop offset="1" stop-color="#5D7BA0" stop-opacity="0.55"/>
+    </linearGradient>
+    <linearGradient id="hillFar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C9E4B4"/>
+      <stop offset="0.35" stop-color="#B2D69B"/>
+      <stop offset="1" stop-color="#9CC98A"/>
+    </linearGradient>
+    <linearGradient id="fog" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="leafFar" cx="0.4" cy="0.3" r="0.75">
+      <stop offset="0" stop-color="#8FBF8A"/>
+      <stop offset="1" stop-color="#5E9468"/>
+    </radialGradient>
+    <filter id="soft" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="14"/></filter>
+    <filter id="grain" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="21" result="n"/>
+      <feColorMatrix in="n" type="saturate" values="0" result="g"/>
+      <feComponentTransfer in="g" result="a"><feFuncA type="linear" slope="0.1" intercept="0"/></feComponentTransfer>
+      <feComposite in="a" in2="SourceGraphic" operator="in" result="c"/>
+      <feBlend in="SourceGraphic" in2="c" mode="multiply"/>
+    </filter>
+    <g id="farTree">
+      <ellipse cx="0" cy="-10" rx="7" ry="12" fill="url(#leafFar)"/>
+      <rect x="-1" y="0" width="2" height="6" fill="#5B4636"/>
+    </g>
+    <g id="farPine">
+      <path d="M0 -26 L8 -4 L-8 -4 Z" fill="#5E9468"/>
+      <path d="M0 -16 L10 4 L-10 4 Z" fill="#6FA576"/>
+    </g>
+  </defs>
+
+  <g filter="url(#grain)">
+    <path d="M0 322 L60 282 L120 306 L200 250 L280 296 L360 262 L440 300 L520 268 L600 302 L690 258 L780 300 L860 272 L940 304 L1030 250 L1110 292 L1200 262 L1290 298 L1380 270 L1460 302 L1540 260 L1630 296 L1720 236 L1800 288 L1880 222 L1960 276 L2040 214 L2130 270 L2220 232 L2300 280 L2340 260 L2340 844 L0 844 Z" fill="url(#mtBack)"/>
+
+    <path d="M0 306 L42 270 L86 298 L134 250 L182 288 L230 258 L276 290 L320 262 L356 284 L400 268 L460 300 L520 272 L580 306 L640 260 L700 298 L760 276 L820 308 L880 270 L940 300 L1000 262 L1060 300 L1120 240 L1180 292 L1240 266 L1300 302 L1360 272 L1420 300 L1480 262 L1540 296 L1600 270 L1660 304 L1720 250 L1780 298 L1840 240 L1900 300 L1960 236 L2020 292 L2080 218 L2140 286 L2200 246 L2260 296 L2320 256 L2340 270 L2340 844 L0 844 Z" fill="url(#mtFront)"/>
+
+    <g fill="url(#mtShade)">
+      <path d="M134 250 L182 288 L134 288 Z"/>
+      <path d="M320 262 L356 284 L320 284 Z"/>
+      <path d="M640 260 L700 298 L640 298 Z"/>
+      <path d="M1000 262 L1060 300 L1000 300 Z"/>
+      <path d="M1120 240 L1180 292 L1120 292 Z"/>
+      <path d="M1480 262 L1540 296 L1480 296 Z"/>
+      <path d="M1720 250 L1780 298 L1720 298 Z"/>
+      <path d="M1840 240 L1900 300 L1840 300 Z"/>
+      <path d="M1960 236 L2020 292 L1960 292 Z"/>
+      <path d="M2080 218 L2140 286 L2080 286 Z"/>
+      <path d="M2200 246 L2260 296 L2200 296 Z"/>
+    </g>
+
+    <g fill="#FFFFFF" opacity="0.88">
+      <path d="M122 262 L134 250 L146 262 L140 265 L134 258 L128 265 Z"/>
+      <path d="M310 272 L320 262 L330 272 L325 274 L320 268 L315 274 Z"/>
+      <path d="M626 274 L640 260 L654 274 L647 277 L640 269 L633 277 Z"/>
+      <path d="M1106 256 L1120 240 L1134 256 L1127 259 L1120 250 L1113 259 Z"/>
+      <path d="M1706 266 L1720 250 L1734 266 L1727 269 L1720 260 L1713 269 Z"/>
+      <path d="M1826 256 L1840 240 L1854 256 L1847 259 L1840 250 L1833 259 Z"/>
+      <path d="M1944 254 L1960 236 L1976 254 L1968 257 L1960 247 L1952 257 Z"/>
+      <path d="M2062 238 L2080 218 L2098 238 L2089 241 L2080 230 L2071 241 Z"/>
+      <path d="M2188 260 L2200 246 L2212 260 L2206 262 L2200 254 L2194 262 Z"/>
+    </g>
+
+    <rect x="0" y="286" width="2340" height="70" fill="url(#fog)" filter="url(#soft)"/>
+
+    <path d="M0 340 C 54 302 118 306 170 326 C 222 346 272 328 322 308 C 380 290 440 300 500 322 C 560 344 620 336 680 318 C 740 300 800 306 860 326 C 920 346 990 338 1050 316 C 1110 296 1170 300 1230 322 C 1290 344 1350 336 1410 316 C 1470 298 1530 304 1590 326 C 1650 348 1720 338 1780 318 C 1840 298 1900 300 1960 322 C 2020 344 2090 334 2150 314 C 2210 296 2280 300 2340 316 L2340 844 L0 844 Z" fill="url(#hillFar)"/>
+
+    <g>
+      <use href="#farTree" transform="translate(40,334)"/><use href="#farTree" transform="translate(56,330)"/><use href="#farTree" transform="translate(72,336)"/>
+      <use href="#farPine" transform="translate(130,322)"/><use href="#farTree" transform="translate(150,326)"/>
+      <use href="#farTree" transform="translate(380,304)"/><use href="#farPine" transform="translate(400,300)"/><use href="#farTree" transform="translate(418,306)"/>
+      <use href="#farTree" transform="translate(560,342)"/><use href="#farTree" transform="translate(578,344)"/>
+      <use href="#farPine" transform="translate(690,320)"/><use href="#farTree" transform="translate(708,322)"/><use href="#farPine" transform="translate(726,318)"/>
+      <use href="#farTree" transform="translate(900,340)"/><use href="#farTree" transform="translate(916,342)"/><use href="#farTree" transform="translate(934,338)"/>
+      <use href="#farPine" transform="translate(1060,314)"/><use href="#farTree" transform="translate(1080,318)"/>
+      <use href="#farTree" transform="translate(1250,340)"/><use href="#farPine" transform="translate(1270,336)"/>
+      <use href="#farTree" transform="translate(1420,318)"/><use href="#farTree" transform="translate(1440,316)"/><use href="#farPine" transform="translate(1458,312)"/>
+      <use href="#farPine" transform="translate(1600,330)"/><use href="#farTree" transform="translate(1620,334)"/>
+      <use href="#farPine" transform="translate(1790,318)"/><use href="#farPine" transform="translate(1808,314)"/><use href="#farPine" transform="translate(1826,320)"/>
+      <use href="#farPine" transform="translate(1980,326)"/><use href="#farPine" transform="translate(1996,322)"/>
+      <use href="#farPine" transform="translate(2160,316)"/><use href="#farPine" transform="translate(2180,312)"/><use href="#farPine" transform="translate(2200,318)"/>
+      <use href="#farPine" transform="translate(2290,312)"/>
+    </g>
+  </g>
+</svg>

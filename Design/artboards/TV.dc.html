@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wordhop — Apple TV</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Andika:wght@400;700&amp;display=swap">
+<style>
+body { margin: 0; font-family: Fredoka, system-ui, sans-serif; background: #1D1940; -webkit-font-smoothing: antialiased; }
+a { color: #FFD3A5; }
+a:hover { opacity: 0.85; }
+</style>
+</helmet>
+
+<div style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: #1D1940;">
+
+  <div style="position: absolute; left: 0px; top: 0px; width: 1500px; height: 844px; transform: scale(1.2796); transform-origin: 0 0; overflow: hidden; background: linear-gradient(180deg, #0F0D2A 0%, #241C4E 25%, #4A2F72 45%, #8A4478 60%, #D0603F 74%, #F29A4A 86%, #F8C56E 100%);">
+    <img src="./sky-dusk.svg" alt="" style="position: absolute; left: -130px; top: 0px; width: 2340px; height: 844px;">
+    <div style="position: absolute; left: 0px; top: 0px; width: 1500px; height: 844px; overflow: hidden;">
+      <img src="./layer-far.svg" alt="" style="position: absolute; left: -252px; top: 0px; width: 2340px; height: 844px; filter: brightness(0.48) saturate(0.7) sepia(0.4) hue-rotate(205deg) contrast(1.08);">
+      <img src="./layer-mid.svg" alt="" style="position: absolute; left: -504px; top: 0px; width: 2340px; height: 844px; filter: brightness(0.48) saturate(0.7) sepia(0.4) hue-rotate(205deg) contrast(1.08);">
+      <img src="./layer-near.svg" alt="" style="position: absolute; left: -840px; top: 0px; width: 2340px; height: 844px; filter: brightness(0.58) saturate(0.75) sepia(0.15) hue-rotate(18deg) contrast(1.06);">
+    </div>
+    <div style="position: absolute; left: 1080px; top: 20px; width: 520px; height: 520px; border-radius: 260px; background: radial-gradient(circle, rgba(255,138,61,0.5) 0%, rgba(255,120,60,0.18) 40%, rgba(255,120,60,0) 70%); mix-blend-mode: screen;"></div>
+    <div style="position: absolute; left: 0px; top: 300px; width: 1500px; height: 220px; background: linear-gradient(180deg, rgba(240,120,70,0) 0%, rgba(240,120,70,0.24) 50%, rgba(240,120,70,0) 100%); mix-blend-mode: screen;"></div>
+
+    <svg width="1500" height="844" viewBox="0 0 1500 844" fill="none" xmlns="http://www.w3.org/2000/svg" style="position: absolute; left: 0; top: 0;" aria-hidden="true">
+      <defs>
+        <radialGradient id="glowWarmT" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stop-color="#FFC96B" stop-opacity="0.85"></stop>
+          <stop offset="0.4" stop-color="#FFA24A" stop-opacity="0.35"></stop>
+          <stop offset="1" stop-color="#FFA24A" stop-opacity="0"></stop>
+        </radialGradient>
+        <radialGradient id="glowFireT" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stop-color="#FFB24A" stop-opacity="0.9"></stop>
+          <stop offset="0.45" stop-color="#FF7A2F" stop-opacity="0.4"></stop>
+          <stop offset="1" stop-color="#FF7A2F" stop-opacity="0"></stop>
+        </radialGradient>
+        <radialGradient id="fireflyT" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stop-color="#FFF3A0" stop-opacity="1"></stop>
+          <stop offset="0.3" stop-color="#FFE27A" stop-opacity="0.6"></stop>
+          <stop offset="1" stop-color="#FFE27A" stop-opacity="0"></stop>
+        </radialGradient>
+        <linearGradient id="flameT" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0" stop-color="#FF6A2A"></stop>
+          <stop offset="0.5" stop-color="#FFB23F"></stop>
+          <stop offset="1" stop-color="#FFF1B8"></stop>
+        </linearGradient>
+        <radialGradient id="foxBodyT" cx="0.4" cy="0.3" r="0.8">
+          <stop offset="0" stop-color="#E9955A"></stop>
+          <stop offset="0.6" stop-color="#C96E3C"></stop>
+          <stop offset="1" stop-color="#8A4A26"></stop>
+        </radialGradient>
+        <radialGradient id="foxHeadT" cx="0.45" cy="0.35" r="0.75">
+          <stop offset="0" stop-color="#F2A466"></stop>
+          <stop offset="1" stop-color="#B8632F"></stop>
+        </radialGradient>
+        <radialGradient id="moonGlowT" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stop-color="#FFF4D6" stop-opacity="0.9"></stop>
+          <stop offset="0.3" stop-color="#F6E3C0" stop-opacity="0.35"></stop>
+          <stop offset="1" stop-color="#F6E3C0" stop-opacity="0"></stop>
+        </radialGradient>
+        <radialGradient id="moonDiscT" cx="0.35" cy="0.3" r="0.8">
+          <stop offset="0" stop-color="#FFFBEE"></stop>
+          <stop offset="0.6" stop-color="#F7E9C6"></stop>
+          <stop offset="1" stop-color="#D9C39A"></stop>
+        </radialGradient>
+        <filter id="blurSmT" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"></feGaussianBlur></filter>
+        <filter id="blurMdT" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8"></feGaussianBlur></filter>
+        <filter id="softShadowT" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5"></feGaussianBlur></filter>
+      </defs>
+
+      <g>
+        <circle cx="300" cy="170" r="150" fill="url(#moonGlowT)"></circle>
+        <circle cx="300" cy="170" r="34" fill="url(#moonDiscT)"></circle>
+        <g fill="#D8C49C" opacity="0.7">
+          <circle cx="288" cy="158" r="7"></circle><circle cx="312" cy="178" r="4.5"></circle><circle cx="296" cy="186" r="3.4"></circle><circle cx="314" cy="154" r="2.6"></circle>
+        </g>
+        <circle cx="300" cy="170" r="34" fill="none" stroke="#FFF8E6" stroke-width="2" opacity="0.5"></circle>
+      </g>
+
+      <g transform="translate(1330,212) scale(0.62)">
+      <ellipse cx="-240" cy="-60" rx="96" ry="48" fill="url(#glowFireT)"></ellipse>
+      <path d="M-184 -70 C -218 -94 -260 -88 -290 -58 C -264 -46 -224 -42 -184 -52 Z" fill="#FF6A2A" opacity="0.55" filter="url(#blurMdT)"></path>
+      <path d="M-184 -68 C -216 -88 -254 -84 -282 -58 C -258 -48 -222 -44 -184 -54 Z" fill="#FF7A2F" opacity="0.95"></path>
+      <path d="M-186 -66 C -210 -78 -238 -74 -258 -60 C -238 -52 -212 -50 -186 -56 Z" fill="#FFB23F"></path>
+      <path d="M-188 -64 C -204 -70 -222 -68 -232 -60 C -222 -56 -204 -56 -188 -58 Z" fill="#FFF1B8"></path>
+      <g fill="#FF9A44">
+        <circle cx="-300" cy="-72" r="3"></circle><circle cx="-292" cy="-46" r="2.4"></circle><circle cx="-314" cy="-58" r="1.8"></circle><circle cx="-278" cy="-84" r="2"></circle><circle cx="-326" cy="-66" r="1.4"></circle>
+      </g>
+      <circle cx="-150" cy="-93" r="11" fill="#FFE27A" opacity="0.7" filter="url(#blurSmT)"></circle>
+      <ellipse cx="-150" cy="-93" rx="6" ry="5" fill="#FFF3B0"></ellipse>
+      <circle cx="-151" cy="-93" r="2.6" fill="#2E2A3B"></circle>
+      <path d="M-48 18 C -20 42 30 46 66 24" stroke="#FFB84A" stroke-width="22" stroke-linecap="round" fill="none" opacity="0.3" filter="url(#blurSmT)"></path>
+      <path d="M-52 16 C -82 0 -106 -26 -126 -58" stroke="#FFB84A" stroke-width="14" stroke-linecap="round" fill="none" opacity="0.25" filter="url(#blurSmT)"></path>
+    </g>
+
+      <g>
+        <circle cx="1160" cy="380" r="34" fill="url(#glowWarmT)"></circle>
+        <path d="M1160 364 C 1152 372 1152 382 1160 388 C 1168 382 1168 372 1160 364 Z" fill="url(#flameT)"></path>
+        <path d="M1160 372 C 1156 376 1156 382 1160 385 C 1164 382 1164 376 1160 372 Z" fill="#FFF6D0"></path>
+        <circle cx="1400" cy="374" r="34" fill="url(#glowWarmT)"></circle>
+        <path d="M1400 358 C 1392 366 1392 376 1400 382 C 1408 376 1408 366 1400 358 Z" fill="url(#flameT)"></path>
+        <path d="M1400 366 C 1396 370 1396 376 1400 379 C 1404 376 1404 370 1400 366 Z" fill="#FFF6D0"></path>
+      </g>
+
+      <g>
+        <rect x="942" y="270" width="16" height="24" rx="8" fill="#FFB23F" opacity="0.6" filter="url(#blurSmT)"></rect>
+        <rect x="944" y="272" width="12" height="20" rx="6" fill="#FFD27A"></rect>
+        <rect x="944" y="314" width="12" height="20" rx="6" fill="#FFC45E"></rect>
+        <rect x="948" y="354" width="12" height="22" rx="6" fill="#FFB23F"></rect>
+        <circle cx="954" cy="330" r="40" fill="url(#glowWarmT)" opacity="0.5"></circle>
+      </g>
+
+      <g>
+        <circle cx="332" cy="330" r="70" fill="url(#glowWarmT)" opacity="0.45"></circle>
+        <g fill="#FFD27A">
+          <rect x="254" y="290" width="10" height="18" rx="5"></rect><rect x="254" y="328" width="10" height="18" rx="5"></rect><rect x="254" y="364" width="10" height="16" rx="5"></rect>
+          <rect x="396" y="300" width="9" height="16" rx="4.5"></rect><rect x="396" y="338" width="9" height="16" rx="4.5"></rect>
+          <rect x="290" y="316" width="10" height="16" rx="5"></rect><rect x="322" y="316" width="10" height="16" rx="5"></rect><rect x="350" y="316" width="10" height="16" rx="5"></rect>
+        </g>
+        <path d="M318 400 L318 358 A 14 14 0 0 1 346 358 L346 400 Z" fill="#FFB23F" opacity="0.55"></path>
+        <ellipse cx="332" cy="404" rx="40" ry="8" fill="#FFB23F" opacity="0.3" filter="url(#blurSmT)"></ellipse>
+      </g>
+
+      <g fill="url(#fireflyT)">
+        <circle cx="1170" cy="392" r="7"></circle><circle cx="1232" cy="368" r="6"></circle><circle cx="1286" cy="404" r="7"></circle>
+        <circle cx="1440" cy="436" r="6"></circle><circle cx="1128" cy="416" r="5"></circle><circle cx="1350" cy="380" r="5"></circle>
+        <circle cx="1460" cy="300" r="5"></circle><circle cx="1210" cy="300" r="4"></circle>
+        <circle cx="520" cy="410" r="6"></circle><circle cx="640" cy="430" r="5"></circle><circle cx="760" cy="400" r="6"></circle><circle cx="880" cy="440" r="5"></circle>
+        <circle cx="120" cy="420" r="5"></circle><circle cx="220" cy="440" r="6"></circle>
+      </g>
+      <g fill="#FFF6C0">
+        <circle cx="1170" cy="392" r="1.6"></circle><circle cx="1232" cy="368" r="1.4"></circle><circle cx="1286" cy="404" r="1.6"></circle>
+        <circle cx="1440" cy="436" r="1.4"></circle><circle cx="520" cy="410" r="1.4"></circle><circle cx="760" cy="400" r="1.5"></circle><circle cx="220" cy="440" r="1.4"></circle>
+      </g>
+
+      <g transform="translate(1250,446)">
+        <circle cx="21" cy="-40" r="34" fill="url(#glowWarmT)"></circle>
+        <rect x="19" y="-34" width="3" height="58" rx="1.5" fill="#3B3054"></rect>
+        <path d="M12 -44 h18 v10 a9 9 0 0 1 -18 0 Z" fill="#FFD27A"></path>
+        <path d="M15 -42 h12 v8 a6 6 0 0 1 -12 0 Z" fill="#FFF6D0"></path>
+        <rect x="14" y="-48" width="14" height="5" rx="2" fill="#3B3054"></rect>
+        <ellipse cx="0" cy="4" rx="32" ry="7" fill="#FFB23F" opacity="0.14" filter="url(#softShadowT)"></ellipse>
+        <path d="M-20 -20 C -36 -26 -50 -38 -46 -54 C -34 -44 -26 -34 -16 -26 Z" fill="url(#foxBodyT)"></path>
+        <path d="M-46 -54 C -50 -48 -48 -40 -42 -38 C -44 -44 -44 -50 -46 -54 Z" fill="#FFE9C9"></path>
+        <rect x="-14" y="-14" width="7" height="16" rx="3.5" fill="#8A4A26"></rect>
+        <rect x="8" y="-14" width="7" height="16" rx="3.5" fill="#8A4A26"></rect>
+        <path d="M-20 -18 C -18 -32 -4 -36 8 -32 C 16 -28 18 -18 14 -10 C 6 -4 -14 -4 -20 -18 Z" fill="url(#foxBodyT)"></path>
+        <ellipse cx="0" cy="-14" rx="10" ry="6" fill="#FFE9C9"></ellipse>
+        <rect x="-6" y="-12" width="7" height="14" rx="3.5" fill="#C96E3C"></rect>
+        <rect x="14" y="-14" width="7" height="16" rx="3.5" fill="#C96E3C"></rect>
+        <circle cx="18" cy="-30" r="11.5" fill="url(#foxHeadT)"></circle>
+        <path d="M9 -37 L11 -52 L20 -40 Z" fill="#9E5228"></path>
+        <path d="M22 -38 L28 -51 L31 -37 Z" fill="#9E5228"></path>
+        <ellipse cx="26" cy="-26" rx="6.5" ry="5" fill="#FFE9C9"></ellipse>
+        <circle cx="30.5" cy="-27" r="2" fill="#1B1633"></circle>
+        <circle cx="20" cy="-32" r="2.5" fill="#1B1633"></circle>
+        <circle cx="21" cy="-33" r="0.9" fill="#FFFFFF"></circle>
+      </g>
+    </svg>
+  </div>
+
+  <div style="position: absolute; left: 96px; top: 96px; width: 1728px; display: flex; align-items: center; justify-content: space-between;">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <svg width="34" height="34" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <radialGradient id="ballLogoT" cx="0.35" cy="0.3" r="0.8">
+            <stop offset="0" stop-color="#FFD9A8"></stop>
+            <stop offset="0.35" stop-color="#FFA552"></stop>
+            <stop offset="1" stop-color="#D96A1B"></stop>
+          </radialGradient>
+        </defs>
+        <circle cx="13" cy="13" r="12" fill="url(#ballLogoT)"></circle>
+        <circle cx="9" cy="9" r="3.2" fill="#FFF1DC" opacity="0.9"></circle>
+      </svg>
+      <span style="font-size: 18px; font-weight: 600; letter-spacing: 0.18em; color: #F0E3D0;">DRAGON’S HILL · SENTENCE 6 OF 6</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <div style="display: inline-flex; align-items: center; gap: 16px; background: rgba(255,248,236,0.94); border-radius: 999px; padding: 16px 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2E2A3B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 11 a7 7 0 0 0 14 0"></path><path d="M12 18 v4"></path></svg>
+        <span style="display: flex; align-items: flex-end; gap: 4px; height: 24px;">
+          <span style="width: 5px; height: 14px; border-radius: 3px; background: #7CBA63; display: block;"></span>
+          <span style="width: 5px; height: 8px; border-radius: 3px; background: #7CBA63; display: block;"></span>
+          <span style="width: 5px; height: 22px; border-radius: 3px; background: #7CBA63; display: block;"></span>
+          <span style="width: 5px; height: 12px; border-radius: 3px; background: #7CBA63; display: block;"></span>
+          <span style="width: 5px; height: 17px; border-radius: 3px; background: #7CBA63; display: block;"></span>
+        </span>
+        <span style="font-size: 20px; font-weight: 500; color: #4A4458;">Listening</span>
+      </div>
+      <div style="display: inline-flex; align-items: center; gap: 10px; background: rgba(255,248,236,0.94); border-radius: 999px; padding: 16px 26px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#FFB23F" aria-hidden="true"><path d="M12 2.5 l2.9 6.2 6.6 .9 -4.8 4.7 1.2 6.7 -5.9 -3.2 -5.9 3.2 1.2 -6.7 -4.8 -4.7 6.6 -.9 Z"></path></svg>
+        <span style="font-size: 22px; font-weight: 600; color: #2E2A3B;">56</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="position: absolute; left: 240px; top: 560px; width: 1440px; height: 300px; box-sizing: border-box; background: #FFF8EC; border-radius: 56px; box-shadow: 0 22px 0 rgba(0,0,0,0.3), 0 50px 90px rgba(0,0,0,0.4); overflow: hidden;">
+
+    <svg width="1440" height="128" viewBox="0 0 1440 128" fill="none" xmlns="http://www.w3.org/2000/svg" style="position: absolute; left: 0; top: 26px;" aria-hidden="true">
+      <defs>
+        <radialGradient id="ballTV" cx="0.35" cy="0.3" r="0.8">
+          <stop offset="0" stop-color="#FFD9A8"></stop>
+          <stop offset="0.35" stop-color="#FFA552"></stop>
+          <stop offset="1" stop-color="#D96A1B"></stop>
+        </radialGradient>
+      </defs>
+      <path d="M368 106 Q 552 6 720 84" stroke="#2E2A3B" stroke-opacity="0.16" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 16" fill="none"></path>
+      <ellipse cx="720" cy="118" rx="30" ry="7" fill="#2E2A3B" opacity="0.14"></ellipse>
+      <circle cx="720" cy="80" r="34" fill="url(#ballTV)"></circle>
+      <circle cx="708" cy="66" r="9" fill="#FFF1DC" opacity="0.9"></circle>
+    </svg>
+
+    <div style="position: absolute; left: 79px; top: 168px; height: 120px; display: flex; align-items: center; justify-content: flex-start; gap: 32px; white-space: nowrap;">
+      <span style="font-family: Andika, Georgia, serif; font-size: 48px; font-weight: 700; color: #8A5A12; background: #FFE0A8; border-radius: 18px; padding: 6px 14px;">the</span>
+      <span style="font-family: Andika, Georgia, serif; font-size: 48px; font-weight: 700; color: #8A5A12; background: #FFE0A8; border-radius: 18px; padding: 6px 14px;">dragon</span>
+      <span style="font-family: Andika, Georgia, serif; font-size: 144px; font-weight: 700; color: #2E2A3B; letter-spacing: -0.015em; line-height: 1;">guarded</span>
+      <span style="font-family: Andika, Georgia, serif; font-size: 48px; font-weight: 700; color: #6E6780;">the</span>
+      <span style="font-family: Andika, Georgia, serif; font-size: 48px; font-weight: 700; color: #9A94A6;">gold</span>
+    </div>
+  </div>
+
+  <div style="position: absolute; left: 240px; top: 900px; width: 1440px;">
+    <div style="font-size: 16px; font-weight: 600; letter-spacing: 0.18em; color: #F0E3D0; margin-bottom: 18px; text-align: center;">LAST SENTENCE OF THE STORY</div>
+    <svg width="1440" height="32" viewBox="0 0 1440 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M20 16 H1420" stroke="#FFF8EC" stroke-opacity="0.22" stroke-width="6" stroke-linecap="round"></path>
+      <path d="M20 16 H1140" stroke="#FFB23F" stroke-width="6" stroke-linecap="round"></path>
+      <circle cx="20" cy="16" r="10" fill="#FFB23F"></circle>
+      <circle cx="300" cy="16" r="10" fill="#FFB23F"></circle>
+      <circle cx="580" cy="16" r="10" fill="#FFB23F"></circle>
+      <circle cx="860" cy="16" r="10" fill="#FFB23F"></circle>
+      <circle cx="1140" cy="16" r="10" fill="#FFB23F"></circle>
+      <circle cx="1420" cy="16" r="15" fill="#2A1F4C"></circle>
+      <circle cx="1420" cy="16" r="15" fill="none" stroke="#FFB23F" stroke-width="6"></circle>
+      <circle cx="1420" cy="16" r="5" fill="#FFB23F"></circle>
+    </svg>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1920,"height":1080}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>
