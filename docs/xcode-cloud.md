@@ -118,6 +118,16 @@ started by anything but a tag fails the same way.
 TestFlight rejects a build number it has already seen, so the half after the dash increments for
 every upload of the same version — `v1.0.0-1`, `v1.0.0-2` — and resets when the version changes.
 
+`agvtool` alone is not enough. Xcode Cloud passes its own build number on the `xcodebuild` command
+line, and a command-line setting beats the project, so `$(CURRENT_PROJECT_VERSION)` in `Info.plist`
+resolves to Xcode Cloud's counter rather than the tag — `v1.0.0-2` shipped as **1.0.0 (41)**. The
+script therefore writes both numbers into `Info.plist` as literals, leaving nothing to substitute,
+and prints what it stamped so a build log settles any argument.
+
+One consequence of that first mistake: build 41 is now spent against version 1.0.0. App Store
+Connect wants a build number it has not seen for a given version, so the next 1.0.0 release has to
+clear 41 — `v1.0.0-42` — or move the version instead, `v1.0.1-1`. The latter is cleaner.
+
 To cut one:
 
 ```sh
