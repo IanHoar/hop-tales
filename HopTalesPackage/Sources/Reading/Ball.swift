@@ -1,33 +1,43 @@
+import Content
 import DesignSystem
 import SwiftUI
 
 struct Ball: View {
   let wordIndex: Int
+  var settledIndex: Int?
+  var words: [Word] = []
   var completionCount = 0
   let geometry: ReadingGeometry
+  var onLanded: (Int) -> Void = { _ in }
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(\.freezesMotion) private var freezesMotion
   @State private var physics = BallPhysics()
+  @State private var flights = 0
   private var radius: CGFloat { geometry.scaled(geometry.metrics.ballRadius) }
   private var centerY: CGFloat { geometry.scaled(48) }
   private var shadowY: CGFloat { geometry.scaled(70) }
+  static let trailLength = 6
+  static let trailSpacing: TimeInterval = 0.03
 
   var body: some View {
     Group {
       if freezesMotion {
-        scene(.resting)
+        scene(.resting, trail: [])
       } else {
         TimelineView(.animation) { context in
-          scene(physics.pose(at: Self.seconds(context.date), reduceMotion: reduceMotion))
+          let now = Self.seconds(context.date)
+          scene(
+            physics.pose(at: now, reduceMotion: reduceMotion),
+            trail: reduceMotion
+              ? [] : physics.trail(at: now, count: Self.trailLength, spacing: Self.trailSpacing)
+          )
         }
       }
     }
     .frame(width: geometry.cardSize.width, height: geometry.ballLaneHeight)
     .allowsHitTesting(false)
     .accessibilityHidden(true)
-    .onChange(of: wordIndex) { _, _ in
-      physics.jump(at: Self.seconds(.now), reduceMotion: reduceMotion)
-    }
+    .onChange(of: wordIndex) { _, target in hop(to: target) }
     .onChange(of: completionCount) { _, _ in doubleHop() }
   }
 
@@ -35,22 +45,37 @@ struct Ball: View {
     date.timeIntervalSinceReferenceDate
   }
 
-  private func scene(_ pose: BallPhysics.Pose) -> some View {
+  private func point(_ pose: BallPhysics.Pose) -> CGPoint {
+    CGPoint(
+      x: geometry.cardSize.width / 2 + pose.x,
+      y: centerY - geometry.scaled(pose.height)
+    )
+  }
+
+  private func scene(_ pose: BallPhysics.Pose, trail: [BallPhysics.Pose?]) -> some View {
     ZStack(alignment: .top) {
-      shadow(height: min(pose.height / BallPhysics.jumpApex, 1))
+      shadow(x: pose.x, height: min(pose.height / BallPhysics.jumpApex, 1))
+      ForEach(Array(trail.enumerated()), id: \.offset) { step, past in
+        if let past {
+          let fade = 1 - CGFloat(step + 1) / CGFloat(trail.count + 1)
+          Star()
+            .fill(Palette.amber.opacity(fade))
+            .frame(width: radius * fade, height: radius * fade)
+            .position(point(past))
+        }
+      }
       sphere
         .frame(width: radius * 2, height: radius * 2)
         .scaleEffect(x: pose.scaleX, y: pose.scaleY, anchor: .bottom)
-        .position(x: geometry.cardSize.width / 2, y: centerY)
-        .offset(y: -geometry.scaled(pose.height))
+        .position(point(pose))
     }
   }
 
-  private func shadow(height: CGFloat) -> some View {
+  private func shadow(x: CGFloat, height: CGFloat) -> some View {
     Ellipse()
       .fill(Palette.ink.opacity(0.14 * (1 - 0.5 * height)))
       .frame(width: geometry.scaled(34) * (1 - 0.35 * height), height: geometry.scaled(8))
-      .position(x: geometry.cardSize.width / 2, y: shadowY)
+      .position(x: geometry.cardSize.width / 2 + x, y: shadowY)
   }
 
   private var sphere: some View {
@@ -71,11 +96,30 @@ struct Ball: View {
       }
   }
 
+  private func hop(to target: Int) {
+    guard !reduceMotion, !freezesMotion else {
+      onLanded(target)
+      return
+    }
+    let distance = WordRow.hopDistance(
+      words: words,
+      from: settledIndex ?? wordIndex,
+      to: target,
+      geometry: geometry
+    )
+    let landing = physics.jump(at: Self.seconds(.now), distance: distance)
+    flights += 1
+    let flight = flights
+    Task { @MainActor in
+      try? await Task.sleep(for: .seconds(landing))
+      guard flights == flight else { return }
+      onLanded(target)
+    }
+  }
+
   private func doubleHop() {
     guard !reduceMotion else { return }
-    let now = Self.seconds(.now)
-    let landing = BallPhysics.timeToLanding(from: physics.pose(at: now).height)
-    physics.jump(at: now)
+    let landing = physics.jump(at: Self.seconds(.now))
     Task { @MainActor in
       try? await Task.sleep(for: .seconds(landing))
       physics.jump(at: Self.seconds(.now))

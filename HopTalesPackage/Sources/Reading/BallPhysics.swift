@@ -1,8 +1,9 @@
-import CoreGraphics
-import Foundation
+import DesignSystem
+import SwiftUI
 
 struct BallPhysics: Equatable {
   struct Pose: Equatable {
+    var x: CGFloat = 0
     var height: CGFloat
     var scaleX: CGFloat
     var scaleY: CGFloat
@@ -15,28 +16,25 @@ struct BallPhysics: Equatable {
   }
 
   enum Segment: Equatable {
-    case crouch(TimeInterval)
     case flight(from: CGFloat, apex: CGFloat)
     case contact(speed: CGFloat)
-    case rest(TimeInterval)
+    case ride(TimeInterval)
   }
 
   struct Jump: Equatable {
     var start: TimeInterval
     var from: CGFloat
+    var fromX: CGFloat
+    var distance: CGFloat
   }
 
   static let idleApex: CGFloat = 26
   static let jumpApex: CGFloat = 46
   static let jumpFlight: TimeInterval = 0.45
   static let gravity = 8 * jumpApex / CGFloat(jumpFlight * jumpFlight)
-  static let restitution: CGFloat = 0.45
-  static let idlePeriod: TimeInterval = 0.72
-  static let anticipation: TimeInterval = 0.07
-  static let crouchDepth: CGFloat = 0.14
-  static let settle: TimeInterval = 0.12
+  static let contactTime: TimeInterval = 0.07
   static let reducedBob: CGFloat = 2
-  static let smallestBounce: CGFloat = 1
+  static let reducedPeriod: TimeInterval = 0.72
   static let referenceSpeed = gravity * CGFloat(jumpFlight / 2)
   static let stretch: CGFloat = 0.12
   static let impactSquash: CGFloat = 0.24
@@ -45,26 +43,21 @@ struct BallPhysics: Equatable {
   var jump: Jump?
 
   static var idleSegments: [Segment] {
-    let hops = bouncing(from: 0, apex: idleApex)
-    return hops + [.rest(max(idlePeriod - duration(hops), 0))]
+    [.flight(from: 0, apex: idleApex), .contact(speed: impactSpeed(apex: idleApex))]
   }
+
+  static var idlePeriod: TimeInterval { duration(idleSegments) }
 
   static func jumpSegments(from height: CGFloat) -> [Segment] {
-    let crouch: [Segment] = height > 0 ? [] : [.crouch(anticipation)]
-    return crouch + bouncing(from: height, apex: jumpApex) + [.rest(settle)]
+    [
+      .flight(from: height, apex: jumpApex),
+      .contact(speed: impactSpeed(apex: jumpApex)),
+      .ride(Motion.ride)
+    ]
   }
 
-  static func bouncing(from height: CGFloat, apex: CGFloat) -> [Segment] {
-    var segments: [Segment] = []
-    var start = height
-    var peak = apex
-    while peak >= smallestBounce {
-      segments.append(.flight(from: start, apex: peak))
-      segments.append(.contact(speed: impactSpeed(apex: peak)))
-      start = 0
-      peak *= restitution * restitution
-    }
-    return segments
+  static func landing(from height: CGFloat) -> TimeInterval {
+    duration(Array(jumpSegments(from: height).prefix(2)))
   }
 
   static func impactSpeed(apex: CGFloat) -> CGFloat {
@@ -73,14 +66,14 @@ struct BallPhysics: Equatable {
 
   static func duration(_ segment: Segment) -> TimeInterval {
     switch segment {
-    case let .crouch(time), let .rest(time):
-      return time
     case let .flight(from, apex):
       let rising = sqrt(2 * max(apex - from, 0) / gravity)
       let falling = sqrt(2 * apex / gravity)
       return TimeInterval(rising + falling)
-    case let .contact(speed):
-      return max(0.05 * TimeInterval(min(speed / referenceSpeed, 1.2)), 0.02)
+    case .contact:
+      return contactTime
+    case let .ride(length):
+      return length
     }
   }
 
@@ -88,25 +81,11 @@ struct BallPhysics: Equatable {
     segments.reduce(0) { $0 + duration($1) }
   }
 
-  static func timeToLanding(from height: CGFloat) -> TimeInterval {
-    let segments = jumpSegments(from: height)
-    guard let flight = segments.firstIndex(where: {
-      if case .flight = $0 { return true }
-      return false
-    }) else { return 0 }
-    return duration(Array(segments[...flight]))
-  }
-
   static func pose(for segment: Segment, at time: TimeInterval) -> Pose {
     switch segment {
-    case let .crouch(length):
-      return .squashed(by: crouchDepth * CGFloat(sin(.pi * time / length)))
-    case .rest:
-      return .resting
     case let .contact(speed):
-      let length = duration(segment)
       let depth = min(impactSquash * speed / referenceSpeed, 0.28)
-      return .squashed(by: depth * CGFloat(sin(.pi * time / length)))
+      return .squashed(by: depth * CGFloat(sin(.pi * time / contactTime)))
     case let .flight(from, apex):
       let launch = sqrt(2 * gravity * max(apex - from, 0))
       let t = CGFloat(time)
@@ -114,40 +93,76 @@ struct BallPhysics: Equatable {
       let speed = abs(launch - gravity * t)
       let lengthening = 1 + stretch * min(speed / referenceSpeed, 1.25)
       return Pose(height: height, scaleX: 1 / lengthening, scaleY: lengthening)
+    case .ride:
+      return .resting
     }
   }
 
-  static func pose(in segments: [Segment], at time: TimeInterval) -> Pose {
+  static func locate(
+    in segments: [Segment],
+    at time: TimeInterval
+  ) -> (segment: Segment, elapsed: TimeInterval)? {
     var remaining = time
     for segment in segments {
       let length = duration(segment)
-      if remaining < length { return pose(for: segment, at: remaining) }
+      if remaining < length { return (segment, remaining) }
       remaining -= length
     }
-    return .resting
+    return nil
+  }
+
+  private func jumpPose(at time: TimeInterval) -> Pose? {
+    guard let jump else { return nil }
+    let elapsed = time - jump.start
+    guard elapsed >= 0,
+      let (segment, into) = Self.locate(in: Self.jumpSegments(from: jump.from), at: elapsed)
+    else { return nil }
+    var pose = Self.pose(for: segment, at: into)
+    switch segment {
+    case .flight:
+      let progress = CGFloat(into / Self.duration(segment))
+      pose.x = jump.fromX + (jump.distance - jump.fromX) * progress
+    case .contact:
+      pose.x = jump.distance
+    case let .ride(length):
+      pose.x = jump.distance * (1 - CGFloat(Motion.rideCurve.value(at: into / length)))
+    }
+    return pose
+  }
+
+  func isFlying(at time: TimeInterval) -> Bool {
+    guard let jump else { return false }
+    let elapsed = time - jump.start
+    return elapsed >= 0 && elapsed < Self.duration(.flight(from: jump.from, apex: Self.jumpApex))
   }
 
   func pose(at time: TimeInterval, reduceMotion: Bool = false) -> Pose {
     if reduceMotion {
-      let phase = (time - idleEpoch) / Self.idlePeriod
+      let phase = (time - idleEpoch) / Self.reducedPeriod
       let bob = Self.reducedBob * CGFloat(0.5 - 0.5 * cos(2 * .pi * phase))
       return Pose(height: bob, scaleX: 1, scaleY: 1)
     }
-    if let jump {
-      let segments = Self.jumpSegments(from: jump.from)
-      let elapsed = time - jump.start
-      if elapsed >= 0, elapsed < Self.duration(segments) {
-        return Self.pose(in: segments, at: elapsed)
-      }
-    }
+    if let pose = jumpPose(at: time) { return pose }
     let cycle = (time - idleEpoch).truncatingRemainder(dividingBy: Self.idlePeriod)
-    return Self.pose(in: Self.idleSegments, at: cycle < 0 ? cycle + Self.idlePeriod : cycle)
+    let phase = cycle < 0 ? cycle + Self.idlePeriod : cycle
+    guard let (segment, elapsed) = Self.locate(in: Self.idleSegments, at: phase) else {
+      return .resting
+    }
+    return Self.pose(for: segment, at: elapsed)
   }
 
-  mutating func jump(at time: TimeInterval, reduceMotion: Bool = false) {
-    guard !reduceMotion else { return }
-    let from = pose(at: time).height
-    jump = Jump(start: time, from: from)
-    idleEpoch = time + Self.duration(Self.jumpSegments(from: from))
+  func trail(at time: TimeInterval, count: Int, spacing: TimeInterval) -> [Pose?] {
+    (1...count).map { step in
+      let past = time - Double(step) * spacing
+      return isFlying(at: past) ? pose(at: past) : nil
+    }
+  }
+
+  @discardableResult
+  mutating func jump(at time: TimeInterval, distance: CGFloat = 0) -> TimeInterval {
+    let now = pose(at: time)
+    jump = Jump(start: time, from: now.height, fromX: now.x, distance: distance)
+    idleEpoch = time + Self.duration(Self.jumpSegments(from: now.height))
+    return Self.landing(from: now.height)
   }
 }

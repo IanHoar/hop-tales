@@ -251,12 +251,6 @@ public struct ReadingScreen: View {
     .id(store.sentenceIndex)
     .transition(.move(edge: .trailing).combined(with: .opacity))
     .animation(Motion.recognised, value: store.sentenceIndex)
-    .overlay {
-      if flash != nil, !reduceMotion {
-        Sparkles(geometry: geometry)
-          .accessibilityHidden(true)
-      }
-    }
     .contentShape(.rect)
     .onTapGesture { store.send(.currentWordTapped) }
     .accessibilityElement(children: .ignore)
