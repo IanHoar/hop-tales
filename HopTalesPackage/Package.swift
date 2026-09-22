@@ -73,7 +73,8 @@ let package = Package(
       name: "World",
       dependencies: [
         "DesignSystem"
-      ]
+      ],
+      resources: [.process("Resources")]
     ),
     .testTarget(
       name: "AppFeatureTests",
@@ -103,6 +104,10 @@ let package = Package(
     .testTarget(
       name: "ContentTests",
       dependencies: ["Content"]
+    ),
+    .testTarget(
+      name: "WorldTests",
+      dependencies: ["World"]
     ),
     .testTarget(
       name: "SpeechTests",
