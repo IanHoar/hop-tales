@@ -90,6 +90,7 @@ let package = Package(
       dependencies: [
         "Content",
         "DesignSystem",
+        "Home",
         "Reading",
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
       ],
