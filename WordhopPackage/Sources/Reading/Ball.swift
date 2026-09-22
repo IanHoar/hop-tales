@@ -5,45 +5,57 @@ import SwiftUI
 ///
 /// It idles at the card's centre because the current word is pinned there. When a word is read the
 /// ball arcs up and settles while the row slides the next word underneath it.
+///
+/// - Note: The hop is ballistic rather than the `cubic-bezier(0.3, 0, 0.2, 1)` in the spec. That
+///   curve is slow at both ends, so the ball hangs at the apex and mushes into the ground; a ball
+///   leaves the ground at its fastest, decelerates into the apex, accelerates back down and snaps
+///   on contact. Same 0.72s period and −26 apex.
 struct Ball: View {
   /// Changes whenever a word is read, which is what triggers the arc.
   let wordIndex: Int
   let geometry: ReadingGeometry
 
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
-  @State private var idleOffset: CGFloat = 0
   @State private var arcOffset: CGFloat = 0
 
   /// Artboard geometry inside the 78pt lane: ball centre at y 48, shadow at y 70.
   private var radius: CGFloat { geometry.scaled(geometry.metrics.ballRadius) }
   private var centerY: CGFloat { geometry.scaled(48) }
   private var shadowY: CGFloat { geometry.scaled(70) }
-
-  private var offset: CGFloat { idleOffset + arcOffset }
-
-  /// How high the ball is right now, 0 (resting) to 1 (top of an idle hop). The shadow shrinks and
-  /// fades as it climbs.
-  private var height: CGFloat {
-    min(abs(offset) / geometry.scaled(abs(Motion.ballApexIdle)), 1)
+  private var apex: CGFloat {
+    geometry.scaled(reduceMotion ? Motion.reducedHopOffset : Motion.ballApexIdle)
   }
 
   var body: some View {
-    ZStack(alignment: .top) {
-      Ellipse()
-        .fill(Palette.ink.opacity(0.14 * (1 - 0.4 * height)))
-        .frame(width: geometry.scaled(34) * (1 - 0.25 * height), height: geometry.scaled(8))
-        .position(x: 0, y: shadowY)
-        .offset(x: geometry.cardSize.width / 2)
-
-      sphere
-        .frame(width: radius * 2, height: radius * 2)
-        .position(x: geometry.cardSize.width / 2, y: centerY)
-        .offset(y: offset)
+    KeyframeAnimator(initialValue: Hop(), repeating: true) { hop in
+      let offset = hop.y * apex + arcOffset
+      ZStack(alignment: .top) {
+        shadow(height: height(of: offset))
+        sphere
+          .frame(width: radius * 2, height: radius * 2)
+          .scaleEffect(x: hop.scaleX, y: hop.scaleY, anchor: .bottom)
+          .position(x: geometry.cardSize.width / 2, y: centerY)
+          .offset(y: offset)
+      }
+    } keyframes: { _ in
+      Hop.track(squash: !reduceMotion)
     }
     .frame(width: geometry.cardSize.width, height: geometry.ballLaneHeight)
     .allowsHitTesting(false)
-    .onAppear(perform: startIdleHop)
     .onChange(of: wordIndex) { _, _ in arc() }
+  }
+
+  /// How high the ball is, 0 (resting) to 1 (apex of an idle hop). The shadow sells the height.
+  private func height(of offset: CGFloat) -> CGFloat {
+    guard apex != 0 else { return 0 }
+    return min(abs(offset / apex), 1)
+  }
+
+  private func shadow(height: CGFloat) -> some View {
+    Ellipse()
+      .fill(Palette.ink.opacity(0.14 * (1 - 0.4 * height)))
+      .frame(width: geometry.scaled(34) * (1 - 0.25 * height), height: geometry.scaled(8))
+      .position(x: geometry.cardSize.width / 2, y: shadowY)
   }
 
   private var sphere: some View {
@@ -64,24 +76,48 @@ struct Ball: View {
       }
   }
 
-  private func startIdleHop() {
-    // Reduce Motion keeps a small bob so the ball still reads as alive, without the travel.
-    let apex = reduceMotion ? Motion.reducedHopOffset : Motion.ballApexIdle
-    withAnimation(Motion.idleHop) {
-      idleOffset = geometry.scaled(apex)
-    }
-  }
-
-  /// The recognised hop: up to apex −46 and back down over 0.45s, on top of the idle bounce.
+  /// The recognised hop: higher than an idle one, on top of the idle bounce so the two compose.
   private func arc() {
     guard !reduceMotion else { return }
-    let apex = geometry.scaled(Motion.ballApexRecognised - Motion.ballApexIdle)
+    let extra = geometry.scaled(Motion.ballApexRecognised - Motion.ballApexIdle)
     withAnimation(.easeOut(duration: 0.225)) {
-      arcOffset = apex
+      arcOffset = extra
     } completion: {
       withAnimation(.easeIn(duration: 0.225)) {
         arcOffset = 0
       }
+    }
+  }
+}
+
+/// One cycle of the hop: height as a fraction of the apex, plus squash and stretch.
+struct Hop {
+  /// 0 on the ground, 1 at the apex.
+  var y: CGFloat = 0
+  var scaleX: CGFloat = 1
+  var scaleY: CGFloat = 1
+
+  /// Gravity, not easing: the rise decelerates into the apex and the fall accelerates out of it,
+  /// which is why the velocities are pinned rather than left to the interpolator.
+  @KeyframesBuilder<Hop>
+  static func track(squash: Bool) -> some Keyframes<Hop> {
+    KeyframeTrack(\Hop.y) {
+      CubicKeyframe(1, duration: 0.33, startVelocity: 4.4, endVelocity: 0)
+      CubicKeyframe(0, duration: 0.33, startVelocity: 0, endVelocity: -4.4)
+      // A beat on the ground so the hops read as separate, not as a sine wave.
+      LinearKeyframe(0, duration: 0.06)
+    }
+    KeyframeTrack(\Hop.scaleX) {
+      LinearKeyframe(squash ? 0.97 : 1, duration: 0.33)
+      LinearKeyframe(1, duration: 0.29)
+      SpringKeyframe(squash ? 1.12 : 1, duration: 0.04, spring: .snappy)
+      SpringKeyframe(1, duration: 0.06, spring: .bouncy)
+    }
+    KeyframeTrack(\Hop.scaleY) {
+      LinearKeyframe(squash ? 1.04 : 1, duration: 0.33)
+      LinearKeyframe(1, duration: 0.29)
+      SpringKeyframe(squash ? 0.88 : 1, duration: 0.04, spring: .snappy)
+      SpringKeyframe(1, duration: 0.06, spring: .bouncy)
     }
   }
 }
