@@ -36,6 +36,13 @@ fi
 echo "Trusting package macros for this build."
 defaults write com.apple.dt.Xcode IDESkipMacroFingerprintValidation -bool YES
 
+# swift-syntax is the single biggest thing in the graph — TCA26's macros and snapshot-testing both
+# pull it — and compiling it from source is most of a build. Swift 6.1.1 and later can download a
+# prebuilt binary instead. If there is no prebuilt for the resolved version, this is simply ignored
+# and the build compiles it as before.
+echo "Preferring prebuilt swift-syntax."
+defaults write com.apple.dt.Xcode IDEPackageEnablePrebuilts -bool YES
+
 # Xcode Cloud rewrites GitHub URLs to http:// for its caching proxy, and git applies insteadOf
 # exactly once, against the original URL — so a rule keyed on the rewritten http:// form never gets
 # a turn. That is how the first builds failed: git ended up asking for a username on
