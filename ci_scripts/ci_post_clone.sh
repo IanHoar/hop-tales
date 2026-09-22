@@ -36,9 +36,15 @@ fi
 echo "Trusting package macros for this build."
 defaults write com.apple.dt.Xcode IDESkipMacroFingerprintValidation -bool YES
 
-# Keep the token out of the log: no xtrace, and git stores it in a config file rather than in a
-# command line that shows up in process listings.
+# Xcode Cloud rewrites GitHub URLs to http:// for its caching proxy, so a rule keyed on
+# https://github.com/ never fires — which is how the first build failed, with git asking for a
+# username on http://github.com. Two rules, both scoped to the one org that needs them:
+#
+#   1. Force https for pointfreeco. The longest matching prefix wins, so this beats the platform's
+#      own rewrite without touching any other repository.
+#   2. Supply the token through a credential helper rather than embedding it in a URL, so it never
+#      lands in a config file, a remote, or a log line.
 echo "Authenticating package resolution for private dependencies."
-git config --global \
-  "url.https://x-access-token:${TCA26_TOKEN}@github.com/.insteadOf" \
-  "https://github.com/"
+git config --global "url.https://github.com/pointfreeco/.insteadOf" "http://github.com/pointfreeco/"
+git config --global "credential.https://github.com.helper" \
+  '!f() { test "$1" = get && printf "username=x-access-token\npassword=%s\n" "$TCA26_TOKEN"; }; f'
