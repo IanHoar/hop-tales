@@ -5,6 +5,7 @@ import SwiftUI
 struct WordCard: View {
   let words: [Word]
   let currentIndex: Int
+  var recognisedIndex: Int?
   let geometry: ReadingGeometry
   var sceneShadow: Color = Palette.SceneShadow.meadow
 
@@ -13,7 +14,12 @@ struct WordCard: View {
       Ball(wordIndex: currentIndex, geometry: geometry)
         .padding(.top, geometry.scaled(14))
 
-      WordRow(words: words, currentIndex: currentIndex, geometry: geometry)
+      WordRow(
+        words: words,
+        currentIndex: currentIndex,
+        recognisedIndex: recognisedIndex,
+        geometry: geometry
+      )
         .frame(height: geometry.scaled(84))
         .padding(.top, geometry.scaled(96))
     }
