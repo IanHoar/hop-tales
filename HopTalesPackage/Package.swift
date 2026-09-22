@@ -3,7 +3,7 @@
 import PackageDescription
 
 let package = Package(
-  name: "WordhopPackage",
+  name: "HopTalesPackage",
   platforms: [
     .iOS(.v27)
   ],

@@ -2,13 +2,13 @@
 # wrapped at 100, imports alphabetised. Rules that would only nag are left off.
 
 included:
-  - Wordhop
-  - WordhopPackage/Sources
-  - WordhopPackage/Tests
+  - Hop Tales
+  - HopTalesPackage/Sources
+  - HopTalesPackage/Tests
 
 excluded:
   - .build
-  - WordhopPackage/Tests/SnapshotTests/__Snapshots__
+  - HopTalesPackage/Tests/SnapshotTests/__Snapshots__
 
 disabled_rules:
   - todo  # TODO(#N) markers point at tracked issues; they are the plan, not debt.

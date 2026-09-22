@@ -1,4 +1,4 @@
-# Wordhop — engineering handoff
+# Hop Tales — engineering handoff
 
 A read-aloud game for early readers. A large word sits in the middle of the screen with a bouncing ball on top. When the child says the word, the ball hops to the next one, the finished word shrinks into an amber pill and slides left, and the world behind the card scrolls forward. Six sentences per story. The world escalates from a quiet meadow to a castle road to a dragon's hill at dusk — the harder it gets, the cooler it looks.
 
@@ -261,8 +261,8 @@ Rasterise with a script at build time (keep SVG as source):
 # e.g. scripts/render-assets.sh — needs rsvg-convert or Chromium
 for f in Design/world/*.svg; do
   n=$(basename "$f" .svg)
-  rsvg-convert -w 4680 "$f" -o "Wordhop/Assets.xcassets/World/$n.imageset/$n@2x.png"
-  rsvg-convert -w 7020 "$f" -o "Wordhop/Assets.xcassets/World/$n.imageset/$n@3x.png"
+  rsvg-convert -w 4680 "$f" -o "HopTales/Assets.xcassets/World/$n.imageset/$n@2x.png"
+  rsvg-convert -w 7020 "$f" -o "HopTales/Assets.xcassets/World/$n.imageset/$n@3x.png"
 done
 ```
 
@@ -277,7 +277,7 @@ Characters that need frames for v1: fox (idle/trot/celebrate), ball (none — pr
 ## 8. Architecture
 
 ```
-WordhopApp (SwiftUI)
+HopTalesApp (SwiftUI)
  ├─ AppStore (@Observable)          progress, stars, settings, current story/sentence/word
  ├─ SpeechEngine                    AVAudioEngine + SFSpeechRecognizer, publishes .heard(word) / .silence(seconds)
  ├─ WordMatcher                     pure function: (transcriptTokens, target, next, strictness) -> Match?

@@ -4,7 +4,7 @@ Two workflows: one that checks every pull request, one that puts `main` on TestF
 is 25 compute hours a month, which is the reason the PR workflow builds and tests rather than
 archives.
 
-The repository side is done — `ci_scripts/` and a shared `Wordhop` scheme are committed. What is
+The repository side is done — `ci_scripts/` and a shared `HopTales` scheme are committed. What is
 left is account setup, and it has to happen in the Xcode or App Store Connect UI.
 
 ## What the scripts do
@@ -56,13 +56,13 @@ Once the renewal goes through:
 
 ### 1. Create the app record
 
-Bundle ID `com.ianhoar.wordhop`, on the team from step 0. Creating the first Xcode Cloud workflow
+Bundle ID `com.hoptales.ios`, on the team from step 0. Creating the first Xcode Cloud workflow
 offers to create this record for you, which also closes issue #28.
 
 ### 2. Connect the repository
 
 Xcode → Product → Xcode Cloud → Create Workflow, and grant the Xcode Cloud GitHub App access to
-`IanHoar/reading-app`. **Installing that app is also what posts build status back to pull
+`IanHoar/hop-tales`. **Installing that app is also what posts build status back to pull
 requests** — there is no separate step for it, and no webhook to configure.
 
 ### 3. Add the token for the private dependency
@@ -85,10 +85,10 @@ package resolution fail with something cryptic.
 - **Start Condition:** Pull Request Changes, target branch `main`.
 - **Actions:** Build, then Test.
 - **Test destination: iPhone 18 Pro, iOS 27 — pin it.** The snapshot references in
-  `WordhopPackage/Tests/SnapshotTests/__Snapshots__` were recorded on that simulator. A different
+  `HopTalesPackage/Tests/SnapshotTests/__Snapshots__` were recorded on that simulator. A different
   device or OS renders text fractionally differently and the snapshot tests fail on noise rather
   than on a real change.
-- Scheme `Wordhop`, which runs all four package test targets.
+- Scheme `HopTales`, which runs all four package test targets.
 
 Once a build has reported once, add its check to the branch protection rule on `main` so a red build
 blocks the merge.

@@ -1,11 +1,11 @@
-# Contributing to Wordhop
+# Contributing to Hop Tales
 
 ## Setup
 
 ```sh
 brew install swiftlint   # the hooks and the build both use it
 ./scripts/setup-git.sh   # commit template + hooks, once per clone
-open Wordhop.xcworkspace # not the .xcodeproj
+open HopTales.xcworkspace # not the .xcodeproj
 ```
 
 ## Style
@@ -97,7 +97,7 @@ left out.
 ## Before you open one
 
 - `xcodegen generate` if you added files or targets, and commit the regenerated `.xcodeproj`.
-- All tests green through the `Wordhop` scheme.
+- All tests green through the `HopTales` scheme.
 - Re-record snapshot references if the UI legitimately changed, and say so in the pull request.
 - `docs/HANDOFF.md` is the spec. If the code has to differ from it, amend the spec in the same pull
   request and say why — a spec that quietly disagrees with the app is worse than no spec.
