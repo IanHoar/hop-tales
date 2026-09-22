@@ -1,50 +1,87 @@
 import DesignSystem
 import SwiftUI
 
+struct BallTarget: Hashable {
+  var sentence: Int
+  var word: Int
+}
+
+struct BallHop {
+  var distance: CGFloat = 0
+  var carried = false
+}
+
 struct Ball: View {
-  let wordIndex: Int
-  var completionCount = 0
+  let target: BallTarget
   let geometry: ReadingGeometry
+  var hop: (BallTarget) -> BallHop = { _ in BallHop() }
+  var onSettle: (BallTarget, Animation?) -> Void = { _, _ in }
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
-  @State private var arcOffset: CGFloat = 0
+  @Environment(\.freezesMotion) private var freezesMotion
+  @State private var physics = BallPhysics()
+  @State private var flights = 0
   private var radius: CGFloat { geometry.scaled(geometry.metrics.ballRadius) }
   private var centerY: CGFloat { geometry.scaled(48) }
   private var shadowY: CGFloat { geometry.scaled(70) }
-  private var apex: CGFloat {
-    geometry.scaled(reduceMotion ? Motion.reducedHopOffset : Motion.ballApexIdle)
-  }
+  static let trailLength = 6
+  static let trailSpacing: TimeInterval = 0.03
 
   var body: some View {
-    KeyframeAnimator(initialValue: Hop(), repeating: true) { hop in
-      let offset = hop.y * apex + arcOffset
-      ZStack(alignment: .top) {
-        shadow(height: height(of: offset))
-        sphere
-          .frame(width: radius * 2, height: radius * 2)
-          .scaleEffect(x: hop.scaleX, y: hop.scaleY, anchor: .bottom)
-          .position(x: geometry.cardSize.width / 2, y: centerY)
-          .offset(y: offset)
+    Group {
+      if freezesMotion {
+        scene(.resting, trail: [])
+      } else {
+        TimelineView(.animation) { context in
+          let now = Self.seconds(context.date)
+          scene(
+            physics.pose(at: now, reduceMotion: reduceMotion),
+            trail: reduceMotion
+              ? [] : physics.trail(at: now, count: Self.trailLength, spacing: Self.trailSpacing)
+          )
+        }
       }
-    } keyframes: { _ in
-      Hop.track(squash: !reduceMotion)
     }
     .frame(width: geometry.cardSize.width, height: geometry.ballLaneHeight)
     .allowsHitTesting(false)
     .accessibilityHidden(true)
-    .onChange(of: wordIndex) { _, _ in arc() }
-    .onChange(of: completionCount) { _, _ in doubleHop() }
+    .onChange(of: target) { _, target in hop(to: target) }
   }
 
-  private func height(of offset: CGFloat) -> CGFloat {
-    guard apex != 0 else { return 0 }
-    return min(abs(offset / apex), 1)
+  static func seconds(_ date: Date) -> TimeInterval {
+    date.timeIntervalSinceReferenceDate
   }
 
-  private func shadow(height: CGFloat) -> some View {
+  private func point(_ pose: BallPhysics.Pose) -> CGPoint {
+    CGPoint(
+      x: geometry.cardSize.width / 2 + pose.x,
+      y: centerY - geometry.scaled(pose.height)
+    )
+  }
+
+  private func scene(_ pose: BallPhysics.Pose, trail: [BallPhysics.Pose?]) -> some View {
+    ZStack(alignment: .top) {
+      shadow(x: pose.x, height: min(pose.height / BallPhysics.jumpApex, 1))
+      ForEach(Array(trail.enumerated()), id: \.offset) { step, past in
+        if let past {
+          let fade = 1 - CGFloat(step + 1) / CGFloat(trail.count + 1)
+          Star()
+            .fill(Palette.amber.opacity(fade))
+            .frame(width: radius * fade, height: radius * fade)
+            .position(point(past))
+        }
+      }
+      sphere
+        .frame(width: radius * 2, height: radius * 2)
+        .scaleEffect(x: pose.scaleX, y: pose.scaleY, anchor: .bottom)
+        .position(point(pose))
+    }
+  }
+
+  private func shadow(x: CGFloat, height: CGFloat) -> some View {
     Ellipse()
-      .fill(Palette.ink.opacity(0.14 * (1 - 0.4 * height)))
-      .frame(width: geometry.scaled(34) * (1 - 0.25 * height), height: geometry.scaled(8))
-      .position(x: geometry.cardSize.width / 2, y: shadowY)
+      .fill(Palette.ink.opacity(0.14 * (1 - 0.5 * height)))
+      .frame(width: geometry.scaled(34) * (1 - 0.35 * height), height: geometry.scaled(8))
+      .position(x: geometry.cardSize.width / 2 + x, y: shadowY)
   }
 
   private var sphere: some View {
@@ -65,51 +102,24 @@ struct Ball: View {
       }
   }
 
-  private func doubleHop() {
-    guard !reduceMotion else { return }
-    arc()
-    Task {
-      try? await Task.sleep(for: .milliseconds(260))
-      arc()
+  private func hop(to target: BallTarget) {
+    guard !reduceMotion, !freezesMotion else {
+      onSettle(target, reduceMotion ? Motion.slide : nil)
+      return
     }
-  }
-
-  private func arc() {
-    guard !reduceMotion else { return }
-    let extra = geometry.scaled(Motion.ballApexRecognised - Motion.ballApexIdle)
-    withAnimation(.easeOut(duration: 0.225)) {
-      arcOffset = extra
-    } completion: {
-      withAnimation(.easeIn(duration: 0.225)) {
-        arcOffset = 0
-      }
+    let hop = hop(target)
+    let landing = physics.jump(at: Self.seconds(.now), distance: hop.distance, carried: hop.carried)
+    flights += 1
+    let flight = flights
+    if hop.carried {
+      let flying = landing - BallPhysics.contactTime
+      onSettle(target, .timingCurve(Motion.rideCurve, duration: flying))
+      return
     }
-  }
-}
-
-struct Hop {
-  var y: CGFloat = 0
-  var scaleX: CGFloat = 1
-  var scaleY: CGFloat = 1
-  @KeyframesBuilder<Hop>
-  static func track(squash: Bool) -> some Keyframes<Hop> {
-    KeyframeTrack(\Hop.y) {
-      CubicKeyframe(1, duration: 0.33, startVelocity: 4.4, endVelocity: 0)
-      CubicKeyframe(0, duration: 0.33, startVelocity: 0, endVelocity: -4.4)
-
-      LinearKeyframe(0, duration: 0.06)
-    }
-    KeyframeTrack(\Hop.scaleX) {
-      LinearKeyframe(squash ? 0.97 : 1, duration: 0.33)
-      LinearKeyframe(1, duration: 0.29)
-      SpringKeyframe(squash ? 1.12 : 1, duration: 0.04, spring: .snappy)
-      SpringKeyframe(1, duration: 0.06, spring: .bouncy)
-    }
-    KeyframeTrack(\Hop.scaleY) {
-      LinearKeyframe(squash ? 1.04 : 1, duration: 0.33)
-      LinearKeyframe(1, duration: 0.29)
-      SpringKeyframe(squash ? 0.88 : 1, duration: 0.04, spring: .snappy)
-      SpringKeyframe(1, duration: 0.06, spring: .bouncy)
+    Task { @MainActor in
+      try? await Task.sleep(for: .seconds(landing))
+      guard flights == flight else { return }
+      onSettle(target, Motion.slide)
     }
   }
 }
@@ -121,7 +131,7 @@ struct Hop {
     ZStack {
       Color(hex: 0x8FCB6B).ignoresSafeArea()
       VStack(spacing: geometry.scaled(40)) {
-        Ball(wordIndex: wordIndex, geometry: geometry)
+        Ball(target: BallTarget(sentence: 0, word: wordIndex), geometry: geometry)
           .background(Palette.cream)
         Button("Read a word") { wordIndex += 1 }
           .font(Typography.ui(17))

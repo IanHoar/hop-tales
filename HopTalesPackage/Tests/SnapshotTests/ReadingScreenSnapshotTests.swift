@@ -1,3 +1,4 @@
+import DesignSystem
 import SnapshotTesting
 import SwiftUI
 import Testing
@@ -22,7 +23,7 @@ struct ReadingScreenSnapshotTests {
 
   @Test func theChromeStacksWithoutOverlapOnALargePhone() {
     expectSnapshot(
-      of: ReadingScreenPreview(),
+      of: ReadingScreenPreview().environment(\.freezesMotion, true),
       as: .image(layout: .device(config: Self.largePhone)),
       named: "large"
     )
@@ -30,7 +31,7 @@ struct ReadingScreenSnapshotTests {
 
   @Test func theChromeStacksWithoutOverlapOnASmallPhone() {
     expectSnapshot(
-      of: ReadingScreenPreview(),
+      of: ReadingScreenPreview().environment(\.freezesMotion, true),
       as: .image(layout: .device(config: Self.smallPhone)),
       named: "small"
     )

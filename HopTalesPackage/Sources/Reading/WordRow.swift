@@ -57,12 +57,30 @@ struct WordRow: View {
         )
       }
     }
-    .animation(Motion.recognised, value: currentIndex)
     .animation(Motion.recognised, value: recognisedIndex)
   }
 
   var currentSize: CGFloat {
     WordRow.currentSize(words: words, currentIndex: currentIndex, geometry: geometry)
+  }
+
+  static func hopDistance(
+    words: [Word],
+    from start: Int,
+    to target: Int,
+    geometry: ReadingGeometry
+  ) -> CGFloat {
+    guard let from = words[safe: start], target > start, words.indices.contains(target) else {
+      return 0
+    }
+    let launch =
+      Typography.width(of: from.text, size: geometry.recognisedWordSize)
+      + geometry.scaled(12) * 2
+    let between = words[(start + 1)..<target].reduce(0) {
+      $0 + Typography.width(of: $1.text, size: geometry.sideWordSize) + geometry.wordGap
+    }
+    let landing = Typography.width(of: words[target].text, size: geometry.sideWordSize)
+    return launch / 2 + geometry.wordGap + between + landing / 2
   }
 
   static func currentSize(
