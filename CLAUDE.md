@@ -4,6 +4,9 @@ iOS read-aloud game for early readers. SwiftUI shell + SpriteKit world, on-devic
 
 ## Ground rules
 
+- Commits and pull request titles follow Conventional Commits — `CONTRIBUTING.md` has the rules,
+  and a `commit-msg` hook enforces them. `main` squash-merges, so the PR title lands as the commit.
+
 - The word card, ball, mic pill and progress rail never move between stages. Only the SpriteKit world changes.
 - Text lives in SwiftUI (Andika for words, Fredoka for UI). Do not render the reading surface in SpriteKit.
 - Speech is on-device only (`requiresOnDeviceRecognition = true`). No audio is stored. No network calls anywhere.
