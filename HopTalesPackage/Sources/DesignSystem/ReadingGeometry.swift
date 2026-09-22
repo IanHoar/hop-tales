@@ -37,4 +37,5 @@ public struct ReadingGeometry: Equatable, Sendable {
   public var currentWordSize: CGFloat { scaled(metrics.words.current) }
   public var sideWordSize: CGFloat { scaled(metrics.words.side) }
   public var wordGap: CGFloat { scaled(metrics.words.gap) }
+  public var micPillY: CGFloat { y(metrics.micPillY) }
 }
