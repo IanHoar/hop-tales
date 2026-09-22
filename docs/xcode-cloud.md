@@ -16,8 +16,8 @@ nothing.
 | Script | When | Why |
 |---|---|---|
 | `ci_post_clone.sh` | after clone, before package resolution | Trusts the package macros, authenticates the private `pointfreeco/TCA26` dependency, and prefers a prebuilt swift-syntax |
-| `ci_pre_xcodebuild.sh` | before an archive | Stamps `CI_BUILD_NUMBER`, which TestFlight requires to be unique |
-| `ci_post_xcodebuild.sh` | after an archive | Writes `TestFlight/WhatToTest.en-US.txt` from the build's commits |
+| `ci_pre_xcodebuild.sh` | before an archive | Stamps the version and build number the release tag asked for |
+| `ci_post_xcodebuild.sh` | after an archive | Writes `TestFlight/WhatToTest.en-US.txt` from the commits since the previous release |
 
 ## Setup
 
@@ -42,9 +42,10 @@ Once the renewal goes through:
    defaults read com.apple.dt.Xcode IDEProvisioningTeams | grep -E "teamID|teamName|isFree"
    ```
 
-   You are looking for an entry under `hoar.ian@gmail.com` with **`isFreeProvisioningTeam = 0`**.
-   Enrolling as an individual issues a **new** team ID, so expect something other than
-   `8J5E74LNJY`; that old free team stays in the list, which makes it easy to grab the wrong one.
+   Enrolling as an individual **kept** the personal team's ID: App Store Connect shows the account
+   as `8J5E74LNJY`, which is what `project.yml` carries. Xcode's cached copy of that entry can
+   still read `isFreeProvisioningTeam = 1` long after the membership is active — the cache is what
+   signing out and back in refreshes, so trust App Store Connect over this list.
 4. Put that ID into `project.yml` as `DEVELOPMENT_TEAM` (it is deliberately empty right now), then:
 
    ```sh
@@ -97,17 +98,43 @@ blocks the merge.
 
 ### 5. The release workflow
 
-- **Start Condition:** Branch Changes on `main`.
-- **Actions:** Archive, with TestFlight (Internal Testing Only) as the distribution.
+A release is cut by publishing a GitHub release. Its tag carries both numbers:
+
+```
+v<marketing version>-<build number>       e.g. v1.0.0-1
+```
+
+- **Start Condition:** Tag Changes, pattern `v*`. Tick auto-cancel here too.
+- **Actions:** Archive, with **TestFlight and App Store** as the deployment preparation — not
+  Internal Testing Only, whose builds are processed without what an App Store submission needs and
+  so can never be promoted. It only makes a build *eligible*; nothing is submitted for review.
 - Add yourself to an internal tester group.
+
+`ci_pre_xcodebuild.sh` reads the tag and stamps `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION`
+with `agvtool`; `Info.plist` picks both up through `$(...)` substitution. A tag of any other shape
+fails the build with an explicit message rather than shipping the wrong version, and an archive
+started by anything but a tag fails the same way.
+
+TestFlight rejects a build number it has already seen, so the half after the dash increments for
+every upload of the same version — `v1.0.0-1`, `v1.0.0-2` — and resets when the version changes.
+
+To cut one:
+
+```sh
+gh release create v1.0.0-1 --generate-notes
+```
+
+Tagging is the only trigger: pushing to `main` no longer archives, so `main` can move without
+spending compute or burning a build number.
 
 ## Build time
 
-The test action is ten minutes of compiling and about two seconds of tests — 35 tests, the slowest
-suite 1.2 seconds. Anything that helps is therefore about the build, not the tests:
+The test action is compiling almost throughout and testing for about two seconds — 35 tests, the
+slowest suite 1.2 seconds. Anything that helps is therefore about the build, not the tests. A cold
+test action took 10m24s and a warm one 4m33s, so most of the caching win is already there:
 
 - **Prefer a prebuilt swift-syntax.** `ci_post_clone.sh` sets `IDEPackageEnablePrebuilts`. TCA26's
-  macros and snapshot-testing both pull swift-syntax, and compiling it is most of a build.
+  macros and snapshot-testing both pull swift-syntax, and compiling it is most of a cold build.
 - **Drop the Build action from the pull request workflow.** The test action compiles the same
   thing, so building first is roughly two minutes of the free tier spent twice.
 - **Auto-cancel.** Covered in step 4 — a superseded build otherwise runs to completion.

@@ -11,8 +11,7 @@ settings:
   base:
     ENABLE_USER_SCRIPT_SANDBOXING: NO
     SWIFT_VERSION: "6.0"
-    # Set when the paid membership is active — see docs/xcode-cloud.md, step 0.
-    DEVELOPMENT_TEAM: ""
+    DEVELOPMENT_TEAM: 8J5E74LNJY
     VERSIONING_SYSTEM: apple-generic
 
 packages:
