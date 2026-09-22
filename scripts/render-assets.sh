@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Rasterise the world layers into the app's asset catalog.
+# Rasterise the world layers and the app icon into the app's asset catalog.
 #
 # Design/world/*.svg is the source of truth (2340×844 world). Do not hand-edit the PNGs — they are
 # generated and git-ignored. Needs rsvg-convert: brew install librsvg
@@ -36,3 +36,19 @@ for svg in Design/world/*.svg; do
 JSON
   echo "rendered $name"
 done
+
+# The app icon. Its source is a raster rather than an SVG, so it is resized with sips rather than
+# rasterised. Unlike the world layers this PNG is committed: CI never runs this script, and a build
+# without an icon is refused by App Store Connect.
+icon=HopTales/Assets.xcassets/AppIcon.appiconset
+mkdir -p "$icon"
+sips -s format png -z 1024 1024 Design/icon.png --out "$icon/icon-1024.png" >/dev/null
+cat > "$icon/Contents.json" <<'JSON'
+{
+  "images" : [
+    { "filename" : "icon-1024.png", "idiom" : "universal", "platform" : "ios", "size" : "1024x1024" }
+  ],
+  "info" : { "author" : "xcode", "version" : 1 }
+}
+JSON
+echo "rendered app icon"
