@@ -35,6 +35,15 @@ targets:
         basedOnDependencyAnalysis: false
         script: |
           # Warnings in the issue navigator while you work. The commit hook is what blocks.
+          # Xcode does not inherit the shell's PATH, so a Homebrew swiftlint is invisible here
+          # until we go looking for it. Without this the build phase warns that swiftlint is
+          # missing on CI, where ci_post_clone.sh has just installed it.
+          for directory in /opt/homebrew/bin /usr/local/bin; do
+            if [ -x "$directory/swiftlint" ]; then
+              PATH="$directory:$PATH"
+              break
+            fi
+          done
           if command -v swiftlint >/dev/null; then
             swiftlint lint --quiet
           else
