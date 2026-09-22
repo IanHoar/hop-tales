@@ -1,4 +1,4 @@
-# Wordhop
+# Hop Tales
 
 An iOS read-aloud game for early readers. A large word sits in the middle of the screen with a
 bouncing ball on top. When the child says the word, the ball hops to the next one, the finished
@@ -20,7 +20,7 @@ makes no network calls.
 Requires Xcode 27 (iOS 27 SDK) and access to the private `pointfreeco/TCA26` package.
 
 ```sh
-open Wordhop.xcworkspace          # not the .xcodeproj — the local package is in the workspace
+open HopTales.xcworkspace          # not the .xcodeproj — the local package is in the workspace
 ```
 
 The first build asks you to trust the package macros (`@Feature`, `@CasePathable`). From the
@@ -28,11 +28,11 @@ command line pass `-skipMacroValidation` instead.
 
 ```sh
 # Build
-xcodebuild -workspace Wordhop.xcworkspace -scheme Wordhop \
+xcodebuild -workspace HopTales.xcworkspace -scheme HopTales \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -skipMacroValidation build
 
 # Tests (one scheme per package test target)
-xcodebuild test -workspace Wordhop.xcworkspace -scheme SpeechTests \
+xcodebuild test -workspace HopTales.xcworkspace -scheme SpeechTests \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -skipMacroValidation
 ```
 
@@ -41,8 +41,8 @@ Speech recognition does not run in the simulator — test the reading loop on a 
 ## Layout
 
 ```
-Wordhop/                  app target: @main entry point, Info.plist, asset catalog
-WordhopPackage/           all the code, as SPM modules
+HopTales/                  app target: @main entry point, Info.plist, asset catalog
+HopTalesPackage/           all the code, as SPM modules
   Sources/
     AppFeature/           Root feature + RootView (navigation)
     Content/              Story/Sentence/Word/Progress models, bundled stories.json
@@ -59,3 +59,5 @@ scripts/render-assets.sh  SVG → @2x/@3x PNG into the asset catalog
 ```
 
 State is [ComposableArchitecture2 (TCA26)](https://github.com/pointfreeco/TCA26).
+
+CI is Xcode Cloud — see [`docs/xcode-cloud.md`](docs/xcode-cloud.md).

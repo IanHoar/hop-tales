@@ -12,7 +12,7 @@ if ! command -v rsvg-convert >/dev/null; then
   exit 1
 fi
 
-catalog="Wordhop/Assets.xcassets/World"
+catalog="HopTales/Assets.xcassets/World"
 mkdir -p "$catalog"
 cat > "$catalog/Contents.json" <<'JSON'
 { "info" : { "author" : "xcode", "version" : 1 }, "properties" : { "provides-namespace" : true } }
