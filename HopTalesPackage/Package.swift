@@ -3,7 +3,7 @@
 import PackageDescription
 
 let package = Package(
-  name: "WordhopPackage",
+  name: "HopTalesPackage",
   platforms: [
     .iOS(.v27)
   ],
@@ -93,7 +93,7 @@ let package = Package(
         "Reading",
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
       ],
-      exclude: ["__Snapshots__"]
+      resources: [.copy("__Snapshots__")]
     ),
     .testTarget(
       name: "SpeechTests",

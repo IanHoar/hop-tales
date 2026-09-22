@@ -36,19 +36,3 @@ struct WordCard: View {
     RoundedRectangle(cornerRadius: geometry.cardCornerRadius, style: .continuous)
   }
 }
-
-#Preview("Word card") {
-  let story = StoryLibrary.all[0]
-  return GeometryReader { proxy in
-    let geometry = ReadingGeometry(size: proxy.size)
-    ZStack {
-      Color(hex: 0x8FCB6B).ignoresSafeArea()
-      VStack(spacing: geometry.scaled(24)) {
-        ForEach([0, 2, 5], id: \.self) { index in
-          WordCard(words: story.sentences[0].words, currentIndex: index, geometry: geometry)
-        }
-      }
-      .frame(maxHeight: .infinity)
-    }
-  }
-}

@@ -2,9 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:Wordhop.xcodeproj">
+      location = "group:HopTales.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:WordhopPackage">
+      location = "group:HopTalesPackage">
    </FileRef>
 </Workspace>

@@ -2,13 +2,17 @@
 # wrapped at 100, imports alphabetised. Rules that would only nag are left off.
 
 included:
-  - Wordhop
-  - WordhopPackage/Sources
-  - WordhopPackage/Tests
+  - Hop Tales
+  - HopTalesPackage/Sources
+  - HopTalesPackage/Tests
 
 excluded:
   - .build
-  - WordhopPackage/Tests/SnapshotTests/__Snapshots__
+  - HopTalesPackage/Tests/SnapshotTests/__Snapshots__
+  # The manifest is not part of the styled source set (see `included`), and trailing commas in its
+  # literals are the SwiftPM house style. Excluded so the pre-commit hook, which passes staged
+  # files by name, does not lint it either.
+  - HopTalesPackage/Package.swift
 
 disabled_rules:
   - todo  # TODO(#N) markers point at tracked issues; they are the plan, not debt.

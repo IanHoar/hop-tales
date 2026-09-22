@@ -12,7 +12,7 @@ struct RootTests {
       Root()
     }
     let story = StoryLibrary.all[0]
-    await store.send(.home(.storyTapped(story))) {
+    store.send(.home(.storyTapped(story))) {
       $0.path = [.reading(Reading.State.DebugSnapshot(story: story))]
     }
     // The pushed reading feature starts listening on mount; end its lifetime so the task finishes.
