@@ -128,7 +128,11 @@ extension Array {
 }
 
 public struct ReadingScreen: View {
+  static let heardHold = Duration.milliseconds(1200)
+
   let store: StoreOf<Reading>
+
+  @State private var heldToken: String?
 
   public init(store: StoreOf<Reading>) {
     self.store = store
@@ -150,25 +154,22 @@ public struct ReadingScreen: View {
         .position(geometry.cardCenter)
         .onTapGesture { store.send(.currentWordTapped) }
 
-        micPill(geometry)
-          .position(x: proxy.size.width / 2, y: geometry.y(762))
+        MicPill(heardToken: heldToken, geometry: geometry)
+          .position(x: proxy.size.width / 2, y: geometry.micPillY)
       }
     }
     .navigationTitle(store.story.title)
     .navigationBarTitleDisplayMode(.inline)
-  }
-
-  private func micPill(_ geometry: ReadingGeometry) -> some View {
-    Label(
-      store.heardToken.map { "Heard it — “\($0)”" } ?? "Say the word",
-      systemImage: store.heardToken == nil ? "mic.fill" : "checkmark"
-    )
-    .font(Typography.ui(geometry.scaled(15)))
-    .foregroundStyle(store.heardToken == nil ? Palette.chipText : Palette.heardText)
-    .padding(.horizontal, geometry.scaled(18))
-    .padding(.vertical, geometry.scaled(12))
-    .background(store.heardToken == nil ? Palette.cream : Palette.heardBg, in: .capsule)
-    .shadow(color: Palette.ink.opacity(0.12), radius: 0, x: 0, y: geometry.scaled(4))
+    .task(id: store.heardToken) {
+      guard let token = store.heardToken else {
+        heldToken = nil
+        return
+      }
+      heldToken = token
+      try? await Task.sleep(for: Self.heardHold)
+      guard !Task.isCancelled else { return }
+      heldToken = nil
+    }
   }
 }
 
