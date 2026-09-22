@@ -71,6 +71,7 @@ schemes:
       config: Debug
       targets:
         - package: HopTalesPackage/AppFeatureTests
+        - package: HopTalesPackage/ContentTests
         - package: HopTalesPackage/ReadingTests
         - package: HopTalesPackage/SnapshotTests
         - package: HopTalesPackage/SpeechTests

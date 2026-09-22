@@ -1,5 +1,6 @@
 import ComposableArchitecture2
 import Content
+import Dependencies
 import DesignSystem
 import SwiftUI
 
@@ -31,12 +32,17 @@ import SwiftUI
     case storyTapped(Story)
   }
 
+  @Dependency(ProgressStore.self) var progressStore
+
   public var body: some Feature {
     Update { _, action in
       switch action {
       case .grownUpsTapped, .playOnTVTapped, .storyTapped:
         break
       }
+    }
+    .onMount { state in
+      state.progress = progressStore.load()
     }
   }
 }
