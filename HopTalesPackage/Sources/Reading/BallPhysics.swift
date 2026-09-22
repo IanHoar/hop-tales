@@ -25,6 +25,7 @@ struct BallPhysics: Equatable {
     var from: CGFloat
     var fromX: CGFloat
     var distance: CGFloat
+    var carried = false
   }
 
   static let idleApex: CGFloat = 26
@@ -114,16 +115,17 @@ struct BallPhysics: Equatable {
     var pose = Self.pose(for: segment, at: into)
     switch segment {
     case .flight:
-      let progress = CGFloat(into / Self.duration(segment))
-      pose.x = jump.fromX + (jump.distance - jump.fromX) * progress
+      let progress = into / Self.duration(segment)
+      let ground = jump.carried ? jump.distance * CGFloat(Motion.rideCurve.value(at: progress)) : 0
+      pose.x = jump.fromX + (jump.distance - jump.fromX) * CGFloat(progress) - ground
     case .contact:
-      pose.x = jump.distance
+      pose.x = jump.carried ? 0 : jump.distance
     }
     return pose
   }
 
   private func rideOffset(at time: TimeInterval) -> CGFloat {
-    guard let jump else { return 0 }
+    guard let jump, !jump.carried else { return 0 }
     let riding = time - idleEpoch
     guard riding >= 0, riding < Motion.ride else { return 0 }
     return jump.distance * (1 - CGFloat(Motion.rideCurve.value(at: riding / Motion.ride)))
@@ -160,9 +162,13 @@ struct BallPhysics: Equatable {
   }
 
   @discardableResult
-  mutating func jump(at time: TimeInterval, distance: CGFloat = 0) -> TimeInterval {
+  mutating func jump(
+    at time: TimeInterval,
+    distance: CGFloat = 0,
+    carried: Bool = false
+  ) -> TimeInterval {
     let now = pose(at: time)
-    jump = Jump(start: time, from: now.height, fromX: now.x, distance: distance)
+    jump = Jump(start: time, from: now.height, fromX: now.x, distance: distance, carried: carried)
     idleEpoch = time + Self.duration(Self.jumpSegments(from: now.height))
     return Self.landing(from: now.height)
   }

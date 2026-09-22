@@ -1,14 +1,21 @@
-import Content
 import DesignSystem
 import SwiftUI
 
+struct BallTarget: Hashable {
+  var sentence: Int
+  var word: Int
+}
+
+struct BallHop {
+  var distance: CGFloat = 0
+  var carried = false
+}
+
 struct Ball: View {
-  let wordIndex: Int
-  var settledIndex: Int?
-  var words: [Word] = []
-  var completionCount = 0
+  let target: BallTarget
   let geometry: ReadingGeometry
-  var onLanded: (Int) -> Void = { _ in }
+  var hop: (BallTarget) -> BallHop = { _ in BallHop() }
+  var onSettle: (BallTarget, Animation?) -> Void = { _, _ in }
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(\.freezesMotion) private var freezesMotion
   @State private var physics = BallPhysics()
@@ -37,8 +44,7 @@ struct Ball: View {
     .frame(width: geometry.cardSize.width, height: geometry.ballLaneHeight)
     .allowsHitTesting(false)
     .accessibilityHidden(true)
-    .onChange(of: wordIndex) { _, target in hop(to: target) }
-    .onChange(of: completionCount) { _, _ in doubleHop() }
+    .onChange(of: target) { _, target in hop(to: target) }
   }
 
   static func seconds(_ date: Date) -> TimeInterval {
@@ -96,33 +102,24 @@ struct Ball: View {
       }
   }
 
-  private func hop(to target: Int) {
+  private func hop(to target: BallTarget) {
     guard !reduceMotion, !freezesMotion else {
-      onLanded(target)
+      onSettle(target, reduceMotion ? Motion.slide : nil)
       return
     }
-    let distance = WordRow.hopDistance(
-      words: words,
-      from: settledIndex ?? wordIndex,
-      to: target,
-      geometry: geometry
-    )
-    let landing = physics.jump(at: Self.seconds(.now), distance: distance)
+    let hop = hop(target)
+    let landing = physics.jump(at: Self.seconds(.now), distance: hop.distance, carried: hop.carried)
     flights += 1
     let flight = flights
+    if hop.carried {
+      let flying = landing - BallPhysics.contactTime
+      onSettle(target, .timingCurve(Motion.rideCurve, duration: flying))
+      return
+    }
     Task { @MainActor in
       try? await Task.sleep(for: .seconds(landing))
       guard flights == flight else { return }
-      onLanded(target)
-    }
-  }
-
-  private func doubleHop() {
-    guard !reduceMotion else { return }
-    let landing = physics.jump(at: Self.seconds(.now))
-    Task { @MainActor in
-      try? await Task.sleep(for: .seconds(landing))
-      physics.jump(at: Self.seconds(.now))
+      onSettle(target, Motion.slide)
     }
   }
 }
@@ -134,7 +131,7 @@ struct Ball: View {
     ZStack {
       Color(hex: 0x8FCB6B).ignoresSafeArea()
       VStack(spacing: geometry.scaled(40)) {
-        Ball(wordIndex: wordIndex, geometry: geometry)
+        Ball(target: BallTarget(sentence: 0, word: wordIndex), geometry: geometry)
           .background(Palette.cream)
         Button("Read a word") { wordIndex += 1 }
           .font(Typography.ui(17))
