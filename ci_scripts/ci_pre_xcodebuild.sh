@@ -50,3 +50,15 @@ build=${version##*-}
 echo "Releasing $marketing ($build), from $tag."
 xcrun agvtool new-marketing-version "$marketing"
 xcrun agvtool new-version -all "$build"
+
+# agvtool sets the build settings, and Info.plist reads them through $(CURRENT_PROJECT_VERSION).
+# Xcode Cloud passes its own build number on the xcodebuild command line, which wins over the
+# project, so the substitution resolves to Xcode Cloud's counter and the tag is ignored — v1.0.0-2
+# shipped as 1.0.0 (41). Writing the literals into the plist leaves nothing to substitute.
+plist=HopTales/Info.plist
+/usr/libexec/PlistBuddy -c "Set :CFBundleVersion $build" "$plist"
+/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $marketing" "$plist"
+
+echo "Stamped $plist:"
+/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$plist"
+/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$plist"
