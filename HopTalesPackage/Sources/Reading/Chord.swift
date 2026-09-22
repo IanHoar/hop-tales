@@ -71,9 +71,10 @@ final class ChordPlayer {
       try session.setActive(true)
       if player.engine == nil {
         engine.attach(player)
-        engine.connect(player, to: engine.mainMixerNode, format: chord.format)
+        try engine.connectNode(player, to: engine.mainMixerNode, format: chord.format)
       }
       try engine.start()
+      try player.playAudio()
     } catch {
       return
     }
@@ -88,7 +89,6 @@ final class ChordPlayer {
         completionCallbackType: .dataPlayedBack,
         completionHandler: finished
       )
-      player.play()
     }
     player.stop()
     engine.stop()
