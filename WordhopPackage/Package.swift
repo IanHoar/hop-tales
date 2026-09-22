@@ -81,7 +81,8 @@ let package = Package(
     .testTarget(
       name: "ReadingTests",
       dependencies: [
-        "Reading"
+        "DesignSystem",
+        "Reading",
       ]
     ),
     .testTarget(
