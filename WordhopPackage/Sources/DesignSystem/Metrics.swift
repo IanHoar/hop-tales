@@ -5,15 +5,15 @@ import CoreGraphics
 /// The reading surface never moves: the word card, ball, mic pill and progress rail sit at these
 /// coordinates on every stage. Phone numbers are given against the 390×844 reference and scale
 /// proportionally on other iPhones.
-public struct Metrics: Sendable {
-  public struct Card: Sendable {
+public struct Metrics: Equatable, Sendable {
+  public struct Card: Equatable, Sendable {
     public var origin: CGPoint
     public var size: CGSize
     public var cornerRadius: CGFloat
     public var ballLaneHeight: CGFloat
   }
 
-  public struct WordSizes: Sendable {
+  public struct WordSizes: Equatable, Sendable {
     public var current: CGFloat
     public var side: CGFloat
     public var gap: CGFloat
