@@ -12,7 +12,6 @@ import SpeechRecognition
   public init() {}
 
   public struct State: Identifiable {
-    public var debouncer = PartialDebouncer()
     /// What the recogniser heard, shown in the mic pill for ~1.2s.
     public var heardToken: String?
     public var sentenceIndex = 0
@@ -55,6 +54,9 @@ import SpeechRecognition
     case speechResult(tokens: [String], isFinal: Bool)
   }
 
+  /// Not part of `State`: the child never sees it, and it would otherwise make every partial
+  /// result a state change the tests have to assert.
+  @FeatureState var debouncer = PartialDebouncer()
   @Dependency(SpeechClient.self) var speechClient
 
   public var body: some Feature {
@@ -68,7 +70,7 @@ import SpeechRecognition
         }
 
       case let .speechResult(tokens, isFinal):
-        let eligible = state.debouncer.confirm(tokens: tokens, isFinal: isFinal)
+        let eligible = debouncer.confirm(tokens: tokens, isFinal: isFinal)
         guard
           let current = state.currentWord,
           let match = WordMatcher.match(
@@ -78,8 +80,11 @@ import SpeechRecognition
             strictness: state.strictness
           )
         else { break }
+        let sentenceBefore = state.sentenceIndex
         state.heardToken = match.token
         state.advance(by: match.target == .next ? 2 : 1)
+        // One recognition session per sentence, so the partial history starts over with it.
+        if state.sentenceIndex != sentenceBefore { debouncer.reset() }
       }
     }
     // One recognition task per sentence: torn down and restarted between sentences.
@@ -121,7 +126,6 @@ extension Reading.State {
     sentenceIndex += 1
     wordIndex = 0
     usedHelp = false
-    debouncer.reset()
     if sentenceIndex >= story.sentences.count { stars += 20 }
   }
 }

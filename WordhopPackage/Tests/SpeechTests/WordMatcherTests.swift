@@ -23,8 +23,11 @@ struct WordMatcherTests {
   }
 
   @Test func levenshteinIsNotAppliedToShortWords() {
-    // "sad" is one edit from "sat", but three-letter words are too easy to confuse.
-    #expect(WordMatcher.match(tokens: ["sad"], current: sat, next: nil) == nil)
+    // "sad" is one edit from "sat", but three-letter words are too easy to confuse, so the edit
+    // rule does not apply. Gentle still takes it on the shared-prefix rule below.
+    #expect(
+      WordMatcher.match(tokens: ["sad"], current: sat, next: nil, strictness: .standard) == nil
+    )
   }
 
   @Test func droppedFinalConsonantIsForgivenWhenGentle() {
@@ -36,10 +39,14 @@ struct WordMatcherTests {
   }
 
   @Test func homophonesAreAcceptedWhenGentle() {
-    #expect(WordMatcher.match(tokens: ["night"], current: knight, next: nil)?.target == .current)
+    // "night" for "knight" is within one edit, so prove the homophone rule with a pair only it can
+    // bridge: "wood" is two edits from "would" and the lengths differ, so no other rule applies.
+    let would = Word(text: "would", homophones: ["wood"])
+    #expect(WordMatcher.match(tokens: ["wood"], current: would, next: nil)?.target == .current)
     #expect(
-      WordMatcher.match(tokens: ["night"], current: knight, next: nil, strictness: .standard) == nil
+      WordMatcher.match(tokens: ["wood"], current: would, next: nil, strictness: .standard) == nil
     )
+    #expect(WordMatcher.match(tokens: ["night"], current: knight, next: nil)?.target == .current)
   }
 
   @Test func readingAheadMarksTheCurrentWordReadToo() {
