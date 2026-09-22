@@ -220,6 +220,7 @@ public struct ReadingScreen: View {
   let store: StoreOf<Reading>
 
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @Environment(\.freezesMotion) private var freezesMotion
   @State private var heldToken: String?
   @State private var flash: Reading.State.Recognised?
   @State private var chip: Reading.State.Recognised?
@@ -233,10 +234,19 @@ public struct ReadingScreen: View {
     #if DEBUG
       // Tapping anywhere off the card reads the current word, so a whole story can be walked
       // through in the simulator where nothing is listening.
-      Color(hex: 0x8FCB6B).modifier(DebugTapToAdvance(store: store))
+      world.modifier(DebugTapToAdvance(store: store))
     #else
-      Color(hex: 0x8FCB6B)
+      world
     #endif
+  }
+
+  @ViewBuilder
+  private var world: some View {
+    if freezesMotion {
+      Color(hex: 0x8FCB6B)
+    } else {
+      WorldView(progress: store.worldProgress)
+    }
   }
 
   private func card(_ geometry: ReadingGeometry) -> some View {
