@@ -11,6 +11,8 @@ actor LiveSpeechRecognizer {
 
   static let locale = Locale(identifier: "en-CA")
   static let silenceTick = Duration.milliseconds(500)
+  static let stabilityTick = Duration.milliseconds(50)
+  static let settledAfter = Duration.milliseconds(250)
   static let offerHelpAfter: TimeInterval = 6
 
   private let recognizer: SFSpeechRecognizer?
@@ -55,6 +57,7 @@ actor LiveSpeechRecognizer {
 
     let (stream, continuation) = AsyncStream<SpeechClient.Event>.makeStream()
     let heartbeat = watchForSilence(yieldingTo: continuation)
+    let settling = watchForSettling(yieldingTo: continuation)
 
     task = recognizer.recognitionTask(with: request) { @Sendable [weak self] result, error in
       if let result {
@@ -70,6 +73,7 @@ actor LiveSpeechRecognizer {
 
     continuation.onTermination = { @Sendable [weak self] _ in
       heartbeat.cancel()
+      settling.cancel()
       Task { await self?.stop() }
     }
 
@@ -110,9 +114,32 @@ actor LiveSpeechRecognizer {
     }
   }
 
+  private func watchForSettling(
+    yieldingTo continuation: AsyncStream<SpeechClient.Event>.Continuation
+  ) -> Task<Void, Never> {
+    Task { [weak self] in
+      var repeated = ""
+      while !Task.isCancelled {
+        try? await Task.sleep(for: Self.stabilityTick)
+        guard let (transcript, changed) = await self?.latest,
+          !transcript.isEmpty, transcript != repeated,
+          ContinuousClock.now - changed >= Self.settledAfter
+        else { continue }
+        repeated = transcript
+        continuation.yield(.partial(WordMatcher.normalize(transcript)))
+      }
+    }
+  }
+
   private var latestTranscript = ""
+  private var latestChange = ContinuousClock.now
+
+  private var latest: (String, ContinuousClock.Instant) {
+    (latestTranscript, latestChange)
+  }
 
   private func remember(_ transcript: String) {
+    if transcript != latestTranscript { latestChange = .now }
     latestTranscript = transcript
   }
 
