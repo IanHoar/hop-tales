@@ -19,7 +19,12 @@ public enum Palette {
   public static let muted = Color(hex: 0x6E6780)
   public static let pillBg = Color(hex: 0xFFE0A8)
   public static let pillText = Color(hex: 0x8A5A12)
+  public static let newBadgeBg = Color(hex: 0xF0E4FB)
+  public static let newBadgeText = Color(hex: 0x5B3D8C)
   public static let railLabel = Color(hex: 0x2E4A2E)
+  public static let starText = Color(hex: 0xB4701A)
+  public static let surfaceMuted = Color(hex: 0xF1E8D8)
+  public static let trackBg = Color(hex: 0xEFE7DA)
 }
 
 extension Color {
