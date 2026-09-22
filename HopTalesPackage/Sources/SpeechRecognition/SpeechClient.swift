@@ -34,7 +34,7 @@ extension SpeechClient: DependencyKey {
   public static let liveValue = SpeechClient(
     listen: { _ in AsyncStream { $0.finish() } },
     requestAuthorization: { .unsupported },
-    speak: { _ in }
+    speak: { word in await Speaker.shared.speak(word) }
   )
 
   public static let testValue = SpeechClient(

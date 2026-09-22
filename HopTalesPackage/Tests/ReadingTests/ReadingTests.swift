@@ -44,6 +44,41 @@ struct ReadingTests {
     #expect(state.stars == words + 5)
   }
 
+  @Test func theAppDoesNotHearItselfSpeak() async {
+    let store = TestStore(initialState: Reading.State(story: StoryLibrary.all[0])) {
+      Reading()
+    }
+
+    await store.send(.currentWordTapped) {
+      $0.isSpeaking = true
+      $0.usedHelp = true
+    }
+    await store.send(.speechResult(tokens: ["the"], isFinal: true))
+    await store.send(.speechResult(tokens: ["the"], isFinal: true))
+    await store.send(.speechFinished) {
+      $0.isSpeaking = false
+    }
+
+    await store.dismount()
+  }
+
+  @Test func askingToHearAWordTwiceOverDoesNotStack() async {
+    let store = TestStore(initialState: Reading.State(story: StoryLibrary.all[0])) {
+      Reading()
+    }
+
+    await store.send(.currentWordTapped) {
+      $0.isSpeaking = true
+      $0.usedHelp = true
+    }
+    await store.send(.currentWordTapped)
+    await store.send(.speechFinished) {
+      $0.isSpeaking = false
+    }
+
+    await store.dismount()
+  }
+
   @Test func finishingASentenceRecordsWhichOne() {
     var state = Reading.State(story: StoryLibrary.all[0])
     state.advance(by: state.sentence!.words.count)
