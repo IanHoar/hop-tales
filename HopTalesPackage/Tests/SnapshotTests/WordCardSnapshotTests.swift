@@ -18,20 +18,18 @@ import Testing
 @MainActor
 @Suite(.snapshots(record: .missing, diffTool: .ksdiff))
 struct WordCardSnapshotTests {
-  static let reference = CGSize(width: 390, height: 844)
-
   /// The card on its meadow background, at its own size plus room for the shadow.
   static func card(
     sentence: Sentence,
     currentIndex: Int,
     scheme: ColorScheme
   ) -> some View {
-    let geometry = ReadingGeometry(size: reference)
+    let geometry = ReadingGeometry(size: snapshotReferenceSize)
     return ZStack {
       Color(hex: 0x8FCB6B)
       WordCard(words: sentence.words, currentIndex: currentIndex, geometry: geometry)
     }
-    .frame(width: reference.width, height: geometry.cardSize.height + 64)
+    .frame(width: snapshotReferenceSize.width, height: geometry.cardSize.height + 64)
     .environment(\.colorScheme, scheme)
   }
 
@@ -40,7 +38,7 @@ struct WordCardSnapshotTests {
 
   @Test(arguments: [ColorScheme.light, .dark])
   func firstWordOfTheSentence(scheme: ColorScheme) {
-    assertSnapshot(
+    expectSnapshot(
       of: Self.card(sentence: Self.meadow.sentences[0], currentIndex: 0, scheme: scheme),
       as: .image(layout: .sizeThatFits),
       named: "\(scheme)"
@@ -49,7 +47,7 @@ struct WordCardSnapshotTests {
 
   @Test(arguments: [ColorScheme.light, .dark])
   func midSentenceWithPillsAndUpcomingWords(scheme: ColorScheme) {
-    assertSnapshot(
+    expectSnapshot(
       of: Self.card(sentence: Self.meadow.sentences[0], currentIndex: 2, scheme: scheme),
       as: .image(layout: .sizeThatFits),
       named: "\(scheme)"
@@ -58,7 +56,7 @@ struct WordCardSnapshotTests {
 
   @Test(arguments: [ColorScheme.light, .dark])
   func lastWordOfTheSentence(scheme: ColorScheme) {
-    assertSnapshot(
+    expectSnapshot(
       of: Self.card(sentence: Self.meadow.sentences[0], currentIndex: 5, scheme: scheme),
       as: .image(layout: .sizeThatFits),
       named: "\(scheme)"
@@ -69,7 +67,7 @@ struct WordCardSnapshotTests {
   /// card, rather than the card growing.
   @Test(arguments: [ColorScheme.light, .dark])
   func longWordShrinksToFitTheCard(scheme: ColorScheme) {
-    assertSnapshot(
+    expectSnapshot(
       of: Self.card(sentence: Self.castle.sentences[2], currentIndex: 2, scheme: scheme),
       as: .image(layout: .sizeThatFits),
       named: "\(scheme)"
