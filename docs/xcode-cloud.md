@@ -89,6 +89,8 @@ package resolution fail with something cryptic.
   device or OS renders text fractionally differently and the snapshot tests fail on noise rather
   than on a real change.
 - Scheme `HopTales`, which runs all four package test targets.
+- **Tick auto-cancel** in the start condition. Without it a second push leaves the first build
+  running to completion against a commit nobody is waiting on, and the free tier is 25 hours.
 
 Once a build has reported once, add its check to the branch protection rule on `main` so a red build
 blocks the merge.
@@ -109,3 +111,7 @@ blocks the merge.
   the `git config` block in `ci_post_clone.sh`.
 - **Snapshot tests are device-specific.** See the pinning note above, and re-record them when the
   real fonts land (#30).
+- **Auto-cancel is a workflow setting, not a file.** It lives in the start condition in Xcode or
+  App Store Connect, so it cannot be committed here — check it after creating either workflow.
+- **`[ci skip]` in a commit message skips the build**, which is worth using for documentation-only
+  commits on a branch with an open pull request.
