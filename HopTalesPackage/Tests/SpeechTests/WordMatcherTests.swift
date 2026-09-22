@@ -43,6 +43,28 @@ struct WordMatcherTests {
     #expect(WordMatcher.match(tokens: ["night"], current: knight, next: nil)?.target == .current)
   }
 
+  @Test func theIsForgivenWhenGentle() {
+    let the = Word(text: "The")
+    for token in ["a", "uh", "duh", "da", "de", "dee", "thee", "thuh", "they", "then"] {
+      #expect(
+        WordMatcher.match(tokens: [token], current: the, next: nil)?.target == .current,
+        "\(token) was not accepted for the"
+      )
+    }
+    #expect(WordMatcher.match(tokens: ["cat"], current: the, next: nil) == nil)
+  }
+
+  @Test func theStaysExactWhenStandard() {
+    let the = Word(text: "the")
+    #expect(
+      WordMatcher.match(tokens: ["the"], current: the, next: nil, strictness: .standard)?.target
+        == .current
+    )
+    #expect(
+      WordMatcher.match(tokens: ["duh"], current: the, next: nil, strictness: .standard) == nil
+    )
+  }
+
   @Test func readingAheadMarksTheCurrentWordReadToo() {
     #expect(WordMatcher.match(tokens: ["mat"], current: sat, next: mat)?.target == .next)
   }
