@@ -20,11 +20,20 @@ public final class WorldScene: SKScene {
 
   private var builtSize: CGSize = .zero
 
-  override public func didMove(to view: SKView) {
-    super.didMove(to: view)
+  override public init(size: CGSize) {
+    super.init(size: size)
     scaleMode = .resizeFill
     anchorPoint = .zero
     backgroundColor = .clear
+  }
+
+  @available(*, unavailable)
+  public required init?(coder aDecoder: NSCoder) {
+    fatalError("init(coder:) is not supported")
+  }
+
+  override public func didMove(to view: SKView) {
+    super.didMove(to: view)
     if world.parent == nil {
       addChild(world)
       world.addChild(skyNode)
