@@ -3,7 +3,7 @@ import SwiftUI
 
 public struct WorldView: View {
   let progress: Double
-  @State private var scene = WorldScene(size: WorldMetrics.size)
+  @State private var scene = WorldScene(size: CGSize(width: 1, height: 1))
 
   public init(progress: Double) {
     self.progress = progress
