@@ -37,11 +37,12 @@ JSON
   echo "rendered $name"
 done
 
-# The app icon. Unlike the world layers this PNG is committed: CI never runs this script, and a
-# build without an icon is refused by App Store Connect.
+# The app icon. Its source is a raster rather than an SVG, so it is resized with sips rather than
+# rasterised. Unlike the world layers this PNG is committed: CI never runs this script, and a build
+# without an icon is refused by App Store Connect.
 icon=HopTales/Assets.xcassets/AppIcon.appiconset
 mkdir -p "$icon"
-rsvg-convert -w 1024 -h 1024 Design/icon.svg -o "$icon/icon-1024.png"
+sips -s format png -z 1024 1024 Design/icon.png --out "$icon/icon-1024.png" >/dev/null
 cat > "$icon/Contents.json" <<'JSON'
 {
   "images" : [
