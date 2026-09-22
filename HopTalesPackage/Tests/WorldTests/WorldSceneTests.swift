@@ -1,4 +1,5 @@
 import CoreGraphics
+import SpriteKit
 import Testing
 
 @testable import World
@@ -47,5 +48,39 @@ struct WorldSceneTests {
     #expect(WorldScene.easeOutExpo(0) == 0)
     #expect(WorldScene.easeOutExpo(1) == 1)
     #expect(WorldScene.easeOutExpo(0.3) > 0.85)
+  }
+
+  @Test func theFoxStandsOnTheGroundAtItsHomeSpot() {
+    let scene = WorldScene(size: CGSize(width: 402, height: 874))
+    scene.didMove(to: SKView())
+    #expect(scene.companion is FoxNode)
+    #expect(scene.companion.position == CGPoint(x: 150, y: 844 - 436))
+    #expect(scene.companion.parent === scene.companionLayer)
+  }
+
+  @Test func theFoxStaysOnScreenWhileTheWorldScrolls() {
+    let scene = WorldScene(size: CGSize(width: 402, height: 874))
+    scene.didMove(to: SKView())
+    scene.setProgress(1000, animated: false)
+    #expect(scene.companionLayer.position.x == 0)
+    #expect(scene.nearLayer.position.x == -1000)
+  }
+
+  @Test func aNewCompanionReplacesTheFox() {
+    let scene = WorldScene(size: CGSize(width: 402, height: 874))
+    scene.didMove(to: SKView())
+    let fox = scene.companion
+    scene.companion = FoxNode()
+    #expect(fox.parent == nil)
+    #expect(scene.companionLayer.children.count == 1)
+  }
+
+  @Test func readingAWordMakesTheFoxJumpAndTrot() {
+    let scene = WorldScene(size: CGSize(width: 402, height: 874))
+    scene.didMove(to: SKView())
+    let fox = scene.companion as? FoxNode
+    scene.setProgress(60)
+    #expect(fox?.figure.action(forKey: "celebrate") != nil)
+    #expect(fox?.backLegs.first?.action(forKey: "trot") != nil)
   }
 }
