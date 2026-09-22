@@ -11,6 +11,7 @@ actor LiveSpeechRecognizer {
 
   static let locale = Locale(identifier: "en-CA")
   static let silenceTick = Duration.milliseconds(500)
+  static let offerHelpAfter: TimeInterval = 6
 
   private let recognizer: SFSpeechRecognizer?
   private let engine = AVAudioEngine()
@@ -50,44 +51,61 @@ actor LiveSpeechRecognizer {
     request.contextualStrings = contextualStrings
     self.request = request
 
+    try startEngine(feeding: request)
+
+    let (stream, continuation) = AsyncStream<SpeechClient.Event>.makeStream()
+    let heartbeat = watchForSilence(yieldingTo: continuation)
+
+    task = recognizer.recognitionTask(with: request) { @Sendable [weak self] result, error in
+      if let result {
+        let transcript = result.bestTranscription.formattedString
+        let isFinal = result.isFinal
+        continuation.yield(isFinal ? .final(WordMatcher.normalize(transcript))
+          : .partial(WordMatcher.normalize(transcript)))
+        Task { await self?.remember(transcript) }
+        if isFinal { continuation.finish() }
+      }
+      if error != nil { continuation.finish() }
+    }
+
+    continuation.onTermination = { @Sendable [weak self] _ in
+      heartbeat.cancel()
+      Task { await self?.stop() }
+    }
+
+    return stream
+  }
+
+  private func startEngine(feeding request: SFSpeechAudioBufferRecognitionRequest) throws {
     let input = engine.inputNode
     input.removeTap(onBus: 0)
     let format = input.outputFormat(forBus: 0)
+    guard format.sampleRate > 0, format.channelCount > 0 else {
+      throw Failure.audioSessionUnavailable
+    }
     input.installTap(onBus: 0, bufferSize: 1024, format: format) { buffer, _ in
       request.append(buffer)
     }
     engine.prepare()
     try engine.start()
+  }
 
-    return AsyncStream { continuation in
-      let heartbeat = Task { [weak self] in
-        var lastChange = ContinuousClock.now
-        var lastTranscript = ""
-        while !Task.isCancelled {
-          try? await Task.sleep(for: Self.silenceTick)
-          guard let transcript = await self?.latestTranscript else { continue }
-          if transcript != lastTranscript {
-            lastTranscript = transcript
-            lastChange = .now
-          }
-          let quiet = ContinuousClock.now - lastChange
-          continuation.yield(.silence(TimeInterval(quiet.components.seconds)))
+  private func watchForSilence(
+    yieldingTo continuation: AsyncStream<SpeechClient.Event>.Continuation
+  ) -> Task<Void, Never> {
+    Task { [weak self] in
+      var lastChange = ContinuousClock.now
+      var lastTranscript = ""
+      while !Task.isCancelled {
+        try? await Task.sleep(for: Self.silenceTick)
+        guard let transcript = await self?.latestTranscript else { continue }
+        if transcript != lastTranscript {
+          lastTranscript = transcript
+          lastChange = .now
         }
-      }
-
-      task = recognizer.recognitionTask(with: request) { result, error in
-        if let result {
-          let tokens = WordMatcher.normalize(result.bestTranscription.formattedString)
-          Task { await self.remember(result.bestTranscription.formattedString) }
-          continuation.yield(result.isFinal ? .final(tokens) : .partial(tokens))
-          if result.isFinal { continuation.finish() }
-        }
-        if error != nil { continuation.finish() }
-      }
-
-      continuation.onTermination = { _ in
-        heartbeat.cancel()
-        Task { await self.stop() }
+        let quiet = TimeInterval((ContinuousClock.now - lastChange).components.seconds)
+        continuation.yield(.silence(quiet))
+        if quiet >= Self.offerHelpAfter { lastChange = .now }
       }
     }
   }
@@ -101,12 +119,12 @@ actor LiveSpeechRecognizer {
   func stop() {
     task?.cancel()
     task = nil
-    request?.endAudio()
-    request = nil
+    engine.inputNode.removeTap(onBus: 0)
     if engine.isRunning {
       engine.stop()
-      engine.inputNode.removeTap(onBus: 0)
     }
+    request?.endAudio()
+    request = nil
     try? AVAudioSession.sharedInstance().setActive(
       false,
       options: .notifyOthersOnDeactivation
