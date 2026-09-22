@@ -10,6 +10,7 @@ public struct Metrics: Equatable, Sendable {
 
   public struct WordSizes: Equatable, Sendable {
     public var current: CGFloat
+    public var recognised: CGFloat
     public var side: CGFloat
     public var gap: CGFloat
   }
@@ -37,7 +38,7 @@ public struct Metrics: Equatable, Sendable {
       cornerRadius: 34,
       ballLaneHeight: 78
     ),
-    words: WordSizes(current: 64, side: 22, gap: 10),
+    words: WordSizes(current: 64, recognised: 38, side: 22, gap: 10),
     ballRadius: 19,
     ballRestAboveBaseline: 30,
     progressY: 674,
@@ -57,7 +58,7 @@ public struct Metrics: Equatable, Sendable {
       cornerRadius: 44,
       ballLaneHeight: 78
     ),
-    words: WordSizes(current: 100, side: 32, gap: 22),
+    words: WordSizes(current: 100, recognised: 60, side: 32, gap: 22),
     ballRadius: 26,
     ballRestAboveBaseline: 30,
     progressY: 736,
@@ -77,7 +78,7 @@ public struct Metrics: Equatable, Sendable {
       cornerRadius: 56,
       ballLaneHeight: 78
     ),
-    words: WordSizes(current: 144, side: 48, gap: 32),
+    words: WordSizes(current: 144, recognised: 86, side: 48, gap: 32),
     ballRadius: 34,
     ballRestAboveBaseline: 30,
     progressY: 900,
