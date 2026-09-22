@@ -18,7 +18,6 @@ struct BallPhysics: Equatable {
   enum Segment: Equatable {
     case flight(from: CGFloat, apex: CGFloat)
     case contact(speed: CGFloat)
-    case ride(TimeInterval)
   }
 
   struct Jump: Equatable {
@@ -51,13 +50,12 @@ struct BallPhysics: Equatable {
   static func jumpSegments(from height: CGFloat) -> [Segment] {
     [
       .flight(from: height, apex: jumpApex),
-      .contact(speed: impactSpeed(apex: jumpApex)),
-      .ride(Motion.ride)
+      .contact(speed: impactSpeed(apex: jumpApex))
     ]
   }
 
   static func landing(from height: CGFloat) -> TimeInterval {
-    duration(Array(jumpSegments(from: height).prefix(2)))
+    duration(jumpSegments(from: height))
   }
 
   static func impactSpeed(apex: CGFloat) -> CGFloat {
@@ -72,8 +70,6 @@ struct BallPhysics: Equatable {
       return TimeInterval(rising + falling)
     case .contact:
       return contactTime
-    case let .ride(length):
-      return length
     }
   }
 
@@ -93,8 +89,6 @@ struct BallPhysics: Equatable {
       let speed = abs(launch - gravity * t)
       let lengthening = 1 + stretch * min(speed / referenceSpeed, 1.25)
       return Pose(height: height, scaleX: 1 / lengthening, scaleY: lengthening)
-    case .ride:
-      return .resting
     }
   }
 
@@ -124,10 +118,15 @@ struct BallPhysics: Equatable {
       pose.x = jump.fromX + (jump.distance - jump.fromX) * progress
     case .contact:
       pose.x = jump.distance
-    case let .ride(length):
-      pose.x = jump.distance * (1 - CGFloat(Motion.rideCurve.value(at: into / length)))
     }
     return pose
+  }
+
+  private func rideOffset(at time: TimeInterval) -> CGFloat {
+    guard let jump else { return 0 }
+    let riding = time - idleEpoch
+    guard riding >= 0, riding < Motion.ride else { return 0 }
+    return jump.distance * (1 - CGFloat(Motion.rideCurve.value(at: riding / Motion.ride)))
   }
 
   func isFlying(at time: TimeInterval) -> Bool {
@@ -148,7 +147,9 @@ struct BallPhysics: Equatable {
     guard let (segment, elapsed) = Self.locate(in: Self.idleSegments, at: phase) else {
       return .resting
     }
-    return Self.pose(for: segment, at: elapsed)
+    var pose = Self.pose(for: segment, at: elapsed)
+    pose.x = rideOffset(at: time)
+    return pose
   }
 
   func trail(at time: TimeInterval, count: Int, spacing: TimeInterval) -> [Pose?] {
