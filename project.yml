@@ -75,3 +75,4 @@ schemes:
         - package: HopTalesPackage/ReadingTests
         - package: HopTalesPackage/SnapshotTests
         - package: HopTalesPackage/SpeechTests
+        - package: HopTalesPackage/WorldTests

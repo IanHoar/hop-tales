@@ -13,7 +13,7 @@ iOS read-aloud game for early readers. SwiftUI shell + SpriteKit world, on-devic
 - Text lives in SwiftUI (Andika for words, Fredoka for UI). Do not render the reading surface in SpriteKit.
 - Speech is on-device only (`requiresOnDeviceRecognition = true`). No audio is stored. No network calls anywhere.
 - Matching is forgiving by default (`docs/HANDOFF.md §5`). Never show a failure state to the child.
-- Design source of truth is `Design/world/*.svg` (2340×844 world) and `Design/artboards/*.dc.html`. Rasterise at build time; don't hand-edit PNGs.
+- Design source of truth is `Design/world/*.svg` (2340×844 world) and `Design/artboards/*.dc.html`. `scripts/render-assets.sh` converts them to the PDFs and PNGs in `HopTalesPackage/Sources/World/Resources`, which are committed; don't hand-edit them. The world layers rasterise at runtime through `WorldArt`.
 - Milestone 1 (reading loop on a flat background) ships before any world art is wired up.
 
 ## Layout
