@@ -23,7 +23,8 @@ xcuserdata/
 ## Swift Package Manager
 .build/
 .swiftpm/
-Package.resolved
+# Package.resolved is committed on purpose: Xcode Cloud disables automatic resolution and requires
+# it, and pinning the resolved commits is what makes CI build the same graph we do.
 
 ## Generated assets (source of truth is Design/world/*.svg — see scripts/render-assets.sh)
 Wordhop/Assets.xcassets/World/
