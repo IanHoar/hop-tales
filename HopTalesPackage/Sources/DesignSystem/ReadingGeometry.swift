@@ -38,4 +38,6 @@ public struct ReadingGeometry: Equatable, Sendable {
   public var sideWordSize: CGFloat { scaled(metrics.words.side) }
   public var wordGap: CGFloat { scaled(metrics.words.gap) }
   public var micPillY: CGFloat { y(metrics.micPillY) }
+  public var progressY: CGFloat { y(metrics.progressY) }
+  public var progressWidth: CGFloat { scaled(metrics.progressWidth) }
 }

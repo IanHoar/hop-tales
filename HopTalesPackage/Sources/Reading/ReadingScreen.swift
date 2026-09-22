@@ -154,6 +154,13 @@ public struct ReadingScreen: View {
         .position(geometry.cardCenter)
         .onTapGesture { store.send(.currentWordTapped) }
 
+        ProgressRail(
+          story: store.story,
+          sentenceIndex: store.sentenceIndex,
+          geometry: geometry
+        )
+        .position(x: proxy.size.width / 2, y: geometry.progressY + geometry.scaled(29))
+
         MicPill(heardToken: heldToken, geometry: geometry)
           .position(x: proxy.size.width / 2, y: geometry.micPillY)
       }
