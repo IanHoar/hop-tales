@@ -44,6 +44,22 @@ struct ReadingTests {
     #expect(state.stars == words + 5)
   }
 
+  @Test func finishingASentenceRecordsWhichOne() {
+    var state = Reading.State(story: StoryLibrary.all[0])
+    state.advance(by: state.sentence!.words.count)
+    #expect(state.completed == .sentence(index: 0))
+    #expect(state.completionCount == 1)
+  }
+
+  @Test func finishingTheLastSentenceEndsTheStoryInstead() {
+    var state = Reading.State(story: StoryLibrary.all[0])
+    for sentence in state.story.sentences {
+      state.advance(by: sentence.words.count)
+    }
+    #expect(state.completed == .story(stars: state.stars))
+    #expect(state.completionCount == state.story.sentences.count)
+  }
+
   @Test func worldProgressTraversesTheWorldExactlyOnce() {
     var state = Reading.State(story: StoryLibrary.all[0])
     for sentence in state.story.sentences {

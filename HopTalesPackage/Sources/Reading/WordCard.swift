@@ -6,12 +6,13 @@ struct WordCard: View {
   let words: [Word]
   let currentIndex: Int
   var recognisedIndex: Int?
+  var completionCount = 0
   let geometry: ReadingGeometry
   var sceneShadow: Color = Palette.SceneShadow.meadow
 
   var body: some View {
     ZStack(alignment: .top) {
-      Ball(wordIndex: currentIndex, geometry: geometry)
+      Ball(wordIndex: currentIndex, completionCount: completionCount, geometry: geometry)
         .padding(.top, geometry.scaled(14))
 
       WordRow(
