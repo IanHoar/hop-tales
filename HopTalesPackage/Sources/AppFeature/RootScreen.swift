@@ -30,6 +30,8 @@ import SwiftUI
           state.path.append(.reading(Reading.State(story: story)))
         case .home(.grownUpsTapped), .home(.playOnTVTapped):
           break
+        case .path(_, .reading(.backToStoriesTapped)):
+          state.path.removeLast()
         case .path:
           break
         }
