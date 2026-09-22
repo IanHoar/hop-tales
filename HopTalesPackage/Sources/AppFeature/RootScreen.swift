@@ -28,6 +28,8 @@ import SwiftUI
         switch action {
         case let .home(.storyTapped(story)):
           state.path.append(.reading(Reading.State(story: story)))
+        case .home(.grownUpsTapped), .home(.playOnTVTapped):
+          break
         case .path:
           break
         }
