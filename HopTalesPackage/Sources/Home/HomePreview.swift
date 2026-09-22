@@ -1,5 +1,6 @@
 import ComposableArchitecture2
 import Content
+import Dependencies
 import DesignSystem
 import SwiftUI
 
@@ -17,21 +18,28 @@ struct HomePreview: View {
   }
 
   var body: some View {
-    HomeScreen(store: Store(initialState: state) { Home() })
+    HomeScreen(store: store)
       .frame(width: Metrics.phone.reference.width, height: Metrics.phone.reference.height)
   }
 
-  private var state: Home.State {
+  private var store: StoreOf<Home> {
+    let saved = progress
+    return withDependencies {
+      $0[ProgressStore.self] = ProgressStore(load: { saved }, save: { _ in })
+    } operation: {
+      Store(initialState: Home.State(childName: variant == .midway ? "Wren" : nil)) { Home() }
+    }
+  }
+
+  private var progress: Content.Progress {
     switch variant {
     case .firstRun:
-      return Home.State()
+      Content.Progress()
     case .midway:
-      var state = Home.State(childName: "Wren")
-      state.progress = Content.Progress(
+      Content.Progress(
         stars: 56,
         completedSentences: ["meadow-morning": 6, "castle-road": 3]
       )
-      return state
     }
   }
 }
