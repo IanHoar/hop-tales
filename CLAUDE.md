@@ -57,4 +57,6 @@ iOS read-aloud game for early readers. SwiftUI shell + SpriteKit world, on-devic
 - `-skipMacroValidation` is required from the CLI: the package macros need one-time approval that
   only the Xcode UI can give.
 - Speech recognition does not run in the simulator. Test the reading loop on a device.
+- CI is Xcode Cloud: `ci_scripts/` runs on every build and `docs/xcode-cloud.md` is the runbook.
+  Snapshot references are recorded on iPhone 18 Pro / iOS 27 — CI has to test on that simulator.
 - Deployment target is iOS 27; the app is iPhone + iPad (`TARGETED_DEVICE_FAMILY = 1,2`).

@@ -59,3 +59,5 @@ scripts/render-assets.sh  SVG → @2x/@3x PNG into the asset catalog
 ```
 
 State is [ComposableArchitecture2 (TCA26)](https://github.com/pointfreeco/TCA26).
+
+CI is Xcode Cloud — see [`docs/xcode-cloud.md`](docs/xcode-cloud.md).
