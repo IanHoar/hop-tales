@@ -17,8 +17,19 @@ public final class WorldScene: SKScene {
   let midLayer = SKNode()
   let nearLayer = SKNode()
   let actorLayer = SKNode()
+  let companionLayer = SKNode()
+  static let companionHome = CGPoint(x: 150, y: WorldMetrics.size.height - 436)
+
+  public var companion: any Companion = FoxNode() {
+    didSet {
+      oldValue.removeFromParent()
+      mountCompanion()
+    }
+  }
 
   private var builtSize: CGSize = .zero
+  private var lastFrame: TimeInterval?
+  private var lastNearX: CGFloat = 0
 
   override public init(size: CGSize) {
     super.init(size: size)
@@ -41,6 +52,8 @@ public final class WorldScene: SKScene {
         world.addChild(layer)
       }
       mountArt()
+      world.addChild(companionLayer)
+      mountCompanion()
     }
     layOut()
   }
@@ -80,7 +93,25 @@ public final class WorldScene: SKScene {
     world.setScale(size.height / WorldMetrics.size.height)
   }
 
+  override public func update(_ currentTime: TimeInterval) {
+    let elapsed = lastFrame.map { min(currentTime - $0, 1.0 / 20) } ?? 0
+    lastFrame = currentTime
+    let travelled = lastNearX - nearLayer.position.x
+    lastNearX = nearLayer.position.x
+    companion.update(elapsed: elapsed, travelled: travelled)
+  }
+
+  private func mountCompanion() {
+    companionLayer.zPosition = 5
+    companion.position = Self.companionHome
+    companionLayer.addChild(companion)
+    companion.update(elapsed: 0, travelled: 0)
+  }
+
   public func setProgress(_ progress: Double, animated: Bool = true) {
+    if animated, progress > self.progress {
+      companion.celebrate()
+    }
     self.progress = progress
     let stage = WorldStage(progress: progress)
     if stage != self.stage { setStage(stage, animated: animated) }
