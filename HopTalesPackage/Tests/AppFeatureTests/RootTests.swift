@@ -15,6 +15,12 @@ struct RootTests {
       $0.path = [.reading(Reading.State.DebugSnapshot(story: story))]
     }
 
+    await store.receive(\.path) {
+      $0.path = [
+        .reading(Reading.State.DebugSnapshot(authorization: .authorized, story: story))
+      ]
+    }
+
     await store.dismount()
   }
 }

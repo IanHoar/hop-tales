@@ -10,6 +10,9 @@ struct ReadingTests {
       Reading()
     }
 
+    await store.receive(\.authorizationResolved) {
+      $0.authorization = .authorized
+    }
     await store.send(.speechResult(tokens: ["the"], isFinal: false))
     await store.send(.speechResult(tokens: ["the"], isFinal: false)) {
       $0.heardToken = "the"
@@ -49,6 +52,9 @@ struct ReadingTests {
       Reading()
     }
 
+    await store.receive(\.authorizationResolved) {
+      $0.authorization = .authorized
+    }
     await store.send(.currentWordTapped) {
       $0.isSpeaking = true
       $0.usedHelp = true
@@ -67,6 +73,9 @@ struct ReadingTests {
       Reading()
     }
 
+    await store.receive(\.authorizationResolved) {
+      $0.authorization = .authorized
+    }
     await store.send(.currentWordTapped) {
       $0.isSpeaking = true
       $0.usedHelp = true
