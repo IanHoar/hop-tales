@@ -3,6 +3,7 @@ import SwiftUI
 
 struct Ball: View {
   let wordIndex: Int
+  var completionCount = 0
   let geometry: ReadingGeometry
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @State private var arcOffset: CGFloat = 0
@@ -31,6 +32,7 @@ struct Ball: View {
     .allowsHitTesting(false)
     .accessibilityHidden(true)
     .onChange(of: wordIndex) { _, _ in arc() }
+    .onChange(of: completionCount) { _, _ in doubleHop() }
   }
 
   private func height(of offset: CGFloat) -> CGFloat {
@@ -61,6 +63,15 @@ struct Ball: View {
           .frame(width: radius * 0.52, height: radius * 0.52)
           .offset(x: radius * 0.18, y: radius * 0.22)
       }
+  }
+
+  private func doubleHop() {
+    guard !reduceMotion else { return }
+    arc()
+    Task {
+      try? await Task.sleep(for: .milliseconds(260))
+      arc()
+    }
   }
 
   private func arc() {

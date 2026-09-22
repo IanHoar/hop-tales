@@ -17,6 +17,13 @@ import World
       public var wordIndex: Int
     }
 
+    public enum Completed: Equatable, Sendable {
+      case sentence(index: Int)
+      case story(stars: Int)
+    }
+
+    public var completed: Completed?
+    public var completionCount = 0
     public var heardToken: String?
     public var recognised: Recognised?
     public var sentenceIndex = 0
@@ -52,6 +59,7 @@ import World
   }
 
   public enum Action {
+    case backToStoriesTapped
     case currentWordTapped
     case helpOffered
     case speechResult(tokens: [String], isFinal: Bool)
@@ -64,6 +72,9 @@ import World
   public var body: some Feature {
     Update { state, action in
       switch action {
+      case .backToStoriesTapped:
+        break
+
       case .currentWordTapped, .helpOffered:
         guard let word = state.currentWord?.text else { break }
         state.usedHelp = true
@@ -132,10 +143,17 @@ extension Reading.State {
 
     guard wordIndex >= sentence.words.count else { return }
     if !usedHelp { stars += 5 }
+    let finished = sentenceIndex
     sentenceIndex += 1
     wordIndex = 0
     usedHelp = false
-    if sentenceIndex >= story.sentences.count { stars += 20 }
+    completionCount += 1
+    if sentenceIndex >= story.sentences.count {
+      stars += 20
+      completed = .story(stars: stars)
+    } else {
+      completed = .sentence(index: finished)
+    }
   }
 }
 
@@ -183,8 +201,12 @@ public struct ReadingScreen: View {
           words: store.sentence?.words ?? [],
           currentIndex: store.wordIndex,
           recognisedIndex: flashIndex,
+          completionCount: store.completionCount,
           geometry: geometry
         )
+        .id(store.sentenceIndex)
+        .transition(.move(edge: .trailing).combined(with: .opacity))
+        .animation(Motion.recognised, value: store.sentenceIndex)
         .position(geometry.cardCenter)
         .contentShape(.rect)
         .onTapGesture { store.send(.currentWordTapped) }
@@ -219,10 +241,24 @@ public struct ReadingScreen: View {
     }
     .navigationTitle(store.story.title)
     .navigationBarTitleDisplayMode(.inline)
+    .overlay {
+      if case let .story(stars) = store.completed {
+        StoryFinished(title: store.story.title, stars: stars) {
+          store.send(.backToStoriesTapped)
+        }
+        .transition(.opacity)
+      }
+    }
+    .animation(Motion.recognised, value: store.completed)
+    .task(id: store.completionCount) {
+      guard store.completionCount > 0, case .sentence = store.completed else { return }
+      Haptics.sentenceCompleted()
+    }
     .task(id: store.recognised) {
       guard let recognised = store.recognised else { return }
       flash = recognised
       chip = recognised
+      Haptics.wordRecognised()
       try? await Task.sleep(for: Self.recognisedHold)
       if !Task.isCancelled { flash = nil }
       try? await Task.sleep(for: Self.chipHold)
