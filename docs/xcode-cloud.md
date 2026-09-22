@@ -16,8 +16,8 @@ nothing.
 | Script | When | Why |
 |---|---|---|
 | `ci_post_clone.sh` | after clone, before package resolution | Trusts the package macros, and authenticates the private `pointfreeco/TCA26` dependency |
-| `ci_pre_xcodebuild.sh` | before an archive | Stamps `CI_BUILD_NUMBER`, which TestFlight requires to be unique |
-| `ci_post_xcodebuild.sh` | after an archive | Writes `TestFlight/WhatToTest.en-US.txt` from the build's commits |
+| `ci_pre_xcodebuild.sh` | before an archive | Stamps the version and build number the release tag asked for |
+| `ci_post_xcodebuild.sh` | after an archive | Writes `TestFlight/WhatToTest.en-US.txt` from the commits since the previous release |
 
 ## Setup
 
@@ -97,9 +97,32 @@ blocks the merge.
 
 ### 5. The release workflow
 
-- **Start Condition:** Branch Changes on `main`.
+A release is cut by publishing a GitHub release. Its tag carries both numbers:
+
+```
+v<marketing version>-<build number>       e.g. v1.0.0-1
+```
+
+- **Start Condition:** Tag Changes, pattern `v*`. Tick auto-cancel here too.
 - **Actions:** Archive, with TestFlight (Internal Testing Only) as the distribution.
 - Add yourself to an internal tester group.
+
+`ci_pre_xcodebuild.sh` reads the tag and stamps `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION`
+with `agvtool`; `Info.plist` picks both up through `$(...)` substitution. A tag of any other shape
+fails the build with an explicit message rather than shipping the wrong version, and an archive
+started by anything but a tag fails the same way.
+
+TestFlight rejects a build number it has already seen, so the half after the dash increments for
+every upload of the same version — `v1.0.0-1`, `v1.0.0-2` — and resets when the version changes.
+
+To cut one:
+
+```sh
+gh release create v1.0.0-1 --generate-notes
+```
+
+Tagging is the only trigger: pushing to `main` no longer archives, so `main` can move without
+spending compute or burning a build number.
 
 ## Known limits
 
