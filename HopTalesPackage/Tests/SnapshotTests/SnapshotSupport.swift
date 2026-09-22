@@ -1,19 +1,8 @@
-import CoreGraphics
 import Foundation
 import SnapshotTesting
+import SwiftUI
 import Testing
 
-/// The screen every reference image is sized for — iPhone 18 Pro, in points.
-let snapshotReferenceSize = CGSize(width: 390, height: 844)
-
-/// The directory the reference images for `file` are read from.
-///
-/// `assertSnapshot` derives this from `#filePath`, the path the test file was compiled at. On
-/// Xcode Cloud nothing is at that path when the tests run, so every reference looked missing and
-/// CI recorded fresh images instead of comparing against ours. `Package.swift` therefore copies
-/// `__Snapshots__` into the test bundle as well, and we fall back to it whenever the checked-out
-/// directory holds no references — which keeps re-recording on a developer's machine writing to
-/// the source tree, where it belongs.
 func snapshotDirectory(file: StaticString = #filePath) -> String {
   let file = URL(fileURLWithPath: "\(file)")
   let suffix = "__Snapshots__/\(file.deletingPathExtension().lastPathComponent)"
@@ -30,8 +19,6 @@ func snapshotDirectory(file: StaticString = #filePath) -> String {
   return source.path
 }
 
-/// `assertSnapshot`, but reading references from ``snapshotDirectory(file:)`` and reporting the
-/// mismatch as a Swift Testing issue at the call site.
 @MainActor
 func expectSnapshot<Value, Format>(
   of value: @autoclosure () throws -> Value,
@@ -64,5 +51,27 @@ func expectSnapshot<Value, Format>(
       line: Int(line),
       column: Int(column)
     )
+  )
+}
+
+@MainActor
+func expectSnapshot(
+  of view: some View,
+  scheme: ColorScheme,
+  fileID: StaticString = #fileID,
+  file: StaticString = #filePath,
+  testName: String = #function,
+  line: UInt = #line,
+  column: UInt = #column
+) {
+  expectSnapshot(
+    of: view.environment(\.colorScheme, scheme),
+    as: .image(layout: .sizeThatFits),
+    named: "\(scheme)",
+    fileID: fileID,
+    file: file,
+    testName: testName,
+    line: line,
+    column: column
   )
 }
