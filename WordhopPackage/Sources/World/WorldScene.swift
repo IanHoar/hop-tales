@@ -19,7 +19,7 @@ public final class WorldScene: SKScene {
   let nearLayer = SKNode()
   let actorLayer = SKNode()
 
-  public override func didMove(to view: SKView) {
+  override public func didMove(to view: SKView) {
     super.didMove(to: view)
     scaleMode = .resizeFill
     backgroundColor = .clear

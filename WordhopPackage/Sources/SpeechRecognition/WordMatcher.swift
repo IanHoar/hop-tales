@@ -62,13 +62,13 @@ public enum WordMatcher {
 
     // Read-ahead wins: if the child has already said the next word, the current one is read too.
     if let next {
-      for token in tail.reversed() where accepts(token: token, target: next, strictness: strictness)
-      {
+      for token in tail.reversed() {
+        guard accepts(token: token, target: next, strictness: strictness) else { continue }
         return Match(target: .next, token: token)
       }
     }
-    for token in tail.reversed()
-    where accepts(token: token, target: current, strictness: strictness) {
+    for token in tail.reversed() {
+      guard accepts(token: token, target: current, strictness: strictness) else { continue }
       return Match(target: .current, token: token)
     }
     return nil
