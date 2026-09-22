@@ -34,12 +34,20 @@ iOS read-aloud game for early readers. SwiftUI shell + SpriteKit world, on-devic
   `DependencyValues` key path — the key path form does not type-check inside `@Feature`.
 - A feature used from another module needs `public` on the type, `State`, `Action`, `body`, and an
   explicit `public init()`.
+- `@Feature` types are `@MainActor`, so tests use `TestStore` in a `@MainActor` suite, not
+  `TestStoreActor`. End a test that mounted a listening feature with `await store.dismount()`, or it
+  fails with "an effect for this event is still running".
+- `send`'s trailing closure asserts against `State.DebugSnapshot`, whose initializer is internal —
+  asserting a child's state from another module's tests needs `@testable import` of that module.
+- Feature-scoped mutable state that is not view state goes in `@FeatureState` on the feature (the
+  `@FeatureLocal` in older docs does not exist here). Keeping it out of `State` also keeps it out of
+  every test assertion.
 
 ## Commands
 
 - Open `Wordhop.xcworkspace`, not the `.xcodeproj` — the local package lives in the workspace.
 - Build: `xcodebuild -workspace Wordhop.xcworkspace -scheme Wordhop -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -skipMacroValidation build`
-- Tests: same, with `test` and a package test scheme (`SpeechTests`, `ReadingTests`, `AppFeature`).
+- Tests: same command with `test` — the `Wordhop` scheme runs all three package test targets.
   `WordMatcherTests` must stay green; they encode the tolerance rules.
 - `-skipMacroValidation` is required from the CLI: the package macros need one-time approval that
   only the Xcode UI can give.
