@@ -225,6 +225,17 @@ public struct ReadingScreen: View {
     self.store = store
   }
 
+  @ViewBuilder
+  private var background: some View {
+    #if DEBUG
+      // Tapping anywhere off the card reads the current word, so a whole story can be walked
+      // through in the simulator where nothing is listening.
+      Color(hex: 0x8FCB6B).modifier(DebugTapToAdvance(store: store))
+    #else
+      Color(hex: 0x8FCB6B)
+    #endif
+  }
+
   private var wordCardLabel: String {
     guard let word = store.currentWord?.text else { return "Reading" }
     return "Current word: \(word). Say it out loud."
@@ -240,7 +251,7 @@ public struct ReadingScreen: View {
       let geometry = ReadingGeometry(size: proxy.size)
 
       ZStack {
-        Color(hex: 0x8FCB6B)
+        background
           .ignoresSafeArea()
 
         WordCard(
