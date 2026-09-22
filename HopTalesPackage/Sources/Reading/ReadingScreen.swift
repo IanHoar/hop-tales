@@ -59,6 +59,7 @@ import World
 
   @FeatureState var debouncer = PartialDebouncer()
   @Dependency(SpeechClient.self) var speechClient
+  @Dependency(StrictnessPreference.self) var strictnessPreference
 
   public var body: some Feature {
     Update { state, action in
@@ -98,6 +99,7 @@ import World
     }
 
     .onMount(id: store.sentenceIndex) { state in
+      state.strictness = strictnessPreference.load()
       guard let sentence = state.sentence else { return }
       let contextualStrings = sentence.words.map(\.text)
       store.addTask {
