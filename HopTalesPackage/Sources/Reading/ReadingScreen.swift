@@ -127,7 +127,7 @@ extension Array {
   }
 }
 
-public struct ReadingView: View {
+public struct ReadingScreen: View {
   let store: StoreOf<Reading>
 
   public init(store: StoreOf<Reading>) {
@@ -174,7 +174,7 @@ public struct ReadingView: View {
 
 #Preview {
   NavigationStack {
-    ReadingView(
+    ReadingScreen(
       store: Store(initialState: Reading.State(story: StoryLibrary.all[0])) {
         Reading()
       }

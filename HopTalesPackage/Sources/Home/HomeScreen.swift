@@ -21,7 +21,7 @@ import SwiftUI
   }
 }
 
-public struct HomeView: View {
+public struct HomeScreen: View {
   let store: StoreOf<Home>
 
   public init(store: StoreOf<Home>) {
@@ -59,6 +59,6 @@ public struct HomeView: View {
 
 #Preview {
   NavigationStack {
-    HomeView(store: Store(initialState: Home.State()) { Home() })
+    HomeScreen(store: Store(initialState: Home.State()) { Home() })
   }
 }

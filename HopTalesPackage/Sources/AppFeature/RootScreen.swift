@@ -42,7 +42,7 @@ import SwiftUI
   }
 }
 
-public struct RootView: View {
+public struct RootScreen: View {
   @Bindable var store: StoreOf<Root>
 
   public init(store: StoreOf<Root>) {
@@ -51,11 +51,11 @@ public struct RootView: View {
 
   public var body: some View {
     NavigationStack(path: $store.scope(\.path)) {
-      HomeView(store: store.scope(\.home))
+      HomeScreen(store: store.scope(\.home))
         .navigationDestination(for: Path.StoreEnumeration.self) { pathStore in
           switch pathStore {
           case let .reading(readingStore):
-            ReadingView(store: readingStore)
+            ReadingScreen(store: readingStore)
           }
         }
     }
@@ -63,5 +63,5 @@ public struct RootView: View {
 }
 
 #Preview {
-  RootView(store: Store(initialState: Root.State()) { Root() })
+  RootScreen(store: Store(initialState: Root.State()) { Root() })
 }

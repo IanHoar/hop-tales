@@ -10,7 +10,7 @@ struct HopTalesApp: App {
 
   var body: some Scene {
     WindowGroup {
-      RootView(store: Self.store)
+      RootScreen(store: Self.store)
     }
   }
 }
