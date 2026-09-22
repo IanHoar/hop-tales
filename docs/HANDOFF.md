@@ -2,7 +2,7 @@
 
 A read-aloud game for early readers. A large word sits in the middle of the screen with a bouncing ball on top. When the child says the word, the ball hops to the next one, the finished word shrinks into an amber pill and slides left, and the world behind the card scrolls forward. Six sentences per story. The world escalates from a quiet meadow to a castle road to a dragon's hill at dusk — the harder it gets, the cooler it looks.
 
-iPhone first. Same build runs on iPad (landscape) and drives an Apple TV over AirPlay as a second screen. No tvOS target in v1.
+iPhone first. Same build runs on iPad (any orientation, laid out for landscape; App Store Connect rejects an iPad bundle that leaves one out) and drives an Apple TV over AirPlay as a second screen. No tvOS target in v1.
 
 This document plus `Design/` is everything Claude Code needs to start. Decisions below are made; override them if you disagree, but say so in the commit.
 
