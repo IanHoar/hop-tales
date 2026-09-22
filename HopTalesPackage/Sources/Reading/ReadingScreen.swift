@@ -284,6 +284,11 @@ public struct ReadingScreen: View {
 
         MicPill(heardToken: heldToken, geometry: geometry)
           .position(x: proxy.size.width / 2, y: geometry.micPillY)
+
+        #if DEBUG
+          DebugControls(store: store)
+            .position(x: proxy.size.width / 2, y: geometry.y(70))
+        #endif
       }
     }
     .navigationTitle(store.story.title)

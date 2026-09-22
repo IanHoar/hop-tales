@@ -11,6 +11,10 @@ settings:
   base:
     ENABLE_USER_SCRIPT_SANDBOXING: NO
     SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+  configs:
+    Debug:
+      OTHER_SWIFT_FLAGS: "$(inherited) -enable-actor-data-race-checks"
     DEVELOPMENT_TEAM: 8J5E74LNJY
     VERSIONING_SYSTEM: apple-generic
 
