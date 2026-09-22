@@ -66,6 +66,17 @@
             parallelizable = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "SnapshotTests"
+               BuildableName = "SnapshotTests"
+               BlueprintName = "SnapshotTests"
+               ReferencedContainer = "container:WordhopPackage">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "SpeechTests"
                BuildableName = "SpeechTests"
                BlueprintName = "SpeechTests"
