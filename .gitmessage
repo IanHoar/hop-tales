@@ -1,0 +1,29 @@
+
+
+# <type>[(scope)][!]: <description>          ← 72 characters, lowercase, no full stop
+#
+# Why, not what. The diff already says what.
+#
+# Closes #123
+# BREAKING CHANGE: <what breaks and what to do instead>
+#
+# ── types ──────────────────────────────────────────────────────────────────
+# feat      a capability the child or the parent can now use
+# fix       a defect in behaviour that shipped
+# docs      documentation only, including HANDOFF.md and CLAUDE.md
+# style     formatting with no change in behaviour
+# refactor  neither fixes a defect nor adds a capability
+# perf      makes it faster or lighter
+# test      tests and snapshot references only
+# build     project.yml, Package.swift, signing, dependencies
+# ci        ci_scripts, Xcode Cloud, anything about how builds run
+# chore     everything else with no product effect
+# revert    undoes an earlier commit
+#
+# ── scopes (optional) ──────────────────────────────────────────────────────
+# reading speech world home content design app project ci deps
+#
+# ── examples ───────────────────────────────────────────────────────────────
+# feat(reading): pin the current word to the card's centre
+# fix(speech): stop a single partial result counting as a word
+# feat(world)!: drop the layer-tiling fallback

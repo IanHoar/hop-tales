@@ -1,0 +1,62 @@
+#!/bin/sh
+# Rejects commit messages that are not Conventional Commits.
+#
+# Install with ./scripts/setup-git.sh, which points core.hooksPath here. See CONTRIBUTING.md.
+set -eu
+
+message_file=$1
+subject=$(sed -n '1p' "$message_file")
+
+# Let git's own machinery through untouched.
+case "$subject" in
+  "Merge "*|"Revert "*|"fixup! "*|"squash! "*|"amend! "*) exit 0 ;;
+esac
+
+types="feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert"
+
+fail() {
+  cat >&2 <<MESSAGE
+
+  ✗ $1
+
+  Commit subjects follow Conventional Commits:
+
+      <type>[(scope)][!]: <description>
+
+      feat(reading): pin the current word to the card's centre
+      fix(speech): stop a single partial result counting as a word
+      docs: record why the hop is ballistic
+      feat(world)!: drop the layer-tiling fallback
+
+  Types:  $(echo "$types" | tr '|' ' ')
+  Scopes: reading, speech, world, home, content, design, app, project, ci, deps
+          (optional — omit it when the change is not about one area)
+
+  Yours:
+
+      $subject
+
+  CONTRIBUTING.md has the rules. To bypass once: git commit --no-verify
+MESSAGE
+  exit 1
+}
+
+echo "$subject" | grep -qE "^($types)(\([a-z0-9-]+\))?!?: .+" \
+  || fail "The subject does not start with a type."
+
+echo "$subject" | grep -qE "^($types)(\([a-z0-9-]+\))?!?: [a-z]" \
+  || fail "The description starts with a capital. Write it lowercase, like a sentence fragment."
+
+case "$subject" in
+  *.) fail "The subject ends with a full stop. Leave it off." ;;
+esac
+
+if [ "${#subject}" -gt 72 ]; then
+  fail "The subject is ${#subject} characters. Keep it to 72 so it reads in a log."
+fi
+
+# A body has to be separated from the subject by a blank line, or git treats it all as the subject.
+second=$(sed -n '2p' "$message_file")
+if [ -n "$second" ]; then
+  fail "Line 2 must be blank — leave a blank line between the subject and the body."
+fi
