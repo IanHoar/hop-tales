@@ -60,7 +60,13 @@ iOS read-aloud game for early readers. SwiftUI shell + SpriteKit world, on-devic
   `WordMatcherTests` must stay green; they encode the tolerance rules.
 - `-skipMacroValidation` is required from the CLI: the package macros need one-time approval that
   only the Xcode UI can give.
-- Speech recognition does not run in the simulator. Test the reading loop on a device.
+- Speech recognition does not run in the simulator, so there `SpeechClient.liveValue` authorises and
+  hears nothing, and `ReadingScreen` shows DEBUG-only controls to stand in for recognised words.
+  The real loop still has to be tested on a device.
+- Swift 6 language mode means complete concurrency checking is already on; `SWIFT_STRICT_CONCURRENCY`
+  says so out loud. Debug builds also pass `-enable-actor-data-race-checks`, which is what catches
+  an un-annotated framework calling back on the wrong queue — the crash in #62 that the compiler
+  could not see.
 - CI is Xcode Cloud: `ci_scripts/` runs on every build and `docs/xcode-cloud.md` is the runbook.
   Snapshot references are recorded on iPhone 18 Pro / iOS 27 — CI has to test on that simulator.
 - Deployment target is iOS 27; the app is iPhone + iPad (`TARGETED_DEVICE_FAMILY = 1,2`).

@@ -61,4 +61,17 @@ struct WordMatcherTests {
     var debouncer = PartialDebouncer()
     #expect(debouncer.confirm(tokens: ["sat"], isFinal: true) == ["sat"])
   }
+
+  @Test func aWordFromTheStoryMatchesItselfOnceNormalised() {
+    let sentence = StoryLibrary.all[0].sentences[0]
+    for (index, word) in sentence.words.enumerated() {
+      let tokens = WordMatcher.normalize(word.text)
+      let match = WordMatcher.match(
+        tokens: tokens,
+        current: word,
+        next: index + 1 < sentence.words.count ? sentence.words[index + 1] : nil
+      )
+      #expect(match != nil, "\(word.text) did not match itself")
+    }
+  }
 }

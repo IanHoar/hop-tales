@@ -32,14 +32,26 @@ public struct SpeechClient: Sendable {
 
 extension SpeechClient: DependencyKey {
   public static let liveValue: SpeechClient = {
-    let recognizer = LiveSpeechRecognizer()
-    return SpeechClient(
-      listen: { contextualStrings in
-        try await recognizer.listen(contextualStrings: contextualStrings)
-      },
-      requestAuthorization: { await LiveSpeechRecognizer.authorization() },
-      speak: { word in await Speaker.shared.speak(word) }
-    )
+    #if targetEnvironment(simulator)
+      // Speech recognition does not run in the simulator, and an unsupported-device card over the
+      // reading screen makes the rest of the app untestable there. The simulator gets a client
+      // that authorises, never hears anything, and still speaks — so tap-to-hear works — and
+      // ReadingScreen offers a debug control to stand in for a recognised word.
+      return SpeechClient(
+        listen: { _ in AsyncStream { $0.finish() } },
+        requestAuthorization: { .authorized },
+        speak: { word in await Speaker.shared.speak(word) }
+      )
+    #else
+      let recognizer = LiveSpeechRecognizer()
+      return SpeechClient(
+        listen: { contextualStrings in
+          try await recognizer.listen(contextualStrings: contextualStrings)
+        },
+        requestAuthorization: { await LiveSpeechRecognizer.authorization() },
+        speak: { word in await Speaker.shared.speak(word) }
+      )
+    #endif
   }()
 
   public static let testValue = SpeechClient(
