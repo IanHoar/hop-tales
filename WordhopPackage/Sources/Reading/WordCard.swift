@@ -13,9 +13,7 @@ struct WordCard: View {
 
   var body: some View {
     ZStack(alignment: .top) {
-      // The ball lives here (issue #2); the lane is reserved so the row sits where it should.
-      Color.clear
-        .frame(height: geometry.ballLaneHeight)
+      Ball(wordIndex: currentIndex, geometry: geometry)
         .padding(.top, geometry.scaled(14))
 
       WordRow(words: words, currentIndex: currentIndex, geometry: geometry)

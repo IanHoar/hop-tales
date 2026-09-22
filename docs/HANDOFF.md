@@ -132,7 +132,7 @@ Radial gradient sphere (`ballHi` → `ball` → `ballLo`, highlight at 35%/30%),
 
 | Event | Timing |
 |---|---|
-| Idle hop | translateY 0 → −26, `cubic-bezier(0.3, 0, 0.2, 1)`, 0.72s, autoreverse, forever |
+| Idle hop | translateY 0 → −26 over 0.72s, forever. **Ballistic, not eased**: the rise decelerates into the apex, the fall accelerates out of it, and the ball rests a beat on the ground between hops. A squash on contact (scaleY 0.88, anchor bottom) and a slight stretch on the rise. The `cubic-bezier(0.3, 0, 0.2, 1)` this row used to specify is slow at both ends, which reads as floating rather than bouncing |
 | Recognised | Ball arcs to next word: quadratic path, apex −46, 0.45s ease-in-out. Current word morphs to pill over the same 0.45s. Row slides left so the new word is centred, 0.45s. Sparkles: 3 stars scale 0→1→0 over 0.5s, offset 0/0.08/0.16 |
 | `+1 star` | Chip appears near star counter, rises 24pt and fades over 0.9s |
 | Mic pill | While listening: 5 bars animate height between 6–17pt, each on its own 0.35–0.55s loop. On recognised: pill turns `heardBg`, checkmark, text `Heard it — “sat”`, holds 1.2s, returns |

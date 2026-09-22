@@ -4,10 +4,9 @@ import SwiftUI
 ///
 /// `Design/artboards/Parallax.dc.html` is the acceptance test for how this should feel.
 public enum Motion {
-  /// translateY 0 → −26, autoreversing, forever.
-  public static let idleHop = Animation
-    .timingCurve(0.3, 0, 0.2, 1, duration: 0.72)
-    .repeatForever(autoreverses: true)
+  /// The idle hop is not an easing curve — see `Hop` in the Reading module. An autoreversed curve
+  /// is slow at both ends, so the ball hangs at the apex and mushes into the ground.
+  public static let idleHopPeriod: TimeInterval = 0.72
 
   /// Ball arcs to the next word while the current word morphs to a pill and the row slides left.
   public static let recognised = Animation.easeInOut(duration: 0.45)
