@@ -11,7 +11,7 @@ notes_dir="${CI_PRIMARY_REPOSITORY_PATH:-.}/TestFlight"
 mkdir -p "$notes_dir"
 
 {
-  echo "Wordhop ${CI_BUILD_NUMBER:-local} — ${CI_BRANCH:-unknown branch}"
+  echo "Hop Tales ${CI_BUILD_NUMBER:-local} — ${CI_BRANCH:-unknown branch}"
   echo
   if [ -n "${CI_PRIMARY_REPOSITORY_PATH:-}" ]; then
     git -C "$CI_PRIMARY_REPOSITORY_PATH" log --pretty="- %s" -20

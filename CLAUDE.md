@@ -1,4 +1,4 @@
-# Wordhop
+# Hop Tales
 
 iOS read-aloud game for early readers. SwiftUI shell + SpriteKit world, on-device `SFSpeechRecognizer`, AirPlay second screen. Read `docs/HANDOFF.md` before touching anything — it has the product rules, tokens, layout numbers, parallax maths, speech-matching rules and milestone order.
 
@@ -18,13 +18,13 @@ iOS read-aloud game for early readers. SwiftUI shell + SpriteKit world, on-devic
 
 ## Layout
 
-- `Wordhop/` — thin app target: `@main` entry point, `Info.plist`, asset catalog. No feature code.
-- `WordhopPackage/` — all the code, as SPM modules: `AppFeature` (root + navigation), `Content`
+- `HopTales/` — thin app target: `@main` entry point, `Info.plist`, asset catalog. No feature code.
+- `HopTalesPackage/` — all the code, as SPM modules: `AppFeature` (root + navigation), `Content`
   (models + bundled `stories.json`), `DesignSystem` (tokens), `Home`, `Reading`,
   `SpeechRecognition` (`SpeechClient`, `WordMatcher`), `World` (SpriteKit).
 - `Design/` — handoff assets (not compiled; scripts read from here).
 - `docs/HANDOFF.md` — the spec. `project.yml` — XcodeGen spec; run `xcodegen generate` after
-  adding files or targets, and commit the regenerated `Wordhop.xcodeproj`.
+  adding files or targets, and commit the regenerated `HopTales.xcodeproj`.
 - `scripts/render-assets.sh` — SVG → @2x/@3x PNG into the asset catalog. Run it manually; it needs
   `rsvg-convert` (`brew install librsvg`).
 
@@ -50,9 +50,9 @@ iOS read-aloud game for early readers. SwiftUI shell + SpriteKit world, on-devic
 
 ## Commands
 
-- Open `Wordhop.xcworkspace`, not the `.xcodeproj` — the local package lives in the workspace.
-- Build: `xcodebuild -workspace Wordhop.xcworkspace -scheme Wordhop -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -skipMacroValidation build`
-- Tests: same command with `test` — the `Wordhop` scheme runs all three package test targets.
+- Open `HopTales.xcworkspace`, not the `.xcodeproj` — the local package lives in the workspace.
+- Build: `xcodebuild -workspace HopTales.xcworkspace -scheme HopTales -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -skipMacroValidation build`
+- Tests: same command with `test` — the `HopTales` scheme runs all three package test targets.
   `WordMatcherTests` must stay green; they encode the tolerance rules.
 - `-skipMacroValidation` is required from the CLI: the package macros need one-time approval that
   only the Xcode UI can give.

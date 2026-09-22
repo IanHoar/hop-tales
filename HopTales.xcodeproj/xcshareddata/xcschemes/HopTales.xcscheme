@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D7BDC5FE60FD86B98D8F1644"
-               BuildableName = "Wordhop.app"
-               BlueprintName = "Wordhop"
-               ReferencedContainer = "container:Wordhop.xcodeproj">
+               BlueprintIdentifier = "B0C310359ACC78E617DC9F3A"
+               BuildableName = "HopTales.app"
+               BlueprintName = "HopTales"
+               ReferencedContainer = "container:HopTales.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +32,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D7BDC5FE60FD86B98D8F1644"
-            BuildableName = "Wordhop.app"
-            BlueprintName = "Wordhop"
-            ReferencedContainer = "container:Wordhop.xcodeproj">
+            BlueprintIdentifier = "B0C310359ACC78E617DC9F3A"
+            BuildableName = "HopTales.app"
+            BlueprintName = "HopTales"
+            ReferencedContainer = "container:HopTales.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -47,7 +47,7 @@
                BlueprintIdentifier = "AppFeatureTests"
                BuildableName = "AppFeatureTests"
                BlueprintName = "AppFeatureTests"
-               ReferencedContainer = "container:WordhopPackage">
+               ReferencedContainer = "container:HopTalesPackage">
             </BuildableReference>
          </TestableReference>
          <TestableReference
@@ -58,7 +58,7 @@
                BlueprintIdentifier = "ReadingTests"
                BuildableName = "ReadingTests"
                BlueprintName = "ReadingTests"
-               ReferencedContainer = "container:WordhopPackage">
+               ReferencedContainer = "container:HopTalesPackage">
             </BuildableReference>
          </TestableReference>
          <TestableReference
@@ -69,7 +69,7 @@
                BlueprintIdentifier = "SnapshotTests"
                BuildableName = "SnapshotTests"
                BlueprintName = "SnapshotTests"
-               ReferencedContainer = "container:WordhopPackage">
+               ReferencedContainer = "container:HopTalesPackage">
             </BuildableReference>
          </TestableReference>
          <TestableReference
@@ -80,7 +80,7 @@
                BlueprintIdentifier = "SpeechTests"
                BuildableName = "SpeechTests"
                BlueprintName = "SpeechTests"
-               ReferencedContainer = "container:WordhopPackage">
+               ReferencedContainer = "container:HopTalesPackage">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -101,10 +101,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D7BDC5FE60FD86B98D8F1644"
-            BuildableName = "Wordhop.app"
-            BlueprintName = "Wordhop"
-            ReferencedContainer = "container:Wordhop.xcodeproj">
+            BlueprintIdentifier = "B0C310359ACC78E617DC9F3A"
+            BuildableName = "HopTales.app"
+            BlueprintName = "HopTales"
+            ReferencedContainer = "container:HopTales.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
@@ -120,10 +120,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D7BDC5FE60FD86B98D8F1644"
-            BuildableName = "Wordhop.app"
-            BlueprintName = "Wordhop"
-            ReferencedContainer = "container:Wordhop.xcodeproj">
+            BlueprintIdentifier = "B0C310359ACC78E617DC9F3A"
+            BuildableName = "HopTales.app"
+            BlueprintName = "HopTales"
+            ReferencedContainer = "container:HopTales.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

@@ -1,6 +1,6 @@
-name: Wordhop
+name: HopTales
 options:
-  bundleIdPrefix: com.ianhoar
+  bundleIdPrefix: com.hoptales
   createIntermediateGroups: true
   deploymentTarget:
     iOS: "27.0"
@@ -16,20 +16,20 @@ settings:
     VERSIONING_SYSTEM: apple-generic
 
 packages:
-  WordhopPackage:
-    path: WordhopPackage
+  HopTalesPackage:
+    path: HopTalesPackage
 
 targets:
-  Wordhop:
+  HopTales:
     type: application
     platform: iOS
     deploymentTarget: "27.0"
     sources:
-      - path: Wordhop
+      - path: HopTales
         excludes:
           - Info.plist
     dependencies:
-      - package: WordhopPackage
+      - package: HopTalesPackage
         product: AppFeature
     preBuildScripts:
       - name: SwiftLint
@@ -46,23 +46,23 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         CURRENT_PROJECT_VERSION: 1
         GENERATE_INFOPLIST_FILE: NO
-        INFOPLIST_FILE: Wordhop/Info.plist
+        INFOPLIST_FILE: HopTales/Info.plist
         MARKETING_VERSION: "0.1.0"
-        PRODUCT_BUNDLE_IDENTIFIER: com.ianhoar.wordhop
-        PRODUCT_NAME: Wordhop
+        PRODUCT_BUNDLE_IDENTIFIER: com.hoptales.ios
+        PRODUCT_NAME: HopTales
         TARGETED_DEVICE_FAMILY: "1,2"
 
 schemes:
-  Wordhop:
+  HopTales:
     build:
       targets:
-        Wordhop: all
+        HopTales: all
     run:
       config: Debug
     test:
       config: Debug
       targets:
-        - package: WordhopPackage/AppFeatureTests
-        - package: WordhopPackage/ReadingTests
-        - package: WordhopPackage/SnapshotTests
-        - package: WordhopPackage/SpeechTests
+        - package: HopTalesPackage/AppFeatureTests
+        - package: HopTalesPackage/ReadingTests
+        - package: HopTalesPackage/SnapshotTests
+        - package: HopTalesPackage/SpeechTests
