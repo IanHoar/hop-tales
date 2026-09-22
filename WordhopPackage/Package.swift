@@ -12,6 +12,7 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.12.0"),
+    .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.17.0"),
     .package(
       url: "https://github.com/pointfreeco/TCA26",
       branch: "main",
@@ -80,8 +81,19 @@ let package = Package(
     .testTarget(
       name: "ReadingTests",
       dependencies: [
-        "Reading"
+        "DesignSystem",
+        "Reading",
       ]
+    ),
+    .testTarget(
+      name: "SnapshotTests",
+      dependencies: [
+        "Content",
+        "DesignSystem",
+        "Reading",
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
+      ],
+      exclude: ["__Snapshots__"]
     ),
     .testTarget(
       name: "SpeechTests",

@@ -52,4 +52,5 @@ schemes:
       targets:
         - package: WordhopPackage/AppFeatureTests
         - package: WordhopPackage/ReadingTests
+        - package: WordhopPackage/SnapshotTests
         - package: WordhopPackage/SpeechTests

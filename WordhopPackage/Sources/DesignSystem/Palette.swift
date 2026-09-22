@@ -36,3 +36,13 @@ extension Color {
     )
   }
 }
+
+extension Palette {
+  /// The soft shadow under the card picks up the scene behind it; the hard offset shadow above it
+  /// is always `ink`. On the dusk stage the hard shadow goes to `rgba(0,0,0,.28)`.
+  public enum SceneShadow {
+    public static let meadow = Color(hex: 0x1E3A20)
+    public static let castle = Color(hex: 0x5A3A16)
+    public static let dusk = Color(hex: 0x000000)
+  }
+}
