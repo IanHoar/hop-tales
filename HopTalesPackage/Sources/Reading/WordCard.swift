@@ -7,6 +7,7 @@ struct WordCard: View {
   let currentIndex: Int
   var recognisedIndex: Int?
   var completionCount = 0
+  var isSpeaking = false
   let geometry: ReadingGeometry
   var sceneShadow: Color = Palette.SceneShadow.meadow
 
@@ -19,6 +20,7 @@ struct WordCard: View {
         words: words,
         currentIndex: currentIndex,
         recognisedIndex: recognisedIndex,
+        isSpeaking: isSpeaking,
         geometry: geometry
       )
         .frame(height: geometry.scaled(84))

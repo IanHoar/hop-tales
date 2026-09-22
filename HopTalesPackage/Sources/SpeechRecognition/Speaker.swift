@@ -1,0 +1,64 @@
+import AVFoundation
+import Foundation
+
+@MainActor
+final class Speaker: NSObject {
+  static let shared = Speaker()
+
+  static let rate: Float = 0.42
+  static let preferredVoice = "Samantha"
+
+  private let synthesizer = AVSpeechSynthesizer()
+  private var finished: CheckedContinuation<Void, Never>?
+
+  override private init() {
+    super.init()
+    synthesizer.delegate = self
+  }
+
+  func speak(_ word: String) async {
+    synthesizer.stopSpeaking(at: .immediate)
+    resume()
+
+    let utterance = AVSpeechUtterance(string: word)
+    utterance.rate = Self.rate
+    utterance.voice = Self.voice()
+
+    await withCheckedContinuation { continuation in
+      finished = continuation
+      synthesizer.speak(utterance)
+    }
+  }
+
+  static func voice() -> AVSpeechSynthesisVoice? {
+    let english = AVSpeechSynthesisVoice.speechVoices().filter {
+      $0.language.hasPrefix("en")
+    }
+    let named = english.first { $0.name == preferredVoice && $0.quality != .default }
+    let enhanced = english.first { $0.quality == .premium }
+      ?? english.first { $0.quality == .enhanced }
+    return named ?? enhanced ?? english.first { $0.name == preferredVoice }
+      ?? AVSpeechSynthesisVoice(language: "en-US")
+  }
+
+  private func resume() {
+    finished?.resume()
+    finished = nil
+  }
+}
+
+extension Speaker: AVSpeechSynthesizerDelegate {
+  nonisolated func speechSynthesizer(
+    _ synthesizer: AVSpeechSynthesizer,
+    didFinish utterance: AVSpeechUtterance
+  ) {
+    Task { @MainActor in resume() }
+  }
+
+  nonisolated func speechSynthesizer(
+    _ synthesizer: AVSpeechSynthesizer,
+    didCancel utterance: AVSpeechUtterance
+  ) {
+    Task { @MainActor in resume() }
+  }
+}
