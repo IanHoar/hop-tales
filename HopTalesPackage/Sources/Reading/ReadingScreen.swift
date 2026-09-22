@@ -240,23 +240,13 @@ public struct ReadingScreen: View {
   }
 
   private func card(_ geometry: ReadingGeometry) -> some View {
-    WordCard(
-      words: store.sentence?.words ?? [],
-      currentIndex: store.wordIndex,
-      recognisedIndex: flashIndex,
-      completionCount: store.completionCount,
+    SentenceStrip(
+      sentences: store.story.sentences.map(\.words),
+      position: BallTarget(sentence: store.sentenceIndex, word: store.wordIndex),
+      flash: flash.map { BallTarget(sentence: $0.sentenceIndex, word: $0.wordIndex) },
       isSpeaking: store.isSpeaking,
       geometry: geometry
     )
-    .id(store.sentenceIndex)
-    .transition(.move(edge: .trailing).combined(with: .opacity))
-    .animation(Motion.recognised, value: store.sentenceIndex)
-    .overlay {
-      if flash != nil, !reduceMotion {
-        Sparkles(geometry: geometry)
-          .accessibilityHidden(true)
-      }
-    }
     .contentShape(.rect)
     .onTapGesture { store.send(.currentWordTapped) }
     .accessibilityElement(children: .ignore)
@@ -269,11 +259,6 @@ public struct ReadingScreen: View {
   private var wordCardLabel: String {
     guard let word = store.currentWord?.text else { return "Reading" }
     return "Current word: \(word). Say it out loud."
-  }
-
-  private var flashIndex: Int? {
-    guard let flash, flash.sentenceIndex == store.sentenceIndex else { return nil }
-    return flash.wordIndex
   }
 
   public var body: some View {
