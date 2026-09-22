@@ -3,21 +3,20 @@ import Content
 import Testing
 
 @testable import Reading
-
 @MainActor
 struct ReadingTests {
   @Test func readingAWordAdvancesTheBallAndAwardsAStar() async {
     let store = TestStore(initialState: Reading.State(story: StoryLibrary.all[0])) {
       Reading()
     }
-    // A token has to appear twice before it counts (HANDOFF.md §5, rule 5).
+
     await store.send(.speechResult(tokens: ["the"], isFinal: false))
     await store.send(.speechResult(tokens: ["the"], isFinal: false)) {
       $0.heardToken = "the"
       $0.stars = 1
       $0.wordIndex = 1
     }
-    // The feature listens for the whole sentence; end its lifetime so the task can finish.
+
     await store.dismount()
   }
 

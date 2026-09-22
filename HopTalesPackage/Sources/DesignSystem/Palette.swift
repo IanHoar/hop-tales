@@ -1,9 +1,5 @@
 import SwiftUI
 
-/// Colour tokens from `HANDOFF.md` §3.
-///
-/// All chrome (card, chips, pills, buttons) is cream on every stage. Chrome never changes with
-/// time of day — only the world does.
 public enum Palette {
   public static let amber = Color(hex: 0xFFB23F)
   public static let amberDeep = Color(hex: 0xE07A22)
@@ -38,8 +34,6 @@ extension Color {
 }
 
 extension Palette {
-  /// The soft shadow under the card picks up the scene behind it; the hard offset shadow above it
-  /// is always `ink`. On the dusk stage the hard shadow goes to `rgba(0,0,0,.28)`.
   public enum SceneShadow {
     public static let meadow = Color(hex: 0x1E3A20)
     public static let castle = Color(hex: 0x5A3A16)

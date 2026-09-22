@@ -4,7 +4,6 @@ import Testing
 
 @testable import AppFeature
 @testable import Reading
-
 @MainActor
 struct RootTests {
   @Test func tappingAStoryPushesTheReadingScreen() async {
@@ -15,7 +14,7 @@ struct RootTests {
     store.send(.home(.storyTapped(story))) {
       $0.path = [.reading(Reading.State.DebugSnapshot(story: story))]
     }
-    // The pushed reading feature starts listening on mount; end its lifetime so the task finishes.
+
     await store.dismount()
   }
 }

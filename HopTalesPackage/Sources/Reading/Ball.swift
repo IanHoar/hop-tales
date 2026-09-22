@@ -1,24 +1,11 @@
 import DesignSystem
 import SwiftUI
 
-/// The ball that sits above the current word and hops (`docs/HANDOFF.md` §4).
-///
-/// It idles at the card's centre because the current word is pinned there. When a word is read the
-/// ball arcs up and settles while the row slides the next word underneath it.
-///
-/// - Note: The hop is ballistic rather than the `cubic-bezier(0.3, 0, 0.2, 1)` in the spec. That
-///   curve is slow at both ends, so the ball hangs at the apex and mushes into the ground; a ball
-///   leaves the ground at its fastest, decelerates into the apex, accelerates back down and snaps
-///   on contact. Same 0.72s period and −26 apex.
 struct Ball: View {
-  /// Changes whenever a word is read, which is what triggers the arc.
   let wordIndex: Int
   let geometry: ReadingGeometry
-
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @State private var arcOffset: CGFloat = 0
-
-  /// Artboard geometry inside the 78pt lane: ball centre at y 48, shadow at y 70.
   private var radius: CGFloat { geometry.scaled(geometry.metrics.ballRadius) }
   private var centerY: CGFloat { geometry.scaled(48) }
   private var shadowY: CGFloat { geometry.scaled(70) }
@@ -45,7 +32,6 @@ struct Ball: View {
     .onChange(of: wordIndex) { _, _ in arc() }
   }
 
-  /// How high the ball is, 0 (resting) to 1 (apex of an idle hop). The shadow sells the height.
   private func height(of offset: CGFloat) -> CGFloat {
     guard apex != 0 else { return 0 }
     return min(abs(offset / apex), 1)
@@ -76,7 +62,6 @@ struct Ball: View {
       }
   }
 
-  /// The recognised hop: higher than an idle one, on top of the idle bounce so the two compose.
   private func arc() {
     guard !reduceMotion else { return }
     let extra = geometry.scaled(Motion.ballApexRecognised - Motion.ballApexIdle)
@@ -90,21 +75,16 @@ struct Ball: View {
   }
 }
 
-/// One cycle of the hop: height as a fraction of the apex, plus squash and stretch.
 struct Hop {
-  /// 0 on the ground, 1 at the apex.
   var y: CGFloat = 0
   var scaleX: CGFloat = 1
   var scaleY: CGFloat = 1
-
-  /// Gravity, not easing: the rise decelerates into the apex and the fall accelerates out of it,
-  /// which is why the velocities are pinned rather than left to the interpolator.
   @KeyframesBuilder<Hop>
   static func track(squash: Bool) -> some Keyframes<Hop> {
     KeyframeTrack(\Hop.y) {
       CubicKeyframe(1, duration: 0.33, startVelocity: 4.4, endVelocity: 0)
       CubicKeyframe(0, duration: 0.33, startVelocity: 0, endVelocity: -4.4)
-      // A beat on the ground so the hops read as separate, not as a sine wave.
+
       LinearKeyframe(0, duration: 0.06)
     }
     KeyframeTrack(\Hop.scaleX) {
@@ -122,7 +102,6 @@ struct Hop {
   }
 }
 
-/// Interactive: "Read a word" fires the arc, which is otherwise unreachable until speech lands.
 #Preview("Ball") {
   @Previewable @State var wordIndex = 0
   GeometryReader { proxy in

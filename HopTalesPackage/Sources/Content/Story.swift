@@ -1,6 +1,5 @@
 import Foundation
 
-/// The chunk of the world a story owns (`HANDOFF.md` §6).
 public enum StageTheme: String, Codable, Hashable, Sendable, CaseIterable {
   case meadow
   case castle
@@ -18,7 +17,6 @@ public struct Word: Codable, Hashable, Sendable {
 }
 
 public struct Sentence: Codable, Hashable, Sendable {
-  /// The one "hard" word this sentence introduces, called out on the progress rail.
   public var newWord: String?
   public var words: [Word]
 
@@ -30,7 +28,6 @@ public struct Sentence: Codable, Hashable, Sendable {
 
 public struct Story: Codable, Hashable, Sendable, Identifiable {
   public var id: String
-  /// Exactly six in v1.
   public var sentences: [Sentence]
   public var stage: StageTheme
   public var title: String
@@ -46,8 +43,6 @@ public struct Story: Codable, Hashable, Sendable, Identifiable {
     sentences.reduce(0) { $0 + $1.words.count }
   }
 
-  /// Each recognised word advances the world by this many near-layer points, so a full story
-  /// traverses the world exactly once (`HANDOFF.md` §6).
   public var wordStep: Double {
     guard wordCount > 0 else { return 0 }
     return 1950 / Double(wordCount)

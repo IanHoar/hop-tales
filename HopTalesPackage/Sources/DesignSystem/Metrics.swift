@@ -1,10 +1,5 @@
 import CoreGraphics
 
-/// Layout numbers from `HANDOFF.md` §3, per device class.
-///
-/// The reading surface never moves: the word card, ball, mic pill and progress rail sit at these
-/// coordinates on every stage. Phone numbers are given against the 390×844 reference and scale
-/// proportionally on other iPhones.
 public struct Metrics: Equatable, Sendable {
   public struct Card: Equatable, Sendable {
     public var origin: CGPoint
@@ -31,7 +26,6 @@ public struct Metrics: Equatable, Sendable {
   public var progressWidth: CGFloat
   public var micPillY: CGFloat
   public var minimumTouchTarget: CGFloat
-
   public static let phone = Metrics(
     reference: CGSize(width: 390, height: 844),
     topBarY: 48,
@@ -68,11 +62,10 @@ public struct Metrics: Equatable, Sendable {
     ballRestAboveBaseline: 30,
     progressY: 736,
     progressWidth: 900,
-    micPillY: 32,  // mic pill lives in the top bar on iPad
+    micPillY: 32,
     minimumTouchTarget: 56
   )
 
-  /// 1920×1080 with a 96pt overscan margin on all sides. The TV has no touch.
   public static let tv = Metrics(
     reference: CGSize(width: 1920, height: 1080),
     topBarY: 96,

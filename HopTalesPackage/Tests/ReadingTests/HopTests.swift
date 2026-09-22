@@ -2,16 +2,12 @@ import SwiftUI
 import Testing
 
 @testable import Reading
-
-/// The hop is ballistic rather than eased, which is the one place the app deliberately departs from
-/// `docs/HANDOFF.md` §4. These pin the physics so it cannot drift back into a float.
 @MainActor
 struct HopTests {
   let timeline = KeyframeTimeline(initialValue: Hop()) { Hop.track(squash: true) }
   let reduced = KeyframeTimeline(initialValue: Hop()) { Hop.track(squash: false) }
 
   @Test func oneCycleKeepsTheSpecPeriod() {
-    // 0.33 up + 0.33 down + a 0.06 beat on the ground.
     #expect(abs(timeline.duration - 0.72) < 0.0001)
   }
 
@@ -22,7 +18,6 @@ struct HopTests {
   }
 
   @Test func itRestsOnTheGroundBetweenHops() {
-    // Without this beat the hops run together and read as a sine wave.
     #expect(timeline.value(time: 0.70).y == 0)
   }
 
@@ -33,7 +28,6 @@ struct HopTests {
   }
 
   @Test func theFallMirrorsTheRise() {
-    // Gravity is symmetric: the same height on the way up and the way down.
     for offset in stride(from: 0.03, through: 0.30, by: 0.03) {
       let rising = timeline.value(time: 0.33 - offset).y
       let falling = timeline.value(time: 0.33 + offset).y
@@ -42,9 +36,9 @@ struct HopTests {
   }
 
   @Test func theBallSquashesOnContactAndStretchesOnTheRise() {
-    #expect(timeline.value(time: 0.33).scaleY > 1)  // stretched climbing
-    #expect(timeline.value(time: 0.66).scaleY < 1)  // squashed on contact
-    #expect(timeline.value(time: 0.66).scaleX > 1)  // and wider for it
+    #expect(timeline.value(time: 0.33).scaleY > 1)
+    #expect(timeline.value(time: 0.66).scaleY < 1)
+    #expect(timeline.value(time: 0.66).scaleX > 1)
   }
 
   @Test func reduceMotionKeepsTheBallUnsquashed() {
