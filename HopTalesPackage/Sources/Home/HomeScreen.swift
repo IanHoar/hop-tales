@@ -9,6 +9,7 @@ import SwiftUI
 
   public struct State {
     public var childName: String?
+    public var startingStoryID = StoryLibrary.all[0].id
     var progress = Content.Progress()
     var stories = StoryLibrary.all
 
@@ -18,6 +19,15 @@ import SwiftUI
 
     var standings: [StoryStanding] {
       stories.map { StoryStanding(story: $0, progress: progress) }
+    }
+
+    public mutating func apply(_ profile: Profile) {
+      childName = profile.childName.isEmpty ? nil : profile.childName
+      startingStoryID = profile.startingStoryID
+    }
+
+    var keepGoing: StoryStanding? {
+      standings.keepGoing(startingAt: startingStoryID)
     }
 
     var greeting: String {
@@ -61,7 +71,7 @@ public struct HomeScreen: View {
           .padding(.top, 8)
         greeting
           .padding(.top, 28)
-        if let keepGoing = store.standings.keepGoing {
+        if let keepGoing = store.keepGoing {
           KeepGoingCard(standing: keepGoing) { store.send(.storyTapped(keepGoing.story)) }
             .padding(.top, 22)
         }
