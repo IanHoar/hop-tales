@@ -4,7 +4,7 @@ import SwiftUI
 
 #if DEBUG
 struct WordCardPreview: View {
-  enum Variant: String, CaseIterable {
+  enum Variant {
     case firstWord
     case midSentence
     case lastWord
@@ -42,12 +42,8 @@ struct WordCardPreview: View {
   }
 }
 
-struct WordCardPreviews: PreviewProvider {
-  static var previews: some View {
-    ForEach(WordCardPreview.Variant.allCases, id: \.self) { variant in
-      WordCardPreview(variant)
-        .previewDisplayName(variant.rawValue)
-    }
-  }
-}
+#Preview("First word") { WordCardPreview(.firstWord) }
+#Preview("Mid sentence") { WordCardPreview(.midSentence) }
+#Preview("Last word") { WordCardPreview(.lastWord) }
+#Preview("Long word") { WordCardPreview(.longWord) }
 #endif
