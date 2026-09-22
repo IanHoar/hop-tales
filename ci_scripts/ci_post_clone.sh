@@ -36,15 +36,21 @@ fi
 echo "Trusting package macros for this build."
 defaults write com.apple.dt.Xcode IDESkipMacroFingerprintValidation -bool YES
 
-# Xcode Cloud rewrites GitHub URLs to http:// for its caching proxy, so a rule keyed on
-# https://github.com/ never fires — which is how the first build failed, with git asking for a
-# username on http://github.com. Two rules, both scoped to the one org that needs them:
+# Xcode Cloud rewrites GitHub URLs to http:// for its caching proxy, and git applies insteadOf
+# exactly once, against the original URL — so a rule keyed on the rewritten http:// form never gets
+# a turn. That is how the first builds failed: git ended up asking for a username on
+# http://github.com with prompts disabled.
 #
-#   1. Force https for pointfreeco. The longest matching prefix wins, so this beats the platform's
-#      own rewrite without touching any other repository.
-#   2. Supply the token through a credential helper rather than embedding it in a URL, so it never
-#      lands in a config file, a remote, or a log line.
+# Three rules, all scoped to the one organisation that needs them:
+#
+#   1. Rewrite pointfreeco URLs to carry the token. The longest matching prefix wins, so this beats
+#      the platform's own https -> http rule on the original URL.
+#   2. and 3. Credential helpers for both schemes, in case the URL still arrives rewritten.
 echo "Authenticating package resolution for private dependencies."
-git config --global "url.https://github.com/pointfreeco/.insteadOf" "http://github.com/pointfreeco/"
-git config --global "credential.https://github.com.helper" \
-  '!f() { test "$1" = get && printf "username=x-access-token\npassword=%s\n" "$TCA26_TOKEN"; }; f'
+git config --global \
+  "url.https://x-access-token:${TCA26_TOKEN}@github.com/pointfreeco/.insteadOf" \
+  "https://github.com/pointfreeco/"
+for scheme in https http; do
+  git config --global "credential.$scheme://github.com.helper" \
+    '!f() { test "$1" = get && printf "username=x-access-token\npassword=%s\n" "$TCA26_TOKEN"; }; f'
+done
