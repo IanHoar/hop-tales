@@ -4,6 +4,9 @@ import UIKit
 enum AmbientParticles {
   static let lifetime: CGFloat = 9
   static let onScreen: CGFloat = 10
+  static let screensAhead: CGFloat = 1
+  static var coverage: CGFloat { 1 + screensAhead }
+  static var birthRate: CGFloat { onScreen * coverage / lifetime }
   static let band: ClosedRange<CGFloat> = 250...430
   static let drift: CGFloat = 7
   static let sway: CGFloat = 6
@@ -21,7 +24,7 @@ enum AmbientParticles {
     let emitter = SKEmitterNode()
     emitter.particleTexture = SKTexture(image: disc())
     emitter.particleSize = CGSize(width: textureDiameter, height: textureDiameter)
-    emitter.particleBirthRate = onScreen / lifetime
+    emitter.particleBirthRate = birthRate
     emitter.particleLifetime = lifetime
     emitter.particleLifetimeRange = 3
     emitter.emissionAngle = .pi / 2

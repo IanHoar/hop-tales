@@ -118,7 +118,8 @@ struct WorldSceneTests {
     let steady = AmbientParticles.onScreen
     #expect((8...12).contains(steady))
     let emitter = AmbientParticles.emitter()
-    #expect(abs(emitter.particleBirthRate * emitter.particleLifetime - steady) < 0.001)
+    let perScreen = emitter.particleBirthRate * emitter.particleLifetime / AmbientParticles.coverage
+    #expect(abs(perScreen - steady) < 0.001)
   }
 
   @Test func theCastleRoadHasDustAndDuskHasNone() {
@@ -131,10 +132,12 @@ struct WorldSceneTests {
     #expect(scene.particles.particleBirthRate == 0)
   }
 
-  @Test func theMotesSpanTheVisibleWorld() {
+  @Test func motesAlsoWaitOffTheRightEdgeToScrollOn() {
     let scene = WorldScene(size: CGSize(width: 402, height: 874))
     scene.didMove(to: SKView())
     let visible = 402 / (874 / WorldMetrics.size.height)
-    #expect(abs(scene.particles.particlePositionRange.dx - visible) < 0.5)
+    let range = scene.particles.particlePositionRange.dx
+    #expect(abs(range - visible * 2) < 0.5)
+    #expect(abs(scene.particles.position.x - range / 2) < 0.5)
   }
 }

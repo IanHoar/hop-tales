@@ -111,20 +111,21 @@ public final class WorldScene: SKScene {
     particleLayer.zPosition = 2
     particleLayer.addChild(particles)
     tintParticles()
-    particles.advanceSimulationTime(TimeInterval(AmbientParticles.lifetime))
   }
 
   private func layOutParticles() {
-    let visibleWidth = size.width / world.xScale
+    let span = size.width / world.xScale * AmbientParticles.coverage
     let band = AmbientParticles.band
     particles.position = CGPoint(
-      x: visibleWidth / 2,
+      x: span / 2,
       y: WorldMetrics.size.height - (band.lowerBound + band.upperBound) / 2
     )
     particles.particlePositionRange = CGVector(
-      dx: visibleWidth,
+      dx: span,
       dy: band.upperBound - band.lowerBound
     )
+    particles.resetSimulation()
+    particles.advanceSimulationTime(TimeInterval(AmbientParticles.lifetime))
   }
 
   private func tintParticles() {
@@ -133,7 +134,7 @@ public final class WorldScene: SKScene {
       return
     }
     particles.particleColor = colour
-    particles.particleBirthRate = AmbientParticles.onScreen / AmbientParticles.lifetime
+    particles.particleBirthRate = AmbientParticles.birthRate
   }
 
   private func mountCompanion() {
