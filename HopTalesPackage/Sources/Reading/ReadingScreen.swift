@@ -74,6 +74,7 @@ import World
   @FeatureState var debouncer = PartialDebouncer()
   @FeatureState var savedStars = 0
   @Dependency(ProgressStore.self) var progressStore
+  @Dependency(SoundClient.self) var sound
   @Dependency(SpeechClient.self) var speechClient
   @Dependency(StrictnessPreference.self) var strictnessPreference
 
@@ -148,10 +149,15 @@ import World
 
     .onMount(id: store.sentenceIndex) { state in
       state.strictness = strictnessPreference.load()
-      guard let sentence = state.sentence else { return }
+      let celebrates = state.completionCount > 0
+      guard let sentence = state.sentence else {
+        if celebrates { store.addTask { await sound.sentenceCompleted() } }
+        return
+      }
       let contextualStrings = sentence.words.map(\.text)
       let known = state.authorization
       store.addTask {
+        if celebrates { await sound.sentenceCompleted() }
         let authorization: SpeechClient.Authorization
         if let known {
           authorization = known
