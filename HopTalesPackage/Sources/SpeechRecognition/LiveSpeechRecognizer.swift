@@ -83,7 +83,7 @@ actor LiveSpeechRecognizer {
     guard format.sampleRate > 0, format.channelCount > 0 else {
       throw Failure.audioSessionUnavailable
     }
-    input.installTap(onBus: 0, bufferSize: 1024, format: format) { buffer, _ in
+    try input.__installTap(onBus: 0, bufferSize: 1024, format: format, error: ()) { buffer, _ in
       request.append(buffer)
     }
     engine.prepare()
@@ -136,7 +136,7 @@ actor LiveSpeechRecognizer {
     try session.setCategory(
       .record,
       mode: .measurement,
-      options: [.duckOthers, .allowBluetooth]
+      options: [.duckOthers, .allowBluetoothHFP]
     )
     try session.setActive(true, options: .notifyOthersOnDeactivation)
   }
