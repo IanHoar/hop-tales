@@ -162,7 +162,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Warnings in the issue navigator while you work. The commit hook is what blocks.\nif command -v swiftlint >/dev/null; then\n  swiftlint lint --quiet\nelse\n  echo \"warning: swiftlint is not installed — brew install swiftlint\"\nfi\n";
+			shellScript = "# Warnings in the issue navigator while you work. The commit hook is what blocks.\n# Xcode does not inherit the shell's PATH, so a Homebrew swiftlint is invisible here\n# until we go looking for it. Without this the build phase warns that swiftlint is\n# missing on CI, where ci_post_clone.sh has just installed it.\nfor directory in /opt/homebrew/bin /usr/local/bin; do\n  if [ -x \"$directory/swiftlint\" ]; then\n    PATH=\"$directory:$PATH\"\n    break\n  fi\ndone\nif command -v swiftlint >/dev/null; then\n  swiftlint lint --quiet\nelse\n  echo \"warning: swiftlint is not installed — brew install swiftlint\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
