@@ -42,9 +42,10 @@ Once the renewal goes through:
    defaults read com.apple.dt.Xcode IDEProvisioningTeams | grep -E "teamID|teamName|isFree"
    ```
 
-   You are looking for an entry under `hoar.ian@gmail.com` with **`isFreeProvisioningTeam = 0`**.
-   Enrolling as an individual issues a **new** team ID, so expect something other than
-   `8J5E74LNJY`; that old free team stays in the list, which makes it easy to grab the wrong one.
+   Enrolling as an individual **kept** the personal team's ID: App Store Connect shows the account
+   as `8J5E74LNJY`, which is what `project.yml` carries. Xcode's cached copy of that entry can
+   still read `isFreeProvisioningTeam = 1` long after the membership is active — the cache is what
+   signing out and back in refreshes, so trust App Store Connect over this list.
 4. Put that ID into `project.yml` as `DEVELOPMENT_TEAM` (it is deliberately empty right now), then:
 
    ```sh
@@ -104,7 +105,9 @@ v<marketing version>-<build number>       e.g. v1.0.0-1
 ```
 
 - **Start Condition:** Tag Changes, pattern `v*`. Tick auto-cancel here too.
-- **Actions:** Archive, with TestFlight (Internal Testing Only) as the distribution.
+- **Actions:** Archive, with **TestFlight and App Store** as the deployment preparation — not
+  Internal Testing Only, whose builds are processed without what an App Store submission needs and
+  so can never be promoted. It only makes a build *eligible*; nothing is submitted for review.
 - Add yourself to an internal tester group.
 
 `ci_pre_xcodebuild.sh` reads the tag and stamps `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION`
