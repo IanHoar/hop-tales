@@ -15,7 +15,7 @@ nothing.
 
 | Script | When | Why |
 |---|---|---|
-| `ci_post_clone.sh` | after clone, before package resolution | Trusts the package macros, and authenticates the private `pointfreeco/TCA26` dependency |
+| `ci_post_clone.sh` | after clone, before package resolution | Trusts the package macros, authenticates the private `pointfreeco/TCA26` dependency, and prefers a prebuilt swift-syntax |
 | `ci_pre_xcodebuild.sh` | before an archive | Stamps `CI_BUILD_NUMBER`, which TestFlight requires to be unique |
 | `ci_post_xcodebuild.sh` | after an archive | Writes `TestFlight/WhatToTest.en-US.txt` from the build's commits |
 
@@ -100,6 +100,17 @@ blocks the merge.
 - **Start Condition:** Branch Changes on `main`.
 - **Actions:** Archive, with TestFlight (Internal Testing Only) as the distribution.
 - Add yourself to an internal tester group.
+
+## Build time
+
+The test action is ten minutes of compiling and about two seconds of tests — 35 tests, the slowest
+suite 1.2 seconds. Anything that helps is therefore about the build, not the tests:
+
+- **Prefer a prebuilt swift-syntax.** `ci_post_clone.sh` sets `IDEPackageEnablePrebuilts`. TCA26's
+  macros and snapshot-testing both pull swift-syntax, and compiling it is most of a build.
+- **Drop the Build action from the pull request workflow.** The test action compiles the same
+  thing, so building first is roughly two minutes of the free tier spent twice.
+- **Auto-cancel.** Covered in step 4 — a superseded build otherwise runs to completion.
 
 ## Known limits
 
