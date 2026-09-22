@@ -3,7 +3,7 @@ import SwiftUI
 public enum Motion {
   public static let idleHopPeriod: TimeInterval = 0.72
   public static let recognised = Animation.easeInOut(duration: 0.45)
-  public static let ride: TimeInterval = 0.34
+  public static let ride: TimeInterval = 0.45
   public static let rideCurve = UnitCurve.easeInOut
   public static let slide = Animation.timingCurve(rideCurve, duration: ride)
   public static let world = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.6)

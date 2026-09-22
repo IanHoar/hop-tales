@@ -30,7 +30,7 @@ struct BallPhysics: Equatable {
 
   static let idleApex: CGFloat = 26
   static let jumpApex: CGFloat = 46
-  static let jumpFlight: TimeInterval = 0.45
+  static let jumpFlight: TimeInterval = 0.6
   static let gravity = 8 * jumpApex / CGFloat(jumpFlight * jumpFlight)
   static let contactTime: TimeInterval = 0.07
   static let reducedBob: CGFloat = 2
