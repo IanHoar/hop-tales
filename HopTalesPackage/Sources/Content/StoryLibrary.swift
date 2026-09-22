@@ -1,6 +1,5 @@
 import Foundation
 
-/// The stories bundled with the app, loaded from `Resources/stories.json`.
 public enum StoryLibrary {
   public static let all: [Story] = {
     guard let url = Bundle.module.url(forResource: "stories", withExtension: "json") else {

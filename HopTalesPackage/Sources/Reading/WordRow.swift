@@ -2,15 +2,10 @@ import Content
 import DesignSystem
 import SwiftUI
 
-/// How a word in the row is drawn (`docs/HANDOFF.md` §4).
 enum WordDisplayState: Equatable {
-  /// Read already: a small amber pill to the left.
   case completed
-  /// The word the child is reading. Three times the size of everything else.
   case current
-  /// The word after the current one.
   case next
-  /// Everything further ahead.
   case upcoming
 
   init(offsetFromCurrent offset: Int) {
@@ -32,11 +27,6 @@ enum WordDisplayState: Equatable {
   }
 }
 
-/// The row of words inside the card.
-///
-/// The current word's centre is pinned to the card's horizontal centre and the row translates so
-/// that stays true — a child's eye must never have to re-find the word. Words that fall outside the
-/// card are clipped by it, which is the "scrolling off" cue.
 struct WordRow: View {
   let words: [Word]
   let currentIndex: Int
@@ -55,8 +45,6 @@ struct WordRow: View {
     }
   }
 
-  /// Long words shrink the current word, never the card: the current word plus one word either side
-  /// has to fit inside the card.
   var currentSize: CGFloat {
     WordRow.currentSize(words: words, currentIndex: currentIndex, geometry: geometry)
   }
@@ -82,7 +70,6 @@ struct WordRow: View {
       - CGFloat(neighbours.count) * geometry.wordGap
 
     let maximum = geometry.currentWordSize
-    // Never shrink below half: past that the word stops being the thing on the screen.
     let minimum = maximum / 2
     var size = maximum
     while size > minimum {
@@ -94,7 +81,6 @@ struct WordRow: View {
   }
 }
 
-/// One word, drawn for its state.
 struct WordLabel: View {
   let word: Word
   let state: WordDisplayState
@@ -127,10 +113,6 @@ struct WordLabel: View {
   }
 }
 
-/// Places the row so the current word's centre sits on the container's centre.
-///
-/// A plain `HStack` would centre the row as a whole, which drifts as words either side change
-/// width. This keeps the big word still and moves everything else around it.
 struct WordRowLayout: Layout {
   var currentIndex: Int
   var spacing: CGFloat

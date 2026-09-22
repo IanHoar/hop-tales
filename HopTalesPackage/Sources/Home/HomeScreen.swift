@@ -3,7 +3,25 @@ import Content
 import DesignSystem
 import SwiftUI
 
-public struct HomeView: View {
+@Feature public struct Home {
+  public init() {}
+
+  public struct State {
+    var progress = Content.Progress()
+    var stories = StoryLibrary.all
+    public init() {}
+  }
+
+  public enum Action {
+    case storyTapped(Story)
+  }
+
+  public var body: some Feature {
+    Update { _, _ in }
+  }
+}
+
+public struct HomeScreen: View {
   let store: StoreOf<Home>
 
   public init(store: StoreOf<Home>) {
@@ -41,6 +59,6 @@ public struct HomeView: View {
 
 #Preview {
   NavigationStack {
-    HomeView(store: Store(initialState: Home.State()) { Home() })
+    HomeScreen(store: Store(initialState: Home.State()) { Home() })
   }
 }

@@ -1,24 +1,20 @@
 import ComposableArchitecture2
 import Content
 import Dependencies
+import DesignSystem
 import SpeechRecognition
+import SwiftUI
+import World
 
-/// The reading loop: one big word, a ball on top, a microphone listening for it
-/// (`HANDOFF.md` §4–§5).
-///
-/// Nothing here is timed against the child. Silence is fine — after ~6s the app *offers help*
-/// (speaks the word gently); it never fails them and never shows a red X.
 @Feature public struct Reading {
   public init() {}
 
   public struct State: Identifiable {
-    /// What the recogniser heard, shown in the mic pill for ~1.2s.
     public var heardToken: String?
     public var sentenceIndex = 0
     public var stars = 0
     public var story: Story
     public var strictness: WordMatcher.Strictness = .gentle
-    /// Whether this sentence was read without the app speaking a word aloud (worth +5 stars).
     public var usedHelp = false
     public var wordIndex = 0
 
@@ -38,7 +34,6 @@ import SpeechRecognition
       story.sentences[safe: sentenceIndex]
     }
 
-    /// World progress in near-layer points.
     public var worldProgress: Double {
       Double(wordsCompleted) * story.wordStep
     }
@@ -54,8 +49,6 @@ import SpeechRecognition
     case speechResult(tokens: [String], isFinal: Bool)
   }
 
-  /// Not part of `State`: the child never sees it, and it would otherwise make every partial
-  /// result a state change the tests have to assert.
   @FeatureState var debouncer = PartialDebouncer()
   @Dependency(SpeechClient.self) var speechClient
 
@@ -83,11 +76,11 @@ import SpeechRecognition
         let sentenceBefore = state.sentenceIndex
         state.heardToken = match.token
         state.advance(by: match.target == .next ? 2 : 1)
-        // One recognition session per sentence, so the partial history starts over with it.
+
         if state.sentenceIndex != sentenceBefore { debouncer.reset() }
       }
     }
-    // One recognition task per sentence: torn down and restarted between sentences.
+
     .onMount(id: store.sentenceIndex) { state in
       guard let sentence = state.sentence else { return }
       let contextualStrings = sentence.words.map(\.text)
@@ -111,8 +104,6 @@ import SpeechRecognition
 }
 
 extension Reading.State {
-  /// Marks `count` words read and moves the ball on. Stars: 1 per word, +5 for a sentence read
-  /// with no help, +20 for a finished story.
   mutating func advance(by count: Int) {
     guard let sentence else { return }
     let read = min(count, sentence.words.count - wordIndex)
@@ -133,5 +124,60 @@ extension Reading.State {
 extension Array {
   subscript(safe index: Int) -> Element? {
     indices.contains(index) ? self[index] : nil
+  }
+}
+
+public struct ReadingScreen: View {
+  let store: StoreOf<Reading>
+
+  public init(store: StoreOf<Reading>) {
+    self.store = store
+  }
+
+  public var body: some View {
+    GeometryReader { proxy in
+      let geometry = ReadingGeometry(size: proxy.size)
+
+      ZStack {
+        Color(hex: 0x8FCB6B)
+          .ignoresSafeArea()
+
+        WordCard(
+          words: store.sentence?.words ?? [],
+          currentIndex: store.wordIndex,
+          geometry: geometry
+        )
+        .position(geometry.cardCenter)
+        .onTapGesture { store.send(.currentWordTapped) }
+
+        micPill(geometry)
+          .position(x: proxy.size.width / 2, y: geometry.y(762))
+      }
+    }
+    .navigationTitle(store.story.title)
+    .navigationBarTitleDisplayMode(.inline)
+  }
+
+  private func micPill(_ geometry: ReadingGeometry) -> some View {
+    Label(
+      store.heardToken.map { "Heard it — “\($0)”" } ?? "Say the word",
+      systemImage: store.heardToken == nil ? "mic.fill" : "checkmark"
+    )
+    .font(Typography.ui(geometry.scaled(15)))
+    .foregroundStyle(store.heardToken == nil ? Palette.chipText : Palette.heardText)
+    .padding(.horizontal, geometry.scaled(18))
+    .padding(.vertical, geometry.scaled(12))
+    .background(store.heardToken == nil ? Palette.cream : Palette.heardBg, in: .capsule)
+    .shadow(color: Palette.ink.opacity(0.12), radius: 0, x: 0, y: geometry.scaled(4))
+  }
+}
+
+#Preview {
+  NavigationStack {
+    ReadingScreen(
+      store: Store(initialState: Reading.State(story: StoryLibrary.all[0])) {
+        Reading()
+      }
+    )
   }
 }

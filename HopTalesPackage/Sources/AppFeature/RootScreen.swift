@@ -2,19 +2,18 @@ import ComposableArchitecture2
 import Content
 import Home
 import Reading
+import SwiftUI
 
 @Feature public enum Path {
   case reading(Reading)
 }
 
-/// The app's root: home, plus a stack of destinations.
 @Feature public struct Root {
   public init() {}
 
   public struct State {
     public var home = Home.State()
     public var path: [Path.State] = []
-
     public init() {}
   }
 
@@ -41,4 +40,28 @@ import Reading
       Path.body
     }
   }
+}
+
+public struct RootScreen: View {
+  @Bindable var store: StoreOf<Root>
+
+  public init(store: StoreOf<Root>) {
+    self.store = store
+  }
+
+  public var body: some View {
+    NavigationStack(path: $store.scope(\.path)) {
+      HomeScreen(store: store.scope(\.home))
+        .navigationDestination(for: Path.StoreEnumeration.self) { pathStore in
+          switch pathStore {
+          case let .reading(readingStore):
+            ReadingScreen(store: readingStore)
+          }
+        }
+    }
+  }
+}
+
+#Preview {
+  RootScreen(store: Store(initialState: Root.State()) { Root() })
 }
