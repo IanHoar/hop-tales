@@ -211,6 +211,9 @@ extension Array {
 
 public struct ReadingScreen: View {
   static let heardHold = Duration.milliseconds(1200)
+  static let cardToRail: CGFloat = 26
+  static let railToPill: CGFloat = 31
+  static let pillToEdge: CGFloat = 12
   static let recognisedHold = Duration.milliseconds(450)
   static let chipHold = Duration.milliseconds(900)
 
@@ -223,6 +226,44 @@ public struct ReadingScreen: View {
 
   public init(store: StoreOf<Reading>) {
     self.store = store
+  }
+
+  @ViewBuilder
+  private var background: some View {
+    #if DEBUG
+      // Tapping anywhere off the card reads the current word, so a whole story can be walked
+      // through in the simulator where nothing is listening.
+      Color(hex: 0x8FCB6B).modifier(DebugTapToAdvance(store: store))
+    #else
+      Color(hex: 0x8FCB6B)
+    #endif
+  }
+
+  private func card(_ geometry: ReadingGeometry) -> some View {
+    WordCard(
+      words: store.sentence?.words ?? [],
+      currentIndex: store.wordIndex,
+      recognisedIndex: flashIndex,
+      completionCount: store.completionCount,
+      isSpeaking: store.isSpeaking,
+      geometry: geometry
+    )
+    .id(store.sentenceIndex)
+    .transition(.move(edge: .trailing).combined(with: .opacity))
+    .animation(Motion.recognised, value: store.sentenceIndex)
+    .overlay {
+      if flash != nil, !reduceMotion {
+        Sparkles(geometry: geometry)
+          .accessibilityHidden(true)
+      }
+    }
+    .contentShape(.rect)
+    .onTapGesture { store.send(.currentWordTapped) }
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel(wordCardLabel)
+    .accessibilityHint("Double tap to hear the word.")
+    .accessibilityAddTraits(.startsMediaSession)
+    .accessibilityAction { store.send(.currentWordTapped) }
   }
 
   private var wordCardLabel: String {
@@ -240,34 +281,23 @@ public struct ReadingScreen: View {
       let geometry = ReadingGeometry(size: proxy.size)
 
       ZStack {
-        Color(hex: 0x8FCB6B)
+        background
           .ignoresSafeArea()
 
-        WordCard(
-          words: store.sentence?.words ?? [],
-          currentIndex: store.wordIndex,
-          recognisedIndex: flashIndex,
-          completionCount: store.completionCount,
-          isSpeaking: store.isSpeaking,
-          geometry: geometry
-        )
-        .id(store.sentenceIndex)
-        .transition(.move(edge: .trailing).combined(with: .opacity))
-        .animation(Motion.recognised, value: store.sentenceIndex)
-        .position(geometry.cardCenter)
-        .contentShape(.rect)
-        .onTapGesture { store.send(.currentWordTapped) }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(wordCardLabel)
-        .accessibilityHint("Double tap to hear the word.")
-        .accessibilityAddTraits(.startsMediaSession)
-        .accessibilityAction { store.send(.currentWordTapped) }
-
-        if flash != nil, !reduceMotion {
-          Sparkles(geometry: geometry)
-            .accessibilityHidden(true)
-            .position(x: geometry.cardCenter.x, y: geometry.cardCenter.y)
+        VStack(spacing: 0) {
+          Spacer(minLength: 0)
+          card(geometry)
+          ProgressRail(
+            story: store.story,
+            sentenceIndex: store.sentenceIndex,
+            geometry: geometry
+          )
+          .padding(.top, geometry.scaled(Self.cardToRail))
+          MicPill(heardToken: heldToken, geometry: geometry)
+            .padding(.top, geometry.scaled(Self.railToPill))
         }
+        .padding(.bottom, geometry.scaled(Self.pillToEdge))
+        .frame(width: proxy.size.width, height: proxy.size.height)
 
         if let chip {
           StarChip(stars: chip.stars, geometry: geometry)
@@ -275,15 +305,10 @@ public struct ReadingScreen: View {
             .position(x: geometry.scaled(290), y: geometry.y(118))
         }
 
-        ProgressRail(
-          story: store.story,
-          sentenceIndex: store.sentenceIndex,
-          geometry: geometry
-        )
-        .position(x: proxy.size.width / 2, y: geometry.progressY + geometry.scaled(29))
-
-        MicPill(heardToken: heldToken, geometry: geometry)
-          .position(x: proxy.size.width / 2, y: geometry.micPillY)
+        #if DEBUG
+          DebugControls(store: store)
+            .position(x: proxy.size.width / 2, y: geometry.y(70))
+        #endif
       }
     }
     .navigationTitle(store.story.title)
