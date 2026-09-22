@@ -11,7 +11,8 @@ struct WordMatcherTests {
   let mat = Word(text: "mat")
 
   @Test func exactMatch() {
-    #expect(WordMatcher.match(tokens: ["the", "cat", "sat"], current: sat, next: mat)?.target == .current)
+    let match = WordMatcher.match(tokens: ["the", "cat", "sat"], current: sat, next: mat)
+    #expect(match?.target == .current)
   }
 
   @Test func onlyTheLastThreeTokensCount() {

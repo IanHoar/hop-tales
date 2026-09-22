@@ -41,7 +41,7 @@ public enum Typography {
   public static func width(of text: String, size: CGFloat, tracking: CGFloat = 0) -> CGFloat {
     let attributes: [NSAttributedString.Key: Any] = [
       .font: wordUIFont(size),
-      .kern: tracking,
+      .kern: tracking
     ]
     return ceil(NSAttributedString(string: text, attributes: attributes).size().width)
   }

@@ -4,6 +4,8 @@ iOS read-aloud game for early readers. SwiftUI shell + SpriteKit world, on-devic
 
 ## Ground rules
 
+- SwiftLint blocks commits (`.githooks/pre-commit`, `--strict`); `swiftlint --fix` handles most of
+  it. Change `.swiftlint.yml` rather than adding `swiftlint:disable` comments.
 - Commits and pull request titles follow Conventional Commits — `CONTRIBUTING.md` has the rules,
   and a `commit-msg` hook enforces them. `main` squash-merges, so the PR title lands as the commit.
 

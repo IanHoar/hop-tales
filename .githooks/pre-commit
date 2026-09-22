@@ -1,0 +1,31 @@
+#!/bin/sh
+# Lints the Swift files you are about to commit.
+#
+# Installed by ./scripts/setup-git.sh. To bypass once: git commit --no-verify
+set -eu
+
+staged=$(git diff --cached --name-only --diff-filter=ACM -- '*.swift')
+[ -n "$staged" ] || exit 0
+
+if ! command -v swiftlint >/dev/null; then
+  echo "  ! swiftlint is not installed, so staged Swift files were not linted."
+  echo "    brew install swiftlint"
+  exit 0
+fi
+
+# --force-exclude so the config's excluded paths still apply when files are passed by name.
+# --strict because the config decides what matters: if a rule is on, it blocks.
+if ! echo "$staged" | xargs swiftlint lint --quiet --strict --force-exclude; then
+  cat >&2 <<'MESSAGE'
+
+  ✗ SwiftLint found problems in the files you are committing.
+
+    Many are fixable automatically:
+
+        swiftlint --fix && git add -u
+
+    To commit anyway: git commit --no-verify
+
+MESSAGE
+  exit 1
+fi

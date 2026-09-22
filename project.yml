@@ -29,6 +29,16 @@ targets:
     dependencies:
       - package: WordhopPackage
         product: AppFeature
+    preBuildScripts:
+      - name: SwiftLint
+        basedOnDependencyAnalysis: false
+        script: |
+          # Warnings in the issue navigator while you work. The commit hook is what blocks.
+          if command -v swiftlint >/dev/null; then
+            swiftlint lint --quiet
+          else
+            echo "warning: swiftlint is not installed — brew install swiftlint"
+          fi
     settings:
       base:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
