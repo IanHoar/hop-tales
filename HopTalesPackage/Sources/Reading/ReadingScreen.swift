@@ -24,6 +24,7 @@ import World
       case story(stars: Int)
     }
 
+    public var authorization: SpeechClient.Authorization?
     public var completed: Completed?
     public var completionCount = 0
     public var heardToken: String?
@@ -62,6 +63,7 @@ import World
   }
 
   public enum Action {
+    case authorizationResolved(SpeechClient.Authorization)
     case backToStoriesTapped
     case currentWordTapped
     case helpOffered
@@ -93,6 +95,9 @@ import World
   public var body: some Feature {
     Update { state, action in
       switch action {
+      case let .authorizationResolved(authorization):
+        state.authorization = authorization
+
       case .backToStoriesTapped:
         break
 
@@ -145,7 +150,16 @@ import World
       state.strictness = strictnessPreference.load()
       guard let sentence = state.sentence else { return }
       let contextualStrings = sentence.words.map(\.text)
+      let known = state.authorization
       store.addTask {
+        let authorization: SpeechClient.Authorization
+        if let known {
+          authorization = known
+        } else {
+          authorization = await speechClient.requestAuthorization()
+          try store.send(.authorizationResolved(authorization))
+        }
+        guard authorization == .authorized else { return }
         let events = try await speechClient.listen(contextualStrings)
         for await event in events {
           switch event {
@@ -274,6 +288,14 @@ public struct ReadingScreen: View {
     }
     .navigationTitle(store.story.title)
     .navigationBarTitleDisplayMode(.inline)
+    .overlay {
+      if let authorization = store.authorization, authorization != .authorized {
+        ListeningUnavailable(authorization: authorization) {
+          store.send(.backToStoriesTapped)
+        }
+        .transition(.opacity)
+      }
+    }
     .overlay {
       if case let .story(stars) = store.completed {
         StoryFinished(title: store.story.title, stars: stars) {
