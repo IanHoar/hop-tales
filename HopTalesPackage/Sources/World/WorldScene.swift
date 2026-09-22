@@ -9,6 +9,7 @@ public final class WorldScene: SKScene {
   public static let textureWidth: CGFloat = 2340
   public static let crossfade: TimeInterval = 0.6
   public static let scrollDuration: TimeInterval = 0.6
+  static let scrollKey = "scroll"
 
   let world = SKNode()
   let skyNode = SKSpriteNode()
@@ -43,6 +44,7 @@ public final class WorldScene: SKScene {
   private func mountArt() {
     skyNode.anchorPoint = .zero
     skyNode.zPosition = -40
+    skyNode.size = WorldMetrics.size
     skyNode.texture = WorldArt.sky(stage).map(SKTexture.init(image:))
 
     let parallax: [(WorldArt, SKNode)] = [
@@ -66,10 +68,7 @@ public final class WorldScene: SKScene {
     guard size.height > 0, size != builtSize else { return }
     builtSize = size
 
-    let scale = size.height / WorldMetrics.size.height
-    world.setScale(scale)
-
-    skyNode.size = CGSize(width: size.width / scale, height: WorldMetrics.size.height)
+    world.setScale(size.height / WorldMetrics.size.height)
   }
 
   public func setProgress(_ progress: Double, animated: Bool = true) {
@@ -77,15 +76,22 @@ public final class WorldScene: SKScene {
     let stage = WorldStage(progress: progress)
     if stage != self.stage { setStage(stage, animated: animated) }
 
-    for (layer, speed) in [(farLayer, 0.3), (midLayer, 0.6), (nearLayer, 1.0), (actorLayer, 1.0)] {
-      let x = -speed * progress
+    let offsets = LayerOffsets(progress: progress)
+    let targets = [
+      (farLayer, offsets.far),
+      (midLayer, offsets.mid),
+      (nearLayer, offsets.near),
+      (actorLayer, offsets.near)
+    ]
+    for (layer, x) in targets {
+      layer.removeAction(forKey: Self.scrollKey)
       guard animated else {
-        layer.position.x = x
+        layer.position.x = CGFloat(x)
         continue
       }
-      let move = SKAction.moveTo(x: x, duration: Self.scrollDuration)
-      move.timingFunction = WorldScene.easeOutExpo
-      layer.run(move)
+      let move = SKAction.moveTo(x: CGFloat(x), duration: Self.scrollDuration)
+      move.timingFunction = Self.easeOutExpo
+      layer.run(move, withKey: Self.scrollKey)
     }
   }
 
