@@ -159,6 +159,11 @@ public struct ReadingScreen: View {
     self.store = store
   }
 
+  private var wordCardLabel: String {
+    guard let word = store.currentWord?.text else { return "Reading" }
+    return "Current word: \(word). Say it out loud."
+  }
+
   private var flashIndex: Int? {
     guard let flash, flash.sentenceIndex == store.sentenceIndex else { return nil }
     return flash.wordIndex
@@ -179,10 +184,17 @@ public struct ReadingScreen: View {
           geometry: geometry
         )
         .position(geometry.cardCenter)
+        .contentShape(.rect)
         .onTapGesture { store.send(.currentWordTapped) }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(wordCardLabel)
+        .accessibilityHint("Double tap to hear the word.")
+        .accessibilityAddTraits(.startsMediaSession)
+        .accessibilityAction { store.send(.currentWordTapped) }
 
         if flash != nil, !reduceMotion {
           Sparkles(geometry: geometry)
+            .accessibilityHidden(true)
             .position(x: geometry.cardCenter.x, y: geometry.cardCenter.y)
         }
 
