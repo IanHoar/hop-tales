@@ -2,9 +2,6 @@ import Content
 import DesignSystem
 import SwiftUI
 
-/// The reading surface: the ball lane on top, the word row under it, on a cream card.
-///
-/// The card never moves between stages — only the world behind it changes.
 struct WordCard: View {
   let words: [Word]
   let currentIndex: Int

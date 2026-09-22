@@ -3,8 +3,6 @@ import Testing
 
 @testable import SpeechRecognition
 
-/// These encode the tolerance rules in `HANDOFF.md` §5. They must stay green — they are the only
-/// place the matcher can be tuned without a microphone and a five-year-old.
 struct WordMatcherTests {
   let sat = Word(text: "sat")
   let knight = Word(text: "knight", homophones: ["night"])
@@ -24,15 +22,12 @@ struct WordMatcherTests {
   }
 
   @Test func levenshteinIsNotAppliedToShortWords() {
-    // "sad" is one edit from "sat", but three-letter words are too easy to confuse, so the edit
-    // rule does not apply. Gentle still takes it on the shared-prefix rule below.
     #expect(
       WordMatcher.match(tokens: ["sad"], current: sat, next: nil, strictness: .standard) == nil
     )
   }
 
   @Test func droppedFinalConsonantIsForgivenWhenGentle() {
-    // Same length, same first two letters — early readers garble final consonants.
     #expect(WordMatcher.match(tokens: ["sap"], current: sat, next: nil)?.target == .current)
     #expect(
       WordMatcher.match(tokens: ["sap"], current: sat, next: nil, strictness: .standard) == nil
@@ -40,8 +35,6 @@ struct WordMatcherTests {
   }
 
   @Test func homophonesAreAcceptedWhenGentle() {
-    // "night" for "knight" is within one edit, so prove the homophone rule with a pair only it can
-    // bridge: "wood" is two edits from "would" and the lengths differ, so no other rule applies.
     let would = Word(text: "would", homophones: ["wood"])
     #expect(WordMatcher.match(tokens: ["wood"], current: would, next: nil)?.target == .current)
     #expect(

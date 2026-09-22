@@ -1,7 +1,5 @@
 import Foundation
 
-/// Time of day across the traverse (`HANDOFF.md` §6). Boundaries crossfade over ~200pt of
-/// progress.
 public enum WorldStage: String, Hashable, Sendable, CaseIterable {
   case meadow
   case castle
@@ -24,10 +22,8 @@ public enum WorldStage: String, Hashable, Sendable, CaseIterable {
   }
 }
 
-/// The world is six phone-widths long; a full story traverses it exactly once.
 public enum WorldMetrics {
   public static let size = CGSize(width: 2340, height: 844)
   public static let traverse: Double = 1950
-  /// Everything below this is hidden behind the word card on phone.
   public static let groundCrest: Double = 452
 }

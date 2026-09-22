@@ -47,6 +47,10 @@ iOS read-aloud game for early readers. SwiftUI shell + SpriteKit world, on-devic
 - Feature-scoped mutable state that is not view state goes in `@FeatureState` on the feature (the
   `@FeatureLocal` in older docs does not exist here). Keeping it out of `State` also keeps it out of
   every test assertion.
+- A `@Feature` and its view live in the same file — `Reading.swift` holds `Reading` and
+  `ReadingView`.
+- Swift source carries no comments, doc comments included. The reasoning goes in the commit message
+  and the pull request. `swiftlint:` control comments, and anything else a tool reads, stay.
 
 ## Commands
 
