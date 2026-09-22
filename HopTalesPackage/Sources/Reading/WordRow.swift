@@ -39,6 +39,7 @@ struct WordRow: View {
   let words: [Word]
   let currentIndex: Int
   var recognisedIndex: Int?
+  var isSpeaking = false
   let geometry: ReadingGeometry
 
   var body: some View {
@@ -51,6 +52,7 @@ struct WordRow: View {
             isRecognised: index == recognisedIndex
           ),
           currentSize: currentSize,
+          isPulsing: isSpeaking && index == currentIndex,
           geometry: geometry
         )
       }
@@ -99,6 +101,7 @@ struct WordLabel: View {
   let word: Word
   let state: WordDisplayState
   let currentSize: CGFloat
+  var isPulsing = false
   let geometry: ReadingGeometry
 
   static func pillPadding(_ geometry: ReadingGeometry) -> CGSize {
@@ -115,6 +118,8 @@ struct WordLabel: View {
       .padding(.horizontal, horizontalPadding)
       .padding(.vertical, verticalPadding)
       .background { pill }
+      .scaleEffect(isPulsing ? 1.08 : 1)
+      .animation(.easeInOut(duration: 0.28).repeatCount(3, autoreverses: true), value: isPulsing)
   }
 
   @ViewBuilder

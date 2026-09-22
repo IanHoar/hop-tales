@@ -7,6 +7,8 @@ import SwiftUI
 import World
 
 @Feature public struct Reading {
+  public static let settleAfterSpeaking = Duration.milliseconds(300)
+
   public init() {}
 
   public struct State: Identifiable {
@@ -25,6 +27,7 @@ import World
     public var completed: Completed?
     public var completionCount = 0
     public var heardToken: String?
+    public var isSpeaking = false
     public var recognised: Recognised?
     public var sentenceIndex = 0
     public var stars = 0
@@ -62,6 +65,7 @@ import World
     case backToStoriesTapped
     case currentWordTapped
     case helpOffered
+    case speechFinished
     case speechResult(tokens: [String], isFinal: Bool)
   }
 
@@ -76,13 +80,21 @@ import World
         break
 
       case .currentWordTapped, .helpOffered:
-        guard let word = state.currentWord?.text else { break }
+        guard let word = state.currentWord?.text, !state.isSpeaking else { break }
         state.usedHelp = true
+        state.isSpeaking = true
         store.addTask {
           await speechClient.speak(word)
+          try? await Task.sleep(for: Reading.settleAfterSpeaking)
+          try store.send(.speechFinished)
         }
 
+      case .speechFinished:
+        state.isSpeaking = false
+        debouncer.reset()
+
       case let .speechResult(tokens, isFinal):
+        guard !state.isSpeaking else { break }
         let eligible = debouncer.confirm(tokens: tokens, isFinal: isFinal)
         guard
           let current = state.currentWord,
@@ -202,6 +214,7 @@ public struct ReadingScreen: View {
           currentIndex: store.wordIndex,
           recognisedIndex: flashIndex,
           completionCount: store.completionCount,
+          isSpeaking: store.isSpeaking,
           geometry: geometry
         )
         .id(store.sentenceIndex)
