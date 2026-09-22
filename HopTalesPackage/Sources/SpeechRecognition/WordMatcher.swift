@@ -22,6 +22,10 @@ public enum WordMatcher {
     }
   }
 
+  static let soundsAlike: [String: Set<String>] = [
+    "the": ["a", "uh", "duh", "da", "de", "dee", "thee", "thuh", "they", "then"]
+  ]
+
   public static func normalize(_ transcript: String) -> [String] {
     transcript
       .lowercased()
@@ -62,6 +66,7 @@ public enum WordMatcher {
 
     if token.count == text.count, token.prefix(2) == text.prefix(2) { return true }
     if target.homophones.contains(where: { $0.lowercased() == token }) { return true }
+    if soundsAlike[text]?.contains(token) == true { return true }
     return false
   }
 
