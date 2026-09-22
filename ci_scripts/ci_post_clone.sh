@@ -54,3 +54,8 @@ for scheme in https http; do
   git config --global "credential.$scheme://github.com.helper" \
     '!f() { test "$1" = get && printf "username=x-access-token\npassword=%s\n" "$TCA26_TOKEN"; }; f'
 done
+
+# The build phase lints, and without swiftlint on the machine it can only warn about itself.
+# Installed here rather than in the build phase so a failure is a setup failure, not a build one.
+echo "Installing swiftlint."
+brew install swiftlint
