@@ -29,6 +29,7 @@ struct Ball: View {
     }
     .frame(width: geometry.cardSize.width, height: geometry.ballLaneHeight)
     .allowsHitTesting(false)
+    .accessibilityHidden(true)
     .onChange(of: wordIndex) { _, _ in arc() }
   }
 

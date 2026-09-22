@@ -33,7 +33,7 @@ struct MicPill: View {
     }
     .padding(.horizontal, geometry.scaled(22))
     .padding(.vertical, geometry.scaled(13))
-    .frame(minHeight: geometry.scaled(48))
+    .frame(minHeight: geometry.minimumTouchTarget)
     .background {
       Capsule()
         .fill(heardToken == nil ? Palette.cream : Palette.heardBg)
