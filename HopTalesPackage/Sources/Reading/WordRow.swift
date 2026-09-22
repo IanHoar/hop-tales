@@ -6,9 +6,14 @@ enum WordDisplayState: Equatable {
   case completed
   case current
   case next
+  case recognised
   case upcoming
 
-  init(offsetFromCurrent offset: Int) {
+  init(offsetFromCurrent offset: Int, isRecognised: Bool = false) {
+    if isRecognised {
+      self = .recognised
+      return
+    }
     switch offset {
     case ..<0: self = .completed
     case 0: self = .current
@@ -22,14 +27,18 @@ enum WordDisplayState: Equatable {
     case .completed: Palette.pillText
     case .current: Palette.ink
     case .next: Palette.muted
+    case .recognised: Palette.flashText
     case .upcoming: Palette.faint
     }
   }
+
+  var isPill: Bool { self == .completed || self == .recognised }
 }
 
 struct WordRow: View {
   let words: [Word]
   let currentIndex: Int
+  var recognisedIndex: Int?
   let geometry: ReadingGeometry
 
   var body: some View {
@@ -37,12 +46,17 @@ struct WordRow: View {
       ForEach(Array(words.enumerated()), id: \.offset) { index, word in
         WordLabel(
           word: word,
-          state: WordDisplayState(offsetFromCurrent: index - currentIndex),
+          state: WordDisplayState(
+            offsetFromCurrent: index - currentIndex,
+            isRecognised: index == recognisedIndex
+          ),
           currentSize: currentSize,
           geometry: geometry
         )
       }
     }
+    .animation(Motion.recognised, value: currentIndex)
+    .animation(Motion.recognised, value: recognisedIndex)
   }
 
   var currentSize: CGFloat {
@@ -98,18 +112,52 @@ struct WordLabel: View {
       .foregroundStyle(state.foreground)
       .lineLimit(1)
       .fixedSize()
-      .padding(.horizontal, state == .completed ? Self.pillPadding(geometry).width : 0)
-      .padding(.vertical, state == .completed ? Self.pillPadding(geometry).height : 0)
-      .background {
-        if state == .completed {
-          RoundedRectangle(cornerRadius: geometry.scaled(10), style: .continuous)
-            .fill(Palette.pillBg)
+      .padding(.horizontal, horizontalPadding)
+      .padding(.vertical, verticalPadding)
+      .background { pill }
+  }
+
+  @ViewBuilder
+  private var pill: some View {
+    switch state {
+    case .completed:
+      RoundedRectangle(cornerRadius: geometry.scaled(10), style: .continuous)
+        .fill(Palette.pillBg)
+    case .recognised:
+      RoundedRectangle(cornerRadius: geometry.scaled(14), style: .continuous)
+        .fill(Palette.amber)
+        .overlay {
+          RoundedRectangle(cornerRadius: geometry.scaled(14), style: .continuous)
+            .strokeBorder(Palette.amber.opacity(0.28), lineWidth: geometry.scaled(5))
+            .padding(-geometry.scaled(5))
         }
-      }
+    default:
+      EmptyView()
+    }
+  }
+
+  private var horizontalPadding: CGFloat {
+    switch state {
+    case .completed: Self.pillPadding(geometry).width
+    case .recognised: geometry.scaled(12)
+    default: 0
+    }
+  }
+
+  private var verticalPadding: CGFloat {
+    switch state {
+    case .completed: Self.pillPadding(geometry).height
+    case .recognised: geometry.scaled(4)
+    default: 0
+    }
   }
 
   private var size: CGFloat {
-    state == .current ? currentSize : geometry.sideWordSize
+    switch state {
+    case .current: currentSize
+    case .recognised: geometry.recognisedWordSize
+    default: geometry.sideWordSize
+    }
   }
 }
 

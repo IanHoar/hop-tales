@@ -35,6 +35,7 @@ public struct ReadingGeometry: Equatable, Sendable {
   public var cardCornerRadius: CGFloat { scaled(metrics.card.cornerRadius) }
   public var ballLaneHeight: CGFloat { scaled(metrics.card.ballLaneHeight) }
   public var currentWordSize: CGFloat { scaled(metrics.words.current) }
+  public var recognisedWordSize: CGFloat { scaled(metrics.words.recognised) }
   public var sideWordSize: CGFloat { scaled(metrics.words.side) }
   public var wordGap: CGFloat { scaled(metrics.words.gap) }
   public var micPillY: CGFloat { y(metrics.micPillY) }

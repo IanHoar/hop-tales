@@ -10,7 +10,15 @@ import World
   public init() {}
 
   public struct State: Identifiable {
+    public struct Recognised: Equatable, Sendable {
+      public var count: Int
+      public var sentenceIndex: Int
+      public var stars: Int
+      public var wordIndex: Int
+    }
+
     public var heardToken: String?
+    public var recognised: Recognised?
     public var sentenceIndex = 0
     public var stars = 0
     public var story: Story
@@ -74,8 +82,16 @@ import World
           )
         else { break }
         let sentenceBefore = state.sentenceIndex
+        let starsBefore = state.stars
         state.heardToken = match.token
+        let readIndex = state.wordIndex
         state.advance(by: match.target == .next ? 2 : 1)
+        state.recognised = Reading.State.Recognised(
+          count: (state.recognised?.count ?? 0) + 1,
+          sentenceIndex: sentenceBefore,
+          stars: state.stars - starsBefore,
+          wordIndex: readIndex
+        )
 
         if state.sentenceIndex != sentenceBefore { debouncer.reset() }
       }
@@ -129,13 +145,23 @@ extension Array {
 
 public struct ReadingScreen: View {
   static let heardHold = Duration.milliseconds(1200)
+  static let recognisedHold = Duration.milliseconds(450)
+  static let chipHold = Duration.milliseconds(900)
 
   let store: StoreOf<Reading>
 
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @State private var heldToken: String?
+  @State private var flash: Reading.State.Recognised?
+  @State private var chip: Reading.State.Recognised?
 
   public init(store: StoreOf<Reading>) {
     self.store = store
+  }
+
+  private var flashIndex: Int? {
+    guard let flash, flash.sentenceIndex == store.sentenceIndex else { return nil }
+    return flash.wordIndex
   }
 
   public var body: some View {
@@ -149,10 +175,22 @@ public struct ReadingScreen: View {
         WordCard(
           words: store.sentence?.words ?? [],
           currentIndex: store.wordIndex,
+          recognisedIndex: flashIndex,
           geometry: geometry
         )
         .position(geometry.cardCenter)
         .onTapGesture { store.send(.currentWordTapped) }
+
+        if flash != nil, !reduceMotion {
+          Sparkles(geometry: geometry)
+            .position(x: geometry.cardCenter.x, y: geometry.cardCenter.y)
+        }
+
+        if let chip {
+          StarChip(stars: chip.stars, geometry: geometry)
+            .id(chip.count)
+            .position(x: geometry.scaled(290), y: geometry.y(118))
+        }
 
         ProgressRail(
           story: store.story,
@@ -167,6 +205,15 @@ public struct ReadingScreen: View {
     }
     .navigationTitle(store.story.title)
     .navigationBarTitleDisplayMode(.inline)
+    .task(id: store.recognised) {
+      guard let recognised = store.recognised else { return }
+      flash = recognised
+      chip = recognised
+      try? await Task.sleep(for: Self.recognisedHold)
+      if !Task.isCancelled { flash = nil }
+      try? await Task.sleep(for: Self.chipHold)
+      if !Task.isCancelled { chip = nil }
+    }
     .task(id: store.heardToken) {
       guard let token = store.heardToken else {
         heldToken = nil

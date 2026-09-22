@@ -22,6 +22,11 @@ struct WordCardSnapshotTests {
   }
 
   @Test(arguments: [ColorScheme.light, .dark])
+  func wordJustRecognised(scheme: ColorScheme) {
+    expectSnapshot(of: WordCardPreview(.wordJustRecognised), scheme: scheme)
+  }
+
+  @Test(arguments: [ColorScheme.light, .dark])
   func longWordShrinksToFitTheCard(scheme: ColorScheme) {
     expectSnapshot(of: WordCardPreview(.longWord), scheme: scheme)
   }

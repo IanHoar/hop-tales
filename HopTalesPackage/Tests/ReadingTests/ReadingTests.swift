@@ -13,11 +13,26 @@ struct ReadingTests {
     await store.send(.speechResult(tokens: ["the"], isFinal: false))
     await store.send(.speechResult(tokens: ["the"], isFinal: false)) {
       $0.heardToken = "the"
+      $0.recognised = Reading.State.Recognised(
+        count: 1,
+        sentenceIndex: 0,
+        stars: 1,
+        wordIndex: 0
+      )
       $0.stars = 1
       $0.wordIndex = 1
     }
 
     await store.dismount()
+  }
+
+  @Test func theLastWordOfASentenceCarriesTheBonusIntoTheChip() {
+    var state = Reading.State(story: StoryLibrary.all[0])
+    let words = state.sentence!.words.count
+    state.advance(by: words - 1)
+    let before = state.stars
+    state.advance(by: 1)
+    #expect(state.stars - before == 6)
   }
 
   @Test func finishingASentenceWithNoHelpAwardsFiveMoreStars() {
