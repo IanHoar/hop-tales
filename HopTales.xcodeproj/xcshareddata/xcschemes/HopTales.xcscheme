@@ -83,6 +83,17 @@
                ReferencedContainer = "container:HopTalesPackage">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "ContentTests"
+               BuildableName = "ContentTests"
+               BlueprintName = "ContentTests"
+               ReferencedContainer = "container:HopTalesPackage">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <CommandLineArguments>
       </CommandLineArguments>

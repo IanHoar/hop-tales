@@ -70,8 +70,25 @@ import World
   }
 
   @FeatureState var debouncer = PartialDebouncer()
+  @FeatureState var savedStars = 0
+  @Dependency(ProgressStore.self) var progressStore
   @Dependency(SpeechClient.self) var speechClient
   @Dependency(StrictnessPreference.self) var strictnessPreference
+
+  private func persist(_ state: State) {
+    var progress = progressStore.load()
+    progress.stars += state.stars - savedStars
+    progress.completedSentences[state.story.id] = max(
+      progress.completedSentences[state.story.id] ?? 0,
+      state.sentenceIndex
+    )
+    progress.wordsRead[state.story.id] = max(
+      progress.wordsRead[state.story.id] ?? 0,
+      state.wordsCompleted
+    )
+    progressStore.save(progress)
+    savedStars = state.stars
+  }
 
   public var body: some Feature {
     Update { state, action in
@@ -117,7 +134,10 @@ import World
           wordIndex: readIndex
         )
 
-        if state.sentenceIndex != sentenceBefore { debouncer.reset() }
+        if state.sentenceIndex != sentenceBefore {
+          debouncer.reset()
+          persist(state)
+        }
       }
     }
 

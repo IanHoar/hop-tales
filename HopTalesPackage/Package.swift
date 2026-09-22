@@ -33,6 +33,9 @@ let package = Package(
     ),
     .target(
       name: "Content",
+      dependencies: [
+        .product(name: "Dependencies", package: "swift-dependencies"),
+      ],
       resources: [.process("Resources")]
     ),
     .target(
@@ -95,6 +98,10 @@ let package = Package(
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
       ],
       resources: [.copy("__Snapshots__")]
+    ),
+    .testTarget(
+      name: "ContentTests",
+      dependencies: ["Content"]
     ),
     .testTarget(
       name: "SpeechTests",
