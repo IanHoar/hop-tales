@@ -4,10 +4,17 @@ import UIKit
 public final class FoxNode: SKNode, Companion {
   static let canvas = CGRect(x: -58, y: -62, width: 106, height: 78)
   static let renderScale: CGFloat = 3
-  static let jumpHeight: CGFloat = 22
-  static let jumpTime: TimeInterval = 0.2
-  static let strideTime: TimeInterval = 0.08
-  static let strideAngle: CGFloat = 0.38
+  static let jumpHeight: CGFloat = 18
+  static let jumpTime: TimeInterval = 0.42
+  static let landTime: TimeInterval = 0.14
+  static let landSquash: CGFloat = 0.08
+  static let strideAngle: CGFloat = 0.32
+  static let strideLength: CGFloat = 30
+  static let trotBounce: CGFloat = 1.6
+  static let fullTrotSpeed: CGFloat = 220
+  static let gaitEase: CGFloat = 0.12
+  static let breathPeriod: CGFloat = 1.8
+  static let swishPeriod: CGFloat = 1.4
   static let body = UIColor(red: 0.93, green: 0.56, blue: 0.31, alpha: 1)
   static let cream = UIColor(red: 1, green: 0.953, blue: 0.902, alpha: 1)
   static let ink = UIColor(red: 0.18, green: 0.165, blue: 0.231, alpha: 1)
@@ -19,6 +26,11 @@ public final class FoxNode: SKNode, Companion {
   let head: SKSpriteNode
   let backLegs: [SKSpriteNode]
   let frontLegs: [SKSpriteNode]
+  let headRest: CGPoint
+  private var clock: TimeInterval = 0
+  private var sinceJump: TimeInterval = .infinity
+  private var gait: CGFloat = 0
+  private var gaitPhase: CGFloat = 0
 
   override public init() {
     shadow = Self.part(pivot: CGPoint(x: 2, y: 4), draw: Self.drawShadow)
@@ -35,6 +47,7 @@ public final class FoxNode: SKNode, Companion {
         Self.drawLeg($0, x: x, top: top, colour: 0xEE8F50)
       }
     }
+    headRest = head.position
     super.init()
     addChild(shadow)
     addChild(figure)
@@ -48,58 +61,52 @@ public final class FoxNode: SKNode, Companion {
     fatalError("init(coder:) is not supported")
   }
 
-  public func idle() {
-    let breathe = SKAction.sequence([
-      SKAction.scaleY(to: 1.04, duration: 0.8),
-      SKAction.scaleY(to: 1, duration: 0.8)
-    ])
-    breathe.timingMode = .easeInEaseOut
-    torso.run(.repeatForever(breathe), withKey: "breathe")
-
-    let nod = SKAction.sequence([
-      SKAction.moveBy(x: 0, y: 0.8, duration: 0.8),
-      SKAction.moveBy(x: 0, y: -0.8, duration: 0.8)
-    ])
-    nod.timingMode = .easeInEaseOut
-    head.run(.repeatForever(nod), withKey: "breathe")
-
-    let sway = SKAction.sequence([
-      SKAction.rotate(toAngle: 0.12, duration: 0.6),
-      SKAction.rotate(toAngle: -0.06, duration: 0.6)
-    ])
-    sway.timingMode = .easeInEaseOut
-    tail.run(.repeatForever(sway), withKey: "sway")
-  }
-
-  public func trot(for duration: TimeInterval) {
-    let frames: [CGFloat] = [1, 0, -1, 0]
-    let cycle = TimeInterval(frames.count) * Self.strideTime
-    let cycles = max(Int((duration / cycle).rounded()), 1)
-    for (pair, legs) in [backLegs, frontLegs].enumerated() {
-      for (index, leg) in legs.enumerated() {
-        let phase: CGFloat = (pair + index).isMultiple(of: 2) ? 1 : -1
-        let steps = frames.map {
-          SKAction.rotate(toAngle: $0 * phase * Self.strideAngle, duration: Self.strideTime)
-        }
-        let settle = SKAction.rotate(toAngle: 0, duration: Self.strideTime)
-        leg.run(.sequence([.repeat(.sequence(steps), count: cycles), settle]), withKey: "trot")
-      }
-    }
-  }
-
   public func celebrate() {
-    let rise = SKAction.moveTo(y: Self.jumpHeight, duration: Self.jumpTime)
-    rise.timingMode = .easeOut
-    let fall = SKAction.moveTo(y: 0, duration: Self.jumpTime)
-    fall.timingMode = .easeIn
-    let land = SKAction.sequence([.scaleY(to: 0.9, duration: 0.06), .scaleY(to: 1, duration: 0.1)])
-    figure.run(.sequence([rise, fall, land]), withKey: "celebrate")
+    sinceJump = 0
+  }
 
-    let shrink = SKAction.scale(to: 0.7, duration: Self.jumpTime)
-    shrink.timingMode = .easeOut
-    let grow = SKAction.scale(to: 1, duration: Self.jumpTime)
-    grow.timingMode = .easeIn
-    shadow.run(.sequence([shrink, grow]), withKey: "celebrate")
+  public func update(elapsed: TimeInterval, travelled: CGFloat) {
+    clock += elapsed
+    sinceJump += elapsed
+
+    let speed = elapsed > 0 ? abs(travelled) / CGFloat(elapsed) : 0
+    let target = min(speed / Self.fullTrotSpeed, 1)
+    let blend = min(CGFloat(elapsed) / Self.gaitEase, 1)
+    gait += (target - gait) * blend
+    gaitPhase += abs(travelled) / Self.strideLength * 2 * .pi
+
+    pose(clock: CGFloat(clock))
+  }
+
+  func pose(clock: CGFloat) {
+    let breath = sin(2 * .pi * clock / Self.breathPeriod)
+    torso.yScale = 1 + 0.025 * breath
+    head.position = headRest + CGVector(dx: 0, dy: 0.6 * breath + 1.2 * gait * cos(2 * gaitPhase))
+    tail.zRotation = 0.08 * sin(2 * .pi * clock / Self.swishPeriod) + 0.1 * gait * sin(gaitPhase)
+
+    for (index, leg) in (backLegs + frontLegs).enumerated() {
+      let diagonal = index == 0 || index == 3
+      leg.zRotation = gait * Self.strideAngle * sin(gaitPhase + (diagonal ? 0 : .pi))
+    }
+
+    let bounce = gait * Self.trotBounce * abs(sin(gaitPhase))
+    let jump = Self.jumpProgress(sinceJump)
+    figure.position.y = bounce + Self.jumpHeight * jump.height
+    figure.yScale = 1 - jump.squash
+    figure.xScale = 1 + jump.squash * 0.6
+    shadow.setScale(1 - 0.3 * jump.height)
+    shadow.alpha = 1 - 0.4 * jump.height
+  }
+
+  static func jumpProgress(_ time: TimeInterval) -> (height: CGFloat, squash: CGFloat) {
+    guard time >= 0 else { return (0, 0) }
+    if time < jumpTime {
+      let p = CGFloat(time / jumpTime)
+      return (4 * p * (1 - p), 0)
+    }
+    let landing = time - jumpTime
+    guard landing < landTime else { return (0, 0) }
+    return (0, landSquash * CGFloat(sin(.pi * landing / landTime)))
   }
 
   static func part(pivot: CGPoint, draw: @escaping (CGContext) -> Void) -> SKSpriteNode {
@@ -270,5 +277,11 @@ public final class FoxNode: SKNode, Companion {
     context.setLineWidth(1.5)
     context.setLineCap(.round)
     context.strokePath()
+  }
+}
+
+extension CGPoint {
+  static func + (point: CGPoint, offset: CGVector) -> CGPoint {
+    CGPoint(x: point.x + offset.dx, y: point.y + offset.dy)
   }
 }

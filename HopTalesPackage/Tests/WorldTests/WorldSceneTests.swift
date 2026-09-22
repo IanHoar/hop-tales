@@ -75,12 +75,35 @@ struct WorldSceneTests {
     #expect(scene.companionLayer.children.count == 1)
   }
 
-  @Test func readingAWordMakesTheFoxJumpAndTrot() {
-    let scene = WorldScene(size: CGSize(width: 402, height: 874))
-    scene.didMove(to: SKView())
-    let fox = scene.companion as? FoxNode
-    scene.setProgress(60)
-    #expect(fox?.figure.action(forKey: "celebrate") != nil)
-    #expect(fox?.backLegs.first?.action(forKey: "trot") != nil)
+  @Test func readingAWordMakesTheFoxJump() {
+    let fox = FoxNode()
+    fox.celebrate()
+    fox.update(elapsed: FoxNode.jumpTime / 2, travelled: 0)
+    #expect(abs(fox.figure.position.y - FoxNode.jumpHeight) < 0.01)
+    fox.update(elapsed: FoxNode.jumpTime + FoxNode.landTime, travelled: 0)
+    #expect(fox.figure.position.y == 0)
+    #expect(fox.figure.yScale == 1)
+  }
+
+  @Test func theLegsOnlyMoveWhileTheGroundDoes() {
+    let fox = FoxNode()
+    for _ in 0..<10 {
+      fox.update(elapsed: 1.0 / 60, travelled: 4)
+    }
+    #expect(fox.backLegs.contains { abs($0.zRotation) > 0.05 })
+    for _ in 0..<60 {
+      fox.update(elapsed: 1.0 / 60, travelled: 0)
+    }
+    #expect((fox.backLegs + fox.frontLegs).allSatisfy { abs($0.zRotation) < 0.01 })
+  }
+
+  @Test func diagonalLegsSwingTogether() {
+    let fox = FoxNode()
+    for _ in 0..<5 {
+      fox.update(elapsed: 1.0 / 60, travelled: 3)
+    }
+    #expect(abs(fox.backLegs[0].zRotation - fox.frontLegs[1].zRotation) < 0.0001)
+    #expect(abs(fox.backLegs[1].zRotation - fox.frontLegs[0].zRotation) < 0.0001)
+    #expect(abs(fox.backLegs[0].zRotation + fox.backLegs[1].zRotation) < 0.0001)
   }
 }
