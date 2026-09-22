@@ -6,44 +6,50 @@ struct Ball: View {
   var completionCount = 0
   let geometry: ReadingGeometry
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
-  @State private var arcOffset: CGFloat = 0
+  @Environment(\.freezesMotion) private var freezesMotion
+  @State private var physics = BallPhysics()
   private var radius: CGFloat { geometry.scaled(geometry.metrics.ballRadius) }
   private var centerY: CGFloat { geometry.scaled(48) }
   private var shadowY: CGFloat { geometry.scaled(70) }
-  private var apex: CGFloat {
-    geometry.scaled(reduceMotion ? Motion.reducedHopOffset : Motion.ballApexIdle)
-  }
 
   var body: some View {
-    KeyframeAnimator(initialValue: Hop(), repeating: true) { hop in
-      let offset = hop.y * apex + arcOffset
-      ZStack(alignment: .top) {
-        shadow(height: height(of: offset))
-        sphere
-          .frame(width: radius * 2, height: radius * 2)
-          .scaleEffect(x: hop.scaleX, y: hop.scaleY, anchor: .bottom)
-          .position(x: geometry.cardSize.width / 2, y: centerY)
-          .offset(y: offset)
+    Group {
+      if freezesMotion {
+        scene(.resting)
+      } else {
+        TimelineView(.animation) { context in
+          scene(physics.pose(at: Self.seconds(context.date), reduceMotion: reduceMotion))
+        }
       }
-    } keyframes: { _ in
-      Hop.track(squash: !reduceMotion)
     }
     .frame(width: geometry.cardSize.width, height: geometry.ballLaneHeight)
     .allowsHitTesting(false)
     .accessibilityHidden(true)
-    .onChange(of: wordIndex) { _, _ in arc() }
+    .onChange(of: wordIndex) { _, _ in
+      physics.jump(at: Self.seconds(.now), reduceMotion: reduceMotion)
+    }
     .onChange(of: completionCount) { _, _ in doubleHop() }
   }
 
-  private func height(of offset: CGFloat) -> CGFloat {
-    guard apex != 0 else { return 0 }
-    return min(abs(offset / apex), 1)
+  static func seconds(_ date: Date) -> TimeInterval {
+    date.timeIntervalSinceReferenceDate
+  }
+
+  private func scene(_ pose: BallPhysics.Pose) -> some View {
+    ZStack(alignment: .top) {
+      shadow(height: min(pose.height / BallPhysics.jumpApex, 1))
+      sphere
+        .frame(width: radius * 2, height: radius * 2)
+        .scaleEffect(x: pose.scaleX, y: pose.scaleY, anchor: .bottom)
+        .position(x: geometry.cardSize.width / 2, y: centerY)
+        .offset(y: -geometry.scaled(pose.height))
+    }
   }
 
   private func shadow(height: CGFloat) -> some View {
     Ellipse()
-      .fill(Palette.ink.opacity(0.14 * (1 - 0.4 * height)))
-      .frame(width: geometry.scaled(34) * (1 - 0.25 * height), height: geometry.scaled(8))
+      .fill(Palette.ink.opacity(0.14 * (1 - 0.5 * height)))
+      .frame(width: geometry.scaled(34) * (1 - 0.35 * height), height: geometry.scaled(8))
       .position(x: geometry.cardSize.width / 2, y: shadowY)
   }
 
@@ -67,49 +73,12 @@ struct Ball: View {
 
   private func doubleHop() {
     guard !reduceMotion else { return }
-    arc()
-    Task {
-      try? await Task.sleep(for: .milliseconds(260))
-      arc()
-    }
-  }
-
-  private func arc() {
-    guard !reduceMotion else { return }
-    let extra = geometry.scaled(Motion.ballApexRecognised - Motion.ballApexIdle)
-    withAnimation(.easeOut(duration: 0.225)) {
-      arcOffset = extra
-    } completion: {
-      withAnimation(.easeIn(duration: 0.225)) {
-        arcOffset = 0
-      }
-    }
-  }
-}
-
-struct Hop {
-  var y: CGFloat = 0
-  var scaleX: CGFloat = 1
-  var scaleY: CGFloat = 1
-  @KeyframesBuilder<Hop>
-  static func track(squash: Bool) -> some Keyframes<Hop> {
-    KeyframeTrack(\Hop.y) {
-      CubicKeyframe(1, duration: 0.33, startVelocity: 4.4, endVelocity: 0)
-      CubicKeyframe(0, duration: 0.33, startVelocity: 0, endVelocity: -4.4)
-
-      LinearKeyframe(0, duration: 0.06)
-    }
-    KeyframeTrack(\Hop.scaleX) {
-      LinearKeyframe(squash ? 0.97 : 1, duration: 0.33)
-      LinearKeyframe(1, duration: 0.29)
-      SpringKeyframe(squash ? 1.12 : 1, duration: 0.04, spring: .snappy)
-      SpringKeyframe(1, duration: 0.06, spring: .bouncy)
-    }
-    KeyframeTrack(\Hop.scaleY) {
-      LinearKeyframe(squash ? 1.04 : 1, duration: 0.33)
-      LinearKeyframe(1, duration: 0.29)
-      SpringKeyframe(squash ? 0.88 : 1, duration: 0.04, spring: .snappy)
-      SpringKeyframe(1, duration: 0.06, spring: .bouncy)
+    let now = Self.seconds(.now)
+    let landing = BallPhysics.timeToLanding(from: physics.pose(at: now).height)
+    physics.jump(at: now)
+    Task { @MainActor in
+      try? await Task.sleep(for: .seconds(landing))
+      physics.jump(at: Self.seconds(.now))
     }
   }
 }

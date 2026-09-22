@@ -1,3 +1,4 @@
+import DesignSystem
 import Foundation
 import SnapshotTesting
 import SwiftUI
@@ -65,7 +66,7 @@ func expectSnapshot(
   column: UInt = #column
 ) {
   expectSnapshot(
-    of: view.environment(\.colorScheme, scheme),
+    of: view.environment(\.colorScheme, scheme).environment(\.freezesMotion, true),
     as: .image(layout: .sizeThatFits),
     named: "\(scheme)",
     fileID: fileID,

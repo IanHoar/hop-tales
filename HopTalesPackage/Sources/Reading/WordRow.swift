@@ -57,7 +57,7 @@ struct WordRow: View {
         )
       }
     }
-    .animation(Motion.recognised, value: currentIndex)
+    .animation(Motion.slide, value: currentIndex)
     .animation(Motion.recognised, value: recognisedIndex)
   }
 
