@@ -95,6 +95,7 @@ let package = Package(
         "DesignSystem",
         "Home",
         "Reading",
+        "SpeechRecognition",
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
       ],
       resources: [.copy("__Snapshots__")]

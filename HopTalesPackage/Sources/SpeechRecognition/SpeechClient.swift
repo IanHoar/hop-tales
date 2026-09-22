@@ -31,11 +31,16 @@ public struct SpeechClient: Sendable {
 }
 
 extension SpeechClient: DependencyKey {
-  public static let liveValue = SpeechClient(
-    listen: { _ in AsyncStream { $0.finish() } },
-    requestAuthorization: { .unsupported },
-    speak: { word in await Speaker.shared.speak(word) }
-  )
+  public static let liveValue: SpeechClient = {
+    let recognizer = LiveSpeechRecognizer()
+    return SpeechClient(
+      listen: { contextualStrings in
+        try await recognizer.listen(contextualStrings: contextualStrings)
+      },
+      requestAuthorization: { await LiveSpeechRecognizer.authorization() },
+      speak: { word in await Speaker.shared.speak(word) }
+    )
+  }()
 
   public static let testValue = SpeechClient(
     listen: { _ in AsyncStream { $0.finish() } },
