@@ -85,9 +85,9 @@ struct WordRow: View {
     // Never shrink below half: past that the word stops being the thing on the screen.
     let minimum = maximum / 2
     var size = maximum
-    while size > minimum,
-      Typography.width(of: current, size: size, tracking: Typography.wordTracking(size)) > budget
-    {
+    while size > minimum {
+      let width = Typography.width(of: current, size: size, tracking: Typography.wordTracking(size))
+      guard width > budget else { break }
       size -= 1
     }
     return size

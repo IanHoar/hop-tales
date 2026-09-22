@@ -80,6 +80,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 54A3138BE47C7BA161D02930 /* Build configuration list for PBXNativeTarget "Wordhop" */;
 			buildPhases = (
+				39243CC0C0DB7A8BA3BB4687 /* SwiftLint */,
 				A78FAA821D7D9CE53556A228 /* Sources */,
 				EC1609020B17240C4A297A0B /* Resources */,
 				0A8BD4BBF853CF43864D6BF1 /* Frameworks */,
@@ -142,6 +143,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		39243CC0C0DB7A8BA3BB4687 /* SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = SwiftLint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Warnings in the issue navigator while you work. The commit hook is what blocks.\nif command -v swiftlint >/dev/null; then\n  swiftlint lint --quiet\nelse\n  echo \"warning: swiftlint is not installed — brew install swiftlint\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		A78FAA821D7D9CE53556A228 /* Sources */ = {

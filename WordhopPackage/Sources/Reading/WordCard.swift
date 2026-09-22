@@ -24,7 +24,12 @@ struct WordCard: View {
     .background(Palette.cream, in: shape)
     .clipShape(shape)
     .shadow(color: Palette.ink.opacity(0.10), radius: 0, x: 0, y: geometry.scaled(12))
-    .shadow(color: sceneShadow.opacity(0.18), radius: geometry.scaled(20), x: 0, y: geometry.scaled(24))
+    .shadow(
+      color: sceneShadow.opacity(0.18),
+      radius: geometry.scaled(20),
+      x: 0,
+      y: geometry.scaled(24)
+    )
   }
 
   private var shape: RoundedRectangle {

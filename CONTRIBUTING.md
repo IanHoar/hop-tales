@@ -3,9 +3,30 @@
 ## Setup
 
 ```sh
+brew install swiftlint   # the hooks and the build both use it
 ./scripts/setup-git.sh   # commit template + hooks, once per clone
 open Wordhop.xcworkspace # not the .xcodeproj
 ```
+
+## Style
+
+SwiftLint runs in two places: a build phase surfaces warnings in the issue navigator while you
+work, and a `pre-commit` hook **blocks** a commit whose staged Swift files do not lint. The hook
+runs `--strict`, so the config is the only thing that decides what matters — if a rule is on, it
+blocks.
+
+Most of it fixes itself:
+
+```sh
+swiftlint --fix && git add -u
+```
+
+`.swiftlint.yml` is the house style: two-space indentation, lines wrapped at 100, imports
+alphabetised. If a rule is wrong for this codebase, change the config in the same pull request
+rather than sprinkling `swiftlint:disable`.
+
+Without SwiftLint installed the hook warns and lets the commit through, so a fresh clone is never
+blocked by a missing tool.
 
 ## Commits
 

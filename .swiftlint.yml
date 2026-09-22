@@ -1,0 +1,53 @@
+# Style is the Point-Free house style the rest of the code follows: two-space indentation, lines
+# wrapped at 100, imports alphabetised. Rules that would only nag are left off.
+
+included:
+  - Wordhop
+  - WordhopPackage/Sources
+  - WordhopPackage/Tests
+
+excluded:
+  - .build
+  - WordhopPackage/Tests/SnapshotTests/__Snapshots__
+
+disabled_rules:
+  - todo  # TODO(#N) markers point at tracked issues; they are the plan, not debt.
+
+opt_in_rules:
+  - closure_spacing
+  - collection_alignment
+  - empty_count
+  - empty_string
+  - explicit_init
+  - first_where
+  - indentation_width
+  - last_where
+  - modifier_order
+  - prefer_self_type_over_type_of_self
+  - redundant_nil_coalescing
+  - sorted_imports
+  - toggle_bool
+  - unneeded_parentheses_in_closure_argument
+  - yoda_condition
+
+line_length:
+  warning: 100
+  error: 120
+  ignores_urls: true
+  ignores_comments: false
+
+indentation_width:
+  indentation_width: 2
+  include_comments: false
+
+identifier_name:
+  # Geometry and maths read better short: x, y, p for world progress.
+  min_length:
+    warning: 1
+  excluded: [id, x, y, p, v]
+
+type_name:
+  allowed_symbols: ["_"]  # _Scratch-style helpers in previews and tests.
+
+nesting:
+  type_level: 3  # Feature.State.DebugSnapshot is three deep by construction.
