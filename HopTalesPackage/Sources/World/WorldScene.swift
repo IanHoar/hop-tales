@@ -19,6 +19,8 @@ public final class WorldScene: SKScene {
   let actorLayer = SKNode()
   let companionLayer = SKNode()
   let particleLayer = SKNode()
+  let knight = KnightNode()
+  let dragon = DragonNode()
   let particles = AmbientParticles.emitter()
   static let companionHome = CGPoint(x: 118, y: WorldMetrics.size.height - 441)
 
@@ -89,6 +91,9 @@ public final class WorldScene: SKScene {
       layer.addChild(sprite)
     }
     actorLayer.zPosition = 0
+    actorLayer.addChild(knight)
+    actorLayer.addChild(dragon)
+    grade(for: stage)
   }
 
   private func layOut() {
@@ -105,6 +110,8 @@ public final class WorldScene: SKScene {
     let travelled = lastNearX - nearLayer.position.x
     lastNearX = nearLayer.position.x
     companion.update(elapsed: elapsed, travelled: travelled)
+    knight.update(elapsed: elapsed, foxAt: Self.companionHome.x - nearLayer.position.x)
+    dragon.update(elapsed: elapsed)
   }
 
   private func mountParticles() {
@@ -172,9 +179,22 @@ public final class WorldScene: SKScene {
     }
   }
 
+  public func roar() {
+    dragon.roar()
+  }
+
+  private func grade(for stage: WorldStage) {
+    let dusk = stage == .dragon
+    for node in [knight.body, dragon.body, dragon.wing] {
+      node.color = UIColor(red: 0.8, green: 0.78, blue: 0.88, alpha: 1)
+      node.colorBlendFactor = dusk ? 0.2 : 0
+    }
+  }
+
   public func setStage(_ stage: WorldStage, animated: Bool = true) {
     self.stage = stage
     tintParticles()
+    grade(for: stage)
     let tone = WorldArt.Tone(stage: stage)
     crossfade(skyNode, in: world, to: WorldArt(.sky, tone), animated: animated)
     for (art, layer) in artLayers {

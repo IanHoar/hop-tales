@@ -43,3 +43,17 @@ enum FoxSnapshot {
     return view.texture(from: scene).map { UIImage(cgImage: $0.cgImage()) }
   }
 }
+
+@MainActor
+enum CastSnapshot {
+  static func image(of node: SKNode, size: CGSize, scale: CGFloat) -> UIImage? {
+    let view = SKView(frame: CGRect(origin: .zero, size: size))
+    let scene = SKScene(size: size)
+    scene.backgroundColor = UIColor(red: 0.56, green: 0.8, blue: 0.42, alpha: 1)
+    node.setScale(scale)
+    node.position = CGPoint(x: size.width / 2, y: 16)
+    scene.addChild(node)
+    view.presentScene(scene)
+    return view.texture(from: scene).map { UIImage(cgImage: $0.cgImage()) }
+  }
+}

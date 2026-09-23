@@ -1,0 +1,22 @@
+{
+  "canvas": {
+    "x": -150.0,
+    "y": -260.0,
+    "width": 320.0,
+    "height": 280.0
+  },
+  "pivots": {
+    "dragon-body-idle": {
+      "x": 0,
+      "y": 0
+    },
+    "dragon-body-roar": {
+      "x": 0,
+      "y": 0
+    },
+    "dragon-wing": {
+      "x": 8,
+      "y": -122
+    }
+  }
+}

@@ -258,7 +258,7 @@ public struct ReadingScreen: View {
     if freezesMotion {
       Color(hex: 0x8FCB6B)
     } else {
-      WorldView(progress: store.worldProgress)
+      WorldView(progress: store.worldProgress, finale: isFinished)
     }
   }
 
@@ -277,6 +277,11 @@ public struct ReadingScreen: View {
     .accessibilityHint("Double tap to hear the word.")
     .accessibilityAddTraits(.startsMediaSession)
     .accessibilityAction { store.send(.currentWordTapped) }
+  }
+
+  private var isFinished: Bool {
+    guard case .story = store.completed else { return false }
+    return true
   }
 
   private var hearing: String? {

@@ -20,6 +20,8 @@ struct Rigging: Decodable {
   let pivots: [String: Point]
 
   static let fox = load("fox-pivots")
+  static let dragon = load("dragon-pivots")
+  static let knight = load("knight-pivots")
 
   static func load(_ name: String) -> Rigging {
     guard let url = Bundle.module.url(forResource: name, withExtension: "json"),

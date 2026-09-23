@@ -1,10 +1,14 @@
 import json
 import os
 
+import dragon as D
 import fox as F
+import knight as K
 from ink import svg, ground_shadow
 
 CANVAS = "-120 -160 240 170"
+DRAGON_CANVAS = "-150 -260 320 280"
+KNIGHT_CANVAS = "-90 -180 180 200"
 
 FOX_PARTS = {
     "fox-shadow": (ground_shadow(2, 1, 50, 6, 0.3), (2, 1)),
@@ -21,16 +25,34 @@ FOX_PARTS = {
 }
 
 
-def export(parts, out="../sprites/parts"):
+def without_near_wing(body):
+    return body.rsplit('\n<g transform="rotate(', 1)[0]
+
+
+DRAGON_PARTS = {
+    "dragon-body-idle": (without_near_wing(D.dragon("idle", 0)), (0, 0)),
+    "dragon-body-roar": (without_near_wing(D.dragon("roar", 0)), (0, 0)),
+    "dragon-wing": (D.wing(8, -122, D.MEM, D.SCALE), (8, -122)),
+}
+
+KNIGHT_PARTS = {
+    "knight-idle": (K.knight(0), (0, 0)),
+    "knight-wave": (K.knight(20), (0, 0)),
+}
+
+
+def export(prefix, parts, canvas=CANVAS, out="../sprites/parts"):
     os.makedirs(out, exist_ok=True)
+    x, y, w, h = map(float, canvas.split())
     pivots = {}
     for name, (body, pivot) in parts.items():
-        open(f"{out}/{name}.svg", "w").write(svg(480, 340, body, vb=CANVAS))
+        open(f"{out}/{name}.svg", "w").write(svg(int(w * 2), int(h * 2), body, vb=canvas))
         pivots[name] = {"x": pivot[0], "y": pivot[1]}
-    x, y, w, h = map(float, CANVAS.split())
     json.dump({"canvas": {"x": x, "y": y, "width": w, "height": h}, "pivots": pivots},
-              open(f"{out}/fox-pivots.json", "w"), indent=2)
+              open(f"{out}/{prefix}-pivots.json", "w"), indent=2)
 
 
 if __name__ == "__main__":
-    export(FOX_PARTS)
+    export("fox", FOX_PARTS)
+    export("dragon", DRAGON_PARTS, DRAGON_CANVAS)
+    export("knight", KNIGHT_PARTS, KNIGHT_CANVAS)

@@ -3,16 +3,19 @@ import SwiftUI
 
 public struct WorldView: View {
   let progress: Double
+  var finale = false
   @State private var scene = WorldScene(size: CGSize(width: 1, height: 1))
 
-  public init(progress: Double) {
+  public init(progress: Double, finale: Bool = false) {
     self.progress = progress
+    self.finale = finale
   }
 
   public var body: some View {
     SpriteView(scene: scene, preferredFramesPerSecond: 60, options: [.allowsTransparency])
       .onAppear { scene.setProgress(progress, animated: false) }
       .onChange(of: progress) { _, progress in scene.setProgress(progress) }
+      .onChange(of: finale) { _, finale in if finale { scene.roar() } }
       .accessibilityHidden(true)
   }
 }

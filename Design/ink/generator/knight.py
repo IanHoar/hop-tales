@@ -24,12 +24,14 @@ def star(cx, cy, r, fill, stroke=None, sw=0):
 def knight(wave=0):
     p = [ground_shadow(0, 1, 44, 6, 0.3)]
     # banner pole behind (held in right hand, viewer's right)
-    p.append(part("M30 -150 L 35 -150 L 35 -6 L 30 -6 Z", WOOD, shade="M33 -160 L 40 -160 L 40 0 L 33 0 Z", w=3))
+    banner = []
+    banner.append(part("M30 -150 L 35 -150 L 35 -6 L 30 -6 Z", WOOD, shade="M33 -160 L 40 -160 L 40 0 L 33 0 Z", w=3))
     flag = "M35 -148 C 52 -150 66 -144 80 -146 L 72 -132 L 82 -118 C 66 -116 52 -122 35 -120 Z"
-    p.append(part(flag, TEAL, shade="M35 -128 C 52 -130 66 -124 90 -126 L 90 -110 L 35 -110 Z",
+    banner.append(part(flag, TEAL, shade="M35 -128 C 52 -130 66 -124 90 -126 L 90 -110 L 35 -110 Z",
                   hi="M38 -146 C 50 -147 60 -144 70 -144 C 60 -142 48 -142 38 -142 Z", w=3,
                   extra=star(55, -134, 7, GOLD.base, INK, 1.6)))
-    p.append(part("M28 -156 C 28 -160 37 -160 37 -156 C 37 -152 28 -152 28 -156 Z", GOLD, w=2.5))
+    banner.append(part("M28 -156 C 28 -160 37 -160 37 -156 C 37 -152 28 -152 28 -156 Z", GOLD, w=2.5))
+    p.append(f'<g transform="rotate({wave} 32 -62)">' + "".join(banner) + "</g>")
     # legs + boots
     for x in (-12, 6):
         p.append(part(f"M{x-2} -44 L {x+10} -44 L {x+10} -14 L {x-2} -14 Z", STEEL_D, shade=f"M{x+5} -48 L{x+14} -48 L{x+14} -10 L{x+5} -10 Z", w=W))

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="560" viewBox="-150 -260 320 280"><defs></defs><g>
+<clipPath id="c91"><path d="M8 -122 L 58 -202 C 84 -208 116 -198 126 -180 C 108 -170 108 -148 114 -134 C 96 -130 76 -120 78 -108 C 54 -114 20 -112 8 -122 Z"/></clipPath>
+<path d="M8 -122 L 58 -202 C 84 -208 116 -198 126 -180 C 108 -170 108 -148 114 -134 C 96 -130 76 -120 78 -108 C 54 -114 20 -112 8 -122 Z" fill="#9D74E4"/>
+<g clip-path="url(#c91)">
+<path d="M58 -202 L 126 -180 L 114 -134 L 78 -108 L 38 -122 Z" fill="#7550C4"/>
+<path d="M8 -122 L 58 -202 L 88 -172 Z" fill="#C3A6F6"/>
+<path d="M58 -202 L 126 -180" fill="none" stroke="#553A9E" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" /><path d="M58 -202 L 114 -134" fill="none" stroke="#553A9E" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" /><path d="M58 -202 L 78 -108" fill="none" stroke="#553A9E" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" />
+</g>
+<path d="M8 -122 L 58 -202 C 84 -208 116 -198 126 -180 C 108 -170 108 -148 114 -134 C 96 -130 76 -120 78 -108 C 54 -114 20 -112 8 -122 Z" fill="none" stroke="#1D1A2C" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"/>
+</g><path d="M8 -122 L 58 -202" fill="none" stroke="#1D1A2C" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" /><path d="M8 -122 L 58 -202" fill="none" stroke="#7C52C4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" /><g>
+<clipPath id="c92"><path d="M52 -202 L 58 -216 L 63 -202 Z"/></clipPath>
+<path d="M52 -202 L 58 -216 L 63 -202 Z" fill="#FFF0CF"/>
+<g clip-path="url(#c92)">
+
+</g>
+<path d="M52 -202 L 58 -216 L 63 -202 Z" fill="none" stroke="#1D1A2C" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+</g></svg>
