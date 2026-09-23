@@ -16,13 +16,15 @@ public struct SpeechClient: Sendable {
     case silence(TimeInterval)
   }
 
-  public var listen: @Sendable (_ contextualStrings: [String]) async throws -> AsyncStream<Event>
-  public var requestAuthorization: @Sendable () async -> Authorization
-  public var speak: @Sendable (_ word: String) async -> Void
+  public var listen:
+    @Sendable (_ contextualStrings: [String], _ locale: Locale) async throws -> AsyncStream<Event>
+  public var requestAuthorization: @Sendable (_ locale: Locale) async -> Authorization
+  public var speak: @Sendable (_ word: String, _ voiceID: String?) async -> Void
+
   public init(
-    listen: @escaping @Sendable (_ contextualStrings: [String]) async throws -> AsyncStream<Event>,
-    requestAuthorization: @escaping @Sendable () async -> Authorization,
-    speak: @escaping @Sendable (_ word: String) async -> Void
+    listen: @escaping @Sendable ([String], Locale) async throws -> AsyncStream<Event>,
+    requestAuthorization: @escaping @Sendable (Locale) async -> Authorization,
+    speak: @escaping @Sendable (String, String?) async -> Void
   ) {
     self.listen = listen
     self.requestAuthorization = requestAuthorization
@@ -38,26 +40,26 @@ extension SpeechClient: DependencyKey {
       // that authorises, never hears anything, and still speaks — so tap-to-hear works — and
       // ReadingScreen offers a debug control to stand in for a recognised word.
       return SpeechClient(
-        listen: { _ in AsyncStream { $0.finish() } },
-        requestAuthorization: { .authorized },
-        speak: { word in await Speaker.shared.speak(word) }
+        listen: { _, _ in AsyncStream { $0.finish() } },
+        requestAuthorization: { _ in .authorized },
+        speak: { word, voice in await Speaker.shared.speak(word, voiceID: voice) }
       )
     #else
       let recognizer = LiveSpeechRecognizer()
       return SpeechClient(
-        listen: { contextualStrings in
-          try await recognizer.listen(contextualStrings: contextualStrings)
+        listen: { contextualStrings, locale in
+          try await recognizer.listen(contextualStrings: contextualStrings, locale: locale)
         },
-        requestAuthorization: { await LiveSpeechRecognizer.authorization() },
-        speak: { word in await Speaker.shared.speak(word) }
+        requestAuthorization: { locale in await LiveSpeechRecognizer.authorization(for: locale) },
+        speak: { word, voice in await Speaker.shared.speak(word, voiceID: voice) }
       )
     #endif
   }()
 
   public static let testValue = SpeechClient(
-    listen: { _ in AsyncStream { $0.finish() } },
-    requestAuthorization: { .authorized },
-    speak: { _ in }
+    listen: { _, _ in AsyncStream { $0.finish() } },
+    requestAuthorization: { _ in .authorized },
+    speak: { _, _ in }
   )
 }
 

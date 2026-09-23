@@ -9,6 +9,7 @@ import SwiftUI
 
   public struct State {
     public var childName: String?
+    public var startingStoryID = StoryLibrary.all[0].id
     var progress = Content.Progress()
     var stories = StoryLibrary.all
 
@@ -20,6 +21,15 @@ import SwiftUI
       stories.map { StoryStanding(story: $0, progress: progress) }
     }
 
+    public mutating func apply(_ profile: Profile) {
+      childName = profile.childName.isEmpty ? nil : profile.childName
+      startingStoryID = profile.startingStoryID
+    }
+
+    var keepGoing: StoryStanding? {
+      standings.keepGoing(startingAt: startingStoryID)
+    }
+
     var greeting: String {
       guard let childName, !childName.isEmpty else { return "Hi there" }
       return "Hi, \(childName)"
@@ -29,6 +39,7 @@ import SwiftUI
   public enum Action {
     case grownUpsTapped
     case playOnTVTapped
+    case resetOnboardingTapped
     case storyTapped(Story)
   }
 
@@ -37,7 +48,7 @@ import SwiftUI
   public var body: some Feature {
     Update { _, action in
       switch action {
-      case .grownUpsTapped, .playOnTVTapped, .storyTapped:
+      case .grownUpsTapped, .playOnTVTapped, .resetOnboardingTapped, .storyTapped:
         break
       }
     }
@@ -61,7 +72,7 @@ public struct HomeScreen: View {
           .padding(.top, 8)
         greeting
           .padding(.top, 28)
-        if let keepGoing = store.standings.keepGoing {
+        if let keepGoing = store.keepGoing {
           KeepGoingCard(standing: keepGoing) { store.send(.storyTapped(keepGoing.story)) }
             .padding(.top, 22)
         }
@@ -135,15 +146,33 @@ public struct HomeScreen: View {
           .frame(height: 58)
           .background(Palette.ink, in: .capsule)
       }
-      Button { store.send(.grownUpsTapped) } label: {
-        Image(systemName: "gearshape")
-          .font(.system(size: 22, weight: .medium))
-          .foregroundStyle(Palette.chipText)
-          .frame(width: 58, height: 58)
-          .background(Palette.surfaceMuted, in: .circle)
-      }
-      .accessibilityLabel("Grown-ups")
+      settings
+        .accessibilityLabel("Grown-ups")
     }
+  }
+
+  private var cog: some View {
+    Image(systemName: "gearshape")
+      .font(.system(size: 22, weight: .medium))
+      .foregroundStyle(Palette.chipText)
+      .frame(width: 58, height: 58)
+      .background(Palette.surfaceMuted, in: .circle)
+  }
+
+  @ViewBuilder
+  private var settings: some View {
+    #if DEBUG
+      Menu {
+        Button("Grown-ups", systemImage: "gearshape") { store.send(.grownUpsTapped) }
+        Button("Reset onboarding", systemImage: "arrow.counterclockwise", role: .destructive) {
+          store.send(.resetOnboardingTapped)
+        }
+      } label: {
+        cog
+      }
+    #else
+      Button { store.send(.grownUpsTapped) } label: { cog }
+    #endif
   }
 }
 

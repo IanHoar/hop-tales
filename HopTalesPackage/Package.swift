@@ -26,7 +26,19 @@ let package = Package(
         "Content",
         "DesignSystem",
         "Home",
+        "Onboarding",
         "Reading",
+        .product(name: "ComposableArchitecture2", package: "TCA26"),
+        .product(name: "Dependencies", package: "swift-dependencies"),
+      ]
+    ),
+    .target(
+      name: "Onboarding",
+      dependencies: [
+        "Content",
+        "DesignSystem",
+        "SpeechRecognition",
+        "World",
         .product(name: "ComposableArchitecture2", package: "TCA26"),
         .product(name: "Dependencies", package: "swift-dependencies"),
       ]
@@ -79,7 +91,10 @@ let package = Package(
     .testTarget(
       name: "AppFeatureTests",
       dependencies: [
-        "AppFeature"
+        "AppFeature",
+        "Content",
+        "Onboarding",
+        "SpeechRecognition",
       ]
     ),
     .testTarget(
