@@ -1,6 +1,7 @@
 import ComposableArchitecture2
 import Content
 import Dependencies
+import GrownUps
 import Home
 import Onboarding
 import Reading
@@ -14,6 +15,7 @@ import SwiftUI
   public init() {}
 
   public struct State {
+    public var grownUps: GrownUps.State?
     public var home = Home.State()
     public var onboarding: Onboarding.State?
     public var path: [Path.State] = []
@@ -26,11 +28,13 @@ import SwiftUI
   }
 
   public enum Action {
+    case grownUps(GrownUps.Action)
     case home(Home.Action)
     case onboarding(Onboarding.Action)
     case path(Path.State.ID, Path.Action)
   }
 
+  @Dependency(GateQuestions.self) var gateQuestions
   @Dependency(ProfileStore.self) var profileStore
 
   public var body: some Feature {
@@ -39,7 +43,14 @@ import SwiftUI
         switch action {
         case let .home(.storyTapped(story)):
           state.path.append(.reading(Reading.State(story: story)))
-        case .home(.grownUpsTapped), .home(.playOnTVTapped):
+        case .home(.grownUpsTapped):
+          state.grownUps = GrownUps.State(question: gateQuestions.next())
+        case .grownUps(.gate(.cancelTapped)):
+          state.grownUps = nil
+        case .grownUps(.settings(.doneTapped)):
+          state.grownUps = nil
+          if let profile = profileStore.load() { state.home.apply(profile) }
+        case .grownUps, .home(.playOnTVTapped):
           break
         case let .onboarding(.finished(profile)):
           profileStore.save(profile)
@@ -64,6 +75,9 @@ import SwiftUI
     }
     .ifLet(\.onboarding) {
       Onboarding()
+    }
+    .ifLet(\.grownUps) {
+      GrownUps()
     }
     .onMount { state in
       if let profile = profileStore.load() {
@@ -112,6 +126,10 @@ public struct RootScreen: View {
             ReadingScreen(store: readingStore)
           }
         }
+    }
+    .sheet(item: $store.scope(\.grownUps)) { grownUps in
+      GrownUpsScreen(store: grownUps)
+        .interactiveDismissDisabled()
     }
   }
 }

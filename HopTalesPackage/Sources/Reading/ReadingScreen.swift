@@ -33,6 +33,7 @@ import World
     public var heardToken: String?
     public var hearing: [String] = []
     public var isActive = true
+    public var isConfirmingStop = false
     public var listeningEpoch = 0
     public var isSpeaking = false
     public var recognised: Recognised?
@@ -70,9 +71,11 @@ import World
 
   public enum Action {
     case authorizationResolved(SpeechClient.Authorization)
+    case backTapped
     case backToStoriesTapped
     case currentWordTapped
     case helpOffered
+    case keepReadingTapped
     case speechFinished
     case scenePhaseChanged(isActive: Bool)
     case speechResult(tokens: [String], isFinal: Bool)
@@ -85,6 +88,7 @@ import World
   @Dependency(ProfileStore.self) var profileStore
   @Dependency(ProgressStore.self) var progressStore
   @Dependency(SoundClient.self) var sound
+  @Dependency(SoundPreference.self) var soundPreference
   @Dependency(SpeechClient.self) var speechClient
   @Dependency(StrictnessPreference.self) var strictnessPreference
 
@@ -109,8 +113,14 @@ import World
       case let .authorizationResolved(authorization):
         state.authorization = authorization
 
+      case .backTapped:
+        state.isConfirmingStop = true
+
       case .backToStoriesTapped:
-        break
+        state.isConfirmingStop = false
+
+      case .keepReadingTapped:
+        state.isConfirmingStop = false
 
       case .currentWordTapped, .helpOffered:
         guard let word = state.currentWord?.text, !state.isSpeaking else { break }
@@ -169,8 +179,9 @@ import World
       state.strictness = strictnessPreference.load()
       profile = profileStore.load() ?? Profile()
       let locale = profile.accent.locale
-      let celebrates = state.completionCount > 0 && chimedSentence != state.sentenceIndex
-      if celebrates { chimedSentence = state.sentenceIndex }
+      let completed = state.completionCount > 0 && chimedSentence != state.sentenceIndex
+      if completed { chimedSentence = state.sentenceIndex }
+      let celebrates = completed && soundPreference.load()
       guard let sentence = state.sentence else {
         if celebrates { store.addTask { await sound.sentenceCompleted() } }
         return
@@ -319,7 +330,7 @@ public struct ReadingScreen: View {
 
         VStack(spacing: 0) {
           ReadingTopBar(title: store.story.title, stars: store.stars, geometry: geometry) {
-            store.send(.backToStoriesTapped)
+            store.send(.backTapped)
           }
           .padding(.top, geometry.scaled(6))
           Spacer()
@@ -338,23 +349,7 @@ public struct ReadingScreen: View {
       }
     }
     .toolbar(.hidden, for: .navigationBar)
-    .overlay {
-      if let authorization = store.authorization, authorization != .authorized {
-        ListeningUnavailable(authorization: authorization) {
-          store.send(.backToStoriesTapped)
-        }
-        .transition(.opacity)
-      }
-    }
-    .overlay {
-      if case let .story(stars) = store.completed {
-        StoryFinished(title: store.story.title, stars: stars) {
-          store.send(.backToStoriesTapped)
-        }
-        .transition(.opacity)
-      }
-    }
-    .animation(Motion.recognised, value: store.completed)
+    .modifier(ReadingPanels(store: store))
     .task(id: store.completionCount) {
       guard store.completionCount > 0, case .sentence = store.completed else { return }
       Haptics.sentenceCompleted()
