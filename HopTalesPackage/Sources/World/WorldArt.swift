@@ -69,6 +69,19 @@ public struct WorldArt: Hashable, Sendable {
     }
   }
 
+  public func draw(in context: CGContext, origin: CGPoint, scale: CGFloat) {
+    guard let url = Bundle.module.url(forResource: resource, withExtension: "pdf"),
+      let document = CGPDFDocument(url as CFURL),
+      let page = document.page(at: 1)
+    else { return }
+    let box = page.getBoxRect(.mediaBox)
+    context.saveGState()
+    context.translateBy(x: origin.x, y: origin.y + box.height * scale)
+    context.scaleBy(x: scale, y: -scale)
+    context.drawPDFPage(page)
+    context.restoreGState()
+  }
+
   public func texture() -> UIImage? {
     image(width: WorldMetrics.size.width * layer.resolution)
   }

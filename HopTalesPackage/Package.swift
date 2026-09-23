@@ -59,6 +59,7 @@ let package = Package(
       dependencies: [
         "Content",
         "DesignSystem",
+        "World",
         .product(name: "ComposableArchitecture2", package: "TCA26"),
         .product(name: "Dependencies", package: "swift-dependencies"),
       ]
