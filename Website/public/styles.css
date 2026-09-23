@@ -310,3 +310,310 @@ p {
     padding-block: 32px;
   }
 }
+
+.page-home .site-nav {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 10;
+}
+
+.hero {
+  position: relative;
+  border-bottom: 5px solid var(--ink);
+}
+
+.hero__stage {
+  position: relative;
+  height: 880px;
+  overflow: hidden;
+  background: linear-gradient(#3FA3D6 0 466px, #4E9A3A 466px);
+}
+
+.hero__world {
+  --world-scale: 1.04;
+  position: absolute;
+  inset: 0;
+}
+
+.world {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(2340px * var(--world-scale));
+  max-width: none;
+  height: calc(844px * var(--world-scale));
+}
+
+.hero__pip {
+  position: absolute;
+  left: 440px;
+  top: 302px;
+  width: 240px;
+  height: 170px;
+}
+
+.hero__copy {
+  position: absolute;
+  left: var(--nav-gutter);
+  top: 124px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 22px;
+  width: min(720px, calc(100% - 2 * var(--nav-gutter)));
+}
+
+.ribbon {
+  width: 300px;
+  height: auto;
+  overflow: visible;
+}
+
+.ribbon text {
+  font-family: var(--display);
+}
+
+.hero h1 {
+  --stroke: 11px;
+  font-size: clamp(56px, 5vw, 72px);
+}
+
+.hero__phones {
+  --heard: min(320px, 22.22vw);
+  --dragon: min(290px, 20.14vw);
+  position: absolute;
+  top: 0;
+  right: 86px;
+  width: calc(var(--heard) * 1.606);
+  height: 100%;
+}
+
+.phone {
+  --border: max(6px, calc(var(--w) / 42));
+  position: absolute;
+  width: var(--w);
+  overflow: hidden;
+  background: var(--ink);
+  border: var(--border) solid var(--ink);
+  border-radius: calc(var(--w) * 0.14);
+  box-shadow:
+    0 calc(var(--border) + 4px) 0 var(--ink),
+    0 40px 60px rgba(12, 10, 30, 0.35);
+  box-sizing: content-box;
+  transform: rotate(var(--turn, 0deg));
+}
+
+.phone img {
+  width: 100%;
+}
+
+.phone--heard {
+  --w: var(--heard);
+  --turn: -4deg;
+  z-index: 2;
+  left: 0;
+  top: 120px;
+}
+
+.phone--dragon {
+  --w: var(--dragon);
+  --turn: 7deg;
+  z-index: 1;
+  left: 41.25%;
+  top: 150px;
+}
+
+.hero__card {
+  position: absolute;
+  left: var(--nav-gutter);
+  top: 548px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 560px;
+  padding: 26px 30px 30px;
+}
+
+.hero__lead {
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+.hero__cta {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.hero__cta .app-store-badge {
+  --badge-height: 64px;
+  flex-shrink: 0;
+}
+
+.hero__platforms {
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.hero__platforms span {
+  display: block;
+}
+
+@media (max-width: 1099px) {
+  .hero__stage {
+    display: contents;
+  }
+
+  .hero {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    overflow: hidden;
+    padding: 124px var(--gutter) 72px;
+    background: linear-gradient(#3FA3D6 0 466px, #4E9A3A 466px);
+  }
+
+  .hero__world {
+    z-index: 0;
+  }
+
+  .hero__pip {
+    z-index: 1;
+  }
+
+  .hero__copy,
+  .hero__card,
+  .hero__phones {
+    position: relative;
+    inset: auto;
+    z-index: 2;
+  }
+
+  .hero__copy {
+    width: 100%;
+  }
+
+  .hero__card {
+    width: 100%;
+    max-width: 640px;
+  }
+
+  .hero__phones {
+    --heard: 192px;
+    --dragon: 174px;
+    align-self: center;
+    width: 330px;
+    height: 460px;
+  }
+}
+
+@media (max-width: 699px) {
+  .hero {
+    display: block;
+    padding: 0 0 60px;
+    background: none;
+  }
+
+  .hero__stage {
+    display: block;
+    height: 760px;
+  }
+
+  .hero__world {
+    --world-scale: 0.9;
+    top: -27px;
+  }
+
+  .world--far {
+    left: -49px;
+  }
+
+  .world--mid {
+    left: -97px;
+  }
+
+  .world--near {
+    left: -162px;
+  }
+
+  .hero__pip {
+    display: none;
+  }
+
+  .hero__copy {
+    position: absolute;
+    left: 20px;
+    top: 96px;
+    width: calc(100% - 40px);
+    gap: 14px;
+  }
+
+  .ribbon {
+    width: 250px;
+  }
+
+  .hero h1 {
+    --stroke: 8px;
+    font-size: 46px;
+  }
+
+  .hero__phones {
+    --heard: 200px;
+    --dragon: 170px;
+    position: absolute;
+    left: 50%;
+    top: 300px;
+    width: 350px;
+    height: 460px;
+    margin-left: -175px;
+  }
+
+  .phone--heard {
+    left: 40px;
+    top: 0;
+    z-index: 1;
+  }
+
+  .phone--dragon {
+    --turn: 6deg;
+    left: 176px;
+    top: 30px;
+    z-index: 2;
+  }
+
+  .hero__card {
+    position: relative;
+    margin: -60px 20px 0;
+    width: auto;
+    gap: 16px;
+    padding: 22px 22px 24px;
+    border-radius: 26px;
+  }
+
+  .hero__lead {
+    font-size: 17px;
+  }
+
+  .hero__cta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .hero__cta .app-store-badge {
+    --badge-height: 58px;
+  }
+
+  .hero__platforms {
+    font-size: 14px;
+  }
+
+  .hero__platforms span {
+    display: inline;
+  }
+
+  .hero__platforms span + span::before {
+    content: "· ";
+  }
+}
