@@ -311,6 +311,7 @@ p {
   }
 }
 
+<<<<<<< HEAD
 .page-home .site-nav {
   position: absolute;
   inset: 0 0 auto;
@@ -452,10 +453,62 @@ p {
 }
 
 .hero__platforms {
+=======
+.legal {
+  padding: 48px var(--gutter) 96px;
+}
+
+.legal__card {
+  max-width: 760px;
+  margin-inline: auto;
+  padding: 44px 48px 52px;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--body);
+}
+
+.legal__card h1 {
+  font-size: 52px;
+  color: var(--ink);
+}
+
+.legal__card h2 {
+  margin-top: 36px;
+  font-size: 28px;
+  color: var(--ink);
+}
+
+.legal__card p,
+.legal__card ul {
+  margin: 14px 0 0;
+}
+
+.legal__card ul {
+  padding-left: 1.2em;
+}
+
+.legal__card li + li {
+  margin-top: 10px;
+}
+
+.legal__card strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.legal__card a {
+  color: var(--ink);
+  font-weight: 600;
+  text-underline-offset: 3px;
+}
+
+.legal__updated {
+>>>>>>> 894f90e (feat(site): draft Privacy Policy and Terms of Service pages)
   font-size: 15px;
   color: var(--muted);
 }
 
+<<<<<<< HEAD
 .hero__platforms span {
   display: block;
 }
@@ -615,5 +668,24 @@ p {
 
   .hero__platforms span + span::before {
     content: "· ";
+=======
+@media (max-width: 699px) {
+  .legal {
+    padding: 28px 20px 64px;
+  }
+
+  .legal__card {
+    padding: 28px 24px 34px;
+    font-size: 17px;
+    border-radius: 26px;
+  }
+
+  .legal__card h1 {
+    font-size: 38px;
+  }
+
+  .legal__card h2 {
+    font-size: 24px;
+>>>>>>> 894f90e (feat(site): draft Privacy Policy and Terms of Service pages)
   }
 }
