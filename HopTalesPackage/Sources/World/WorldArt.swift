@@ -2,18 +2,53 @@ import CoreGraphics
 import Foundation
 import UIKit
 
-public enum WorldArt: String, CaseIterable, Sendable {
-  case layerFar = "layer-far"
-  case layerMid = "layer-mid"
-  case layerNear = "layer-near"
-  case spriteDragon = "sprite-dragon"
+public struct WorldArt: Hashable, Sendable {
+  public enum Layer: String, CaseIterable, Sendable {
+    case sky
+    case far
+    case mid
+    case near
 
-  public static func sky(_ stage: WorldStage) -> UIImage? {
-    UIImage(named: stage.skyAsset, in: .module, compatibleWith: nil)
+    public var resolution: CGFloat {
+      switch self {
+      case .sky: 0.5
+      case .far: 1
+      case .mid: 1.5
+      case .near: 2
+      }
+    }
   }
 
+  public enum Tone: String, CaseIterable, Sendable {
+    case day
+    case gold
+    case dusk
+
+    public init(stage: WorldStage) {
+      switch stage {
+      case .meadow: self = .day
+      case .castle: self = .gold
+      case .dragon: self = .dusk
+      }
+    }
+  }
+
+  public let layer: Layer
+  public let tone: Tone
+
+  public init(_ layer: Layer, _ tone: Tone) {
+    self.layer = layer
+    self.tone = tone
+  }
+
+  public static var allCases: [WorldArt] {
+    Layer.allCases.flatMap { layer in Tone.allCases.map { WorldArt(layer, $0) } }
+  }
+
+  public var resource: String { "\(layer.rawValue)-\(tone.rawValue)" }
+
   public func image(width: CGFloat) -> UIImage? {
-    guard let url = Bundle.module.url(forResource: rawValue, withExtension: "pdf"),
+    guard let url = Bundle.module.url(forResource: resource, withExtension: "pdf"),
       let document = CGPDFDocument(url as CFURL),
       let page = document.page(at: 1)
     else { return nil }
@@ -25,12 +60,16 @@ public enum WorldArt: String, CaseIterable, Sendable {
 
     let format = UIGraphicsImageRendererFormat.default()
     format.scale = 1
-    format.opaque = false
+    format.opaque = layer == .sky
     return UIGraphicsImageRenderer(size: size, format: format).image { context in
       let cgContext = context.cgContext
       cgContext.translateBy(x: 0, y: size.height)
       cgContext.scaleBy(x: scale, y: -scale)
       cgContext.drawPDFPage(page)
     }
+  }
+
+  public func texture() -> UIImage? {
+    image(width: WorldMetrics.size.width * layer.resolution)
   }
 }

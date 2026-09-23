@@ -54,7 +54,7 @@ struct WorldSceneTests {
     let scene = WorldScene(size: CGSize(width: 402, height: 874))
     scene.didMove(to: SKView())
     #expect(scene.companion is FoxNode)
-    #expect(scene.companion.position == CGPoint(x: 150, y: 844 - 436))
+    #expect(scene.companion.position == CGPoint(x: 118, y: 844 - 441))
     #expect(scene.companion.parent === scene.companionLayer)
   }
 

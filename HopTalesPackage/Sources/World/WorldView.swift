@@ -31,3 +31,19 @@ public struct WorldView: View {
       .padding(.bottom, 40)
     }
 }
+
+#Preview("World art") {
+  let tones = WorldArt.Tone.allCases
+  VStack(spacing: 8) {
+    ForEach(tones, id: \.self) { tone in
+      ZStack {
+        ForEach(WorldArt.Layer.allCases, id: \.self) { layer in
+          if let image = WorldArt(layer, tone).image(width: 1170) {
+            Image(uiImage: image).resizable().scaledToFit()
+          }
+        }
+      }
+    }
+  }
+  .padding(8)
+}
