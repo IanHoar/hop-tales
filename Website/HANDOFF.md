@@ -32,7 +32,7 @@ Website/
 
 - Plain HTML and one stylesheet. Page structure uses semantic landmarks (`header`, `main`, `section`, `footer`).
 - Host it on any static host pointed at `Website/public`. GitHub Pages or Cloudflare Pages both work; the choice is open.
-- The site has no analytics, cookies or third-party scripts. That keeps it consistent with the privacy story (see §6).
+- The site uses Vercel Web Analytics (`/_vercel/insights/script.js`, enabled per project in Vercel): cookie-free, first-party page-view counts. There are no cookies, ads or other third-party scripts. The Privacy Policy and Terms cover the app only, not the website.
 - Self-host the fonts. Don't use Google Fonts, because that would send visitor IPs to a third party.
 
 ## 2. Tokens
@@ -184,7 +184,6 @@ Both pages share the site's nav, footer and `--page` background. The body is a s
 - There are no accounts, analytics, advertising, tracking or third-party SDKs.
 - Microphone and speech-recognition permissions, and why the app asks for them.
 - Children's privacy: Kids Category, Ages 6–8. Say plainly that no personal information is collected from children.
-- The website itself sets no cookies and uses no analytics.
 - A contact email, and a "Last updated" date.
 
 **terms.html.** Short and plain:
