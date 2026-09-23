@@ -57,7 +57,8 @@ import SwiftUI
     }
     .onMount { state in
       guard let profile = profileStore.load() else {
-        state.onboarding = Onboarding.State()
+        state.onboarding = profileStore.loadDraft().map(Onboarding.State.init(resuming:))
+          ?? Onboarding.State()
         return
       }
       state.home.apply(profile)

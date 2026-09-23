@@ -26,6 +26,26 @@ import SwiftUI
     public var voices: [SpeechClient.Voice] = []
     public init() {}
 
+    public init(resuming draft: ProfileDraft) {
+      childName = draft.profile.childName
+      startingStoryID = draft.profile.startingStoryID
+      accent = draft.profile.accent
+      voiceID = draft.profile.voiceID
+      path = Step.allCases.filter { $0 != .welcome && $0.rawValue <= draft.step }
+    }
+
+    public var draft: ProfileDraft {
+      ProfileDraft(
+        profile: Profile(
+          childName: childName,
+          startingStoryID: startingStoryID,
+          accent: accent,
+          voiceID: voiceID
+        ),
+        step: step.rawValue
+      )
+    }
+
     public var profile: Profile {
       Profile(
         childName: childName.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -58,6 +78,7 @@ import SwiftUI
 
   public static let sample = "Hello! Let's read together."
 
+  @Dependency(ProfileStore.self) var profileStore
   @Dependency(SpeechClient.self) var speechClient
 
   public var body: some Feature {
@@ -112,6 +133,17 @@ import SwiftUI
           state.voiceID = voices.first?.id
         }
       }
+      profileStore.saveDraft(state.draft)
+    }
+    .onMount { state in
+      if state.step.rawValue > Step.listening.rawValue {
+        let locale = state.accent.locale
+        store.addTask {
+          let authorization = await speechClient.requestAuthorization(locale)
+          try store.send(.authorizationResolved(authorization))
+        }
+      }
+      if state.step == .voice { loadVoices(for: state.accent) }
     }
   }
 

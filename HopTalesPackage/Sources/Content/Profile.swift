@@ -38,38 +38,68 @@ public struct Profile: Codable, Hashable, Sendable {
   }
 }
 
+public struct ProfileDraft: Codable, Hashable, Sendable {
+  public var profile: Profile
+  public var step: Int
+
+  public init(profile: Profile, step: Int) {
+    self.profile = profile
+    self.step = step
+  }
+}
+
 public struct ProfileStore: Sendable {
   public var load: @Sendable () -> Profile?
   public var save: @Sendable (Profile) -> Void
+  public var loadDraft: @Sendable () -> ProfileDraft?
+  public var saveDraft: @Sendable (ProfileDraft?) -> Void
 
   public init(
     load: @escaping @Sendable () -> Profile?,
-    save: @escaping @Sendable (Profile) -> Void
+    save: @escaping @Sendable (Profile) -> Void,
+    loadDraft: @escaping @Sendable () -> ProfileDraft? = { nil },
+    saveDraft: @escaping @Sendable (ProfileDraft?) -> Void = { _ in }
   ) {
     self.load = load
     self.save = save
+    self.loadDraft = loadDraft
+    self.saveDraft = saveDraft
   }
 }
 
 extension ProfileStore: DependencyKey {
   public static let fileName = "profile.json"
+  public static let draftFileName = "profile-draft.json"
 
   public static func file(in directory: URL) -> ProfileStore {
     let url = directory.appending(path: fileName)
+    let draftURL = directory.appending(path: draftFileName)
     return ProfileStore(
-      load: {
-        guard let data = try? Data(contentsOf: url) else { return nil }
-        return try? JSONDecoder().decode(Profile.self, from: data)
-      },
+      load: { read(Profile.self, from: url) },
       save: { profile in
-        guard let data = try? JSONEncoder().encode(profile) else { return }
-        try? FileManager.default.createDirectory(
-          at: directory,
-          withIntermediateDirectories: true
-        )
-        try? data.write(to: url, options: .atomic)
+        write(profile, to: url, in: directory)
+        try? FileManager.default.removeItem(at: draftURL)
+      },
+      loadDraft: { read(ProfileDraft.self, from: draftURL) },
+      saveDraft: { draft in
+        guard let draft else {
+          try? FileManager.default.removeItem(at: draftURL)
+          return
+        }
+        write(draft, to: draftURL, in: directory)
       }
     )
+  }
+
+  static func read<Value: Decodable>(_ type: Value.Type, from url: URL) -> Value? {
+    guard let data = try? Data(contentsOf: url) else { return nil }
+    return try? JSONDecoder().decode(type, from: data)
+  }
+
+  static func write(_ value: some Encodable, to url: URL, in directory: URL) {
+    guard let data = try? JSONEncoder().encode(value) else { return }
+    try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+    try? data.write(to: url, options: .atomic)
   }
 
   public static let liveValue = file(in: ProgressStore.applicationSupport)

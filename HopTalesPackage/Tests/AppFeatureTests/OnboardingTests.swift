@@ -113,4 +113,38 @@ struct OnboardingTests {
     await store.send(.pathChanged([.name])) { $0.path = [.name] }
     await store.send(.pathChanged([.name, .listening, .story]))
   }
+
+  @Test func everyAnswerIsKeptAsADraft() async {
+    let draft = LockIsolated<ProfileDraft?>(nil)
+    let store = TestStore(initialState: Onboarding.State()) {
+      Onboarding()
+        .dependency(Self.speech)
+        .dependency(ProfileStore(load: { nil }, save: { _ in }, saveDraft: { draft.setValue($0) }))
+    }
+    await store.send(.continueTapped) { $0.path = [.name] }
+    await store.send(.nameChanged("Maya")) { $0.childName = "Maya" }
+    #expect(draft.value == ProfileDraft(profile: Profile(childName: "Maya"), step: 1))
+  }
+
+  @Test func reopeningTheAppResumesAtTheLastStep() async throws {
+    let draft = ProfileDraft(
+      profile: Profile(childName: "Maya", startingStoryID: StoryLibrary.all[2].id),
+      step: Onboarding.Step.story.rawValue
+    )
+    let store = try TestStore(initialState: Root.State()) {
+      Root()
+        .dependency(ProfileStore(load: { nil }, save: { _ in }, loadDraft: { draft }))
+        .dependency(Self.speech)
+    } changes: {
+      $0.onboarding = Onboarding.State.DebugSnapshot(
+        path: [.name, .listening, .story],
+        childName: "Maya",
+        startingStoryID: StoryLibrary.all[2].id
+      )
+    }
+    await store.receive(\.onboarding.authorizationResolved) {
+      $0.onboarding?.authorization = .authorized
+    }
+    await store.dismount()
+  }
 }
