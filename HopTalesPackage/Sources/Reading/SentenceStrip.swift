@@ -8,10 +8,14 @@ struct SentenceStrip: View {
   var flash: BallTarget?
   var isSpeaking = false
   let geometry: ReadingGeometry
+  var screenWidth: CGFloat?
   @State private var settled: BallTarget?
 
   private var shown: BallTarget { settled ?? position }
-  private var gap: CGFloat { geometry.scaled(24) }
+  private var gap: CGFloat {
+    let margin = screenWidth.map { max(($0 - geometry.cardSize.width) / 2, 0) } ?? 0
+    return margin + geometry.scaled(24)
+  }
   private var pitch: CGFloat { geometry.cardSize.width + gap }
 
   var body: some View {

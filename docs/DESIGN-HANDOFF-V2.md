@@ -221,9 +221,9 @@ Story thumbnails are crops of the real world at that story's stage and progress,
 
 ## 6. Apple TV (`InkTV`) and iPad
 
-**TV, 1920 × 1080.** World scale `1080/844 = 1.2796`, near offset `p = 840` so the castle, knight, keep and dragon are all in frame at dusk. 96 pt overscan margin. Top-left: ribbon at 1.7×. Top-right: mic pill + star chip at 1.5×. Word card x 240, y 600, 1440 × 310, border 6, drop 10, radius 56. Words 48 / 140 (current), gap 30, row at card-local y 128. Ball 76 pt. Progress trail at 2.5×, centred, y 930.
+**TV, 1920 × 1080.** World scale `1080/844 = 1.2796`, near offset `p = 840` so the castle, knight, keep and dragon are all in frame at dusk. 96 pt overscan margin. Top-left: ribbon at 1.7×. Top-right: mic pill + star chip at 1.5×. Word card x 240, y 600, 1440 × 310, border 6, drop 10, radius 56. Words 48 / 140 (current), gap 30, row at card-local y 128. Ball 76 pt. Progress trail at 1.8×, centred, 20 pt below the card (2.5× at y 930 runs off the bottom of the screen).
 
-**iPad.** Not redrawn for v2. Use the v1 iPad layout (`iPad.dc.html` on the v1 page) with the v2 components: 900 pt card, radius 44, words 32 / 100, mic pill in the top bar.
+**iPad.** Not redrawn for v2. Use the v1 iPad layout (`iPad.dc.html` on the v1 page) with the v2 components: 900 pt card, radius 44, words 32 / 100, mic pill in the top bar. The top bar is the phone chrome at 1.08×: back button and ribbon on the left, mic pill and star total on the right. Portrait uses the same layout scaled to the width.
 
 **Screens not redrawn** (story finished, onboarding, listening unavailable, parent gate): apply the library as-is. Parchment bevel surfaces, Lilita One titles, `InkButtonStyle`, no new colours. Onboarding's welcome carousel should use the same world header as home.
 
