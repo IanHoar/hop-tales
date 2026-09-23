@@ -39,11 +39,23 @@ public struct Profile: Codable, Hashable, Sendable {
 }
 
 public struct ProfileDraft: Codable, Hashable, Sendable {
-  public var profile: Profile
+  public var childName: String
+  public var startingStoryID: String?
+  public var accent: Profile.Accent?
+  public var voiceID: String?
   public var step: Int
 
-  public init(profile: Profile, step: Int) {
-    self.profile = profile
+  public init(
+    childName: String = "",
+    startingStoryID: String? = nil,
+    accent: Profile.Accent? = nil,
+    voiceID: String? = nil,
+    step: Int
+  ) {
+    self.childName = childName
+    self.startingStoryID = startingStoryID
+    self.accent = accent
+    self.voiceID = voiceID
     self.step = step
   }
 }

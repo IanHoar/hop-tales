@@ -2,20 +2,21 @@ import Content
 import DesignSystem
 import SpeechRecognition
 import SwiftUI
+import World
 
 struct StepDots: View {
   let current: Onboarding.Step
 
   var body: some View {
     HStack(spacing: 8) {
-      ForEach(Onboarding.Step.allCases, id: \.self) { step in
+      ForEach(Onboarding.Step.setup, id: \.self) { step in
         Capsule()
           .fill(step.rawValue <= current.rawValue ? Palette.amber : Palette.trackBg)
           .frame(width: step == current ? 22 : 8, height: 8)
       }
     }
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel("Step \(current.rawValue + 1) of \(Onboarding.Step.allCases.count)")
+    .accessibilityLabel("Step \(current.rawValue) of \(Onboarding.Step.setup.count)")
   }
 }
 
@@ -38,27 +39,172 @@ struct PageTitle: View {
   }
 }
 
-struct WelcomePage: View {
+struct WelcomeCarousel: View {
+  let getStarted: () -> Void
+  @State private var slide = 0
+
+  static let slides: [(title: String, detail: String)] = [
+    (
+      "Reading, out loud",
+      "Your child reads each word aloud, and the ball hops to the next one the moment "
+        + "they say it."
+    ),
+    (
+      "A world that grows with every word",
+      "Each word read moves the story along, from a sunny meadow to a castle and a friendly dragon."
+    ),
+    (
+      "Private by design",
+      "Listening happens on this device. Nothing is recorded or sent anywhere, and there "
+        + "are no ads."
+    )
+  ]
+
   var body: some View {
-    VStack(alignment: .leading, spacing: 28) {
-      Circle()
-        .fill(
-          RadialGradient(
-            colors: [Palette.ballHi, Palette.ball, Palette.ballLo],
-            center: UnitPoint(x: 0.35, y: 0.3),
-            startRadius: 0,
-            endRadius: 70
-          )
-        )
-        .frame(width: 88, height: 88)
-        .frame(maxWidth: .infinity)
-        .accessibilityHidden(true)
-      PageTitle(
-        title: "Welcome to Hop Tales",
-        detail: "Your child reads each word out loud, and the ball hops along with them. "
-          + "A grown-up sets up a few things first. It takes about a minute."
-      )
+    VStack(spacing: 0) {
+      TabView(selection: $slide) {
+        ForEach(Self.slides.indices, id: \.self) { index in
+          VStack(spacing: 32) {
+            art(for: index)
+              .frame(maxWidth: .infinity)
+              .frame(height: 300)
+            PageTitle(title: Self.slides[index].title, detail: Self.slides[index].detail)
+            Spacer(minLength: 0)
+          }
+          .padding(.horizontal, 24)
+          .padding(.top, 24)
+          .frame(maxWidth: 560)
+          .tag(index)
+        }
+      }
+      .tabViewStyle(.page(indexDisplayMode: .never))
+      SlideDots(count: Self.slides.count, current: slide)
+        .padding(.bottom, 24)
+      PrimaryButton(title: "Get started", action: getStarted)
+        .padding(.horizontal, 24)
+        .padding(.bottom, 16)
     }
+    .background(Palette.cream.ignoresSafeArea())
+    .toolbar(.hidden, for: .navigationBar)
+  }
+
+  @ViewBuilder
+  private func art(for index: Int) -> some View {
+    switch index {
+    case 0: HopArt()
+    case 1: WorldArt()
+    default: PrivacyArt()
+    }
+  }
+}
+
+struct SlideDots: View {
+  let count: Int
+  let current: Int
+
+  var body: some View {
+    HStack(spacing: 8) {
+      ForEach(0..<count, id: \.self) { index in
+        Capsule()
+          .fill(index == current ? Palette.amber : Palette.trackBg)
+          .frame(width: index == current ? 22 : 8, height: 8)
+      }
+    }
+    .animation(.easeInOut(duration: 0.2), value: current)
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel("Page \(current + 1) of \(count)")
+  }
+}
+
+struct HopArt: View {
+  var body: some View {
+    ZStack {
+      RoundedRectangle(cornerRadius: 34, style: .continuous)
+        .fill(Palette.creamDeep)
+      VStack(spacing: 18) {
+        Circle()
+          .fill(
+            RadialGradient(
+              colors: [Palette.ballHi, Palette.ball, Palette.ballLo],
+              center: UnitPoint(x: 0.35, y: 0.3),
+              startRadius: 0,
+              endRadius: 40
+            )
+          )
+          .frame(width: 48, height: 48)
+        HStack(alignment: .firstTextBaseline, spacing: 14) {
+          Text("The")
+            .font(Typography.word(22))
+            .foregroundStyle(Palette.pillText)
+            .padding(.horizontal, 9)
+            .padding(.vertical, 3)
+            .background(Palette.pillBg, in: .rect(cornerRadius: 10))
+          Text("cat")
+            .font(Typography.word(64))
+            .foregroundStyle(Palette.ink)
+          Text("sat")
+            .font(Typography.word(22))
+            .foregroundStyle(Palette.muted)
+        }
+      }
+    }
+    .accessibilityHidden(true)
+  }
+}
+
+struct WorldArt: View {
+  var body: some View {
+    WorldView(progress: 700)
+      .clipShape(.rect(cornerRadius: 34, style: .continuous))
+      .allowsHitTesting(false)
+      .accessibilityHidden(true)
+  }
+}
+
+struct PrivacyArt: View {
+  var body: some View {
+    ZStack {
+      RoundedRectangle(cornerRadius: 34, style: .continuous)
+        .fill(Palette.creamDeep)
+      HStack(spacing: 22) {
+        badge("iphone")
+        badge("lock.fill")
+        badge("hand.raised.fill")
+      }
+    }
+    .accessibilityHidden(true)
+  }
+
+  private func badge(_ symbol: String) -> some View {
+    Image(systemName: symbol)
+      .font(.system(size: 34, weight: .semibold))
+      .foregroundStyle(Palette.amberDeep)
+      .frame(width: 84, height: 84)
+      .background(Palette.cream, in: .circle)
+  }
+}
+
+struct PrimaryButton: View {
+  let title: String
+  var enabled = true
+  let action: () -> Void
+
+  var body: some View {
+    Button(action: action) {
+      Text(title)
+        .font(Typography.ui(20))
+        .foregroundStyle(Palette.flashText)
+        .frame(maxWidth: 560)
+        .frame(height: 60)
+        .background {
+          Capsule()
+            .fill(Palette.amber)
+            .shadow(color: Palette.amberDeep.opacity(0.6), radius: 0, x: 0, y: 4)
+        }
+    }
+    .buttonStyle(.plain)
+    .opacity(enabled ? 1 : 0.45)
+    .disabled(!enabled)
   }
 }
 
@@ -95,7 +241,7 @@ struct ListeningPage: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 24) {
       PageTitle(
-        title: "Hop Tales listens as your child reads",
+        title: "Can Hop Tales listen while your child reads?",
         detail: "When they say a word, the ball hops to the next one. Listening happens on this "
           + "device. Nothing is recorded, and nothing is sent anywhere."
       )
@@ -151,13 +297,13 @@ struct Note: View {
 }
 
 struct StoryPage: View {
-  let selected: String
+  let selected: String?
   let pick: (String) -> Void
 
   var body: some View {
     VStack(alignment: .leading, spacing: 24) {
       PageTitle(
-        title: "Where should they start?",
+        title: "Where should your reader start?",
         detail: "Each story gets a little harder. You can change this later."
       )
       VStack(spacing: 12) {
@@ -173,39 +319,40 @@ struct StoryPage: View {
   }
 }
 
-struct VoicePage: View {
-  let accent: Profile.Accent
-  let voices: [SpeechClient.Voice]
-  let voiceID: String?
-  let pickAccent: (Profile.Accent) -> Void
-  let pickVoice: (String) -> Void
-  let hear: (String) -> Void
+struct AccentPage: View {
+  let selected: Profile.Accent?
+  let pick: (Profile.Accent) -> Void
 
   var body: some View {
     VStack(alignment: .leading, spacing: 24) {
       PageTitle(
-        title: "How does your reader speak?",
-        detail: "Hop Tales listens for this accent, and uses the voice below when your child "
-          + "asks to hear a word."
+        title: "Which English does your reader speak?",
+        detail: "Hop Tales listens for this accent, so it hears your child's words the way "
+          + "they say them."
       )
       VStack(spacing: 12) {
-        ForEach(Profile.Accent.allCases, id: \.self) { option in
-          Choice(title: option.name, isSelected: option == accent) { pickAccent(option) }
+        ForEach(Profile.Accent.allCases, id: \.self) { accent in
+          Choice(title: accent.name, isSelected: accent == selected) { pick(accent) }
         }
       }
-      if !voices.isEmpty {
-        Text("HELP VOICE")
-          .font(Typography.caps(11))
-          .tracking(1.76)
-          .foregroundStyle(Palette.muted)
-          .padding(.top, 8)
-        VStack(spacing: 12) {
-          ForEach(voices) { voice in
-            Choice(title: voice.name, isSelected: voice.id == voiceID) {
-              pickVoice(voice.id)
-              hear(voice.id)
-            }
-          }
+    }
+  }
+}
+
+struct VoicePage: View {
+  let voices: [SpeechClient.Voice]
+  let selected: String?
+  let pick: (String) -> Void
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 24) {
+      PageTitle(
+        title: "Which voice should read words aloud?",
+        detail: "When your child needs help, this voice says the word. Tap one to hear it."
+      )
+      VStack(spacing: 12) {
+        ForEach(voices) { voice in
+          Choice(title: voice.name, isSelected: voice.id == selected) { pick(voice.id) }
         }
       }
     }

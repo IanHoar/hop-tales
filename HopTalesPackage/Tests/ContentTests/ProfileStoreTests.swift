@@ -16,12 +16,13 @@ struct ProfileStoreTests {
 
   @Test func aDraftSurvivesUntilTheProfileIsSaved() {
     let store = store()
-    let draft = ProfileDraft(profile: Profile(childName: "Maya"), step: 2)
+    let draft = ProfileDraft(childName: "Maya", step: 2)
     store.saveDraft(draft)
     #expect(store.loadDraft() == draft)
 
-    store.save(draft.profile)
-    #expect(store.load() == draft.profile)
+    let profile = Profile(childName: "Maya")
+    store.save(profile)
+    #expect(store.load() == profile)
     #expect(store.loadDraft() == nil)
   }
 }

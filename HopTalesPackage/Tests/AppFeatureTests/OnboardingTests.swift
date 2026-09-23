@@ -48,25 +48,43 @@ struct OnboardingTests {
     }
 
     await store.send(.continueTapped) { $0.path = [.name] }
+    await store.send(.continueTapped)
     await store.send(.nameChanged("Maya")) { $0.childName = "Maya" }
     await store.send(.continueTapped) { $0.path = [.name, .listening] }
     await store.send(.continueTapped)
     await store.send(.listenTapped)
     await store.receive(\.authorizationResolved) { $0.authorization = .authorized }
     await store.send(.continueTapped) { $0.path = [.name, .listening, .story] }
+    await store.send(.continueTapped)
     await store.send(.storyPicked(StoryLibrary.all[2].id)) {
       $0.startingStoryID = StoryLibrary.all[2].id
     }
-    await store.send(.continueTapped) { $0.path = [.name, .listening, .story, .voice] }
-    await store.receive(\.voicesLoaded) {
-      $0.voices = Self.voices
-      $0.voiceID = "ava"
-    }
+    await store.send(.continueTapped) { $0.path = [.name, .listening, .story, .accent] }
+    await store.send(.continueTapped)
     await store.send(.accentPicked(.british)) { $0.accent = .british }
-    await store.receive(\.voicesLoaded)
+    await store.send(.continueTapped) {
+      $0.path = [.name, .listening, .story, .accent, .voice]
+    }
+    await store.receive(\.voicesLoaded) { $0.voices = Self.voices }
+    await store.send(.continueTapped)
     await store.send(.voicePicked("sam")) { $0.voiceID = "sam" }
     await store.send(.continueTapped)
     await store.receive(\.finished)
+  }
+
+  @Test func eachStepWaitsForAnAnswer() {
+    var state = Onboarding.State()
+    #expect(state.canContinue(from: .welcome))
+    #expect(!state.canContinue(from: .name))
+    state.childName = "   "
+    #expect(!state.canContinue(from: .name))
+    state.childName = "Maya"
+    #expect(state.canContinue(from: .name))
+    #expect(!state.canContinue(from: .listening))
+    #expect(!state.canContinue(from: .story))
+    #expect(!state.canContinue(from: .accent))
+    state.voices = Self.voices
+    #expect(!state.canContinue(from: .voice))
   }
 
   @Test func listeningCanBeRefusedWithoutBlockingSetUp() async {
@@ -76,6 +94,7 @@ struct OnboardingTests {
       Onboarding().dependency(speech)
     }
     await store.send(.continueTapped) { $0.path = [.name] }
+    await store.send(.nameChanged("Maya")) { $0.childName = "Maya" }
     await store.send(.continueTapped) { $0.path = [.name, .listening] }
     await store.send(.listenTapped)
     await store.receive(\.authorizationResolved) { $0.authorization = .denied }
@@ -123,12 +142,13 @@ struct OnboardingTests {
     }
     await store.send(.continueTapped) { $0.path = [.name] }
     await store.send(.nameChanged("Maya")) { $0.childName = "Maya" }
-    #expect(draft.value == ProfileDraft(profile: Profile(childName: "Maya"), step: 1))
+    #expect(draft.value == ProfileDraft(childName: "Maya", step: 1))
   }
 
   @Test func reopeningTheAppResumesAtTheLastStep() async throws {
     let draft = ProfileDraft(
-      profile: Profile(childName: "Maya", startingStoryID: StoryLibrary.all[2].id),
+      childName: "Maya",
+      startingStoryID: StoryLibrary.all[2].id,
       step: Onboarding.Step.story.rawValue
     )
     let store = try TestStore(initialState: Root.State()) {
@@ -146,5 +166,27 @@ struct OnboardingTests {
       $0.onboarding?.authorization = .authorized
     }
     await store.dismount()
+  }
+
+  @Test func aFullyAnsweredDraftOpensStraightToTheStories() throws {
+    let draft = ProfileDraft(
+      childName: "Maya",
+      startingStoryID: StoryLibrary.all[1].id,
+      accent: .american,
+      voiceID: "ava",
+      step: Onboarding.Step.voice.rawValue
+    )
+    let saved = LockIsolated<Profile?>(nil)
+    let store = try TestStore(initialState: Root.State()) {
+      Root().dependency(
+        ProfileStore(load: { nil }, save: { saved.setValue($0) }, loadDraft: { draft })
+      )
+    } changes: {
+      $0.home.childName = "Maya"
+      $0.home.startingStoryID = StoryLibrary.all[1].id
+    }
+    #expect(store.state.onboarding == nil)
+    #expect(saved.value?.voiceID == "ava")
+    #expect(saved.value?.accent == .american)
   }
 }

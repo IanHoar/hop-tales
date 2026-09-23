@@ -56,12 +56,17 @@ import SwiftUI
       Onboarding()
     }
     .onMount { state in
-      guard let profile = profileStore.load() else {
-        state.onboarding = profileStore.loadDraft().map(Onboarding.State.init(resuming:))
-          ?? Onboarding.State()
+      if let profile = profileStore.load() {
+        state.home.apply(profile)
         return
       }
-      state.home.apply(profile)
+      let resumed = profileStore.loadDraft().map(Onboarding.State.init(resuming:))
+      guard let resumed, resumed.isComplete else {
+        state.onboarding = resumed ?? Onboarding.State()
+        return
+      }
+      profileStore.save(resumed.profile)
+      state.home.apply(resumed.profile)
     }
     .forEach(\.path, dismissStyle: .stack) {
       Path.body
