@@ -11,59 +11,13 @@ import Testing
 
 @MainActor
 struct GrownUpsTests {
-  static let question = GateQuestion(left: 7, right: 6)
-
   nonisolated static let voices = [
     Voice(id: "com.apple.voice.enhanced.en-US.Samantha", name: "Samantha", language: "en-US")
   ]
 
-  @Test func theQuestionIsSpelledOutInWords() {
-    #expect(Self.question.prompt == "What is seven times six?")
-    #expect(Self.question.answer == 42)
-    #expect(Self.question.digits == 2)
-  }
-
-  @Test func theLiveQuestionsNeedAnAdultsArithmetic() {
-    for _ in 0..<50 {
-      let question = GateQuestions.liveValue.next()
-      #expect(GateQuestions.factors.contains(question.left))
-      #expect(GateQuestions.factors.contains(question.right))
-      #expect(question.answer >= 9)
-    }
-  }
-
-  @Test func theGrownUpsButtonOpensTheGateAndCancelClosesIt() async {
+  @Test func theGrownUpsButtonOpensTheSettings() async {
     let store = TestStore(initialState: Root.State()) {
       Root()
-    }
-
-    await store.send(.home(.grownUpsTapped)) {
-      $0.grownUps = GrownUps.State.DebugSnapshot(
-        gate: ParentGate.State.DebugSnapshot(question: Self.question)
-      )
-    }
-    await store.send(.grownUps(.gate(.cancelTapped))) {
-      $0.grownUps = nil
-    }
-  }
-
-  @Test func aWrongAnswerAsksAnotherQuestion() async {
-    let store = TestStore(initialState: ParentGate.State(question: Self.question)) {
-      ParentGate()
-    }
-
-    await store.send(.digitTapped(4)) { $0.entry = "4" }
-    await store.send(.digitTapped(8)) {
-      $0.entry = ""
-      $0.missed = 1
-    }
-    await store.send(.digitTapped(4)) { $0.entry = "4" }
-    await store.send(.deleteTapped) { $0.entry = "" }
-  }
-
-  @Test func theRightAnswerOpensTheSettings() async {
-    let store = TestStore(initialState: GrownUps.State(question: Self.question)) {
-      GrownUps()
         .dependency(ProfileStore(load: { Profile(childName: "Maya") }, save: { _ in }))
         .dependency(
           SpeechClient(
@@ -73,11 +27,11 @@ struct GrownUpsTests {
             voices: { Self.voices }
           )
         )
+    } changes: {
+      $0.home.childName = "Maya"
     }
 
-    await store.send(.gate(.digitTapped(4))) { $0.gate.entry = "4" }
-    await store.send(.gate(.digitTapped(2))) { $0.gate.entry = "42" }
-    await store.receive(\.gate.unlocked) {
+    await store.send(.home(.grownUpsTapped)) {
       $0.settings = Settings.State.DebugSnapshot(
         childName: "Maya",
         profile: Profile(childName: "Maya"),
@@ -172,7 +126,7 @@ struct GrownUpsTests {
   @Test func doneClosesTheSettingsAndGreetsTheNewName() async {
     let saved = LockIsolated(Profile(childName: "Maya"))
     var state = Root.State()
-    state.grownUps = GrownUps.State(question: Self.question)
+    state.settings = Settings.State()
     let store = TestStore(initialState: state) {
       Root()
         .dependency(
@@ -180,21 +134,15 @@ struct GrownUpsTests {
         )
     } changes: {
       $0.home.childName = "Maya"
+      $0.settings?.childName = "Maya"
+      $0.settings?.profile = Profile(childName: "Maya")
     }
 
-    await store.send(.grownUps(.gate(.digitTapped(4)))) { $0.grownUps?.gate.entry = "4" }
-    await store.send(.grownUps(.gate(.digitTapped(2)))) { $0.grownUps?.gate.entry = "42" }
-    await store.receive(\.grownUps.gate.unlocked) {
-      $0.grownUps?.settings = Settings.State.DebugSnapshot(
-        childName: "Maya",
-        profile: Profile(childName: "Maya")
-      )
+    await store.send(.settings(.nameChanged("Wren"))) {
+      $0.settings?.childName = "Wren"
     }
-    await store.send(.grownUps(.settings(.nameChanged("Wren")))) {
-      $0.grownUps?.settings?.childName = "Wren"
-    }
-    await store.send(.grownUps(.settings(.doneTapped))) {
-      $0.grownUps = nil
+    await store.send(.settings(.doneTapped)) {
+      $0.settings = nil
       $0.home.childName = "Wren"
     }
   }

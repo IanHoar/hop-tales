@@ -33,6 +33,7 @@ import SwiftUI
     case hearVoiceTapped
     case nameChanged(String)
     case nameSubmitted
+    case resetOnboardingTapped
     case soundToggled(Bool)
     case strictnessPicked(WordMatcher.Strictness)
     case voicePicked(String?)
@@ -58,6 +59,9 @@ import SwiftUI
 
       case .doneTapped, .nameSubmitted:
         save(state)
+
+      case .resetOnboardingTapped:
+        break
 
       case .hearVoiceTapped:
         let voice = state.profile.voiceID
@@ -127,6 +131,14 @@ public struct SettingsScreen: View {
         SettingsSection("Listening") { StrictnessChoices(store: store) }
         SettingsSection("Help voice") { VoiceRow(store: store) }
         SettingsSection("Sounds") { SoundRow(store: store) }
+        #if DEBUG
+          SettingsSection("Debug") {
+            Button("Reset onboarding", systemImage: "arrow.counterclockwise") {
+              store.send(.resetOnboardingTapped)
+            }
+            .buttonStyle(.ink(.tertiary))
+          }
+        #endif
       }
       .padding(.horizontal, 24)
       .padding(.top, 24)

@@ -6,22 +6,6 @@ import DesignSystem
 import SpeechRecognition
 import SwiftUI
 
-struct ParentGatePreview: View {
-  var missed = false
-
-  var body: some View {
-    ParentGateScreen(store: store)
-      .frame(width: Metrics.phone.reference.width, height: Metrics.phone.reference.height)
-  }
-
-  private var store: StoreOf<ParentGate> {
-    var state = ParentGate.State(question: GateQuestion(left: 7, right: 6))
-    state.entry = "4"
-    state.missed = missed ? 1 : 0
-    return Store(initialState: state) { ParentGate() }
-  }
-}
-
 struct SettingsPreview: View {
   var height = Metrics.phone.reference.height
 
@@ -52,7 +36,5 @@ struct SettingsPreview: View {
   }
 }
 
-#Preview("Gate") { ParentGatePreview() }
-#Preview("Gate, missed") { ParentGatePreview(missed: true) }
 #Preview("Settings") { SettingsPreview() }
 #endif
