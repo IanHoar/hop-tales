@@ -71,13 +71,14 @@ struct NamePage: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 24) {
       PageTitle(
-        title: "What's your reader's name?",
-        detail: "We use it to say hello on the home screen. It stays on this device."
+        title: "What should we call you?",
+        detail: "A first name, a nickname or anything familiar is perfect. We use it to say "
+          + "hello, and it never leaves this device."
       )
-      TextField("First name", text: Binding(get: { name }, set: change))
+      TextField("Name or nickname", text: Binding(get: { name }, set: change))
         .font(Typography.ui(24))
         .foregroundStyle(Palette.ink)
-        .textContentType(.givenName)
+        .textContentType(.nickname)
         .autocorrectionDisabled()
         .submitLabel(.done)
         .focused($focused)
