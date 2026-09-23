@@ -225,12 +225,6 @@ import World
   }
 }
 
-extension Array {
-  subscript(safe index: Int) -> Element? {
-    indices.contains(index) ? self[index] : nil
-  }
-}
-
 public struct ReadingScreen: View {
   static let heardHold = Duration.milliseconds(1200)
   static let cardToRail: CGFloat = 26
@@ -243,6 +237,8 @@ public struct ReadingScreen: View {
 
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(\.freezesMotion) private var freezesMotion
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
   @Environment(\.scenePhase) private var scenePhase
   @State private var showsHearing = false
   @State private var heldToken: String?
@@ -273,18 +269,19 @@ public struct ReadingScreen: View {
     }
   }
 
-  private func card(_ geometry: ReadingGeometry) -> some View {
+  private func card(_ geometry: ReadingGeometry, screenWidth: CGFloat? = nil) -> some View {
     SentenceStrip(
       sentences: store.story.sentences.map(\.words),
       position: BallTarget(sentence: store.sentenceIndex, word: store.wordIndex),
       flash: flash.map { BallTarget(sentence: $0.sentenceIndex, word: $0.wordIndex) },
       isSpeaking: store.isSpeaking,
-      geometry: geometry
+      geometry: geometry,
+      screenWidth: screenWidth
     )
     .contentShape(.rect)
     .onTapGesture { store.send(.currentWordTapped) }
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel(wordCardLabel)
+    .accessibilityLabel(store.wordCardLabel)
     .accessibilityHint("Double tap to hear the word.")
     .accessibilityAddTraits(.startsMediaSession)
     .accessibilityAction { store.send(.currentWordTapped) }
@@ -300,52 +297,26 @@ public struct ReadingScreen: View {
     return store.hearing.joined(separator: " ")
   }
 
-  private var wordCardLabel: String {
-    guard let word = store.currentWord?.text else { return "Reading" }
-    return "Current word: \(word). Say it out loud."
+  private var usesPadLayout: Bool {
+    horizontalSizeClass == .regular && verticalSizeClass == .regular
   }
 
   public var body: some View {
     GeometryReader { proxy in
-      let geometry = ReadingGeometry(size: proxy.size)
-
-      ZStack {
-        background
-          .ignoresSafeArea()
-
-        VStack(spacing: 0) {
-          Spacer(minLength: 0)
-          card(geometry)
-          ProgressRail(
-            story: store.story,
-            sentenceIndex: store.sentenceIndex,
-            geometry: geometry
-          )
-          .padding(.top, geometry.scaled(Self.cardToRail))
-          MicPill(heardToken: heldToken, hearing: hearing, geometry: geometry)
-            .padding(.top, geometry.scaled(Self.railToPill))
+      if usesPadLayout {
+        PadReadingLayout(
+          store: store,
+          size: proxy.size,
+          heldToken: heldToken,
+          hearing: hearing,
+          chip: chip
+        ) {
+          background
+        } card: {
+          card($0, screenWidth: proxy.size.width)
         }
-        .padding(.bottom, geometry.scaled(Self.pillToEdge))
-        .frame(width: proxy.size.width, height: proxy.size.height)
-
-        VStack(spacing: 0) {
-          ReadingTopBar(title: store.story.title, stars: store.stars, geometry: geometry) {
-            store.send(.backTapped)
-          }
-          .padding(.top, geometry.scaled(6))
-          Spacer()
-        }
-
-        if let chip {
-          StarChip(stars: chip.stars, geometry: geometry)
-            .id(chip.count)
-            .position(x: proxy.size.width - geometry.scaled(58), y: geometry.scaled(96))
-        }
-
-        #if DEBUG
-          DebugControls(store: store)
-            .position(x: proxy.size.width / 2, y: geometry.scaled(150))
-        #endif
+      } else {
+        phone(proxy)
       }
     }
     .toolbar(.hidden, for: .navigationBar)
@@ -381,14 +352,46 @@ public struct ReadingScreen: View {
       heldToken = nil
     }
   }
-}
 
-#Preview {
-  NavigationStack {
-    ReadingScreen(
-      store: Store(initialState: Reading.State(story: StoryLibrary.all[0])) {
-        Reading()
+  private func phone(_ proxy: GeometryProxy) -> some View {
+    let geometry = ReadingGeometry(size: proxy.size)
+    return ZStack {
+      background
+        .ignoresSafeArea()
+
+      VStack(spacing: 0) {
+        Spacer(minLength: 0)
+        card(geometry)
+        ProgressRail(
+          story: store.story,
+          sentenceIndex: store.sentenceIndex,
+          geometry: geometry
+        )
+        .padding(.top, geometry.scaled(Self.cardToRail))
+        MicPill(heardToken: heldToken, hearing: hearing, geometry: geometry)
+          .padding(.top, geometry.scaled(Self.railToPill))
       }
-    )
+      .padding(.bottom, geometry.scaled(Self.pillToEdge))
+      .frame(width: proxy.size.width, height: proxy.size.height)
+
+      VStack(spacing: 0) {
+        ReadingTopBar(title: store.story.title, stars: store.stars, geometry: geometry) {
+          store.send(.backTapped)
+        }
+        .padding(.top, geometry.scaled(6))
+        Spacer()
+      }
+
+      if let chip {
+        StarChip(stars: chip.stars, geometry: geometry)
+          .id(chip.count)
+          .position(x: proxy.size.width - geometry.scaled(58), y: geometry.scaled(96))
+      }
+
+      #if DEBUG
+        DebugControls(store: store)
+          .position(x: proxy.size.width / 2, y: geometry.scaled(150))
+      #endif
+    }
   }
 }

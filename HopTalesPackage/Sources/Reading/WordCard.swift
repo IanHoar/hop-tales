@@ -25,7 +25,8 @@ struct WordCard: View {
         isSpeaking: isSpeaking,
         geometry: geometry
       )
-        .frame(height: geometry.scaled(84))
+        .frame(width: geometry.cardSize.width, height: geometry.scaled(84))
+        .mask { edgeFade.padding(.vertical, -geometry.cardSize.height) }
         .padding(.top, geometry.scaled(96))
     }
     .frame(width: geometry.cardSize.width, height: geometry.cardSize.height, alignment: .top)
@@ -49,6 +50,22 @@ struct WordCard: View {
         )
         .offset(y: geometry.scaled(6))
     }
+  }
+
+  private var edgeFade: some View {
+    let width = geometry.cardSize.width
+    let clear = min(geometry.scaled(8) / width, 0.5)
+    let solid = min(geometry.scaled(36) / width, 0.5)
+    return LinearGradient(
+      stops: [
+        .init(color: .clear, location: clear),
+        .init(color: .black, location: solid),
+        .init(color: .black, location: 1 - solid),
+        .init(color: .clear, location: 1 - clear)
+      ],
+      startPoint: .leading,
+      endPoint: .trailing
+    )
   }
 
   private var shape: RoundedRectangle {

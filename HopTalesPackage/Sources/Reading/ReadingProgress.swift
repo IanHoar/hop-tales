@@ -24,3 +24,16 @@ extension Reading.State {
     }
   }
 }
+
+extension Array {
+  subscript(safe index: Int) -> Element? {
+    indices.contains(index) ? self[index] : nil
+  }
+}
+
+extension Reading.State {
+  var wordCardLabel: String {
+    guard let word = currentWord?.text else { return "Reading" }
+    return "Current word: \(word). Say it out loud."
+  }
+}

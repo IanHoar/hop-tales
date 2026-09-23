@@ -12,14 +12,16 @@ struct HomePreview: View {
   }
 
   let variant: Variant
+  let size: CGSize
 
-  init(_ variant: Variant) {
+  init(_ variant: Variant, size: CGSize = Metrics.phone.reference) {
     self.variant = variant
+    self.size = size
   }
 
   var body: some View {
     HomeScreen(store: store)
-      .frame(width: Metrics.phone.reference.width, height: Metrics.phone.reference.height)
+      .frame(width: size.width, height: size.height)
   }
 
   private var store: StoreOf<Home> {
@@ -46,4 +48,5 @@ struct HomePreview: View {
 
 #Preview("First run") { HomePreview(.firstRun) }
 #Preview("Midway") { HomePreview(.midway) }
+#Preview("iPad") { HomePreview(.midway, size: Metrics.pad.reference) }
 #endif

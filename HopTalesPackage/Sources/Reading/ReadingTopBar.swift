@@ -9,21 +9,30 @@ struct ReadingTopBar: View {
 
   var body: some View {
     HStack(spacing: 0) {
-      Button(action: back) {
-        Image(systemName: "chevron.left")
-          .font(.system(size: geometry.scaled(22), weight: .heavy))
-          .foregroundStyle(Palette.ink)
-          .frame(width: geometry.scaled(52), height: geometry.scaled(52))
-          .parchmentBevel(Circle(), border: geometry.scaled(3), drop: geometry.scaled(4))
-      }
-      .buttonStyle(.plain)
-      .accessibilityLabel("Back to stories")
+      BackButton(geometry: geometry, action: back)
       Spacer(minLength: geometry.scaled(8))
       StoryRibbon(title: title, geometry: geometry)
       Spacer(minLength: geometry.scaled(8))
       StarTotal(stars: stars, geometry: geometry)
     }
     .padding(.horizontal, geometry.scaled(16))
+  }
+}
+
+struct BackButton: View {
+  let geometry: ReadingGeometry
+  let action: () -> Void
+
+  var body: some View {
+    Button(action: action) {
+      Image(systemName: "chevron.left")
+        .font(.system(size: geometry.scaled(22), weight: .heavy))
+        .foregroundStyle(Palette.ink)
+        .frame(width: geometry.scaled(52), height: geometry.scaled(52))
+        .parchmentBevel(Circle(), border: geometry.scaled(3), drop: geometry.scaled(4))
+    }
+    .buttonStyle(.plain)
+    .accessibilityLabel("Back to stories")
   }
 }
 
