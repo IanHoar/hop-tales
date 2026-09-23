@@ -19,6 +19,7 @@ struct HomePreview: View {
 
   var body: some View {
     HomeScreen(store: store)
+      .frame(width: Metrics.phone.reference.width, height: Metrics.phone.reference.height)
   }
 
   private var store: StoreOf<Home> {
