@@ -43,6 +43,12 @@ public struct StoryStanding: Equatable, Sendable, Identifiable {
 
 extension Array where Element == StoryStanding {
   public var keepGoing: StoryStanding? {
-    first(where: \.isCurrent) ?? first { $0.standing == .unread }
+    keepGoing(startingAt: nil)
+  }
+
+  public func keepGoing(startingAt storyID: String?) -> StoryStanding? {
+    first(where: \.isCurrent)
+      ?? first { $0.story.id == storyID && $0.standing == .unread }
+      ?? first { $0.standing == .unread }
   }
 }

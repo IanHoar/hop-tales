@@ -9,22 +9,17 @@ actor LiveSpeechRecognizer {
     case audioSessionUnavailable
   }
 
-  static let locale = Locale(identifier: "en-CA")
   static let silenceTick = Duration.milliseconds(500)
   static let stabilityTick = Duration.milliseconds(50)
   static let settledAfter = Duration.milliseconds(250)
   static let offerHelpAfter: TimeInterval = 6
 
-  private let recognizer: SFSpeechRecognizer?
+  private var recognizer: SFSpeechRecognizer?
   private let engine = AVAudioEngine()
   private var request: SFSpeechAudioBufferRecognitionRequest?
   private var task: SFSpeechRecognitionTask?
 
-  init() {
-    recognizer = SFSpeechRecognizer(locale: Self.locale)
-  }
-
-  static func authorization() async -> SpeechClient.Authorization {
+  static func authorization(for locale: Locale) async -> SpeechClient.Authorization {
     guard let recognizer = SFSpeechRecognizer(locale: locale),
       recognizer.supportsOnDeviceRecognition
     else { return .unsupported }
@@ -38,7 +33,13 @@ actor LiveSpeechRecognizer {
     return microphone ? .authorized : .denied
   }
 
-  func listen(contextualStrings: [String]) throws -> AsyncStream<SpeechClient.Event> {
+  func listen(
+    contextualStrings: [String],
+    locale: Locale
+  ) throws -> AsyncStream<SpeechClient.Event> {
+    if recognizer?.locale.identifier != locale.identifier {
+      recognizer = SFSpeechRecognizer(locale: locale)
+    }
     guard let recognizer, recognizer.supportsOnDeviceRecognition else {
       throw Failure.unsupportedDevice
     }

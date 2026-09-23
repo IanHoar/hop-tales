@@ -73,6 +73,8 @@ import World
 
   @FeatureState var debouncer = PartialDebouncer()
   @FeatureState var savedStars = 0
+  @FeatureState var profile = Profile()
+  @Dependency(ProfileStore.self) var profileStore
   @Dependency(ProgressStore.self) var progressStore
   @Dependency(SoundClient.self) var sound
   @Dependency(SpeechClient.self) var speechClient
@@ -106,8 +108,9 @@ import World
         guard let word = state.currentWord?.text, !state.isSpeaking else { break }
         state.usedHelp = true
         state.isSpeaking = true
+        let voice = profile.voiceID
         store.addTask {
-          await speechClient.speak(word)
+          await speechClient.speak(word, voice)
           try? await Task.sleep(for: Reading.settleAfterSpeaking)
           try store.send(.speechFinished)
         }
@@ -149,6 +152,8 @@ import World
 
     .onMount(id: store.sentenceIndex) { state in
       state.strictness = strictnessPreference.load()
+      profile = profileStore.load() ?? Profile()
+      let locale = profile.accent.locale
       let celebrates = state.completionCount > 0
       guard let sentence = state.sentence else {
         if celebrates { store.addTask { await sound.sentenceCompleted() } }
@@ -162,11 +167,11 @@ import World
         if let known {
           authorization = known
         } else {
-          authorization = await speechClient.requestAuthorization()
+          authorization = await speechClient.requestAuthorization(locale)
           try store.send(.authorizationResolved(authorization))
         }
         guard authorization == .authorized else { return }
-        let events = try await speechClient.listen(contextualStrings)
+        let events = try await speechClient.listen(contextualStrings, locale)
         for await event in events {
           switch event {
           case let .partial(tokens):

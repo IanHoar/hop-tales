@@ -1,6 +1,8 @@
 import ComposableArchitecture2
 import Content
+import Dependencies
 import Home
+import Onboarding
 import Reading
 import SwiftUI
 
@@ -13,14 +15,18 @@ import SwiftUI
 
   public struct State {
     public var home = Home.State()
+    public var onboarding: Onboarding.State?
     public var path: [Path.State] = []
     public init() {}
   }
 
   public enum Action {
     case home(Home.Action)
+    case onboarding(Onboarding.Action)
     case path(Path.State.ID, Path.Action)
   }
+
+  @Dependency(ProfileStore.self) var profileStore
 
   public var body: some Feature {
     Features {
@@ -30,6 +36,17 @@ import SwiftUI
           state.path.append(.reading(Reading.State(story: story)))
         case .home(.grownUpsTapped), .home(.playOnTVTapped):
           break
+        case let .onboarding(.finished(profile)):
+          profileStore.save(profile)
+          state.home.apply(profile)
+          state.onboarding = nil
+        case .onboarding:
+          break
+        case .home(.resetOnboardingTapped):
+          profileStore.erase()
+          state.path = []
+          state.home = Home.State()
+          state.onboarding = Onboarding.State()
         case .path(_, .reading(.backToStoriesTapped)):
           state.path.removeLast()
         case .path:
@@ -39,6 +56,22 @@ import SwiftUI
       Scope(\.home) {
         Home()
       }
+    }
+    .ifLet(\.onboarding) {
+      Onboarding()
+    }
+    .onMount { state in
+      if let profile = profileStore.load() {
+        state.home.apply(profile)
+        return
+      }
+      let resumed = profileStore.loadDraft().map(Onboarding.State.init(resuming:))
+      guard let resumed, resumed.isComplete else {
+        state.onboarding = resumed ?? Onboarding.State()
+        return
+      }
+      profileStore.save(resumed.profile)
+      state.home.apply(resumed.profile)
     }
     .forEach(\.path, dismissStyle: .stack) {
       Path.body
@@ -54,6 +87,18 @@ public struct RootScreen: View {
   }
 
   public var body: some View {
+    Group {
+      if let onboarding = store.scope(\.onboarding) {
+        OnboardingScreen(store: onboarding)
+          .transition(.opacity)
+      } else {
+        stories
+      }
+    }
+    .animation(.easeInOut(duration: 0.3), value: store.onboarding == nil)
+  }
+
+  private var stories: some View {
     NavigationStack(path: $store.scope(\.path)) {
       HomeScreen(store: store.scope(\.home))
         .navigationDestination(for: Path.StoreEnumeration.self) { pathStore in

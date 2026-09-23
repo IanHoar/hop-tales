@@ -39,7 +39,7 @@ extension ProgressStore: DependencyKey {
 
   public static let testValue = ProgressStore(load: { Progress() }, save: { _ in })
 
-  static var applicationSupport: URL {
+  public static var applicationSupport: URL {
     let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
     return (base.first ?? URL.temporaryDirectory).appending(path: "HopTales")
   }

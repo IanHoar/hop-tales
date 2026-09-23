@@ -16,13 +16,13 @@ final class Speaker: NSObject {
     synthesizer.delegate = self
   }
 
-  func speak(_ word: String) async {
+  func speak(_ word: String, voiceID: String? = nil) async {
     synthesizer.stopSpeaking(at: .immediate)
     resume()
 
     let utterance = AVSpeechUtterance(string: word)
     utterance.rate = Self.rate
-    utterance.voice = Self.voice()
+    utterance.voice = voiceID.flatMap(AVSpeechSynthesisVoice.init(identifier:)) ?? Self.voice()
 
     await withCheckedContinuation { continuation in
       finished = continuation
@@ -32,7 +32,7 @@ final class Speaker: NSObject {
 
   static func voice() -> AVSpeechSynthesisVoice? {
     let english = AVSpeechSynthesisVoice.speechVoices().filter {
-      $0.language.hasPrefix("en")
+      $0.language.hasPrefix("en") && !$0.voiceTraits.contains(.isNoveltyVoice)
     }
     let named = english.first { $0.name == preferredVoice && $0.quality != .default }
     let enhanced = english.first { $0.quality == .premium }
