@@ -14,7 +14,6 @@ import SwiftUI
     case listening
     case story
     case accent
-    case voice
 
     public static var setup: [Step] { allCases.filter { $0 != .welcome } }
   }
@@ -25,15 +24,12 @@ import SwiftUI
     public var authorization: SpeechClient.Authorization?
     public var startingStoryID: String?
     public var accent: Profile.Accent?
-    public var voiceID: String?
-    public var voices: [SpeechClient.Voice] = []
     public init() {}
 
     public init(resuming draft: ProfileDraft) {
       childName = draft.childName
       startingStoryID = draft.startingStoryID
       accent = draft.accent
-      voiceID = draft.voiceID
       path = Step.allCases.filter { $0 != .welcome && $0.rawValue <= draft.step }
     }
 
@@ -42,7 +38,6 @@ import SwiftUI
         childName: childName,
         startingStoryID: startingStoryID,
         accent: accent,
-        voiceID: voiceID,
         step: step.rawValue
       )
     }
@@ -50,7 +45,6 @@ import SwiftUI
     public var isComplete: Bool {
       step == Step.allCases.last
         && Step.setup.filter { $0 != .listening }.allSatisfy(canContinue(from:))
-        && voiceID != nil
     }
 
     var listeningLocale: Locale { (accent ?? .canadian).locale }
@@ -59,8 +53,7 @@ import SwiftUI
       Profile(
         childName: childName.trimmingCharacters(in: .whitespacesAndNewlines),
         startingStoryID: startingStoryID ?? StoryLibrary.all[0].id,
-        accent: accent ?? .canadian,
-        voiceID: voiceID
+        accent: accent ?? .canadian
       )
     }
 
@@ -73,7 +66,6 @@ import SwiftUI
       case .listening: authorization != nil
       case .story: startingStoryID != nil
       case .accent: accent != nil
-      case .voice: voiceID != nil || voices.isEmpty
       }
     }
   }
@@ -87,11 +79,7 @@ import SwiftUI
     case nameChanged(String)
     case pathChanged([Step])
     case storyPicked(String)
-    case voicePicked(String)
-    case voicesLoaded([SpeechClient.Voice])
   }
-
-  public static let sample = "Hello! Let's read together."
 
   @Dependency(ProfileStore.self) var profileStore
   @Dependency(SpeechClient.self) var speechClient
@@ -101,8 +89,6 @@ import SwiftUI
       switch action {
       case let .accentPicked(accent):
         state.accent = accent
-        state.voices = []
-        state.voiceID = nil
 
       case let .authorizationResolved(authorization):
         state.authorization = authorization
@@ -115,7 +101,6 @@ import SwiftUI
           break
         }
         state.path.append(next)
-        if next == .voice, state.voices.isEmpty { loadVoices(for: state.listeningLocale) }
 
       case .finished:
         break
@@ -137,15 +122,6 @@ import SwiftUI
       case let .storyPicked(id):
         state.startingStoryID = id
 
-      case let .voicePicked(id):
-        state.voiceID = id
-        store.addTask { await speechClient.speak(Self.sample, id) }
-
-      case let .voicesLoaded(voices):
-        state.voices = voices
-        if !voices.contains(where: { $0.id == state.voiceID }) {
-          state.voiceID = nil
-        }
       }
       profileStore.saveDraft(state.draft)
     }
@@ -157,16 +133,9 @@ import SwiftUI
           try store.send(.authorizationResolved(authorization))
         }
       }
-      if state.step == .voice { loadVoices(for: state.listeningLocale) }
     }
   }
 
-  private func loadVoices(for locale: Locale) {
-    store.addTask {
-      let voices = await speechClient.voices(locale)
-      try store.send(.voicesLoaded(voices))
-    }
-  }
 }
 
 public struct OnboardingScreen: View {
@@ -198,7 +167,9 @@ public struct OnboardingScreen: View {
     .safeAreaInset(edge: .bottom) {
       continueButton(from: step)
         .padding(.horizontal, 24)
+        .padding(.top, 12)
         .padding(.bottom, 16)
+        .background(Palette.cream)
     }
     .background(Palette.cream.ignoresSafeArea())
     .navigationBarTitleDisplayMode(.inline)
@@ -222,8 +193,6 @@ public struct OnboardingScreen: View {
       StoryPage(selected: store.startingStoryID) { store.send(.storyPicked($0)) }
     case .accent:
       AccentPage(selected: store.accent) { store.send(.accentPicked($0)) }
-    case .voice:
-      VoicePage(voices: store.voices, selected: store.voiceID) { store.send(.voicePicked($0)) }
     }
   }
 
@@ -239,7 +208,7 @@ public struct OnboardingScreen: View {
   private func continueTitle(for step: Onboarding.Step) -> String {
     switch step {
     case .welcome: "Get started"
-    case .voice: "Start reading"
+    case .accent: "Start reading"
     default: "Next"
     }
   }
@@ -252,17 +221,6 @@ public struct OnboardingScreen: View {
 #Preview("Listening") {
   var state = Onboarding.State()
   state.path = [.name, .listening]
-  return OnboardingScreen(store: Store(initialState: state) { Onboarding() })
-}
-
-#Preview("Voice") {
-  var state = Onboarding.State()
-  state.path = [.name, .listening, .story, .accent, .voice]
-  state.voices = [
-    SpeechClient.Voice(id: "ava", name: "Ava"),
-    SpeechClient.Voice(id: "samantha", name: "Samantha")
-  ]
-  state.voiceID = "ava"
   return OnboardingScreen(store: Store(initialState: state) { Onboarding() })
 }
 

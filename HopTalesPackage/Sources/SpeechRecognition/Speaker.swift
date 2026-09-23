@@ -32,23 +32,13 @@ final class Speaker: NSObject {
 
   static func voice() -> AVSpeechSynthesisVoice? {
     let english = AVSpeechSynthesisVoice.speechVoices().filter {
-      $0.language.hasPrefix("en")
+      $0.language.hasPrefix("en") && !$0.voiceTraits.contains(.isNoveltyVoice)
     }
     let named = english.first { $0.name == preferredVoice && $0.quality != .default }
     let enhanced = english.first { $0.quality == .premium }
       ?? english.first { $0.quality == .enhanced }
     return named ?? enhanced ?? english.first { $0.name == preferredVoice }
       ?? AVSpeechSynthesisVoice(language: "en-US")
-  }
-
-  static func voices(for locale: Locale) -> [SpeechClient.Voice] {
-    let english = AVSpeechSynthesisVoice.speechVoices().filter { $0.language.hasPrefix("en") }
-    let local = english.filter { $0.language == locale.identifier }
-    let pool = local.isEmpty ? english : local
-    return pool
-      .sorted { ($0.quality.rawValue, $1.name) > ($1.quality.rawValue, $0.name) }
-      .prefix(6)
-      .map { SpeechClient.Voice(id: $0.identifier, name: $0.name) }
   }
 
   private func resume() {

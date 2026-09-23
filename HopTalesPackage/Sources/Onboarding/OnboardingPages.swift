@@ -48,18 +48,23 @@ struct PrimaryButton: View {
     Button(action: action) {
       Text(title)
         .font(Typography.ui(20))
-        .foregroundStyle(Palette.flashText)
+        .foregroundStyle(enabled ? Palette.flashText : Palette.faint)
         .frame(maxWidth: 560)
         .frame(height: 60)
         .background {
           Capsule()
-            .fill(Palette.amber)
-            .shadow(color: Palette.amberDeep.opacity(0.6), radius: 0, x: 0, y: 4)
+            .fill(enabled ? Palette.amber : Palette.trackBg)
+            .shadow(
+              color: enabled ? Palette.amberDeep.opacity(0.6) : .clear,
+              radius: 0,
+              x: 0,
+              y: 4
+            )
         }
     }
     .buttonStyle(.plain)
-    .opacity(enabled ? 1 : 0.45)
     .disabled(!enabled)
+    .animation(.easeInOut(duration: 0.15), value: enabled)
   }
 }
 
@@ -184,7 +189,8 @@ struct StoryPage: View {
         ForEach(Array(zip(StoryLibrary.all, Self.levels)), id: \.0.id) { story, level in
           Choice(
             title: level.name,
-            detail: "\(level.detail) Starts with \(story.title).",
+            detail: level.detail,
+            footnote: "Starts with \(story.title)",
             isSelected: story.id == selected
           ) { pick(story.id) }
         }
@@ -213,58 +219,55 @@ struct AccentPage: View {
   }
 }
 
-struct VoicePage: View {
-  let voices: [SpeechClient.Voice]
-  let selected: String?
-  let pick: (String) -> Void
-
-  var body: some View {
-    VStack(alignment: .leading, spacing: 24) {
-      PageTitle(
-        title: "Which voice should read words aloud?",
-        detail: "When your child needs help, this voice says the word. Tap one to hear it."
-      )
-      VStack(spacing: 12) {
-        ForEach(voices) { voice in
-          Choice(title: voice.name, isSelected: voice.id == selected) { pick(voice.id) }
-        }
-      }
-    }
-  }
-}
-
 struct Choice: View {
   let title: String
   var detail: String?
+  var footnote: String?
   let isSelected: Bool
   let action: () -> Void
 
   var body: some View {
     Button(action: action) {
-      HStack {
-        VStack(alignment: .leading, spacing: 4) {
+      HStack(alignment: .center, spacing: 16) {
+        VStack(alignment: .leading, spacing: 6) {
           Text(title)
             .font(Typography.ui(19))
             .foregroundStyle(Palette.ink)
           if let detail {
             Text(detail)
-              .font(Typography.ui(14))
+              .font(Typography.ui(15))
               .foregroundStyle(Palette.muted)
+              .lineSpacing(2)
+          }
+          if let footnote {
+            Label(footnote, systemImage: "book.closed")
+              .font(Typography.ui(13))
+              .foregroundStyle(isSelected ? Palette.pillText : Palette.faint)
+              .padding(.top, 2)
           }
         }
-        Spacer()
+        .multilineTextAlignment(.leading)
+        .fixedSize(horizontal: false, vertical: true)
+        Spacer(minLength: 0)
         Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-          .font(.system(size: 24))
+          .font(.system(size: 26))
           .foregroundStyle(isSelected ? Palette.amberDeep : Palette.faint)
       }
       .padding(.horizontal, 20)
+      .padding(.vertical, 18)
       .frame(minHeight: 64)
       .background(
         isSelected ? Palette.pillBg : Palette.creamDeep,
-        in: .rect(cornerRadius: 20)
+        in: .rect(cornerRadius: 22, style: .continuous)
       )
+      .overlay {
+        RoundedRectangle(cornerRadius: 22, style: .continuous)
+          .strokeBorder(isSelected ? Palette.amber : .clear, lineWidth: 2)
+      }
+      .contentShape(.rect(cornerRadius: 22))
     }
     .buttonStyle(.plain)
+    .animation(.easeInOut(duration: 0.15), value: isSelected)
     .accessibilityAddTraits(isSelected ? .isSelected : [])
   }
 }

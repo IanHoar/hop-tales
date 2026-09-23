@@ -10,16 +10,10 @@ import Testing
 
 @MainActor
 struct OnboardingTests {
-  nonisolated static let voices = [
-    SpeechClient.Voice(id: "ava", name: "Ava"),
-    SpeechClient.Voice(id: "sam", name: "Samantha")
-  ]
-
   nonisolated static let speech = SpeechClient(
     listen: { _, _ in AsyncStream { $0.finish() } },
     requestAuthorization: { _ in .authorized },
-    speak: { _, _ in },
-    voices: { _ in voices }
+    speak: { _, _ in }
   )
 
   @Test func aFirstRunOpensOnboarding() throws {
@@ -62,12 +56,6 @@ struct OnboardingTests {
     await store.send(.continueTapped) { $0.path = [.name, .listening, .story, .accent] }
     await store.send(.continueTapped)
     await store.send(.accentPicked(.british)) { $0.accent = .british }
-    await store.send(.continueTapped) {
-      $0.path = [.name, .listening, .story, .accent, .voice]
-    }
-    await store.receive(\.voicesLoaded) { $0.voices = Self.voices }
-    await store.send(.continueTapped)
-    await store.send(.voicePicked("sam")) { $0.voiceID = "sam" }
     await store.send(.continueTapped)
     await store.receive(\.finished)
   }
@@ -83,8 +71,6 @@ struct OnboardingTests {
     #expect(!state.canContinue(from: .listening))
     #expect(!state.canContinue(from: .story))
     #expect(!state.canContinue(from: .accent))
-    state.voices = Self.voices
-    #expect(!state.canContinue(from: .voice))
   }
 
   @Test func listeningCanBeRefusedWithoutBlockingSetUp() async {
@@ -173,8 +159,7 @@ struct OnboardingTests {
       childName: "Maya",
       startingStoryID: StoryLibrary.all[1].id,
       accent: .american,
-      voiceID: "ava",
-      step: Onboarding.Step.voice.rawValue
+      step: Onboarding.Step.accent.rawValue
     )
     let saved = LockIsolated<Profile?>(nil)
     let store = try TestStore(initialState: Root.State()) {
@@ -186,7 +171,6 @@ struct OnboardingTests {
       $0.home.startingStoryID = StoryLibrary.all[1].id
     }
     #expect(store.state.onboarding == nil)
-    #expect(saved.value?.voiceID == "ava")
     #expect(saved.value?.accent == .american)
   }
 
