@@ -18,6 +18,8 @@ public final class WorldScene: SKScene {
   let nearLayer = SKNode()
   let actorLayer = SKNode()
   let companionLayer = SKNode()
+  let particleLayer = SKNode()
+  let particles = AmbientParticles.emitter()
   static let companionHome = CGPoint(x: 150, y: WorldMetrics.size.height - 436)
 
   public var companion: any Companion = FoxNode() {
@@ -52,6 +54,8 @@ public final class WorldScene: SKScene {
         world.addChild(layer)
       }
       mountArt()
+      world.addChild(particleLayer)
+      mountParticles()
       world.addChild(companionLayer)
       mountCompanion()
     }
@@ -91,6 +95,7 @@ public final class WorldScene: SKScene {
     builtSize = size
 
     world.setScale(size.height / WorldMetrics.size.height)
+    layOutParticles()
   }
 
   override public func update(_ currentTime: TimeInterval) {
@@ -99,6 +104,37 @@ public final class WorldScene: SKScene {
     let travelled = lastNearX - nearLayer.position.x
     lastNearX = nearLayer.position.x
     companion.update(elapsed: elapsed, travelled: travelled)
+  }
+
+  private func mountParticles() {
+    particles.targetNode = actorLayer
+    particleLayer.zPosition = 2
+    particleLayer.addChild(particles)
+    tintParticles()
+  }
+
+  private func layOutParticles() {
+    let span = size.width / world.xScale * AmbientParticles.coverage
+    let band = AmbientParticles.band
+    particles.position = CGPoint(
+      x: span / 2,
+      y: WorldMetrics.size.height - (band.lowerBound + band.upperBound) / 2
+    )
+    particles.particlePositionRange = CGVector(
+      dx: span,
+      dy: band.upperBound - band.lowerBound
+    )
+    particles.resetSimulation()
+    particles.advanceSimulationTime(TimeInterval(AmbientParticles.lifetime))
+  }
+
+  private func tintParticles() {
+    guard let colour = AmbientParticles.colour(for: stage) else {
+      particles.particleBirthRate = 0
+      return
+    }
+    particles.particleColor = colour
+    particles.particleBirthRate = AmbientParticles.birthRate
   }
 
   private func mountCompanion() {
@@ -137,6 +173,7 @@ public final class WorldScene: SKScene {
 
   public func setStage(_ stage: WorldStage, animated: Bool = true) {
     self.stage = stage
+    tintParticles()
     guard let sky = WorldArt.sky(stage) else { return }
     let texture = SKTexture(image: sky)
     guard animated else {
