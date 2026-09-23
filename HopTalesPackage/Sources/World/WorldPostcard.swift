@@ -68,12 +68,16 @@ public enum CastPortrait {
         "fox-leg-near-rear", "fox-leg-near-front", "fox-scarf", "fox-head-happy", "fox-wrap"
       ]
     case .castle: ["knight-idle"]
-    case .dragon: ["dragon-body-idle", "dragon-wing"]
+    case .dragon: []
     }
   }
 
   public static func image(for stage: WorldStage) -> UIImage? {
     if let cached = cache[stage] { return cached }
+    if stage == .dragon {
+      cache[stage] = DragonSheet.portrait
+      return cache[stage]
+    }
     let images = parts(for: stage).compactMap {
       UIImage(named: $0, in: .module, compatibleWith: nil)
     }

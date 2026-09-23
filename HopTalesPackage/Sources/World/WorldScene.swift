@@ -185,7 +185,7 @@ public final class WorldScene: SKScene {
 
   private func grade(for stage: WorldStage) {
     let dusk = stage == .dragon
-    for node in [knight.body, dragon.body, dragon.wing] {
+    for node in [knight.body, dragon.body] {
       node.color = UIColor(red: 0.8, green: 0.78, blue: 0.88, alpha: 1)
       node.colorBlendFactor = dusk ? 0.2 : 0
     }

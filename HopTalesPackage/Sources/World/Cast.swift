@@ -53,32 +53,65 @@ final class KnightNode: SKNode {
   }
 }
 
+@MainActor
+enum DragonSheet {
+  static let columns = 5
+  static let rows = 4
+  static let frameSize: CGFloat = 256
+  static let feet: CGFloat = 218
+
+  static let image = UIImage(named: "dragon-idle", in: .module, compatibleWith: nil)
+
+  static let frames: [SKTexture] = {
+    guard let image else { return [] }
+    let sheet = SKTexture(image: image)
+    sheet.filteringMode = .nearest
+    return (0..<rows).flatMap { row in
+      (0..<columns).map { column in
+        let rect = CGRect(
+          x: CGFloat(column) / CGFloat(columns),
+          y: 1 - CGFloat(row + 1) / CGFloat(rows),
+          width: 1 / CGFloat(columns),
+          height: 1 / CGFloat(rows)
+        )
+        let frame = SKTexture(rect: rect, in: sheet)
+        frame.filteringMode = .nearest
+        return frame
+      }
+    }
+  }()
+
+  static var portrait: UIImage? {
+    guard let cgImage = image?.cgImage,
+      let frame = cgImage.cropping(to: CGRect(x: 0, y: 0, width: frameSize, height: frameSize))
+    else { return nil }
+    return UIImage(cgImage: frame, scale: 1, orientation: .upMirrored)
+  }
+}
+
 final class DragonNode: SKNode {
   static let home: CGFloat = 2212
-  static let scale: CGFloat = 0.72
-  static let flapPeriod: CGFloat = 2.4
+  static let scale: CGFloat = 1.05
+  static let framesPerSecond: Double = 10
   static let roarTime: TimeInterval = 1.4
 
   let body: SKSpriteNode
-  let wing: SKSpriteNode
-  let calm: SKTexture?
-  let roaring: SKTexture?
+  let frames: [SKTexture]
   private var clock: TimeInterval = 0
   private var sinceRoar: TimeInterval = .infinity
 
   override init() {
-    let rigging = Rigging.dragon
-    body = rigging.sprite("dragon-body-idle")
-    wing = rigging.sprite("dragon-wing")
-    calm = body.texture
-    roaring = rigging.texture("dragon-body-roar")
+    frames = DragonSheet.frames
+    body = SKSpriteNode(
+      texture: frames.first,
+      size: CGSize(width: DragonSheet.frameSize, height: DragonSheet.frameSize)
+    )
     super.init()
     name = "dragon"
-    let rig = SKNode()
-    rig.setScale(Self.scale)
-    rig.addChild(body)
-    rig.addChild(wing)
-    addChild(rig)
+    body.anchorPoint = CGPoint(x: 0.5, y: 1 - DragonSheet.feet / DragonSheet.frameSize)
+    body.xScale = -Self.scale
+    body.yScale = Self.scale
+    addChild(body)
     position = Ground.point(at: Self.home)
   }
 
@@ -89,17 +122,23 @@ final class DragonNode: SKNode {
 
   var isRoaring: Bool { sinceRoar < Self.roarTime }
 
+  var frameIndex: Int {
+    guard !frames.isEmpty else { return 0 }
+    return Int(clock * Self.framesPerSecond + 0.000_1) % frames.count
+  }
+
   func roar() {
     sinceRoar = 0
   }
 
   func update(elapsed: TimeInterval) {
-    clock += elapsed
     sinceRoar += elapsed
-    let phase = sin(2 * .pi * CGFloat(clock) / Self.flapPeriod)
-    let sweep: CGFloat = isRoaring ? 0.38 : 0.21
-    wing.zRotation = -(phase * sweep) - 0.07
-    body.texture = isRoaring ? roaring : calm
-    body.yScale = 1 + 0.015 * sin(2 * .pi * CGFloat(clock) / 2.2)
+    clock += isRoaring ? elapsed * 2 : elapsed
+    if !frames.isEmpty {
+      body.texture = frames[frameIndex]
+    }
+    let pulse = isRoaring ? 0.08 * sin(.pi * CGFloat(sinceRoar / Self.roarTime)) : 0
+    body.xScale = -Self.scale * (1 + pulse)
+    body.yScale = Self.scale * (1 + pulse)
   }
 }

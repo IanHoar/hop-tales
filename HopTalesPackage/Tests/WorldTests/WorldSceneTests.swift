@@ -165,18 +165,28 @@ struct WorldSceneTests {
   @Test func theDragonRoarsOnTheLastWordAndSettles() {
     let dragon = DragonNode()
     dragon.roar()
-    dragon.update(elapsed: 0.1)
-    #expect(dragon.body.texture === dragon.roaring)
+    dragon.update(elapsed: DragonNode.roarTime / 2)
+    #expect(dragon.isRoaring)
+    #expect(abs(dragon.body.yScale) > DragonNode.scale)
     dragon.update(elapsed: DragonNode.roarTime)
-    #expect(dragon.body.texture === dragon.calm)
+    #expect(!dragon.isRoaring)
+    #expect(abs(dragon.body.yScale - DragonNode.scale) < 0.0001)
   }
 
-  @Test func theDragonFlapsItsWing() {
+  @Test func theDragonPlaysEveryFrameOfItsIdle() {
     let dragon = DragonNode()
-    dragon.update(elapsed: 0.6)
-    let raised = dragon.wing.zRotation
-    dragon.update(elapsed: 1.2)
-    #expect(raised != dragon.wing.zRotation)
+    #expect(dragon.frames.count == DragonSheet.columns * DragonSheet.rows)
+    var seen = Set<Int>()
+    for _ in 0..<dragon.frames.count {
+      dragon.update(elapsed: 1 / DragonNode.framesPerSecond)
+      seen.insert(dragon.frameIndex)
+      #expect(dragon.body.texture === dragon.frames[dragon.frameIndex])
+    }
+    #expect(seen.count == dragon.frames.count)
+  }
+
+  @Test func theDragonFacesTheFox() {
+    #expect(DragonNode().body.xScale < 0)
   }
 
   @Test func duskGradesTheCastWithoutAFilter() {
