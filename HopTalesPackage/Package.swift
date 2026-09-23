@@ -102,6 +102,7 @@ let package = Package(
       dependencies: [
         "DesignSystem",
         "Reading",
+        "SpeechRecognition",
       ]
     ),
     .testTarget(
