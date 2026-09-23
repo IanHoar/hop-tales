@@ -106,4 +106,38 @@ struct WorldSceneTests {
     #expect(abs(fox.backLegs[1].zRotation - fox.frontLegs[0].zRotation) < 0.0001)
     #expect(abs(fox.backLegs[0].zRotation + fox.backLegs[1].zRotation) < 0.0001)
   }
+
+  @Test func pollenDriftsInTheWorldSoItScrollsWithIt() {
+    let scene = WorldScene(size: CGSize(width: 402, height: 874))
+    scene.didMove(to: SKView())
+    #expect(scene.particles.targetNode === scene.actorLayer)
+    #expect(scene.particles.particleBirthRate > 0)
+  }
+
+  @Test func aboutTenMotesAreOnScreenAtOnce() {
+    let steady = AmbientParticles.onScreen
+    #expect((8...12).contains(steady))
+    let emitter = AmbientParticles.emitter()
+    let perScreen = emitter.particleBirthRate * emitter.particleLifetime / AmbientParticles.coverage
+    #expect(abs(perScreen - steady) < 0.001)
+  }
+
+  @Test func theCastleRoadHasDustAndDuskHasNone() {
+    let scene = WorldScene(size: CGSize(width: 402, height: 874))
+    scene.didMove(to: SKView())
+    let pollen = scene.particles.particleColor
+    scene.setStage(.castle, animated: false)
+    #expect(scene.particles.particleColor != pollen)
+    scene.setStage(.dragon, animated: false)
+    #expect(scene.particles.particleBirthRate == 0)
+  }
+
+  @Test func motesAlsoWaitOffTheRightEdgeToScrollOn() {
+    let scene = WorldScene(size: CGSize(width: 402, height: 874))
+    scene.didMove(to: SKView())
+    let visible = 402 / (874 / WorldMetrics.size.height)
+    let range = scene.particles.particlePositionRange.dx
+    #expect(abs(range - visible * 2) < 0.5)
+    #expect(abs(scene.particles.position.x - range / 2) < 0.5)
+  }
 }
