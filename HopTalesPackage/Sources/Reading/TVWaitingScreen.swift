@@ -14,15 +14,22 @@ public struct TVWaitingScreen: View {
       TVWorld(progress: 0)
       VStack(spacing: 18) {
         Text("Hop Tales")
-          .font(Typography.ui(96))
-          .foregroundStyle(Palette.ink)
+          .font(Typography.display(120))
+          .foregroundStyle(Palette.red)
+          .inkHalo(9)
         Text(childName.map { "Pick a story on the phone, \($0)" } ?? "Pick a story on the phone")
           .font(Typography.ui(40))
-          .foregroundStyle(Palette.chipText)
+          .foregroundStyle(Palette.ink)
       }
-      .padding(.horizontal, 72)
-      .padding(.vertical, 48)
-      .background(Palette.cream.opacity(0.92), in: .rect(cornerRadius: 56, style: .continuous))
+      .padding(.horizontal, 80)
+      .padding(.vertical, 56)
+      .bevel(
+        Palette.parchment,
+        lip: Palette.parchmentLip,
+        shape: RoundedRectangle(cornerRadius: 56, style: .continuous),
+        border: 6,
+        drop: 10
+      )
     }
     .accessibilityHidden(true)
   }

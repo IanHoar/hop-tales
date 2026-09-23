@@ -11,7 +11,7 @@ struct StepDots: View {
     HStack(spacing: 8) {
       ForEach(Onboarding.Step.setup, id: \.self) { step in
         Capsule()
-          .fill(step.rawValue <= current.rawValue ? Palette.amber : Palette.trackBg)
+          .fill(step.rawValue <= current.rawValue ? Palette.gold : Palette.stone)
           .frame(width: step == current ? 22 : 8, height: 8)
       }
     }
@@ -27,7 +27,7 @@ struct PageTitle: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 10) {
       Text(title)
-        .font(Typography.ui(30))
+        .font(Typography.display(32))
         .foregroundStyle(Palette.ink)
         .fixedSize(horizontal: false, vertical: true)
       Text(detail)
@@ -46,23 +46,10 @@ struct PrimaryButton: View {
 
   var body: some View {
     Button(action: action) {
-      Text(title)
-        .font(Typography.ui(20))
-        .foregroundStyle(enabled ? Palette.flashText : Palette.faint)
-        .frame(maxWidth: 560)
-        .frame(height: 60)
-        .background {
-          Capsule()
-            .fill(enabled ? Palette.amber : Palette.trackBg)
-            .shadow(
-              color: enabled ? Palette.amberDeep.opacity(0.6) : .clear,
-              radius: 0,
-              x: 0,
-              y: 4
-            )
-        }
+      Text(title).frame(maxWidth: 560)
     }
-    .buttonStyle(.plain)
+    .buttonStyle(.ink(enabled ? .primary : .tertiary))
+    .opacity(enabled ? 1 : 0.6)
     .disabled(!enabled)
     .animation(.easeInOut(duration: 0.15), value: enabled)
   }
@@ -89,7 +76,13 @@ struct NamePage: View {
         .focused($focused)
         .padding(.horizontal, 20)
         .frame(height: 64)
-        .background(Palette.creamDeep, in: .rect(cornerRadius: 20))
+        .bevel(
+          Palette.paper,
+          lip: Palette.parchmentLip,
+          shape: RoundedRectangle(cornerRadius: 20, style: .continuous),
+          border: 3,
+          drop: 4
+        )
     }
     .onAppear { focused = true }
   }
@@ -112,13 +105,9 @@ struct ListeningPage: View {
         VStack(alignment: .leading, spacing: 12) {
           Button(action: turnOn) {
             Label("Allow microphone", systemImage: "mic.fill")
-              .font(Typography.ui(20))
-              .foregroundStyle(Palette.ink)
               .frame(maxWidth: .infinity)
-              .frame(height: 60)
-              .background(Palette.creamDeep, in: .capsule)
           }
-          .buttonStyle(.plain)
+          .buttonStyle(.ink(.secondary))
           Text("iPhone will ask you to allow the microphone and speech recognition.")
             .font(Typography.ui(14))
             .foregroundStyle(Palette.muted)
@@ -165,7 +154,13 @@ struct Note: View {
     }
     .padding(18)
     .frame(maxWidth: .infinity, alignment: .leading)
-    .background(Palette.creamDeep, in: .rect(cornerRadius: 20))
+    .bevel(
+      Palette.paper,
+      lip: Palette.parchmentLip,
+      shape: RoundedRectangle(cornerRadius: 20, style: .continuous),
+      border: 3,
+      drop: 4
+    )
   }
 }
 
@@ -231,7 +226,7 @@ struct Choice: View {
       HStack(alignment: .center, spacing: 16) {
         VStack(alignment: .leading, spacing: 6) {
           Text(title)
-            .font(Typography.ui(19))
+            .font(Typography.display(20))
             .foregroundStyle(Palette.ink)
           if let detail {
             Text(detail)
@@ -251,19 +246,18 @@ struct Choice: View {
         Spacer(minLength: 0)
         Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
           .font(.system(size: 26))
-          .foregroundStyle(isSelected ? Palette.amberDeep : Palette.faint)
+          .foregroundStyle(isSelected ? Palette.outline : Palette.faint)
       }
       .padding(.horizontal, 20)
       .padding(.vertical, 18)
       .frame(minHeight: 64)
-      .background(
-        isSelected ? Palette.pillBg : Palette.creamDeep,
-        in: .rect(cornerRadius: 22, style: .continuous)
+      .bevel(
+        isSelected ? Palette.goldLight : Palette.paper,
+        lip: isSelected ? Palette.gold : Palette.parchmentLip,
+        shape: RoundedRectangle(cornerRadius: 22, style: .continuous),
+        border: 3,
+        drop: 4
       )
-      .overlay {
-        RoundedRectangle(cornerRadius: 22, style: .continuous)
-          .strokeBorder(isSelected ? Palette.amber : .clear, lineWidth: 2)
-      }
       .contentShape(.rect(cornerRadius: 22))
     }
     .buttonStyle(.plain)
