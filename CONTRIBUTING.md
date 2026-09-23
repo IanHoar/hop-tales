@@ -90,14 +90,16 @@ Reference issues in a footer: `Closes #12`, `Part of #29`.
 `main` is protected and takes squash merges only, so **the pull request title becomes the commit on
 `main`** — it has to satisfy the same rules as a commit subject.
 
-Keep a pull request to one issue. `.github/pull_request_template.md` is the shape: what changed and
-why, anything that deviates from `docs/HANDOFF.md`, how you verified it, and what you deliberately
-left out.
+Keep a pull request to one issue. `.github/pull_request_template.md` is the shape: the issue it
+closes and a few bullets on what the change is, sized to the work. Spec changes and anything that
+needs a device get a section only when there are some. The reasoning, trade-offs and test results
+go in the commit messages, not the description.
 
 ## Before you open one
 
 - `xcodegen generate` if you added files or targets, and commit the regenerated `.xcodeproj`.
 - All tests green through the `HopTales` scheme.
-- Re-record snapshot references if the UI legitimately changed, and say so in the pull request.
+- Re-record snapshot references if the UI legitimately changed, and say so in the commit.
 - `docs/HANDOFF.md` is the spec. If the code has to differ from it, amend the spec in the same pull
-  request and say why — a spec that quietly disagrees with the app is worse than no spec.
+  request and list the change under "Spec changes" — a spec that quietly disagrees with the app is
+  worse than no spec.
