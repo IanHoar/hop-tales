@@ -1,6 +1,8 @@
 import ComposableArchitecture2
 import Content
 import Dependencies
+import DesignSystem
+import GrownUps
 import Home
 import Onboarding
 import Reading
@@ -17,6 +19,7 @@ import SwiftUI
     public var home = Home.State()
     public var onboarding: Onboarding.State?
     public var path: [Path.State] = []
+    public var settings: Settings.State?
     public init() {}
 
     public var storyOnScreen: Story? {
@@ -29,6 +32,7 @@ import SwiftUI
     case home(Home.Action)
     case onboarding(Onboarding.Action)
     case path(Path.State.ID, Path.Action)
+    case settings(Settings.Action)
   }
 
   @Dependency(ProfileStore.self) var profileStore
@@ -39,7 +43,12 @@ import SwiftUI
         switch action {
         case let .home(.storyTapped(story)):
           state.path.append(.reading(Reading.State(story: story)))
-        case .home(.grownUpsTapped), .home(.playOnTVTapped):
+        case .home(.grownUpsTapped):
+          state.settings = Settings.State()
+        case .settings(.doneTapped):
+          state.settings = nil
+          if let profile = profileStore.load() { state.home.apply(profile) }
+        case .home(.playOnTVTapped):
           break
         case let .onboarding(.finished(profile)):
           profileStore.save(profile)
@@ -47,14 +56,15 @@ import SwiftUI
           state.onboarding = nil
         case .onboarding:
           break
-        case .home(.resetOnboardingTapped):
+        case .settings(.resetOnboardingTapped):
           profileStore.erase()
+          state.settings = nil
           state.path = []
           state.home = Home.State()
           state.onboarding = Onboarding.State()
         case .path(_, .reading(.backToStoriesTapped)):
           state.path.removeLast()
-        case .path:
+        case .path, .settings:
           break
         }
       }
@@ -64,6 +74,9 @@ import SwiftUI
     }
     .ifLet(\.onboarding) {
       Onboarding()
+    }
+    .ifLet(\.settings) {
+      Settings()
     }
     .onMount { state in
       if let profile = profileStore.load() {
@@ -112,6 +125,11 @@ public struct RootScreen: View {
             ReadingScreen(store: readingStore)
           }
         }
+    }
+    .sheet(item: $store.scope(\.settings)) { settings in
+      SettingsScreen(store: settings)
+        .tint(Palette.ink)
+        .interactiveDismissDisabled()
     }
   }
 }

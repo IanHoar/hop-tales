@@ -40,7 +40,6 @@ import World
   public enum Action {
     case grownUpsTapped
     case playOnTVTapped
-    case resetOnboardingTapped
     case storyTapped(Story)
   }
 
@@ -49,7 +48,7 @@ import World
   public var body: some Feature {
     Update { _, action in
       switch action {
-      case .grownUpsTapped, .playOnTVTapped, .resetOnboardingTapped, .storyTapped:
+      case .grownUpsTapped, .playOnTVTapped, .storyTapped:
         break
       }
     }
@@ -159,8 +158,8 @@ public struct HomeScreen: View {
           .frame(maxWidth: .infinity)
       }
       .buttonStyle(.ink(.secondary))
-      settings
-        .accessibilityLabel("Grown-ups")
+      Button { store.send(.grownUpsTapped) } label: { cog }
+        .accessibilityLabel("Settings")
     }
   }
 
@@ -170,22 +169,6 @@ public struct HomeScreen: View {
       .foregroundStyle(Palette.ink)
       .frame(width: 58, height: 58)
       .parchmentBevel(Circle(), drop: 5)
-  }
-
-  @ViewBuilder
-  private var settings: some View {
-    #if DEBUG
-      Menu {
-        Button("Grown-ups", systemImage: "gearshape") { store.send(.grownUpsTapped) }
-        Button("Reset onboarding", systemImage: "arrow.counterclockwise", role: .destructive) {
-          store.send(.resetOnboardingTapped)
-        }
-      } label: {
-        cog
-      }
-    #else
-      Button { store.send(.grownUpsTapped) } label: { cog }
-    #endif
   }
 }
 

@@ -25,6 +25,7 @@ let package = Package(
       dependencies: [
         "Content",
         "DesignSystem",
+        "GrownUps",
         "Home",
         "Onboarding",
         "Reading",
@@ -53,6 +54,16 @@ let package = Package(
     .target(
       name: "DesignSystem",
       resources: [.process("Resources")]
+    ),
+    .target(
+      name: "GrownUps",
+      dependencies: [
+        "Content",
+        "DesignSystem",
+        "SpeechRecognition",
+        .product(name: "ComposableArchitecture2", package: "TCA26"),
+        .product(name: "Dependencies", package: "swift-dependencies"),
+      ]
     ),
     .target(
       name: "Home",
@@ -95,6 +106,7 @@ let package = Package(
       dependencies: [
         "AppFeature",
         "Content",
+        "GrownUps",
         "Onboarding",
         "SpeechRecognition",
       ]
@@ -112,6 +124,7 @@ let package = Package(
       dependencies: [
         "Content",
         "DesignSystem",
+        "GrownUps",
         "Home",
         "Reading",
         "SpeechRecognition",
