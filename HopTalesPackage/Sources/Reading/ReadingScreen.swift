@@ -31,6 +31,9 @@ import World
     public var completed: Completed?
     public var completionCount = 0
     public var heardToken: String?
+    public var hearing: [String] = []
+    public var isActive = true
+    public var listeningEpoch = 0
     public var isSpeaking = false
     public var recognised: Recognised?
     public var sentenceIndex = 0
@@ -71,11 +74,13 @@ import World
     case currentWordTapped
     case helpOffered
     case speechFinished
+    case scenePhaseChanged(isActive: Bool)
     case speechResult(tokens: [String], isFinal: Bool)
   }
 
   @FeatureState var debouncer = PartialDebouncer()
   @FeatureState var savedStars = 0
+  @FeatureState var chimedSentence: Int?
   @FeatureState var profile = Profile()
   @Dependency(ProfileStore.self) var profileStore
   @Dependency(ProgressStore.self) var progressStore
@@ -122,8 +127,14 @@ import World
         state.isSpeaking = false
         debouncer.reset()
 
+      case let .scenePhaseChanged(isActive):
+        guard isActive != state.isActive else { break }
+        state.isActive = isActive
+        state.listeningEpoch += 1
+
       case let .speechResult(tokens, isFinal):
         guard !state.isSpeaking else { break }
+        state.hearing = Array(tokens.suffix(3))
         let eligible = debouncer.confirm(tokens: tokens, isFinal: isFinal)
         guard
           let current = state.currentWord,
@@ -153,11 +164,13 @@ import World
       }
     }
 
-    .onMount(id: store.sentenceIndex) { state in
+    .onMount(id: [store.sentenceIndex, store.listeningEpoch]) { state in
+      guard state.isActive else { return }
       state.strictness = strictnessPreference.load()
       profile = profileStore.load() ?? Profile()
       let locale = profile.accent.locale
-      let celebrates = state.completionCount > 0
+      let celebrates = state.completionCount > 0 && chimedSentence != state.sentenceIndex
+      if celebrates { chimedSentence = state.sentenceIndex }
       guard let sentence = state.sentence else {
         if celebrates { store.addTask { await sound.sentenceCompleted() } }
         return
@@ -201,31 +214,6 @@ import World
   }
 }
 
-extension Reading.State {
-  mutating func advance(by count: Int) {
-    guard let sentence else { return }
-    let read = min(count, sentence.words.count - wordIndex)
-    guard read > 0 else { return }
-
-    stars += read
-    wordIndex += read
-
-    guard wordIndex >= sentence.words.count else { return }
-    if !usedHelp { stars += 5 }
-    let finished = sentenceIndex
-    sentenceIndex += 1
-    wordIndex = 0
-    usedHelp = false
-    completionCount += 1
-    if sentenceIndex >= story.sentences.count {
-      stars += 20
-      completed = .story(stars: stars)
-    } else {
-      completed = .sentence(index: finished)
-    }
-  }
-}
-
 extension Array {
   subscript(safe index: Int) -> Element? {
     indices.contains(index) ? self[index] : nil
@@ -244,6 +232,8 @@ public struct ReadingScreen: View {
 
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(\.freezesMotion) private var freezesMotion
+  @Environment(\.scenePhase) private var scenePhase
+  @State private var showsHearing = false
   @State private var heldToken: String?
   @State private var flash: Reading.State.Recognised?
   @State private var chip: Reading.State.Recognised?
@@ -289,6 +279,11 @@ public struct ReadingScreen: View {
     .accessibilityAction { store.send(.currentWordTapped) }
   }
 
+  private var hearing: String? {
+    guard showsHearing, !store.hearing.isEmpty else { return nil }
+    return store.hearing.joined(separator: " ")
+  }
+
   private var wordCardLabel: String {
     guard let word = store.currentWord?.text else { return "Reading" }
     return "Current word: \(word). Say it out loud."
@@ -311,7 +306,7 @@ public struct ReadingScreen: View {
             geometry: geometry
           )
           .padding(.top, geometry.scaled(Self.cardToRail))
-          MicPill(heardToken: heldToken, geometry: geometry)
+          MicPill(heardToken: heldToken, hearing: hearing, geometry: geometry)
             .padding(.top, geometry.scaled(Self.railToPill))
         }
         .padding(.bottom, geometry.scaled(Self.pillToEdge))
@@ -351,6 +346,12 @@ public struct ReadingScreen: View {
     .task(id: store.completionCount) {
       guard store.completionCount > 0, case .sentence = store.completed else { return }
       Haptics.sentenceCompleted()
+    }
+    .task {
+      showsHearing = await BuildChannel.isPreRelease()
+    }
+    .onChange(of: scenePhase) { _, phase in
+      store.send(.scenePhaseChanged(isActive: phase != .background))
     }
     .task(id: store.recognised) {
       guard let recognised = store.recognised else { return }
