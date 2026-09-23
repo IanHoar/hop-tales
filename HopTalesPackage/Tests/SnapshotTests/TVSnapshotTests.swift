@@ -19,7 +19,10 @@ struct TVSnapshotTests {
     let store = Store(initialState: state) { Reading() }
     expectSnapshot(
       of: TVReadingScreen(store: store).environment(\.freezesMotion, true),
-      as: .image(layout: .fixed(width: Self.tv.width, height: Self.tv.height)),
+      as: .image(
+        layout: .fixed(width: Self.tv.width, height: Self.tv.height),
+        traits: UITraitCollection(displayScale: 1)
+      ),
       named: "reading"
     )
   }
@@ -27,7 +30,10 @@ struct TVSnapshotTests {
   @Test func theTVWaitsForAStory() {
     expectSnapshot(
       of: TVWaitingScreen(childName: "Maya").environment(\.freezesMotion, true),
-      as: .image(layout: .fixed(width: Self.tv.width, height: Self.tv.height)),
+      as: .image(
+        layout: .fixed(width: Self.tv.width, height: Self.tv.height),
+        traits: UITraitCollection(displayScale: 1)
+      ),
       named: "waiting"
     )
   }
