@@ -23,4 +23,24 @@ struct RootTests {
 
     await store.dismount()
   }
+
+  @Test func theTVWaitsUntilAStoryIsOpen() async {
+    let store = TestStore(initialState: Root.State()) {
+      Root()
+    }
+    #expect(store.state.storyOnScreen == nil)
+
+    let story = StoryLibrary.all[1]
+    store.send(.home(.storyTapped(story))) {
+      $0.path = [.reading(Reading.State.DebugSnapshot(story: story))]
+    }
+    #expect(store.state.storyOnScreen == story)
+
+    await store.receive(\.path) {
+      $0.path = [
+        .reading(Reading.State.DebugSnapshot(authorization: .authorized, story: story))
+      ]
+    }
+    await store.dismount()
+  }
 }

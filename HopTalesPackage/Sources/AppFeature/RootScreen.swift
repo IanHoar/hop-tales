@@ -18,6 +18,11 @@ import SwiftUI
     public var onboarding: Onboarding.State?
     public var path: [Path.State] = []
     public init() {}
+
+    public var storyOnScreen: Story? {
+      guard case let .reading(reading) = path.last else { return nil }
+      return reading.story
+    }
   }
 
   public enum Action {
