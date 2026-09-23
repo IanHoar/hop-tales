@@ -24,7 +24,7 @@ public struct TVReadingScreen: View {
       let tvScale = proxy.size.width / Metrics.tv.reference.width
       let ribbon = Self.chrome(1.7 * tvScale)
       let chips = Self.chrome(1.5 * tvScale)
-      let trail = Self.chrome(2.5 * tvScale)
+      let trail = Self.chrome(1.8 * tvScale)
       ZStack(alignment: .topLeading) {
         TVWorld(progress: store.worldProgress)
         HStack(alignment: .center) {
@@ -41,11 +41,17 @@ public struct TVReadingScreen: View {
           sentences: store.story.sentences.map(\.words),
           position: BallTarget(sentence: store.sentenceIndex, word: store.wordIndex),
           isSpeaking: store.isSpeaking,
-          geometry: geometry
+          geometry: geometry,
+          screenWidth: proxy.size.width
         )
-        .position(geometry.cardCenter)
+        .frame(width: proxy.size.width)
+        .offset(y: geometry.y(geometry.metrics.card.origin.y))
         ProgressRail(story: store.story, sentenceIndex: store.sentenceIndex, geometry: trail)
-          .position(x: proxy.size.width / 2, y: geometry.progressY)
+          .frame(width: proxy.size.width)
+          .offset(
+            y: geometry.y(geometry.metrics.card.origin.y) + geometry.cardSize.height
+              + geometry.scaled(20)
+          )
       }
     }
     .background(Palette.duskRoot)

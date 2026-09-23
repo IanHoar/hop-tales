@@ -7,11 +7,12 @@ import SpeechRecognition
 import SwiftUI
 
 struct SettingsPreview: View {
+  var width = Metrics.phone.reference.width
   var height = Metrics.phone.reference.height
 
   var body: some View {
     SettingsScreen(store: store)
-      .frame(width: Metrics.phone.reference.width, height: height)
+      .frame(width: width, height: height)
   }
 
   private var store: StoreOf<Settings> {

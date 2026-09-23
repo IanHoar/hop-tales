@@ -14,6 +14,11 @@ struct GrownUpsSnapshotTests {
   }
 
   @Test(arguments: [ColorScheme.light, .dark])
+  func everySettingOnAnIPad(scheme: ColorScheme) {
+    expectSnapshot(of: SettingsPreview(width: 700, height: 1320), scheme: scheme)
+  }
+
+  @Test(arguments: [ColorScheme.light, .dark])
   func stoppingAStoryAsksFirst(scheme: ColorScheme) {
     expectSnapshot(of: StopReadingPreview(), scheme: scheme)
   }
