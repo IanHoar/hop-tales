@@ -47,17 +47,17 @@ struct OnboardingTests {
       Onboarding().dependency(Self.speech)
     }
 
-    await store.send(.continueTapped) { $0.step = .name }
+    await store.send(.continueTapped) { $0.path = [.name] }
     await store.send(.nameChanged("Maya")) { $0.childName = "Maya" }
-    await store.send(.continueTapped) { $0.step = .listening }
+    await store.send(.continueTapped) { $0.path = [.name, .listening] }
     await store.send(.continueTapped)
     await store.send(.listenTapped)
     await store.receive(\.authorizationResolved) { $0.authorization = .authorized }
-    await store.send(.continueTapped) { $0.step = .story }
+    await store.send(.continueTapped) { $0.path = [.name, .listening, .story] }
     await store.send(.storyPicked(StoryLibrary.all[2].id)) {
       $0.startingStoryID = StoryLibrary.all[2].id
     }
-    await store.send(.continueTapped) { $0.step = .voice }
+    await store.send(.continueTapped) { $0.path = [.name, .listening, .story, .voice] }
     await store.receive(\.voicesLoaded) {
       $0.voices = Self.voices
       $0.voiceID = "ava"
@@ -75,11 +75,11 @@ struct OnboardingTests {
     let store = TestStore(initialState: Onboarding.State()) {
       Onboarding().dependency(speech)
     }
-    await store.send(.continueTapped) { $0.step = .name }
-    await store.send(.continueTapped) { $0.step = .listening }
+    await store.send(.continueTapped) { $0.path = [.name] }
+    await store.send(.continueTapped) { $0.path = [.name, .listening] }
     await store.send(.listenTapped)
     await store.receive(\.authorizationResolved) { $0.authorization = .denied }
-    await store.send(.continueTapped) { $0.step = .story }
+    await store.send(.continueTapped) { $0.path = [.name, .listening, .story] }
   }
 
   @Test func finishingSavesTheProfileAndShowsTheStories() async throws {
@@ -102,5 +102,15 @@ struct OnboardingTests {
     var home = Home.State()
     home.startingStoryID = StoryLibrary.all[1].id
     #expect(home.keepGoing?.story.id == StoryLibrary.all[1].id)
+  }
+
+  @Test func swipingBackPopsAStepButCannotSkipAhead() async {
+    var state = Onboarding.State()
+    state.path = [.name, .listening]
+    let store = TestStore(initialState: state) {
+      Onboarding().dependency(Self.speech)
+    }
+    await store.send(.pathChanged([.name])) { $0.path = [.name] }
+    await store.send(.pathChanged([.name, .listening, .story]))
   }
 }
