@@ -1,29 +1,21 @@
 <!--
   The title becomes the commit on main (squash merge), so it follows Conventional Commits:
   <type>[(scope)][!]: <description> — lowercase, no full stop, 72 characters or fewer.
-  See CONTRIBUTING.md.
+
+  Describe what the change is, not how it got there. Size the description to the work: a one-line
+  fix gets one line; a new feature gets a bullet per user-facing piece. Leave out test results,
+  the decisions and dead ends along the way, and fixes found en route — the reasoning belongs in
+  the commit messages. Delete any section you don't need, and these comments.
 -->
 
 Closes #
 
-## What and why
+- <!-- What the feature or fix is, in the terms someone using the app would recognise. -->
 
-<!-- The diff says what changed. Say why: the constraint, the option you rejected, the trade-off. -->
+## Spec changes
 
-## Deviations from the spec
+<!-- Only if this amends docs/HANDOFF.md: one line per rule changed. -->
 
-<!--
-  Anything that differs from docs/HANDOFF.md, and why. Amend the spec in this PR so the two do not
-  disagree. Delete this section if there are none.
--->
+## Needs a device
 
-## Verification
-
-<!--
-  How you know it works: tests, what you checked by hand, and what could not be checked yet
-  (for example, speech recognition does not run in the simulator).
--->
-
-## Left out
-
-<!-- Anything in scope you deliberately did not do, and the issue that covers it. -->
+<!-- Only if something can't be checked in the simulator (speech, AirPlay): what to try. -->
