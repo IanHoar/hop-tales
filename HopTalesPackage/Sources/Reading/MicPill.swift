@@ -3,6 +3,7 @@ import SwiftUI
 
 struct MicPill: View {
   let heardToken: String?
+  var hearing: String?
   let geometry: ReadingGeometry
   var animatesBars = true
 
@@ -26,9 +27,10 @@ struct MicPill: View {
           .font(.system(size: geometry.scaled(17), weight: .medium))
           .foregroundStyle(Palette.ink)
         bars
-        Text("Say the word")
+        Text(hearing.map { "Hearing “\($0)”" } ?? "Say the word")
           .font(Typography.ui(geometry.scaled(15)))
           .foregroundStyle(Palette.chipText)
+          .lineLimit(1)
       }
     }
     .padding(.horizontal, geometry.scaled(22))

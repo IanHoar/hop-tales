@@ -26,12 +26,20 @@ public enum WordMatcher {
     "the": ["a", "uh", "duh", "da", "de", "dee", "thee", "thuh", "they", "then"]
   ]
 
+  static let spelledNumbers: [String: String] = [
+    "0": "zero", "1": "one", "2": "two", "3": "three", "4": "four", "5": "five",
+    "6": "six", "7": "seven", "8": "eight", "9": "nine", "10": "ten"
+  ]
+
   public static func normalize(_ transcript: String) -> [String] {
     transcript
       .lowercased()
+      .replacingOccurrences(of: "\u{2019}", with: "")
+      .replacingOccurrences(of: "'", with: "")
       .components(separatedBy: .whitespacesAndNewlines)
       .map { $0.trimmingCharacters(in: CharacterSet.alphanumerics.inverted) }
       .filter { !$0.isEmpty }
+      .map { spelledNumbers[$0] ?? $0 }
   }
 
   public static func match(
@@ -57,7 +65,7 @@ public enum WordMatcher {
   }
 
   static func accepts(token: String, target: Word, strictness: Strictness) -> Bool {
-    let text = target.text.lowercased()
+    let text = normalize(target.text).joined()
     guard !token.isEmpty, !text.isEmpty else { return false }
 
     if token == text { return true }

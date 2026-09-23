@@ -59,6 +59,7 @@ actor LiveSpeechRecognizer {
     let (stream, continuation) = AsyncStream<SpeechClient.Event>.makeStream()
     let heartbeat = watchForSilence(yieldingTo: continuation)
     let settling = watchForSettling(yieldingTo: continuation)
+    let disruptions = Self.watchForDisruptions(ending: continuation)
 
     task = recognizer.recognitionTask(with: request) { @Sendable [weak self] result, error in
       if let result {
@@ -72,10 +73,12 @@ actor LiveSpeechRecognizer {
       if error != nil { continuation.finish() }
     }
 
+    let session = ObjectIdentifier(request)
     continuation.onTermination = { @Sendable [weak self] _ in
       heartbeat.cancel()
       settling.cancel()
-      Task { await self?.stop() }
+      disruptions.forEach { $0.cancel() }
+      Task { await self?.stop(session: session) }
     }
 
     return stream
@@ -115,6 +118,25 @@ actor LiveSpeechRecognizer {
     }
   }
 
+  static let disruptions: [Notification.Name] = [
+    AVAudioSession.interruptionNotification,
+    AVAudioSession.mediaServicesWereResetNotification,
+    .AVAudioEngineConfigurationChange
+  ]
+
+  private static func watchForDisruptions(
+    ending continuation: AsyncStream<SpeechClient.Event>.Continuation
+  ) -> [Task<Void, Never>] {
+    disruptions.map { name in
+      Task {
+        for await _ in NotificationCenter.default.notifications(named: name) {
+          continuation.finish()
+          return
+        }
+      }
+    }
+  }
+
   private func watchForSettling(
     yieldingTo continuation: AsyncStream<SpeechClient.Event>.Continuation
   ) -> Task<Void, Never> {
@@ -142,6 +164,11 @@ actor LiveSpeechRecognizer {
   private func remember(_ transcript: String) {
     if transcript != latestTranscript { latestChange = .now }
     latestTranscript = transcript
+  }
+
+  func stop(session: ObjectIdentifier) {
+    guard let request, ObjectIdentifier(request) == session else { return }
+    stop()
   }
 
   func stop() {

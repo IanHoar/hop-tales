@@ -96,4 +96,22 @@ struct WordMatcherTests {
       #expect(match != nil, "\(word.text) did not match itself")
     }
   }
+
+  @Test func digitsAreHeardAsTheirWords() {
+    #expect(WordMatcher.normalize("I want 2 go") == ["i", "want", "two", "go"])
+    let to = Word(text: "to", homophones: ["two", "too"])
+    let heard = WordMatcher.normalize("ran 2")
+    #expect(WordMatcher.match(tokens: heard, current: to, next: nil) != nil)
+  }
+
+  @Test func apostrophesDoNotStopAMatch() {
+    #expect(WordMatcher.normalize("It\u{2019}s big") == ["its", "big"])
+    #expect(WordMatcher.match(tokens: ["its"], current: Word(text: "Its"), next: nil) != nil)
+  }
+
+  @Test func capitalsAndPunctuationInTheStoryDoNotMatter() {
+    let word = Word(text: "Mat.")
+    let heard = WordMatcher.normalize("MAT")
+    #expect(WordMatcher.match(tokens: heard, current: word, next: nil) != nil)
+  }
 }
