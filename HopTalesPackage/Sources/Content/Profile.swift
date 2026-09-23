@@ -65,17 +65,20 @@ public struct ProfileStore: Sendable {
   public var save: @Sendable (Profile) -> Void
   public var loadDraft: @Sendable () -> ProfileDraft?
   public var saveDraft: @Sendable (ProfileDraft?) -> Void
+  public var erase: @Sendable () -> Void
 
   public init(
     load: @escaping @Sendable () -> Profile?,
     save: @escaping @Sendable (Profile) -> Void,
     loadDraft: @escaping @Sendable () -> ProfileDraft? = { nil },
-    saveDraft: @escaping @Sendable (ProfileDraft?) -> Void = { _ in }
+    saveDraft: @escaping @Sendable (ProfileDraft?) -> Void = { _ in },
+    erase: @escaping @Sendable () -> Void = {}
   ) {
     self.load = load
     self.save = save
     self.loadDraft = loadDraft
     self.saveDraft = saveDraft
+    self.erase = erase
   }
 }
 
@@ -99,6 +102,10 @@ extension ProfileStore: DependencyKey {
           return
         }
         write(draft, to: draftURL, in: directory)
+      },
+      erase: {
+        try? FileManager.default.removeItem(at: url)
+        try? FileManager.default.removeItem(at: draftURL)
       }
     )
   }

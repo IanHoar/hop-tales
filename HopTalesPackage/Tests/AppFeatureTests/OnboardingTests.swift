@@ -189,4 +189,21 @@ struct OnboardingTests {
     #expect(saved.value?.voiceID == "ava")
     #expect(saved.value?.accent == .american)
   }
+
+  @Test func resettingOnboardingForgetsTheProfile() async throws {
+    let erased = LockIsolated(false)
+    let profile = Profile(childName: "Maya")
+    let store = try TestStore(initialState: Root.State()) {
+      Root().dependency(
+        ProfileStore(load: { profile }, save: { _ in }, erase: { erased.setValue(true) })
+      )
+    } changes: {
+      $0.home.childName = "Maya"
+    }
+    await store.send(.resetOnboardingTapped) {
+      $0.home.childName = nil
+      $0.onboarding = Onboarding.State.DebugSnapshot()
+    }
+    #expect(erased.value)
+  }
 }
