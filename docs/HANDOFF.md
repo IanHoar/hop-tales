@@ -29,7 +29,7 @@ This document plus `Design/` is everything Claude Code needs to start. Decisions
 3. **Recognition is forgiving.** A five-year-old's pronunciation is not a dictation test. Match loosely (§5), never punish, never show a red X.
 4. **Nothing is timed against the child.** The world only advances when a word is read. Silence is fine. After ~6s of silence, the app *offers help* (word is spoken aloud, gently) — it does not fail.
 5. **No ads, no external links, no data leaves the device.** Speech recognition is on-device. Nothing is recorded or stored.
-6. **A parent gate** guards settings (hold-for-2s or a simple arithmetic question).
+6. **A parent gate** guards anything that leaves the app or costs money — purchases, subscriptions, outside links (App Review 1.3, Kids Category). Settings has neither, so it opens directly; the gate comes back with the first of those. Use an adult-level task (a times-table question in words), not a hold.
 
 ---
 

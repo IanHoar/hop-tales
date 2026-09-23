@@ -193,4 +193,47 @@ struct ReadingTests {
     #expect(sessions.value == 2)
     await store.dismount()
   }
+
+  @Test func backAsksBeforeLeavingTheStory() async {
+    let store = TestStore(initialState: Reading.State(story: StoryLibrary.all[0])) {
+      Reading()
+    }
+
+    await store.receive(\.authorizationResolved) {
+      $0.authorization = .authorized
+    }
+    await store.send(.backTapped) {
+      $0.isConfirmingStop = true
+    }
+    await store.send(.keepReadingTapped) {
+      $0.isConfirmingStop = false
+    }
+    await store.send(.backTapped) {
+      $0.isConfirmingStop = true
+    }
+    await store.send(.backToStoriesTapped) {
+      $0.isConfirmingStop = false
+    }
+
+    await store.dismount()
+  }
+
+  @Test(arguments: [true, false])
+  func theSentenceChimeFollowsTheSoundSetting(soundOn: Bool) async {
+    var state = Reading.State(story: StoryLibrary.all[0])
+    state.advance(by: state.sentence!.words.count)
+    let chimes = LockIsolated(0)
+    let store = TestStore(initialState: state) {
+      Reading()
+        .dependency(SoundClient(sentenceCompleted: { chimes.withValue { $0 += 1 } }))
+        .dependency(SoundPreference(load: { soundOn }, save: { _ in }))
+    }
+
+    await store.receive(\.authorizationResolved) {
+      $0.authorization = .authorized
+    }
+    #expect(chimes.value == (soundOn ? 1 : 0))
+
+    await store.dismount()
+  }
 }

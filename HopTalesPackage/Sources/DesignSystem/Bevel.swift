@@ -118,7 +118,13 @@ public struct InkButtonStyle: ButtonStyle {
       .foregroundStyle(label)
       .padding(.horizontal, 22)
       .frame(minHeight: height)
-      .bevel(fill, lip: lip, shape: Capsule(), drop: 5, pressed: configuration.isPressed)
+      .bevel(
+        fill,
+        lip: lip,
+        shape: Capsule(style: .circular),
+        drop: 5,
+        pressed: configuration.isPressed
+      )
       .animation(
         configuration.isPressed
           ? .easeOut(duration: 0.08)

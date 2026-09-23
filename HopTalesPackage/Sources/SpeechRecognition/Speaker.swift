@@ -41,6 +41,18 @@ final class Speaker: NSObject {
       ?? AVSpeechSynthesisVoice(language: "en-US")
   }
 
+  nonisolated static func voices() -> [Voice] {
+    let english = AVSpeechSynthesisVoice.speechVoices().filter {
+      $0.language.hasPrefix("en") && !$0.voiceTraits.contains(.isNoveltyVoice)
+    }
+    let best = Dictionary(grouping: english, by: \.name).compactMap { _, voices in
+      voices.max { $0.quality.rawValue < $1.quality.rawValue }
+    }
+    return best
+      .map { Voice(id: $0.identifier, name: $0.name, language: $0.language) }
+      .sorted { ($0.name, $0.language) < ($1.name, $1.language) }
+  }
+
   private func resume() {
     finished?.resume()
     finished = nil

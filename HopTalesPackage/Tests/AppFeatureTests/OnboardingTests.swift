@@ -5,6 +5,7 @@ import SpeechRecognition
 import Testing
 
 @testable import AppFeature
+@testable import GrownUps
 @testable import Home
 @testable import Onboarding
 
@@ -177,16 +178,21 @@ struct OnboardingTests {
   @Test func resettingOnboardingForgetsTheProfile() async throws {
     let erased = LockIsolated(false)
     let profile = Profile(childName: "Maya")
-    let store = try TestStore(initialState: Root.State()) {
+    var state = Root.State()
+    state.settings = Settings.State()
+    let store = try TestStore(initialState: state) {
       Root().dependency(
         ProfileStore(load: { profile }, save: { _ in }, erase: { erased.setValue(true) })
       )
     } changes: {
       $0.home.childName = "Maya"
+      $0.settings?.childName = "Maya"
+      $0.settings?.profile = profile
     }
-    await store.send(.home(.resetOnboardingTapped)) {
+    await store.send(.settings(.resetOnboardingTapped)) {
       $0.home.childName = nil
       $0.onboarding = Onboarding.State.DebugSnapshot()
+      $0.settings = nil
     }
     #expect(erased.value)
   }
