@@ -33,17 +33,17 @@ public struct Metrics: Equatable, Sendable {
     sidePadding: 20,
     topBarHeight: 48,
     card: Card(
-      origin: CGPoint(x: 16, y: 452),
-      size: CGSize(width: 358, height: 196),
-      cornerRadius: 34,
+      origin: CGPoint(x: 14, y: 468),
+      size: CGSize(width: 362, height: 190),
+      cornerRadius: 32,
       ballLaneHeight: 78
     ),
-    words: WordSizes(current: 64, recognised: 38, side: 22, gap: 10),
-    ballRadius: 19,
+    words: WordSizes(current: 64, recognised: 36, side: 21, gap: 10),
+    ballRadius: 21,
     ballRestAboveBaseline: 30,
-    progressY: 674,
+    progressY: 684,
     progressWidth: 334,
-    micPillY: 762,
+    micPillY: 766,
     minimumTouchTarget: 48
   )
 
@@ -73,15 +73,15 @@ public struct Metrics: Equatable, Sendable {
     sidePadding: 96,
     topBarHeight: 48,
     card: Card(
-      origin: CGPoint(x: 240, y: 560),
-      size: CGSize(width: 1440, height: 300),
+      origin: CGPoint(x: 240, y: 600),
+      size: CGSize(width: 1440, height: 310),
       cornerRadius: 56,
       ballLaneHeight: 78
     ),
-    words: WordSizes(current: 144, recognised: 86, side: 48, gap: 32),
-    ballRadius: 34,
+    words: WordSizes(current: 140, recognised: 84, side: 48, gap: 30),
+    ballRadius: 38,
     ballRestAboveBaseline: 30,
-    progressY: 900,
+    progressY: 930,
     progressWidth: 1440,
     micPillY: 96,
     minimumTouchTarget: 0

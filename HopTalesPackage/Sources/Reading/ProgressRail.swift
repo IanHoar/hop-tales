@@ -8,18 +8,20 @@ struct ProgressRail: View {
   let sentenceIndex: Int
   let geometry: ReadingGeometry
 
-  static let trackWidth: CGFloat = 4
-  static let completedRadius: CGFloat = 7
-  static let currentRadius: CGFloat = 11
-  static let futureRadius: CGFloat = 6
-  static let height: CGFloat = 34
+  static let trackHeight: CGFloat = 12
+  static let doneRadius: CGFloat = 10
+  static let currentRadius: CGFloat = 13
+  static let haloRadius: CGFloat = 17
+  static let futureRadius: CGFloat = 8
+  static let height: CGFloat = 58
 
   var body: some View {
-    VStack(alignment: .leading, spacing: geometry.scaled(12)) {
+    VStack(alignment: .leading, spacing: geometry.scaled(6)) {
       Text(label)
-        .font(Typography.caps(geometry.scaled(11)))
-        .tracking(geometry.scaled(11) * 0.16)
-        .foregroundStyle(Palette.railLabel)
+        .font(Typography.display(geometry.scaled(14)))
+        .tracking(geometry.scaled(14) * 0.12)
+        .foregroundStyle(Palette.labelOnWorld)
+        .inkHalo(geometry.scaled(2))
       rail
     }
     .frame(width: geometry.progressWidth, alignment: .leading)
@@ -36,21 +38,32 @@ struct ProgressRail: View {
     .frame(width: geometry.progressWidth, height: geometry.scaled(Self.height))
   }
 
+  private var outline: CGFloat { geometry.scaled(3) }
+
   private var track: some View {
     ZStack(alignment: .leading) {
       Capsule()
-        .fill(Palette.SceneShadow.meadow.opacity(0.22))
-        .frame(width: trackSpan, height: thickness)
+        .fill(isDusk ? Palette.trackDusk : Palette.track)
       if sentenceIndex > 0 {
         Capsule()
-          .fill(Palette.amber)
-          .frame(width: completedSpan, height: thickness)
+          .fill(Palette.gold)
+          .frame(width: completedSpan + geometry.scaled(Self.trackHeight))
+          .padding(geometry.scaled(2))
       }
     }
+    .overlay(Capsule().strokeBorder(Palette.outline, lineWidth: outline))
+    .frame(
+      width: trackSpan + geometry.scaled(Self.trackHeight),
+      height: geometry.scaled(Self.trackHeight)
+    )
     .position(x: centre(0) + trackSpan / 2, y: centreY)
   }
 
-  private var thickness: CGFloat { geometry.scaled(Self.trackWidth) }
+  private var isDusk: Bool {
+    let words = story.sentences.prefix(sentenceIndex).reduce(0) { $0 + $1.words.count }
+    return WorldStage(progress: Double(words) * story.wordStep) == .dragon
+  }
+
   private var lastIndex: Int { max(story.sentences.count - 1, 0) }
   private var trackSpan: CGFloat { centre(lastIndex) - centre(0) }
   private var completedSpan: CGFloat { centre(min(sentenceIndex, lastIndex)) - centre(0) }
@@ -68,16 +81,32 @@ struct ProgressRail: View {
   private func node(at index: Int) -> some View {
     if index < sentenceIndex {
       Circle()
-        .fill(Palette.amber)
-        .frame(width: diameter(Self.completedRadius), height: diameter(Self.completedRadius))
+        .fill(Palette.gold)
+        .overlay {
+          Star()
+            .fill(Palette.goldLight)
+            .padding(geometry.scaled(4.5))
+        }
+        .overlay(Circle().strokeBorder(Palette.outline, lineWidth: outline))
+        .frame(width: diameter(Self.doneRadius), height: diameter(Self.doneRadius))
     } else if index == sentenceIndex {
-      Circle()
-        .fill(Palette.cream)
-        .strokeBorder(Palette.amber, lineWidth: geometry.scaled(4))
-        .frame(width: diameter(Self.currentRadius), height: diameter(Self.currentRadius))
+      ZStack {
+        Circle()
+          .fill(Palette.goldLight.opacity(0.5))
+          .frame(width: diameter(Self.haloRadius), height: diameter(Self.haloRadius))
+        Circle()
+          .fill(Palette.parchment)
+          .overlay(Circle().strokeBorder(Palette.outline, lineWidth: geometry.scaled(3.4)))
+          .frame(width: diameter(Self.currentRadius), height: diameter(Self.currentRadius))
+        Circle()
+          .fill(Palette.ball)
+          .overlay(Circle().strokeBorder(Palette.outline, lineWidth: geometry.scaled(2)))
+          .frame(width: diameter(6), height: diameter(6))
+      }
     } else {
       Circle()
-        .fill(.white.opacity(0.75))
+        .fill(Palette.stone)
+        .overlay(Circle().strokeBorder(Palette.outline, lineWidth: outline))
         .frame(width: diameter(Self.futureRadius), height: diameter(Self.futureRadius))
     }
   }
@@ -85,12 +114,13 @@ struct ProgressRail: View {
   private var glyphs: some View {
     ForEach(milestones, id: \.index) { milestone in
       milestone.glyph
-        .fill(Palette.SceneShadow.meadow.opacity(0.6))
+        .fill(milestone.stage == .castle ? Palette.stone : Palette.dragon)
+        .overlay(milestone.glyph.stroke(Palette.outline, lineWidth: geometry.scaled(2)))
         .frame(
           width: geometry.scaled(milestone.size.width),
           height: geometry.scaled(milestone.size.height)
         )
-        .position(x: centre(milestone.index), y: geometry.scaled(6))
+        .position(x: centre(milestone.index), y: centreY - geometry.scaled(Self.haloRadius + 10))
     }
   }
 
@@ -114,7 +144,7 @@ struct ProgressRail: View {
     let stage: WorldStage
 
     var size: CGSize {
-      stage == .castle ? CGSize(width: 14, height: 9) : CGSize(width: 16, height: 8)
+      stage == .castle ? CGSize(width: 22, height: 16) : CGSize(width: 24, height: 12)
     }
 
     var glyph: AnyShape {
@@ -122,18 +152,20 @@ struct ProgressRail: View {
     }
   }
 
-  private var centreY: CGFloat { geometry.scaled(20) }
+  private var centreY: CGFloat { geometry.scaled(38) }
 
   private func centre(_ index: Int) -> CGFloat {
-    let inset = geometry.scaled(Self.currentRadius)
+    let inset = geometry.scaled(Self.haloRadius)
     let span = geometry.progressWidth - inset * 2
     return inset + span * CGFloat(index) / CGFloat(max(lastIndex, 1))
   }
 
   private var label: String {
-    let base = "SENTENCE \(sentenceIndex + 1) OF \(story.sentences.count)"
+    let base = sentenceIndex == story.sentences.count - 1
+      ? "LAST SENTENCE!"
+      : "SENTENCE \(sentenceIndex + 1) OF \(story.sentences.count)"
     guard let newWord = story.sentences[safe: sentenceIndex]?.newWord else { return base }
-    return "\(base) · NEW WORD “\(newWord.uppercased())”"
+    return "NEW WORD · \(newWord.uppercased())"
   }
 }
 
