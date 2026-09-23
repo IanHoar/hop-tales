@@ -1,5 +1,7 @@
 import ComposableArchitecture2
 import Content
+import Dependencies
+import SpeechRecognition
 import Testing
 
 @testable import Reading
@@ -110,5 +112,55 @@ struct ReadingTests {
       state.advance(by: sentence.words.count)
     }
     #expect(state.worldProgress == 1950)
+  }
+
+  @Test func listeningStartsAgainWhenTheRecogniserStops() async {
+    let sessions = LockIsolated(0)
+    var speech = SpeechClient.testValue
+    speech.listen = { _, _ in
+      let session = sessions.withValue { count in
+        count += 1
+        return count
+      }
+      return AsyncStream { continuation in
+        switch session {
+        case 1: continuation.yield(.final(["the"]))
+        case 2: continuation.yield(.final(["cat"]))
+        default: break
+        }
+        continuation.finish()
+      }
+    }
+    let store = TestStore(initialState: Reading.State(story: StoryLibrary.all[0])) {
+      Reading().dependency(speech)
+    }
+
+    await store.receive(\.authorizationResolved) {
+      $0.authorization = .authorized
+    }
+    await store.receive(\.speechResult) {
+      $0.heardToken = "the"
+      $0.recognised = Reading.State.Recognised(
+        count: 1,
+        sentenceIndex: 0,
+        stars: 1,
+        wordIndex: 0
+      )
+      $0.stars = 1
+      $0.wordIndex = 1
+    }
+    await store.receive(\.speechResult, timeout: .seconds(2)) {
+      $0.heardToken = "cat"
+      $0.recognised = Reading.State.Recognised(
+        count: 2,
+        sentenceIndex: 0,
+        stars: 1,
+        wordIndex: 1
+      )
+      $0.stars = 2
+      $0.wordIndex = 2
+    }
+    #expect(sessions.value >= 2)
+    await store.dismount()
   }
 }

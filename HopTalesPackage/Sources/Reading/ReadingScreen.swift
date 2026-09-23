@@ -8,6 +8,9 @@ import World
 
 @Feature public struct Reading {
   public static let settleAfterSpeaking = Duration.milliseconds(300)
+  public static let offerHelpAfter = Duration.seconds(6)
+  public static let relistenAfterEnd = Duration.milliseconds(150)
+  public static let relistenAfterFailure = Duration.seconds(1)
 
   public init() {}
 
@@ -171,18 +174,27 @@ import World
           try store.send(.authorizationResolved(authorization))
         }
         guard authorization == .authorized else { return }
-        let events = try await speechClient.listen(contextualStrings, locale)
-        for await event in events {
-          switch event {
-          case let .partial(tokens):
-            try store.send(.speechResult(tokens: tokens, isFinal: false))
-          case let .final(tokens):
-            try store.send(.speechResult(tokens: tokens, isFinal: true))
-          case .silence(let seconds) where seconds >= 6:
-            try store.send(.helpOffered)
-          case .silence:
-            break
+        var heardAt = ContinuousClock.now
+        while !Task.isCancelled {
+          guard let events = try? await speechClient.listen(contextualStrings, locale) else {
+            try await Task.sleep(for: Reading.relistenAfterFailure)
+            continue
           }
+          for await event in events {
+            switch event {
+            case let .partial(tokens):
+              heardAt = .now
+              try store.send(.speechResult(tokens: tokens, isFinal: false))
+            case let .final(tokens):
+              heardAt = .now
+              try store.send(.speechResult(tokens: tokens, isFinal: true))
+            case .silence:
+              guard ContinuousClock.now - heardAt >= Reading.offerHelpAfter else { break }
+              heardAt = .now
+              try store.send(.helpOffered)
+            }
+          }
+          try await Task.sleep(for: Reading.relistenAfterEnd)
         }
       }
     }

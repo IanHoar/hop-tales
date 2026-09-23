@@ -72,10 +72,11 @@ actor LiveSpeechRecognizer {
       if error != nil { continuation.finish() }
     }
 
+    let session = ObjectIdentifier(request)
     continuation.onTermination = { @Sendable [weak self] _ in
       heartbeat.cancel()
       settling.cancel()
-      Task { await self?.stop() }
+      Task { await self?.stop(session: session) }
     }
 
     return stream
@@ -142,6 +143,11 @@ actor LiveSpeechRecognizer {
   private func remember(_ transcript: String) {
     if transcript != latestTranscript { latestChange = .now }
     latestTranscript = transcript
+  }
+
+  func stop(session: ObjectIdentifier) {
+    guard let request, ObjectIdentifier(request) == session else { return }
+    stop()
   }
 
   func stop() {
