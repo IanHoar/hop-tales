@@ -79,6 +79,7 @@ struct GrownUpsTests {
     await store.send(.gate(.digitTapped(2))) { $0.gate.entry = "42" }
     await store.receive(\.gate.unlocked) {
       $0.settings = Settings.State.DebugSnapshot(
+        childName: "Maya",
         profile: Profile(childName: "Maya"),
         voices: Self.voices
       )
@@ -110,18 +111,16 @@ struct GrownUpsTests {
           )
         )
     } changes: {
+      $0.childName = "Maya"
       $0.profile = Profile(childName: "Maya")
       $0.voices = Self.voices
     }
 
-    await store.send(.nameChanged("Maya Rose ")) {
-      $0.profile.childName = "Maya Rose "
-    }
+    await store.send(.nameChanged("Maya Rose ")) { $0.childName = "Maya Rose " }
+    await store.send(.nameSubmitted)
     #expect(profiles.value.last?.childName == "Maya Rose")
 
-    await store.send(.accentPicked(.british)) {
-      $0.profile.accent = .british
-    }
+    await store.send(.accentPicked(.british)) { $0.profile.accent = .british }
     #expect(profiles.value.last?.accent == .british)
 
     await store.send(.voicePicked(voice)) {
@@ -129,18 +128,35 @@ struct GrownUpsTests {
     }?.value
     #expect(profiles.value.last?.voiceID == voice)
 
-    await store.send(.strictnessPicked(.standard)) {
-      $0.strictness = .standard
-    }
+    await store.send(.strictnessPicked(.standard)) { $0.strictness = .standard }
     #expect(strictness.value == .standard)
 
-    await store.send(.soundToggled(false)) {
-      $0.soundOn = false
-    }
+    await store.send(.soundToggled(false)) { $0.soundOn = false }
     #expect(sound.value == false)
 
     await store.send(.hearVoiceTapped)?.value
     #expect(spoken.value == [voice, voice])
+  }
+
+  @Test func theNameIsSavedWhenTheGrownUpIsDone() async {
+    let profiles = LockIsolated<[Profile]>([])
+    let store = TestStore(initialState: Settings.State()) {
+      Settings()
+        .dependency(
+          ProfileStore(
+            load: { Profile(childName: "Maya") },
+            save: { profile in profiles.withValue { $0.append(profile) } }
+          )
+        )
+    } changes: {
+      $0.childName = "Maya"
+      $0.profile = Profile(childName: "Maya")
+    }
+
+    await store.send(.nameChanged("Wren")) { $0.childName = "Wren" }
+    #expect(profiles.value.isEmpty)
+    await store.send(.doneTapped)
+    #expect(profiles.value.last?.childName == "Wren")
   }
 
   @Test func aLongNameIsCutShort() async {
@@ -149,7 +165,7 @@ struct GrownUpsTests {
     }
 
     await store.send(.nameChanged(String(repeating: "a", count: 30))) {
-      $0.profile.childName = String(repeating: "a", count: 24)
+      $0.childName = String(repeating: "a", count: 24)
     }
   }
 
@@ -169,10 +185,13 @@ struct GrownUpsTests {
     await store.send(.grownUps(.gate(.digitTapped(4)))) { $0.grownUps?.gate.entry = "4" }
     await store.send(.grownUps(.gate(.digitTapped(2)))) { $0.grownUps?.gate.entry = "42" }
     await store.receive(\.grownUps.gate.unlocked) {
-      $0.grownUps?.settings = Settings.State.DebugSnapshot(profile: Profile(childName: "Maya"))
+      $0.grownUps?.settings = Settings.State.DebugSnapshot(
+        childName: "Maya",
+        profile: Profile(childName: "Maya")
+      )
     }
     await store.send(.grownUps(.settings(.nameChanged("Wren")))) {
-      $0.grownUps?.settings?.profile.childName = "Wren"
+      $0.grownUps?.settings?.childName = "Wren"
     }
     await store.send(.grownUps(.settings(.doneTapped))) {
       $0.grownUps = nil

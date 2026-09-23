@@ -11,6 +11,7 @@ import SwiftUI
   public init() {}
 
   public struct State {
+    public var childName = ""
     public var profile = Profile()
     public var soundOn = true
     public var strictness: WordMatcher.Strictness = .gentle
@@ -31,6 +32,7 @@ import SwiftUI
     case doneTapped
     case hearVoiceTapped
     case nameChanged(String)
+    case nameSubmitted
     case soundToggled(Bool)
     case strictnessPicked(WordMatcher.Strictness)
     case voicePicked(String?)
@@ -41,9 +43,9 @@ import SwiftUI
   @Dependency(SpeechClient.self) var speechClient
   @Dependency(StrictnessPreference.self) var strictnessPreference
 
-  private func save(_ profile: Profile) {
-    var saved = profile
-    saved.childName = profile.childName.trimmingCharacters(in: .whitespacesAndNewlines)
+  private func save(_ state: State) {
+    var saved = state.profile
+    saved.childName = state.childName.trimmingCharacters(in: .whitespacesAndNewlines)
     profileStore.save(saved)
   }
 
@@ -52,18 +54,17 @@ import SwiftUI
       switch action {
       case let .accentPicked(accent):
         state.profile.accent = accent
-        save(state.profile)
+        save(state)
 
-      case .doneTapped:
-        break
+      case .doneTapped, .nameSubmitted:
+        save(state)
 
       case .hearVoiceTapped:
         let voice = state.profile.voiceID
         store.addTask { await speechClient.speak(Settings.sample, voice) }
 
       case let .nameChanged(name):
-        state.profile.childName = String(name.prefix(24))
-        save(state.profile)
+        state.childName = String(name.prefix(24))
 
       case let .soundToggled(isOn):
         state.soundOn = isOn
@@ -75,12 +76,13 @@ import SwiftUI
 
       case let .voicePicked(id):
         state.profile.voiceID = id
-        save(state.profile)
+        save(state)
         store.addTask { await speechClient.speak(Settings.sample, id) }
       }
     }
     .onMount { state in
       state.profile = profileStore.load() ?? Profile()
+      state.childName = state.profile.childName
       state.soundOn = soundPreference.load()
       state.strictness = strictnessPreference.load()
       state.voices = speechClient.voices()
@@ -120,27 +122,11 @@ public struct SettingsScreen: View {
           .font(Typography.display(32))
           .foregroundStyle(Palette.ink)
           .accessibilityAddTraits(.isHeader)
-        section("Reader") { name }
-        section("Accent") {
-          ForEach(Profile.Accent.allCases, id: \.self) { accent in
-            Choice(title: accent.name, isSelected: accent == store.profile.accent) {
-              store.send(.accentPicked(accent))
-            }
-          }
-        }
-        section("Listening") {
-          ForEach(WordMatcher.Strictness.allCases, id: \.self) { strictness in
-            Choice(
-              title: strictness.title,
-              detail: strictness.detail,
-              isSelected: strictness == store.strictness
-            ) {
-              store.send(.strictnessPicked(strictness))
-            }
-          }
-        }
-        section("Help voice") { voice }
-        section("Sounds") { sound }
+        SettingsSection("Reader") { NameField(store: store) }
+        SettingsSection("Accent") { AccentChoices(store: store) }
+        SettingsSection("Listening") { StrictnessChoices(store: store) }
+        SettingsSection("Help voice") { VoiceRow(store: store) }
+        SettingsSection("Sounds") { SoundRow(store: store) }
       }
       .padding(.horizontal, 24)
       .padding(.top, 24)
@@ -149,6 +135,7 @@ public struct SettingsScreen: View {
       .frame(maxWidth: .infinity)
     }
     .scrollBounceBehavior(.basedOnSize)
+    .scrollDismissesKeyboard(.interactively)
     .safeAreaInset(edge: .bottom) {
       Button { store.send(.doneTapped) } label: {
         Text("Done").frame(maxWidth: 560)
@@ -161,8 +148,18 @@ public struct SettingsScreen: View {
     }
     .background(Palette.page.ignoresSafeArea())
   }
+}
 
-  private func section(_ title: String, @ViewBuilder content: () -> some View) -> some View {
+struct SettingsSection<Content: View>: View {
+  let title: String
+  let content: Content
+
+  init(_ title: String, @ViewBuilder content: () -> Content) {
+    self.title = title
+    self.content = content()
+  }
+
+  var body: some View {
     VStack(alignment: .leading, spacing: 12) {
       Text(title.uppercased())
         .font(Typography.display(15))
@@ -170,30 +167,82 @@ public struct SettingsScreen: View {
         .foregroundStyle(Palette.ink)
         .padding(.horizontal, 4)
         .accessibilityAddTraits(.isHeader)
-      content()
+      content
     }
   }
+}
 
-  private var field: some InsettableShape {
-    RoundedRectangle(cornerRadius: 20, style: .continuous)
+extension View {
+  func settingsField() -> some View {
+    bevel(
+      Palette.paper,
+      lip: Palette.parchmentLip,
+      shape: RoundedRectangle(cornerRadius: 20, style: .continuous),
+      border: 3,
+      drop: 4
+    )
   }
+}
 
-  private var name: some View {
+struct NameField: View {
+  let store: StoreOf<Settings>
+  @FocusState private var focused: Bool
+
+  var body: some View {
     TextField(
       "Name or nickname",
-      text: Binding(get: { store.profile.childName }, set: { store.send(.nameChanged($0)) })
+      text: Binding(get: { store.childName }, set: { store.send(.nameChanged($0)) })
     )
     .font(Typography.ui(22))
     .foregroundStyle(Palette.ink)
     .textContentType(.nickname)
     .autocorrectionDisabled()
     .submitLabel(.done)
+    .focused($focused)
+    .onSubmit { store.send(.nameSubmitted) }
+    .onChange(of: focused) { _, isFocused in
+      if !isFocused { store.send(.nameSubmitted) }
+    }
     .padding(.horizontal, 20)
     .frame(height: 60)
-    .bevel(Palette.paper, lip: Palette.parchmentLip, shape: field, border: 3, drop: 4)
+    .settingsField()
+    .contentShape(.rect(cornerRadius: 20))
+    .onTapGesture { focused = true }
   }
+}
 
-  private var voice: some View {
+struct AccentChoices: View {
+  let store: StoreOf<Settings>
+
+  var body: some View {
+    ForEach(Profile.Accent.allCases, id: \.self) { accent in
+      Choice(title: accent.name, isSelected: accent == store.profile.accent) {
+        store.send(.accentPicked(accent))
+      }
+    }
+  }
+}
+
+struct StrictnessChoices: View {
+  let store: StoreOf<Settings>
+
+  var body: some View {
+    ForEach(WordMatcher.Strictness.allCases, id: \.self) { strictness in
+      Choice(
+        title: strictness.title,
+        detail: strictness.detail,
+        isSelected: strictness == store.strictness
+      ) {
+        store.send(.strictnessPicked(strictness))
+      }
+    }
+  }
+}
+
+struct VoiceRow: View {
+  let store: StoreOf<Settings>
+
+  var body: some View {
     HStack(spacing: 12) {
       Menu {
         Picker(
@@ -217,7 +266,7 @@ public struct SettingsScreen: View {
         }
         .padding(.horizontal, 20)
         .frame(height: 60)
-        .bevel(Palette.paper, lip: Palette.parchmentLip, shape: field, border: 3, drop: 4)
+        .settingsField()
         .contentShape(.rect(cornerRadius: 20))
       }
       .accessibilityLabel("Help voice, \(store.voiceName)")
@@ -229,8 +278,12 @@ public struct SettingsScreen: View {
       .accessibilityLabel("Hear the help voice")
     }
   }
+}
 
-  private var sound: some View {
+struct SoundRow: View {
+  let store: StoreOf<Settings>
+
+  var body: some View {
     Toggle(
       isOn: Binding(get: { store.soundOn }, set: { store.send(.soundToggled($0)) })
     ) {
@@ -246,6 +299,6 @@ public struct SettingsScreen: View {
     .tint(Palette.teal)
     .padding(.horizontal, 20)
     .padding(.vertical, 16)
-    .bevel(Palette.paper, lip: Palette.parchmentLip, shape: field, border: 3, drop: 4)
+    .settingsField()
   }
 }

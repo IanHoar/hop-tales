@@ -83,6 +83,8 @@ struct NamePage: View {
           border: 3,
           drop: 4
         )
+        .contentShape(.rect(cornerRadius: 20))
+        .onTapGesture { focused = true }
     }
     .onAppear { focused = true }
   }
