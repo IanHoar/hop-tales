@@ -22,7 +22,7 @@
 <body class="page-home">
   <header class="site-nav">
     <a class="site-nav__home" href="./">
-      <svg class="wordmark" width="198" height="51" viewBox="0 0 208 54" role="img" aria-label="Hop Tales"><text x="104" y="43" text-anchor="middle" font-size="44" fill="#DB2A2E" stroke="#1D1A2C" stroke-width="9" paint-order="stroke" stroke-linejoin="round" letter-spacing="1">Hop Tales</text><text x="104" y="43" text-anchor="middle" font-size="44" fill="none" stroke="#FF6A55" stroke-width="1.6" letter-spacing="1" opacity="0.8" transform="translate(-1 -2)" aria-hidden="true">Hop Tales</text></svg>
+      <svg class="wordmark" width="198" height="51" viewBox="0 0 208 54" role="img" aria-label="Hop Tales"><text x="104" y="43" text-anchor="middle" font-size="44" fill="#DB2A2E" stroke="#1D1A2C" stroke-width="6" paint-order="stroke" stroke-linejoin="round" letter-spacing="1">Hop Tales</text><text x="104" y="43" text-anchor="middle" font-size="44" fill="none" stroke="#FF6A55" stroke-width="1.1" letter-spacing="1" opacity="0.55" transform="translate(-0.5 -1)" aria-hidden="true">Hop Tales</text></svg>
     </a>
     <nav aria-label="Main">
       <ul class="site-nav__links">
@@ -37,10 +37,40 @@
   </header>
 
   <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero__stage">
+        <div class="hero__world" aria-hidden="true">
+          <img class="world world--sky" src="assets/world/sky-day.svg" width="2340" height="844" alt="">
+          <img class="world world--far" src="assets/world/far-day.svg" width="2340" height="844" alt="">
+          <img class="world world--mid" src="assets/world/mid-day.svg" width="2340" height="844" alt="">
+          <img class="world world--near" src="assets/world/near-day.svg" width="2340" height="844" alt="">
+        </div>
+        <img class="hero__pip" src="assets/sprites/fox.svg" width="240" height="170" alt="">
+        <div class="hero__copy">
+          <svg class="ribbon" width="300" height="52" viewBox="0 0 300 52" role="img" aria-label="A read-aloud adventure"><path d="M4 10 L 22 10 L 22 46 L 4 46 L 13 28.0 Z" fill="#A3141D" stroke="#1D1A2C" stroke-width="3" stroke-linejoin="round"/><path d="M296 10 L 278 10 L 278 46 L 296 46 L 287 28.0 Z" fill="#A3141D" stroke="#1D1A2C" stroke-width="3" stroke-linejoin="round"/><path d="M16 4 L 284 4 L 284 42 L 16 42 Z" fill="#DB2A2E" stroke="#1D1A2C" stroke-width="3" stroke-linejoin="round"/><path d="M19 8 L 281 8" stroke="#FF6A55" stroke-width="3" stroke-linecap="round"/><text x="150" y="30" text-anchor="middle" font-size="16" fill="#FFF3D6" stroke="#1D1A2C" stroke-width="4" paint-order="stroke" letter-spacing="1">A READ-ALOUD ADVENTURE</text></svg>
+          <h1 id="hero-title" class="outlined">Read a word.<br> Watch the world grow.</h1>
+        </div>
+        <div class="hero__phones">
+          <div class="phone phone--dragon">
+            <img src="assets/shots/inkdragon.jpg" width="780" height="1688" alt="Hop Tales at dragon's hill at dusk, with the word 'guarded' on the card">
+          </div>
+          <div class="phone phone--heard">
+            <img src="assets/shots/inkheard.jpg" width="780" height="1688" alt="Hop Tales reading screen: the word 'sat' just heard">
+          </div>
+        </div>
+      </div>
+      <div class="hero__card bevel bevel--large">
+        <p class="hero__lead">Hop Tales listens while your child reads aloud. Every word they say bounces the ball forward — and carries Pip the fox from a sunny meadow to a dragon's hill.</p>
+        <div class="hero__cta">
+          <a class="app-store-badge" href="download/"><img src="assets/app-store-badge.svg" width="192" height="64" alt="Download on the App Store"></a>
+          <p class="hero__platforms"><span>iPhone &amp; iPad</span> <span>Plays on your TV with AirPlay</span></p>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
-    <svg class="wordmark" width="156" height="40" viewBox="0 0 208 54" role="img" aria-label="Hop Tales"><text x="104" y="43" text-anchor="middle" font-size="44" fill="#DB2A2E" stroke="#1D1A2C" stroke-width="9" paint-order="stroke" stroke-linejoin="round" letter-spacing="1">Hop Tales</text><text x="104" y="43" text-anchor="middle" font-size="44" fill="none" stroke="#FF6A55" stroke-width="1.6" letter-spacing="1" opacity="0.8" transform="translate(-1 -2)" aria-hidden="true">Hop Tales</text></svg>
+    <svg class="wordmark" width="156" height="40" viewBox="0 0 208 54" role="img" aria-label="Hop Tales"><text x="104" y="43" text-anchor="middle" font-size="44" fill="#DB2A2E" stroke="#1D1A2C" stroke-width="6" paint-order="stroke" stroke-linejoin="round" letter-spacing="1">Hop Tales</text><text x="104" y="43" text-anchor="middle" font-size="44" fill="none" stroke="#FF6A55" stroke-width="1.1" letter-spacing="1" opacity="0.55" transform="translate(-0.5 -1)" aria-hidden="true">Hop Tales</text></svg>
     <ul class="site-footer__links">
       <li><a href="privacy.html">Privacy Policy</a></li>
       <li><a href="terms.html">Terms of Service</a></li>
