@@ -200,7 +200,7 @@ struct OnboardingTests {
     } changes: {
       $0.home.childName = "Maya"
     }
-    await store.send(.resetOnboardingTapped) {
+    await store.send(.home(.resetOnboardingTapped)) {
       $0.home.childName = nil
       $0.onboarding = Onboarding.State.DebugSnapshot()
     }

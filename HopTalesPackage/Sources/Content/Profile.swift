@@ -10,10 +10,10 @@ public struct Profile: Codable, Hashable, Sendable {
 
     public var name: String {
       switch self {
-      case .canadian: "Canadian English"
-      case .american: "American English"
-      case .british: "British English"
-      case .australian: "Australian English"
+      case .canadian: "Canadian"
+      case .american: "American"
+      case .british: "British"
+      case .australian: "Australian"
       }
     }
 

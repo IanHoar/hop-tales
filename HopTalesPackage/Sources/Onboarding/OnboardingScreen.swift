@@ -265,3 +265,9 @@ public struct OnboardingScreen: View {
   state.voiceID = "ava"
   return OnboardingScreen(store: Store(initialState: state) { Onboarding() })
 }
+
+#Preview("Reading level") {
+  var state = Onboarding.State()
+  state.path = [.name, .listening, .story]
+  return OnboardingScreen(store: Store(initialState: state) { Onboarding() })
+}

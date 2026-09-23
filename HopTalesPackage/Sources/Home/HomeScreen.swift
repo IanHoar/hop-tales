@@ -39,6 +39,7 @@ import SwiftUI
   public enum Action {
     case grownUpsTapped
     case playOnTVTapped
+    case resetOnboardingTapped
     case storyTapped(Story)
   }
 
@@ -47,7 +48,7 @@ import SwiftUI
   public var body: some Feature {
     Update { _, action in
       switch action {
-      case .grownUpsTapped, .playOnTVTapped, .storyTapped:
+      case .grownUpsTapped, .playOnTVTapped, .resetOnboardingTapped, .storyTapped:
         break
       }
     }
@@ -145,15 +146,33 @@ public struct HomeScreen: View {
           .frame(height: 58)
           .background(Palette.ink, in: .capsule)
       }
-      Button { store.send(.grownUpsTapped) } label: {
-        Image(systemName: "gearshape")
-          .font(.system(size: 22, weight: .medium))
-          .foregroundStyle(Palette.chipText)
-          .frame(width: 58, height: 58)
-          .background(Palette.surfaceMuted, in: .circle)
-      }
-      .accessibilityLabel("Grown-ups")
+      settings
+        .accessibilityLabel("Grown-ups")
     }
+  }
+
+  private var cog: some View {
+    Image(systemName: "gearshape")
+      .font(.system(size: 22, weight: .medium))
+      .foregroundStyle(Palette.chipText)
+      .frame(width: 58, height: 58)
+      .background(Palette.surfaceMuted, in: .circle)
+  }
+
+  @ViewBuilder
+  private var settings: some View {
+    #if DEBUG
+      Menu {
+        Button("Grown-ups", systemImage: "gearshape") { store.send(.grownUpsTapped) }
+        Button("Reset onboarding", systemImage: "arrow.counterclockwise", role: .destructive) {
+          store.send(.resetOnboardingTapped)
+        }
+      } label: {
+        cog
+      }
+    #else
+      Button { store.send(.grownUpsTapped) } label: { cog }
+    #endif
   }
 }
 

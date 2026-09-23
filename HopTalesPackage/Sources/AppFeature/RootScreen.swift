@@ -23,7 +23,6 @@ import SwiftUI
   public enum Action {
     case home(Home.Action)
     case onboarding(Onboarding.Action)
-    case resetOnboardingTapped
     case path(Path.State.ID, Path.Action)
   }
 
@@ -43,7 +42,7 @@ import SwiftUI
           state.onboarding = nil
         case .onboarding:
           break
-        case .resetOnboardingTapped:
+        case .home(.resetOnboardingTapped):
           profileStore.erase()
           state.path = []
           state.home = Home.State()
@@ -94,15 +93,6 @@ public struct RootScreen: View {
           .transition(.opacity)
       } else {
         stories
-          #if DEBUG
-            .overlay(alignment: .bottomLeading) {
-              Button("Reset onboarding") { store.send(.resetOnboardingTapped) }
-                .font(.caption.weight(.semibold))
-                .buttonStyle(.borderedProminent)
-                .tint(.black.opacity(0.7))
-                .padding(12)
-            }
-          #endif
       }
     }
     .animation(.easeInOut(duration: 0.3), value: store.onboarding == nil)
