@@ -54,7 +54,7 @@ struct WorldSceneTests {
     let scene = WorldScene(size: CGSize(width: 402, height: 874))
     scene.didMove(to: SKView())
     #expect(scene.companion is FoxNode)
-    #expect(scene.companion.position == CGPoint(x: 150, y: 844 - 436))
+    #expect(scene.companion.position == CGPoint(x: 118, y: 844 - 441))
     #expect(scene.companion.parent === scene.companionLayer)
   }
 
@@ -139,5 +139,52 @@ struct WorldSceneTests {
     let range = scene.particles.particlePositionRange.dx
     #expect(abs(range - visible * 2) < 0.5)
     #expect(abs(scene.particles.position.x - range / 2) < 0.5)
+  }
+
+  @Test func theKnightAndDragonStandOnTheGroundAtTheirPlaces() {
+    let scene = WorldScene(size: CGSize(width: 402, height: 874))
+    scene.didMove(to: SKView())
+    #expect(scene.knight.parent === scene.actorLayer)
+    #expect(abs(scene.knight.position.y - Ground.height(at: 1262)) < 0.01)
+    #expect(abs(scene.dragon.position.y - Ground.height(at: 2212)) < 0.01)
+    #expect(scene.knight.position.x == 1262)
+    #expect(scene.dragon.position.x == 2212)
+  }
+
+  @Test func theKnightWavesOnceAsTheFoxPasses() {
+    let knight = KnightNode()
+    knight.update(elapsed: 0.1, foxAt: 600)
+    #expect(!knight.hasWaved)
+    knight.update(elapsed: 0.1, foxAt: 1200)
+    #expect(knight.hasWaved)
+    #expect(knight.body.texture === knight.waving)
+    knight.update(elapsed: KnightNode.waveTime, foxAt: 1260)
+    #expect(knight.body.texture === knight.idle)
+  }
+
+  @Test func theDragonRoarsOnTheLastWordAndSettles() {
+    let dragon = DragonNode()
+    dragon.roar()
+    dragon.update(elapsed: 0.1)
+    #expect(dragon.body.texture === dragon.roaring)
+    dragon.update(elapsed: DragonNode.roarTime)
+    #expect(dragon.body.texture === dragon.calm)
+  }
+
+  @Test func theDragonFlapsItsWing() {
+    let dragon = DragonNode()
+    dragon.update(elapsed: 0.6)
+    let raised = dragon.wing.zRotation
+    dragon.update(elapsed: 1.2)
+    #expect(raised != dragon.wing.zRotation)
+  }
+
+  @Test func duskGradesTheCastWithoutAFilter() {
+    let scene = WorldScene(size: CGSize(width: 402, height: 874))
+    scene.didMove(to: SKView())
+    scene.setStage(.dragon, animated: false)
+    #expect(abs(scene.dragon.body.colorBlendFactor - 0.2) < 0.001)
+    scene.setStage(.meadow, animated: false)
+    #expect(scene.dragon.body.colorBlendFactor == 0)
   }
 }

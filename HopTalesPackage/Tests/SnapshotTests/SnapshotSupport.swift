@@ -3,6 +3,7 @@ import Foundation
 import SnapshotTesting
 import SwiftUI
 import Testing
+import UIKit
 
 func snapshotDirectory(file: StaticString = #filePath) -> String {
   let file = URL(fileURLWithPath: "\(file)")
@@ -67,7 +68,10 @@ func expectSnapshot(
 ) {
   expectSnapshot(
     of: view.environment(\.colorScheme, scheme).environment(\.freezesMotion, true),
-    as: .image(layout: .sizeThatFits),
+    as: .image(
+      layout: .sizeThatFits,
+      traits: UITraitCollection(userInterfaceStyle: scheme == .dark ? .dark : .light)
+    ),
     named: "\(scheme)",
     fileID: fileID,
     file: file,

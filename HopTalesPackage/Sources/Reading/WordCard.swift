@@ -29,15 +29,26 @@ struct WordCard: View {
         .padding(.top, geometry.scaled(96))
     }
     .frame(width: geometry.cardSize.width, height: geometry.cardSize.height, alignment: .top)
-    .background(Palette.cream, in: shape)
     .clipShape(shape)
-    .shadow(color: Palette.ink.opacity(0.10), radius: 0, x: 0, y: geometry.scaled(12))
-    .shadow(
-      color: sceneShadow.opacity(0.18),
-      radius: geometry.scaled(20),
-      x: 0,
-      y: geometry.scaled(24)
+    .bevel(
+      Palette.parchment,
+      lip: Palette.parchmentLip,
+      shape: shape,
+      border: geometry.scaled(4),
+      drop: geometry.scaled(6),
+      lipHeight: geometry.scaled(9)
     )
+    .background {
+      shape
+        .fill(Palette.outline)
+        .shadow(
+          color: Color(hex: 0x0C0A1E, opacity: 0.32),
+          radius: geometry.scaled(17),
+          x: 0,
+          y: geometry.scaled(16)
+        )
+        .offset(y: geometry.scaled(6))
+    }
   }
 
   private var shape: RoundedRectangle {

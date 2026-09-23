@@ -169,9 +169,9 @@ public struct OnboardingScreen: View {
         .padding(.horizontal, 24)
         .padding(.top, 12)
         .padding(.bottom, 16)
-        .background(Palette.cream)
+        .background(Palette.page)
     }
-    .background(Palette.cream.ignoresSafeArea())
+    .background(Palette.page.ignoresSafeArea())
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
       ToolbarItem(placement: .principal) {

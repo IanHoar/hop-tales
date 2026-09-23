@@ -1,43 +1,54 @@
 import Content
 import DesignSystem
 import SwiftUI
+import World
 
 struct StoryThumbnail: View {
   let stage: StageTheme
   var cornerRadius: CGFloat = 18
+  var showsCast = false
+  var height: CGFloat = 62
 
   var body: some View {
-    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-      .fill(
-        LinearGradient(
-          colors: colours,
-          startPoint: .top,
-          endPoint: .bottom
-        )
-      )
-      .overlay(alignment: .bottom) {
-        Hill()
-          .fill(ground)
-          .frame(height: 22)
+    GeometryReader { proxy in
+      ZStack(alignment: .bottomTrailing) {
+        if let image = WorldPostcard.image(
+          tone: tone,
+          progress: WorldPostcard.progress(for: worldStage),
+          scale: scale,
+          size: proxy.size,
+          top: Self.bandTop * scale
+        ) {
+          Image(uiImage: image).resizable()
+        }
+        if showsCast, let cast = CastPortrait.image(for: worldStage) {
+          Image(uiImage: cast)
+            .resizable()
+            .scaledToFit()
+            .frame(height: proxy.size.height * 0.95)
+            .padding(.trailing, proxy.size.width * 0.12)
+            .offset(y: proxy.size.height * 0.06)
+        }
       }
-      .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+    }
+    .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+    .accessibilityHidden(true)
   }
 
-  private var colours: [Color] {
+  static let bandTop: CGFloat = 170
+  static let bandHeight: CGFloat = 290
+
+  private var scale: CGFloat { height / Self.bandHeight }
+
+  private var worldStage: WorldStage {
     switch stage {
-    case .meadow: [Color(hex: 0x6EC3EE), Color(hex: 0xA9E0F5)]
-    case .castle: [Color(hex: 0x3E8FC9), Color(hex: 0xF5C77E)]
-    case .dragon: [Color(hex: 0x0F0D2A), Color(hex: 0x5A2B5E)]
+    case .meadow: .meadow
+    case .castle: .castle
+    case .dragon: .dragon
     }
   }
 
-  private var ground: Color {
-    switch stage {
-    case .meadow: Color(hex: 0x8FCB6B)
-    case .castle: Color(hex: 0xB98A46)
-    case .dragon: Color(hex: 0x241A3D)
-    }
-  }
+  private var tone: WorldArt.Tone { WorldArt.Tone(stage: worldStage) }
 }
 
 struct Hill: Shape {
@@ -62,31 +73,37 @@ struct StoryRow: View {
   var body: some View {
     Button(action: action) {
       HStack(spacing: 14) {
-        StoryThumbnail(stage: standing.story.stage)
-          .frame(width: 60, height: 60)
+        StoryThumbnail(stage: standing.story.stage, cornerRadius: 14)
+          .frame(width: 62, height: 62)
+          .overlay {
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+              .strokeBorder(Palette.outline, lineWidth: 3)
+          }
         VStack(alignment: .leading, spacing: 2) {
           Text(standing.story.title)
-            .font(Typography.ui(18))
+            .font(Typography.display(21))
             .foregroundStyle(Palette.ink)
           Text(standing.subtitle)
-            .font(Typography.ui(14))
+            .font(Typography.ui(14, weight: .medium))
             .foregroundStyle(Palette.muted)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         badge
       }
-      .padding(.horizontal, 16)
-      .frame(height: 92)
+      .padding(.horizontal, 12)
+      .frame(height: 88)
+      .bevel(
+        Palette.paper,
+        lip: Palette.parchmentLip,
+        shape: RoundedRectangle(cornerRadius: 24, style: .continuous),
+        border: 3,
+        drop: 4
+      )
       .background {
-        RoundedRectangle(cornerRadius: 26, style: .continuous)
-          .fill(.white)
-          .shadow(color: Palette.ink.opacity(0.07), radius: 0, x: 0, y: 6)
-          .shadow(color: Palette.ink.opacity(0.08), radius: 12, x: 0, y: 12)
-      }
-      .overlay {
         if standing.isCurrent {
-          RoundedRectangle(cornerRadius: 26, style: .continuous)
-            .strokeBorder(Palette.amber, lineWidth: 3)
+          RoundedRectangle(cornerRadius: 28, style: .continuous)
+            .strokeBorder(Palette.gold, lineWidth: 4)
+            .padding(-5)
         }
       }
     }
@@ -101,24 +118,20 @@ struct StoryRow: View {
     switch standing.standing {
     case .finished:
       Image(systemName: "checkmark")
-        .font(.system(size: 15, weight: .bold))
-        .foregroundStyle(Palette.heardText)
-        .frame(width: 32, height: 32)
-        .background(Palette.heardBg, in: .circle)
+        .font(.system(size: 16, weight: .black))
+        .foregroundStyle(Palette.outline)
+        .frame(width: 38, height: 38)
+        .bevel(Palette.done, lip: Palette.doneShade, shape: Circle(), border: 3, drop: 3)
     case .inProgress:
-      Image(systemName: "chevron.right")
-        .font(.system(size: 14, weight: .bold))
-        .foregroundStyle(Palette.starText)
-        .frame(width: 32, height: 32)
-        .background(Palette.creamDeep, in: .circle)
+      Coin(size: 34)
     case .unread:
       Text("NEW")
-        .font(Typography.caps(12))
-        .tracking(0.96)
-        .foregroundStyle(Palette.newBadgeText)
-        .padding(.horizontal, 11)
-        .frame(height: 28)
-        .background(Palette.newBadgeBg, in: .capsule)
+        .font(Typography.display(14))
+        .tracking(0.8)
+        .foregroundStyle(Palette.onTeal)
+        .padding(.horizontal, 12)
+        .frame(height: 30)
+        .bevel(Palette.newBadge, lip: Palette.newBadgeShade, shape: Capsule(), border: 3, drop: 3)
     }
   }
 }
@@ -130,34 +143,39 @@ struct KeepGoingCard: View {
   var body: some View {
     Button(action: action) {
       VStack(spacing: 0) {
-        StoryThumbnail(stage: standing.story.stage, cornerRadius: 0)
-          .frame(height: 104)
+        StoryThumbnail(stage: standing.story.stage, cornerRadius: 0, showsCast: true, height: 124)
+          .frame(height: 124)
+        Rectangle().fill(Palette.outline).frame(height: 4)
         HStack(spacing: 14) {
-          VStack(alignment: .leading, spacing: 3) {
+          VStack(alignment: .leading, spacing: 4) {
             Text(heading)
-              .font(Typography.caps(10))
-              .tracking(1.6)
+              .font(Typography.caps(12))
+              .tracking(12 * 0.14)
               .foregroundStyle(Palette.muted)
             Text(standing.story.title)
-              .font(Typography.ui(20))
+              .font(Typography.display(24))
               .foregroundStyle(Palette.ink)
-            progress
+            MiniTrail(done: completedCount, total: total)
               .padding(.top, 4)
           }
           .frame(maxWidth: .infinity, alignment: .leading)
-          playButton
+          Image(systemName: "play.fill")
+            .font(.system(size: 22, weight: .black))
+            .foregroundStyle(Palette.outline)
+            .frame(width: 62, height: 62)
+            .bevel(Palette.gold, lip: Palette.goldShade, shape: Circle(), border: 3, drop: 5)
         }
         .padding(.horizontal, 18)
-        .frame(height: 80)
-        .background(.white)
+        .padding(.vertical, 16)
       }
-      .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
-      .background {
-        RoundedRectangle(cornerRadius: 30, style: .continuous)
-          .fill(.white)
-          .shadow(color: Palette.ink.opacity(0.10), radius: 0, x: 0, y: 10)
-          .shadow(color: Palette.ink.opacity(0.14), radius: 20, x: 0, y: 20)
-      }
+      .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+      .bevel(
+        Palette.paper,
+        lip: Palette.parchmentLip,
+        shape: RoundedRectangle(cornerRadius: 28, style: .continuous),
+        border: 4,
+        drop: 6
+      )
     }
     .buttonStyle(.plain)
     .accessibilityElement(children: .ignore)
@@ -175,36 +193,42 @@ struct KeepGoingCard: View {
     if case .inProgress(let remaining) = standing.standing { return total - remaining }
     return standing.standing == .finished ? total : 0
   }
+}
 
-  private var progress: some View {
-    HStack(spacing: 8) {
-      Capsule()
-        .fill(Palette.trackBg)
-        .frame(width: 120, height: 7)
-        .overlay(alignment: .leading) {
-          Capsule()
-            .fill(Palette.amber)
-            .frame(width: 120 * CGFloat(completedCount) / CGFloat(max(total, 1)), height: 7)
+struct MiniTrail: View {
+  let done: Int
+  let total: Int
+
+  var body: some View {
+    ZStack(alignment: .leading) {
+      Capsule().fill(Palette.track).frame(height: 8)
+        .overlay(Capsule().strokeBorder(Palette.outline, lineWidth: 2))
+      HStack(spacing: 0) {
+        ForEach(0..<total, id: \.self) { index in
+          node(index)
+          if index < total - 1 { Spacer(minLength: 0) }
         }
-      Text("\(completedCount) of \(total)")
-        .font(Typography.ui(13))
-        .foregroundStyle(Palette.muted)
+      }
     }
+    .frame(width: 190, height: 26)
+    .accessibilityHidden(true)
   }
 
-  private var playButton: some View {
-    Image(systemName: "play.fill")
-      .font(.system(size: 20, weight: .bold))
-      .foregroundStyle(.white)
-      .frame(width: 56, height: 56)
-      .background(
-        LinearGradient(
-          colors: [Color(hex: 0xFFB86A), Color(hex: 0xFF9F45), Palette.amberDeep],
-          startPoint: .topLeading,
-          endPoint: .bottomTrailing
-        ),
-        in: .circle
-      )
-      .shadow(color: Color(hex: 0xC4661A), radius: 0, x: 0, y: 4)
+  @ViewBuilder
+  private func node(_ index: Int) -> some View {
+    if index < done {
+      Circle().fill(Palette.gold)
+        .overlay(Circle().strokeBorder(Palette.outline, lineWidth: 2.5))
+        .frame(width: 16, height: 16)
+    } else if index == done {
+      Circle().fill(Palette.parchment)
+        .overlay(Circle().fill(Palette.ball).padding(5))
+        .overlay(Circle().strokeBorder(Palette.outline, lineWidth: 2.5))
+        .frame(width: 22, height: 22)
+    } else {
+      Circle().fill(Palette.stone)
+        .overlay(Circle().strokeBorder(Palette.outline, lineWidth: 2.5))
+        .frame(width: 14, height: 14)
+    }
   }
 }

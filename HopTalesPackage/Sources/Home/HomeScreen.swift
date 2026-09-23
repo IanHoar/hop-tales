@@ -3,6 +3,7 @@ import Content
 import Dependencies
 import DesignSystem
 import SwiftUI
+import World
 
 @Feature public struct Home {
   public init() {}
@@ -60,103 +61,115 @@ import SwiftUI
 
 public struct HomeScreen: View {
   let store: StoreOf<Home>
+  @Environment(\.colorScheme) private var colorScheme
 
   public init(store: StoreOf<Home>) {
     self.store = store
   }
 
+  static let headerHeight: CGFloat = 236
+  static let pageTop: CGFloat = 236
+
   public var body: some View {
     ScrollView {
-      VStack(alignment: .leading, spacing: 0) {
+      ZStack(alignment: .top) {
         header
-          .padding(.top, 8)
-        greeting
-          .padding(.top, 28)
-        if let keepGoing = store.keepGoing {
-          KeepGoingCard(standing: keepGoing) { store.send(.storyTapped(keepGoing.story)) }
-            .padding(.top, 22)
-        }
-        Text("ALL STORIES")
-          .font(Typography.caps(11))
-          .tracking(1.76)
-          .foregroundStyle(Palette.muted)
-          .padding(.top, 26)
-          .padding(.bottom, 12)
-        VStack(spacing: 12) {
-          ForEach(store.standings) { standing in
-            StoryRow(standing: standing) { store.send(.storyTapped(standing.story)) }
+        VStack(alignment: .leading, spacing: 0) {
+          if let keepGoing = store.keepGoing {
+            KeepGoingCard(standing: keepGoing) { store.send(.storyTapped(keepGoing.story)) }
+              .padding(.top, 150)
+          } else {
+            Color.clear.frame(height: Self.pageTop)
           }
+          Text("ALL STORIES")
+            .font(Typography.display(15))
+            .tracking(15 * 0.12)
+            .foregroundStyle(Palette.ink)
+            .padding(.top, 24)
+            .padding(.bottom, 12)
+            .padding(.horizontal, 4)
+          VStack(spacing: 14) {
+            ForEach(store.standings) { standing in
+              StoryRow(standing: standing) { store.send(.storyTapped(standing.story)) }
+            }
+          }
+          bottomBar
+            .padding(.top, 26)
         }
-        bottomBar
-          .padding(.top, 26)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 28)
       }
-      .padding(.horizontal, 16)
-      .padding(.bottom, 24)
+      .background(alignment: .top) { page }
     }
-    .background(Palette.cream)
+    .background(Palette.page)
+    .scrollBounceBehavior(.basedOnSize)
     .navigationBarHidden(true)
   }
 
+  private var tone: WorldArt.Tone { colorScheme == .dark ? .dusk : .day }
+
   private var header: some View {
-    HStack {
-      HStack(spacing: 9) {
-        BallMark()
-          .frame(width: 26, height: 26)
-        Text("Hop Tales")
-          .font(Typography.ui(25))
-          .foregroundStyle(Palette.ink)
+    ZStack(alignment: .topLeading) {
+      GeometryReader { proxy in
+        let width = proxy.size.width
+        let scale = width / 390 * 0.62
+        if let image = WorldPostcard.image(
+          tone: tone,
+          progress: 0,
+          scale: scale,
+          size: CGSize(width: width, height: Self.headerHeight),
+          top: 60 * scale
+        ) {
+          Image(uiImage: image)
+            .resizable()
+            .frame(width: width, height: Self.headerHeight)
+        }
       }
-      Spacer()
-      HStack(spacing: 6) {
-        Star()
-          .fill(Palette.amber)
-          .frame(width: 17, height: 17)
-        Text("\(store.progress.stars)")
-          .font(Typography.ui(16))
-          .foregroundStyle(Palette.starText)
+      .frame(height: Self.headerHeight)
+      .accessibilityHidden(true)
+      VStack(alignment: .leading, spacing: 10) {
+        HStack(alignment: .top) {
+          Wordmark()
+          Spacer()
+          CoinChip(count: store.progress.stars, height: 46)
+        }
+        Text(store.greeting + "!")
+          .font(Typography.display(28))
+          .foregroundStyle(Palette.labelOnWorld)
+          .inkHalo(3)
+          .padding(.leading, 6)
       }
-      .padding(.horizontal, 15)
-      .frame(height: 44)
-      .background(Palette.creamDeep, in: .capsule)
-      .accessibilityElement(children: .ignore)
-      .accessibilityLabel("\(store.progress.stars) stars")
+      .padding(.horizontal, 14)
+      .padding(.top, 6)
     }
-    .padding(.horizontal, 4)
   }
 
-  private var greeting: some View {
-    VStack(alignment: .leading, spacing: 6) {
-      Text(store.greeting)
-        .font(Typography.ui(30))
-        .foregroundStyle(Palette.ink)
-      Text("Ready for the next one?")
-        .font(Typography.ui(17))
-        .foregroundStyle(Palette.muted)
+  private var page: some View {
+    VStack(spacing: 0) {
+      Color.clear.frame(height: Self.pageTop)
+      Rectangle().fill(Palette.outline).frame(height: 4)
+      Palette.page
     }
-    .padding(.horizontal, 4)
   }
 
   private var bottomBar: some View {
     HStack(spacing: 12) {
       Button { store.send(.playOnTVTapped) } label: {
         Label("Play on the TV", systemImage: "tv")
-          .font(Typography.ui(16))
-          .foregroundStyle(Palette.cream)
           .frame(maxWidth: .infinity)
-          .frame(height: 58)
-          .background(Palette.ink, in: .capsule)
       }
+      .buttonStyle(.ink(.secondary))
       settings
         .accessibilityLabel("Grown-ups")
     }
   }
 
   private var cog: some View {
-    Image(systemName: "gearshape")
-      .font(.system(size: 22, weight: .medium))
-      .foregroundStyle(Palette.chipText)
+    Image(systemName: "gearshape.fill")
+      .font(.system(size: 22, weight: .bold))
+      .foregroundStyle(Palette.ink)
       .frame(width: 58, height: 58)
-      .background(Palette.surfaceMuted, in: .circle)
+      .parchmentBevel(Circle(), drop: 5)
   }
 
   @ViewBuilder
@@ -173,6 +186,30 @@ public struct HomeScreen: View {
     #else
       Button { store.send(.grownUpsTapped) } label: { cog }
     #endif
+  }
+}
+
+struct Wordmark: View {
+  var body: some View {
+    Text("Hop Tales")
+      .font(Typography.display(44))
+      .foregroundStyle(Palette.red)
+      .overlay {
+        Text("Hop Tales")
+          .font(Typography.display(44))
+          .foregroundStyle(Palette.redLight)
+          .mask {
+            Text("Hop Tales")
+              .font(Typography.display(44))
+              .offset(x: 1, y: 2)
+              .blendMode(.destinationOut)
+          }
+          .compositingGroup()
+          .offset(x: -1, y: -2)
+          .opacity(0.9)
+      }
+      .inkHalo(4.5)
+      .accessibilityAddTraits(.isHeader)
   }
 }
 

@@ -51,13 +51,15 @@ let package = Package(
       resources: [.process("Resources")]
     ),
     .target(
-      name: "DesignSystem"
+      name: "DesignSystem",
+      resources: [.process("Resources")]
     ),
     .target(
       name: "Home",
       dependencies: [
         "Content",
         "DesignSystem",
+        "World",
         .product(name: "ComposableArchitecture2", package: "TCA26"),
         .product(name: "Dependencies", package: "swift-dependencies"),
       ]

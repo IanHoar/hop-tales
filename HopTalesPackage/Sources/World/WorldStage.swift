@@ -13,13 +13,6 @@ public enum WorldStage: String, Hashable, Sendable, CaseIterable {
     }
   }
 
-  public var skyAsset: String {
-    switch self {
-    case .meadow: "sky-day"
-    case .castle: "sky-gold"
-    case .dragon: "sky-dusk"
-    }
-  }
 }
 
 public enum WorldMetrics {

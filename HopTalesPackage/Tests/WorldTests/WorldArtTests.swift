@@ -5,26 +5,32 @@ import UIKit
 
 struct WorldArtTests {
   @Test(arguments: WorldArt.allCases)
-  func everyLayerRasterisesAtTheWidthItIsAsked(art: WorldArt) {
+  func everyLayerShipsInEveryPalette(art: WorldArt) {
     let image = art.image(width: 1170)
     #expect(image != nil)
     #expect(image?.size.width == 1170)
   }
 
   @Test func theWorldKeepsItsAspectRatio() {
-    let image = WorldArt.layerNear.image(width: 2340)
+    let image = WorldArt(.near, .day).image(width: 2340)
     #expect(image?.size.height == 844)
   }
 
   @Test func aLayerCanBeAskedForAnySizeWithoutARenderStep() {
-    let small = WorldArt.layerFar.image(width: 390)
-    let large = WorldArt.layerFar.image(width: 4680)
+    let small = WorldArt(.far, .day).image(width: 390)
+    let large = WorldArt(.far, .day).image(width: 4680)
     #expect(small?.size.width == 390)
     #expect(large?.size.width == 4680)
   }
 
-  @Test(arguments: WorldStage.allCases)
-  func everyStageHasASky(stage: WorldStage) {
-    #expect(WorldArt.sky(stage) != nil)
+  @Test func eachStageHasItsOwnPalette() {
+    #expect(WorldArt.Tone(stage: .meadow) == .day)
+    #expect(WorldArt.Tone(stage: .castle) == .gold)
+    #expect(WorldArt.Tone(stage: .dragon) == .dusk)
+  }
+
+  @Test func theNearLayerIsRasterisedSharpestAndTheSkySoftest() {
+    #expect(WorldArt(.near, .day).texture()?.size.width == 4680)
+    #expect(WorldArt(.sky, .day).texture()?.size.width == 1170)
   }
 }

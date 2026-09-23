@@ -13,16 +13,22 @@ struct StarChip: View {
   @State private var opacity: Double = 0
 
   var body: some View {
-    Text("+\(stars) star\(stars == 1 ? "" : "s")")
-      .font(Typography.ui(geometry.scaled(14)))
-      .foregroundStyle(Palette.flashText)
-      .padding(.horizontal, geometry.scaled(14))
-      .padding(.vertical, geometry.scaled(7))
-      .background {
-        Capsule()
-          .fill(Palette.amber)
-          .shadow(color: Palette.amberDeep.opacity(0.35), radius: 0, x: 0, y: geometry.scaled(4))
-      }
+    HStack(spacing: geometry.scaled(6)) {
+      Coin(size: geometry.scaled(26))
+      Text("+\(stars)")
+        .font(Typography.display(geometry.scaled(18)))
+        .foregroundStyle(Palette.onAccent)
+    }
+    .padding(.leading, geometry.scaled(5))
+    .padding(.trailing, geometry.scaled(12))
+    .frame(height: geometry.scaled(36))
+    .bevel(
+      Palette.gold,
+      lip: Palette.goldShade,
+      shape: Capsule(),
+      border: geometry.scaled(3),
+      drop: geometry.scaled(3)
+    )
       .offset(y: lift)
       .opacity(opacity)
       .task {

@@ -11,49 +11,50 @@ struct MicPill: View {
 
   static let barHeights: [CGFloat] = [7, 14, 9, 17, 6]
   static let barPeriods: [TimeInterval] = [0.42, 0.55, 0.36, 0.48, 0.39]
-  static let barRange: ClosedRange<CGFloat> = 6...17
+  static let barRange: ClosedRange<CGFloat> = 6...19
 
   var body: some View {
-    HStack(spacing: geometry.scaled(heardToken == nil ? 12 : 10)) {
-      if let heardToken {
-        Image(systemName: "checkmark")
-          .font(.system(size: geometry.scaled(15), weight: .bold))
-          .foregroundStyle(Palette.heardText)
-        Text("Heard it — “\(heardToken)”")
-          .font(Typography.ui(geometry.scaled(15)))
-          .foregroundStyle(Palette.heardText)
-      } else {
-        Image(systemName: "mic")
-          .font(.system(size: geometry.scaled(17), weight: .medium))
-          .foregroundStyle(Palette.ink)
+    HStack(spacing: geometry.scaled(12)) {
+      disc
+      if heardToken == nil {
         bars
-        Text(hearing.map { "Hearing “\($0)”" } ?? "Say the word")
-          .font(Typography.ui(geometry.scaled(15)))
-          .foregroundStyle(Palette.chipText)
-          .lineLimit(1)
       }
+      Text(label)
+        .font(Typography.ui(geometry.scaled(17)))
+        .foregroundStyle(heardToken == nil ? Palette.ink : Palette.heardText)
+        .lineLimit(1)
     }
-    .padding(.horizontal, geometry.scaled(22))
-    .padding(.vertical, geometry.scaled(13))
-    .frame(minHeight: geometry.minimumTouchTarget)
-    .background {
-      Capsule()
-        .fill(heardToken == nil ? Palette.cream : Palette.heardBg)
-        .shadow(color: Palette.ink.opacity(0.10), radius: 0, x: 0, y: geometry.scaled(6))
-        .shadow(
-          color: Palette.SceneShadow.meadow.opacity(0.16),
-          radius: geometry.scaled(24),
-          x: 0,
-          y: geometry.scaled(14)
-        )
-    }
+    .padding(.leading, geometry.scaled(10))
+    .padding(.trailing, geometry.scaled(22))
+    .frame(height: geometry.scaled(56))
+    .bevel(
+      heardToken == nil ? Palette.parchment : Palette.heardBg,
+      lip: heardToken == nil ? Palette.parchmentLip : Palette.heardLip,
+      shape: Capsule(),
+      border: geometry.scaled(3),
+      drop: geometry.scaled(4)
+    )
     .animation(Motion.recognised, value: heardToken)
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(heardToken.map { "Heard \($0)" } ?? "Listening. Say the word out loud.")
   }
 
+  private var label: String {
+    if let heardToken { return "Heard it — “\(heardToken)”!" }
+    return hearing.map { "Hearing “\($0)”" } ?? "Say the word"
+  }
+
+  private var disc: some View {
+    Image(systemName: heardToken == nil ? "mic.fill" : "checkmark")
+      .font(.system(size: geometry.scaled(16), weight: .heavy))
+      .foregroundStyle(.white)
+      .frame(width: geometry.scaled(36), height: geometry.scaled(36))
+      .background(heardToken == nil ? Palette.teal : Palette.heardIcon, in: .circle)
+      .overlay(Circle().strokeBorder(Palette.outline, lineWidth: geometry.scaled(3)))
+  }
+
   private var bars: some View {
-    HStack(alignment: .bottom, spacing: geometry.scaled(3)) {
+    HStack(alignment: .bottom, spacing: geometry.scaled(3.5)) {
       ForEach(Array(Self.barHeights.enumerated()), id: \.offset) { index, height in
         Bar(
           restingHeight: geometry.scaled(height),
@@ -63,7 +64,7 @@ struct MicPill: View {
         )
       }
     }
-    .frame(height: geometry.scaled(18), alignment: .bottom)
+    .frame(height: geometry.scaled(20), alignment: .bottom)
   }
 
   private struct Bar: View {
@@ -75,10 +76,14 @@ struct MicPill: View {
     @State private var extended = false
 
     var body: some View {
-      Capsule()
-        .fill(Palette.listenBars)
+      RoundedRectangle(cornerRadius: geometry.scaled(3))
+        .fill(Palette.teal)
+        .overlay {
+          RoundedRectangle(cornerRadius: geometry.scaled(3))
+            .strokeBorder(Palette.outline, lineWidth: geometry.scaled(1.5))
+        }
         .frame(
-          width: geometry.scaled(4),
+          width: geometry.scaled(6),
           height: extended ? geometry.scaled(MicPill.barRange.upperBound) : restingHeight
         )
         .onAppear {

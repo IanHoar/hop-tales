@@ -6,10 +6,10 @@ public final class WorldScene: SKScene {
   public private(set) var progress: Double = 0
   public private(set) var stage: WorldStage = .meadow
 
-  public static let textureWidth: CGFloat = 2340
   public static let crossfade: TimeInterval = 0.6
   public static let scrollDuration: TimeInterval = 0.6
   static let scrollKey = "scroll"
+  static let artName = "art"
 
   let world = SKNode()
   let skyNode = SKSpriteNode()
@@ -19,8 +19,10 @@ public final class WorldScene: SKScene {
   let actorLayer = SKNode()
   let companionLayer = SKNode()
   let particleLayer = SKNode()
+  let knight = KnightNode()
+  let dragon = DragonNode()
   let particles = AmbientParticles.emitter()
-  static let companionHome = CGPoint(x: 150, y: WorldMetrics.size.height - 436)
+  static let companionHome = CGPoint(x: 118, y: WorldMetrics.size.height - 441)
 
   public var companion: any Companion = FoxNode() {
     didSet {
@@ -67,27 +69,31 @@ public final class WorldScene: SKScene {
     layOut()
   }
 
+  private var artLayers: [(WorldArt.Layer, SKNode)] {
+    [(.far, farLayer), (.mid, midLayer), (.near, nearLayer)]
+  }
+
   private func mountArt() {
+    let tone = WorldArt.Tone(stage: stage)
     skyNode.anchorPoint = .zero
     skyNode.zPosition = -40
     skyNode.size = WorldMetrics.size
-    skyNode.texture = WorldArt.sky(stage).map(SKTexture.init(image:))
+    skyNode.texture = WorldArt(.sky, tone).texture().map(SKTexture.init(image:))
 
-    let parallax: [(WorldArt, SKNode)] = [
-      (.layerFar, farLayer),
-      (.layerMid, midLayer),
-      (.layerNear, nearLayer)
-    ]
-    for (depth, pair) in parallax.enumerated() {
+    for (depth, pair) in artLayers.enumerated() {
       let (art, layer) = pair
       layer.zPosition = CGFloat(depth - 3) * 10
-      guard let image = art.image(width: Self.textureWidth) else { continue }
-      let sprite = SKSpriteNode(texture: SKTexture(image: image))
+      let sprite = SKSpriteNode()
+      sprite.name = Self.artName
       sprite.anchorPoint = .zero
       sprite.size = WorldMetrics.size
+      sprite.texture = WorldArt(art, tone).texture().map(SKTexture.init(image:))
       layer.addChild(sprite)
     }
     actorLayer.zPosition = 0
+    actorLayer.addChild(knight)
+    actorLayer.addChild(dragon)
+    grade(for: stage)
   }
 
   private func layOut() {
@@ -104,6 +110,8 @@ public final class WorldScene: SKScene {
     let travelled = lastNearX - nearLayer.position.x
     lastNearX = nearLayer.position.x
     companion.update(elapsed: elapsed, travelled: travelled)
+    knight.update(elapsed: elapsed, foxAt: Self.companionHome.x - nearLayer.position.x)
+    dragon.update(elapsed: elapsed)
   }
 
   private func mountParticles() {
@@ -171,27 +179,52 @@ public final class WorldScene: SKScene {
     }
   }
 
+  public func roar() {
+    dragon.roar()
+  }
+
+  private func grade(for stage: WorldStage) {
+    let dusk = stage == .dragon
+    for node in [knight.body, dragon.body, dragon.wing] {
+      node.color = UIColor(red: 0.8, green: 0.78, blue: 0.88, alpha: 1)
+      node.colorBlendFactor = dusk ? 0.2 : 0
+    }
+  }
+
   public func setStage(_ stage: WorldStage, animated: Bool = true) {
     self.stage = stage
     tintParticles()
-    guard let sky = WorldArt.sky(stage) else { return }
-    let texture = SKTexture(image: sky)
-    guard animated else {
-      skyNode.texture = texture
+    grade(for: stage)
+    let tone = WorldArt.Tone(stage: stage)
+    crossfade(skyNode, in: world, to: WorldArt(.sky, tone), animated: animated)
+    for (art, layer) in artLayers {
+      guard let sprite = layer.childNode(withName: Self.artName) as? SKSpriteNode else { continue }
+      crossfade(sprite, in: layer, to: WorldArt(art, tone), animated: animated)
+    }
+  }
+
+  private func crossfade(
+    _ sprite: SKSpriteNode,
+    in parent: SKNode,
+    to art: WorldArt,
+    animated: Bool
+  ) {
+    guard let image = art.texture() else { return }
+    let texture = SKTexture(image: image)
+    guard animated, sprite.parent != nil else {
+      sprite.texture = texture
       return
     }
     let incoming = SKSpriteNode(texture: texture)
     incoming.anchorPoint = .zero
-    incoming.size = skyNode.size
-    incoming.zPosition = skyNode.zPosition + 1
+    incoming.size = sprite.size
+    incoming.position = sprite.position
+    incoming.zPosition = sprite.zPosition + 1
     incoming.alpha = 0
-    world.addChild(incoming)
-    let crossfade = SKAction.sequence([
-      SKAction.fadeIn(withDuration: Self.crossfade),
-      SKAction.removeFromParent()
-    ])
-    incoming.run(crossfade) { [weak self] in
-      self?.skyNode.texture = texture
+    parent.addChild(incoming)
+    let fade = SKAction.sequence([.fadeIn(withDuration: Self.crossfade), .removeFromParent()])
+    incoming.run(fade) { [weak sprite] in
+      sprite?.texture = texture
     }
   }
 
