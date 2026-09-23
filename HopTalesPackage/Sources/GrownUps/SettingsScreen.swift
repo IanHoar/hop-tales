@@ -122,7 +122,7 @@ public struct SettingsScreen: View {
   public var body: some View {
     ScrollView {
       VStack(alignment: .leading, spacing: 30) {
-        Text("Grown-ups")
+        Text("Settings")
           .font(Typography.display(32))
           .foregroundStyle(Palette.ink)
           .accessibilityAddTraits(.isHeader)
