@@ -19,17 +19,17 @@ struct WordRowTests {
   @Test func theReferencePhoneNeedsNoScaling() {
     let geometry = Self.phone
     #expect(geometry.scale == 1)
-    #expect(geometry.cardSize == CGSize(width: 358, height: 196))
+    #expect(geometry.cardSize == CGSize(width: 362, height: 190))
 
-    #expect(geometry.cardCenter == CGPoint(x: 195, y: 550))
+    #expect(geometry.cardCenter == CGPoint(x: 195, y: 563))
     #expect(geometry.currentWordSize == 64)
-    #expect(geometry.sideWordSize == 22)
+    #expect(geometry.sideWordSize == 21)
   }
 
   @Test func widthsScaleWithTheScreenAndHeightsStayProportional() {
     let wide = ReadingGeometry(size: CGSize(width: 780, height: 1688))
     #expect(wide.scale == 2)
-    #expect(wide.cardSize == CGSize(width: 716, height: 392))
+    #expect(wide.cardSize == CGSize(width: 724, height: 380))
     #expect(wide.currentWordSize == 128)
 
     #expect(wide.y(422) == 844)
@@ -47,7 +47,7 @@ struct WordRowTests {
     #expect(size < Self.phone.currentWordSize)
 
     #expect(size >= Self.phone.currentWordSize / 2)
-    #expect(Self.phone.cardSize.width == 358)
+    #expect(Self.phone.cardSize.width == 362)
   }
 
   @Test func onlyTheNeighbouringWordsCompeteForTheSpace() {

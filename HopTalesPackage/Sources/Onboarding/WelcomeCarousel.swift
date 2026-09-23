@@ -47,7 +47,7 @@ struct WelcomeCarousel: View {
         .padding(.horizontal, 24)
         .padding(.bottom, 16)
     }
-    .background(Palette.cream.ignoresSafeArea())
+    .background(Palette.page.ignoresSafeArea())
     .toolbar(.hidden, for: .navigationBar)
   }
 
@@ -82,8 +82,8 @@ struct SlideDots: View {
 struct HopArt: View {
   var body: some View {
     ZStack {
-      RoundedRectangle(cornerRadius: 34, style: .continuous)
-        .fill(Palette.creamDeep)
+      Color.clear
+        .parchmentBevel(RoundedRectangle(cornerRadius: 32, style: .continuous), border: 4, drop: 6)
       VStack(spacing: 18) {
         Circle()
           .fill(
@@ -101,7 +101,13 @@ struct HopArt: View {
             .foregroundStyle(Palette.pillText)
             .padding(.horizontal, 9)
             .padding(.vertical, 3)
-            .background(Palette.pillBg, in: .rect(cornerRadius: 10))
+            .bevel(
+              Palette.goldLight,
+              lip: Palette.gold,
+              shape: RoundedRectangle(cornerRadius: 12, style: .continuous),
+              border: 2.5,
+              drop: 3
+            )
           Text("cat")
             .font(Typography.word(64))
             .foregroundStyle(Palette.ink)
@@ -118,7 +124,11 @@ struct HopArt: View {
 struct WorldArt: View {
   var body: some View {
     WorldView(progress: 700)
-      .clipShape(.rect(cornerRadius: 34, style: .continuous))
+      .clipShape(.rect(cornerRadius: 32, style: .continuous))
+      .overlay {
+        RoundedRectangle(cornerRadius: 32, style: .continuous)
+          .strokeBorder(Palette.outline, lineWidth: 4)
+      }
       .allowsHitTesting(false)
       .accessibilityHidden(true)
   }
@@ -127,8 +137,8 @@ struct WorldArt: View {
 struct PrivacyArt: View {
   var body: some View {
     ZStack {
-      RoundedRectangle(cornerRadius: 34, style: .continuous)
-        .fill(Palette.creamDeep)
+      Color.clear
+        .parchmentBevel(RoundedRectangle(cornerRadius: 32, style: .continuous), border: 4, drop: 6)
       HStack(spacing: 22) {
         badge("iphone")
         badge("lock.fill")
@@ -141,8 +151,8 @@ struct PrivacyArt: View {
   private func badge(_ symbol: String) -> some View {
     Image(systemName: symbol)
       .font(.system(size: 34, weight: .semibold))
-      .foregroundStyle(Palette.amberDeep)
+      .foregroundStyle(Palette.onTeal)
       .frame(width: 84, height: 84)
-      .background(Palette.cream, in: .circle)
+      .bevel(Palette.teal, lip: Palette.tealShade, shape: Circle(), border: 3, drop: 4)
   }
 }

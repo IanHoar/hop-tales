@@ -258,7 +258,7 @@ public struct ReadingScreen: View {
     if freezesMotion {
       Color(hex: 0x8FCB6B)
     } else {
-      WorldView(progress: store.worldProgress)
+      WorldView(progress: store.worldProgress, finale: isFinished)
     }
   }
 
@@ -277,6 +277,11 @@ public struct ReadingScreen: View {
     .accessibilityHint("Double tap to hear the word.")
     .accessibilityAddTraits(.startsMediaSession)
     .accessibilityAction { store.send(.currentWordTapped) }
+  }
+
+  private var isFinished: Bool {
+    guard case .story = store.completed else { return false }
+    return true
   }
 
   private var hearing: String? {
@@ -312,20 +317,27 @@ public struct ReadingScreen: View {
         .padding(.bottom, geometry.scaled(Self.pillToEdge))
         .frame(width: proxy.size.width, height: proxy.size.height)
 
+        VStack(spacing: 0) {
+          ReadingTopBar(title: store.story.title, stars: store.stars, geometry: geometry) {
+            store.send(.backToStoriesTapped)
+          }
+          .padding(.top, geometry.scaled(6))
+          Spacer()
+        }
+
         if let chip {
           StarChip(stars: chip.stars, geometry: geometry)
             .id(chip.count)
-            .position(x: geometry.scaled(290), y: geometry.y(118))
+            .position(x: proxy.size.width - geometry.scaled(58), y: geometry.scaled(96))
         }
 
         #if DEBUG
           DebugControls(store: store)
-            .position(x: proxy.size.width / 2, y: geometry.y(70))
+            .position(x: proxy.size.width / 2, y: geometry.scaled(150))
         #endif
       }
     }
-    .navigationTitle(store.story.title)
-    .navigationBarTitleDisplayMode(.inline)
+    .toolbar(.hidden, for: .navigationBar)
     .overlay {
       if let authorization = store.authorization, authorization != .authorized {
         ListeningUnavailable(authorization: authorization) {

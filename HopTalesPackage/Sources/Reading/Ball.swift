@@ -79,27 +79,13 @@ struct Ball: View {
 
   private func shadow(x: CGFloat, height: CGFloat) -> some View {
     Ellipse()
-      .fill(Palette.ink.opacity(0.14 * (1 - 0.5 * height)))
+      .fill(Palette.outline.opacity(0.18 * (1 - 0.5 * height)))
       .frame(width: geometry.scaled(34) * (1 - 0.35 * height), height: geometry.scaled(8))
       .position(x: geometry.cardSize.width / 2 + x, y: shadowY)
   }
 
   private var sphere: some View {
-    Circle()
-      .fill(
-        RadialGradient(
-          colors: [Palette.ballHi, Palette.ball, Palette.ballLo],
-          center: UnitPoint(x: 0.35, y: 0.3),
-          startRadius: 0,
-          endRadius: radius * 1.6
-        )
-      )
-      .overlay(alignment: .topLeading) {
-        Circle()
-          .fill(Color(hex: 0xFFF1DC, opacity: 0.9))
-          .frame(width: radius * 0.52, height: radius * 0.52)
-          .offset(x: radius * 0.18, y: radius * 0.22)
-      }
+    InkBall(radius: radius)
   }
 
   private func hop(to target: BallTarget) {
@@ -138,5 +124,29 @@ struct Ball: View {
           .buttonStyle(.borderedProminent)
       }
     }
+  }
+}
+
+struct InkBall: View {
+  let radius: CGFloat
+
+  var body: some View {
+    ZStack(alignment: .topLeading) {
+      Circle().fill(Palette.ballShade)
+      Circle()
+        .fill(Palette.ball)
+        .offset(x: -radius * 0.16, y: -radius * 0.22)
+      Ellipse()
+        .fill(Palette.ballLight)
+        .frame(width: radius * 0.59, height: radius * 0.41)
+        .rotationEffect(.degrees(-30))
+        .offset(x: radius * 0.52, y: radius * 0.5)
+      Circle()
+        .fill(Palette.ballLight)
+        .frame(width: radius * 0.21, height: radius * 0.21)
+        .offset(x: radius * 1.22, y: radius * 0.44)
+    }
+    .clipShape(Circle())
+    .overlay { Circle().strokeBorder(Palette.outline, lineWidth: max(2, radius * 0.17)) }
   }
 }

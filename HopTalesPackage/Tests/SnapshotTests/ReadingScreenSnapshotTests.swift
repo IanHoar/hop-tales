@@ -21,19 +21,34 @@ struct ReadingScreenSnapshotTests {
     traits: UITraitCollection(userInterfaceIdiom: .phone)
   )
 
-  @Test func theChromeStacksWithoutOverlapOnALargePhone() {
+  static func device(_ config: ViewImageConfig, _ scheme: ColorScheme) -> ViewImageConfig {
+    var config = config
+    config.traits = UITraitCollection(traitsFrom: [
+      config.traits,
+      UITraitCollection(userInterfaceStyle: scheme == .dark ? .dark : .light)
+    ])
+    return config
+  }
+
+  @Test(arguments: [ColorScheme.light, .dark])
+  func theChromeStacksWithoutOverlapOnALargePhone(scheme: ColorScheme) {
     expectSnapshot(
-      of: ReadingScreenPreview().environment(\.freezesMotion, true),
-      as: .image(layout: .device(config: Self.largePhone)),
-      named: "large"
+      of: ReadingScreenPreview()
+        .environment(\.freezesMotion, true)
+        .environment(\.colorScheme, scheme),
+      as: .image(layout: .device(config: Self.device(Self.largePhone, scheme))),
+      named: "large-\(scheme)"
     )
   }
 
-  @Test func theChromeStacksWithoutOverlapOnASmallPhone() {
+  @Test(arguments: [ColorScheme.light, .dark])
+  func theChromeStacksWithoutOverlapOnASmallPhone(scheme: ColorScheme) {
     expectSnapshot(
-      of: ReadingScreenPreview().environment(\.freezesMotion, true),
-      as: .image(layout: .device(config: Self.smallPhone)),
-      named: "small"
+      of: ReadingScreenPreview()
+        .environment(\.freezesMotion, true)
+        .environment(\.colorScheme, scheme),
+      as: .image(layout: .device(config: Self.device(Self.smallPhone, scheme))),
+      named: "small-\(scheme)"
     )
   }
 }

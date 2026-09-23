@@ -1,0 +1,54 @@
+{
+  "canvas": {
+    "x": -120.0,
+    "y": -160.0,
+    "width": 240.0,
+    "height": 170.0
+  },
+  "pivots": {
+    "fox-shadow": {
+      "x": 2,
+      "y": 1
+    },
+    "fox-tail": {
+      "x": -24,
+      "y": -54
+    },
+    "fox-leg-far-rear": {
+      "x": -20,
+      "y": -28
+    },
+    "fox-leg-far-front": {
+      "x": 18,
+      "y": -28
+    },
+    "fox-body": {
+      "x": 0,
+      "y": -40
+    },
+    "fox-leg-near-rear": {
+      "x": -12,
+      "y": -26
+    },
+    "fox-leg-near-front": {
+      "x": 26,
+      "y": -26
+    },
+    "fox-scarf": {
+      "x": 10,
+      "y": -60
+    },
+    "fox-head-idle": {
+      "x": 18,
+      "y": -66
+    },
+    "fox-head-happy": {
+      "x": 18,
+      "y": -66
+    },
+    "fox-wrap": {
+      "x": 26,
+      "y": -58
+    }
+  }
+}

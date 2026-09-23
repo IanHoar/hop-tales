@@ -27,7 +27,7 @@ enum WordDisplayState: Equatable {
     case .completed: Palette.pillText
     case .current: Palette.ink
     case .next: Palette.muted
-    case .recognised: Palette.flashText
+    case .recognised: Palette.onAccent
     case .upcoming: Palette.faint
     }
   }
@@ -144,15 +144,27 @@ struct WordLabel: View {
   private var pill: some View {
     switch state {
     case .completed:
-      RoundedRectangle(cornerRadius: geometry.scaled(10), style: .continuous)
-        .fill(Palette.pillBg)
+      Color.clear.bevel(
+        Palette.goldLight,
+        lip: Palette.gold,
+        shape: RoundedRectangle(cornerRadius: geometry.scaled(12), style: .continuous),
+        border: geometry.scaled(2.5),
+        drop: geometry.scaled(3)
+      )
     case .recognised:
-      RoundedRectangle(cornerRadius: geometry.scaled(14), style: .continuous)
-        .fill(Palette.amber)
-        .overlay {
-          RoundedRectangle(cornerRadius: geometry.scaled(14), style: .continuous)
-            .strokeBorder(Palette.amber.opacity(0.28), lineWidth: geometry.scaled(5))
-            .padding(-geometry.scaled(5))
+      let shape = RoundedRectangle(cornerRadius: geometry.scaled(14), style: .continuous)
+      Color.clear
+        .bevel(
+          Palette.gold,
+          lip: Palette.goldShade,
+          shape: shape,
+          border: geometry.scaled(3),
+          drop: geometry.scaled(4)
+        )
+        .background {
+          shape
+            .fill(Palette.goldLight.opacity(0.6))
+            .padding(-geometry.scaled(6))
         }
     default:
       EmptyView()

@@ -15,7 +15,7 @@ struct ListeningUnavailable: View {
           .font(.system(size: 44, weight: .light))
           .foregroundStyle(Palette.muted)
         Text(headline)
-          .font(Typography.ui(24))
+          .font(Typography.display(26))
           .foregroundStyle(Palette.ink)
           .multilineTextAlignment(.center)
         Text(explanation)
@@ -24,21 +24,22 @@ struct ListeningUnavailable: View {
           .multilineTextAlignment(.center)
         Button(action: action) {
           Text("Back to stories")
-            .font(Typography.ui(17))
-            .foregroundStyle(Palette.cream)
             .frame(maxWidth: .infinity)
-            .frame(height: 58)
-            .background(Palette.ink, in: .capsule)
         }
+        .buttonStyle(.ink(.primary))
         .padding(.top, 6)
       }
       .padding(28)
       .frame(maxWidth: 330)
-      .background {
-        RoundedRectangle(cornerRadius: 34, style: .continuous)
-          .fill(Palette.cream)
-          .shadow(color: Palette.ink.opacity(0.3), radius: 30, x: 0, y: 16)
-      }
+      .bevel(
+        Palette.parchment,
+        lip: Palette.parchmentLip,
+        shape: RoundedRectangle(cornerRadius: 32, style: .continuous),
+        border: 4,
+        drop: 6,
+        lipHeight: 9
+      )
+      .shadow(color: Color(hex: 0x0C0A1E, opacity: 0.32), radius: 17, x: 0, y: 22)
     }
   }
 

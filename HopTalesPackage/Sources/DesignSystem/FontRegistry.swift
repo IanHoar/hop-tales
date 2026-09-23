@@ -1,0 +1,18 @@
+import CoreText
+import Foundation
+
+public enum FontRegistry {
+  public static let faces = [
+    "Andika-Bold", "Fredoka-Medium", "Fredoka-SemiBold", "Fredoka-Bold", "LilitaOne"
+  ]
+
+  static let registered: Bool = {
+    guard let urls = Bundle.module.urls(forResourcesWithExtension: "ttf", subdirectory: nil)
+    else { return false }
+    CTFontManagerRegisterFontURLs(urls as CFArray, .process, true, nil)
+    return true
+  }()
+
+  @discardableResult
+  public static func register() -> Bool { registered }
+}
