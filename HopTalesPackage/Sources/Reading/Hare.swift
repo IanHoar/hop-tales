@@ -78,6 +78,7 @@ struct Hare: View {
         .scaleEffect(x: pose.scaleX, y: pose.scaleY, anchor: .center)
         .position(x: centre, y: -Self.size(pose.lift, on: geometry))
     }
+    .transaction { $0.animation = nil }
   }
 
   private func hop(to target: HopTarget) {
@@ -92,7 +93,11 @@ struct Hare: View {
     hops += 1
     let current = hops
     if plan.carried {
-      onSettle(target, .timingCurve(Motion.rideCurve, duration: landing))
+      Task { @MainActor in
+        try? await Task.sleep(for: .seconds(HareMotion.takeOff))
+        guard hops == current else { return }
+        onSettle(target, .timingCurve(Motion.rideCurve, duration: HareMotion.airTime))
+      }
       return
     }
     Task { @MainActor in

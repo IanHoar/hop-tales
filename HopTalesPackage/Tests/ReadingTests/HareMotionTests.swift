@@ -34,6 +34,37 @@ struct HareMotionTests {
     #expect(motion.lift(at: 7.0 / 14) == 0)
   }
 
+  @Test func aNewSentenceIsABiggerJump() {
+    var motion = HareMotion()
+    motion.jump(at: 0, distance: 400, carried: true)
+    #expect(abs(motion.lift(at: 4.0 / 14) - HareMotion.sentenceApex) < 0.0001)
+    #expect(HareMotion.sentenceApex > HareMotion.apex)
+    #expect(abs(HareMotion.takeOff + HareMotion.airTime - 7.0 / 14) < 0.0001)
+  }
+
+  @Test func aWordReadMidHopLandsOnThatWordWithoutOvershooting() {
+    var motion = HareMotion()
+    motion.jump(at: 0, distance: 80, carried: false)
+    let length = motion.jump(at: 4.0 / 14, distance: 150, carried: false)
+    let landing = 4.0 / 14 + length
+    #expect(abs(motion.x(at: landing - 0.001) - 150) < 0.5)
+  }
+
+  @Test func fastReadingSpeedsTheHopsUpAndCalmsDownAfter() {
+    var motion = HareMotion()
+    let first = motion.jump(at: 0, distance: 80, carried: false)
+    let second = motion.jump(at: 0.1, distance: 160, carried: false)
+    let third = motion.jump(at: 0.2, distance: 240, carried: false)
+    #expect(second < first)
+    #expect(third < second)
+    for step in 1...10 {
+      motion.jump(at: 0.2 + Double(step) * 0.05, distance: 300, carried: false)
+    }
+    #expect(motion.hop?.rate == HareMotion.fastestRate)
+    let calm = motion.jump(at: 10, distance: 60, carried: false)
+    #expect(abs(calm - first) < 0.0001)
+  }
+
   @Test func afterLandingHeRidesTheWordsBackToTheCentre() {
     var motion = HareMotion()
     let landing = motion.jump(at: 0, distance: 80, carried: false)
