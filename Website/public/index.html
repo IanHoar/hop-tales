@@ -4,16 +4,17 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Hop Tales — a read-aloud adventure for new readers</title>
-  <meta name="description" content="Hop Tales listens while your child reads aloud. Every word they say bounces the ball forward — and carries Pip the fox from a sunny meadow to a dragon's hill.">
-  <meta name="theme-color" content="#1D1A2C">
+  <meta name="description" content="Hop Tales listens while your child reads aloud. Every word they say carries the hare a little further through a storybook meadow that changes as the story goes.">
+  <meta name="theme-color" content="#F4EBD8">
   <meta name="apple-itunes-app" content="app-id=6814702992">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
-  <link rel="preload" href="assets/fonts/lilita-one.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/fraunces-700.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/fredoka-500.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/art/meadow.webp" as="image" type="image/webp" fetchpriority="high">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Hop Tales — a read-aloud adventure for new readers">
-  <meta property="og:description" content="Read a word. Watch the world grow.">
+  <meta property="og:description" content="Read a word. Watch him hop.">
   <meta property="og:url" content="https://hoptales.com/">
   <meta property="og:image" content="https://hoptales.com/assets/og.jpg">
   <meta name="twitter:card" content="summary_large_image">
@@ -22,176 +23,169 @@
 </head>
 <body>
   <header class="site-nav site-nav--overlay">
-    <a class="site-nav__home" href="./">
-      <svg class="wordmark" width="198" height="51" viewBox="0 0 208 54" role="img" aria-label="Hop Tales"><text class="wordmark__ink" x="104" y="43" text-anchor="middle" font-size="44" letter-spacing="1">Hop Tales</text><text class="wordmark__shine" x="104" y="43" text-anchor="middle" font-size="44" letter-spacing="1" transform="translate(-0.5 -1)" aria-hidden="true">Hop Tales</text></svg>
+    <a class="brand" href="./">
+      <picture><source srcset="assets/art/icon-96.webp" type="image/webp"><img class="brand__icon" src="assets/art/icon-96.png" width="46" height="46" alt=""></picture>
+      <span class="brand__name">Hop Tales</span>
     </a>
     <nav aria-label="Main">
       <ul class="site-nav__links">
         <li><a href="#how">How it works</a></li>
-        <li><a href="#parents">For parents</a></li>
+        <li><a href="#parents">For grown-ups</a></li>
         <li><a href="privacy.html">Privacy</a></li>
         <li><a href="terms.html">Terms</a></li>
-        <li><a class="app-store-badge" href="download/"><img src="assets/app-store-badge.svg" width="150" height="50" alt="Download on the App Store"></a></li>
+        <li><a class="app-store-badge" href="download/"><img src="assets/app-store-badge.svg" width="138" height="46" alt="Download on the App Store"></a></li>
       </ul>
     </nav>
-    <a class="site-nav__get" href="download/">Get it</a>
+    <a class="site-nav__get" href="download/">Get the app</a>
   </header>
 
   <main id="main">
     <section class="hero" aria-labelledby="hero-title">
-      <div class="hero__stage">
-        <div class="hero__world" aria-hidden="true">
-          <img class="world world--sky" src="assets/world/sky-day.svg" width="2340" height="844" alt="">
-          <img class="world world--far" src="assets/world/far-day.svg" width="2340" height="844" alt="">
-          <img class="world world--mid" src="assets/world/mid-day.svg" width="2340" height="844" alt="">
-          <img class="world world--near" src="assets/world/near-day.svg" width="2340" height="844" alt="">
-        </div>
-        <img class="hero__pip" src="assets/sprites/fox.svg" width="240" height="170" alt="">
+      <picture class="hero__world">
+        <source srcset="assets/art/meadow.webp" type="image/webp">
+        <img src="assets/art/meadow.jpg" width="1584" height="672" alt="" fetchpriority="high">
+      </picture>
+      <div class="hero__inner">
         <div class="hero__copy">
-          <svg class="ribbon" width="300" height="52" viewBox="0 0 300 52" role="img" aria-label="A read-aloud adventure"><path d="M4 10 L 22 10 L 22 46 L 4 46 L 13 28.0 Z" fill="#A3141D" stroke="#1D1A2C" stroke-width="3" stroke-linejoin="round"/><path d="M296 10 L 278 10 L 278 46 L 296 46 L 287 28.0 Z" fill="#A3141D" stroke="#1D1A2C" stroke-width="3" stroke-linejoin="round"/><path d="M16 4 L 284 4 L 284 42 L 16 42 Z" fill="#DB2A2E" stroke="#1D1A2C" stroke-width="3" stroke-linejoin="round"/><path d="M19 8 L 281 8" stroke="#FF6A55" stroke-width="3" stroke-linecap="round"/><text x="150" y="30" text-anchor="middle" font-size="16" fill="#FFF3D6" stroke="#1D1A2C" stroke-width="4" paint-order="stroke" letter-spacing="1">A READ-ALOUD ADVENTURE</text></svg>
-          <h1 id="hero-title" class="outlined">Read a word.<br> Watch the world grow.</h1>
-        </div>
-        <div class="hero__phones">
-          <div class="phone phone--dragon">
-            <img src="assets/shots/inkdragon.jpg" width="780" height="1688" alt="Hop Tales at dragon's hill at dusk, with the word 'guarded' on the card">
-          </div>
-          <div class="phone phone--heard">
-            <img src="assets/shots/inkheard.jpg" width="780" height="1688" alt="Hop Tales reading screen: the word 'sat' just heard">
+          <p class="paper-label">A read-aloud adventure</p>
+          <h1 id="hero-title">Read a word.<br> Watch him hop.</h1>
+          <p class="hero__lead"><span class="wide-only">Hop Tales listens while your child reads aloud. Every word they say</span><span class="narrow-only">Every word your child reads aloud</span> carries the hare a little further through a storybook meadow<span class="wide-only"> that changes as the story goes</span>.</p>
+          <div class="hero__cta">
+            <a class="app-store-badge app-store-badge--hero" href="download/"><img src="assets/app-store-badge.svg" width="174" height="58" alt="Download on the App Store"></a>
+            <p class="hero__platforms"><span>iPhone &amp; iPad</span> <span>Plays on your TV with AirPlay</span></p>
           </div>
         </div>
-      </div>
-      <div class="hero__card bevel bevel--large">
-        <p class="hero__lead">Hop Tales listens while your child reads aloud. Every word they say bounces the ball forward — and carries Pip the fox from a sunny meadow to a dragon's hill.</p>
-        <div class="hero__cta">
-          <a class="app-store-badge" href="download/"><img src="assets/app-store-badge.svg" width="192" height="64" alt="Download on the App Store"></a>
-          <p class="hero__platforms"><span>iPhone &amp; iPad</span> <span>Plays on your TV with AirPlay</span></p>
+        <div class="hero__art">
+          <picture>
+            <source srcset="assets/art/hare-bound.webp" type="image/webp">
+            <img class="hero__hare" src="assets/art/hare-bound.png" width="900" height="598" alt="">
+          </picture>
+          <div class="phone hero__phone">
+            <picture>
+              <source srcset="assets/shots/phone-read.webp" type="image/webp">
+              <img src="assets/shots/phone-read.jpg" width="480" height="1039" alt="Hop Tales reading screen: the hare sits above the word card, with 'hare' read and 'ran' up next">
+            </picture>
+          </div>
         </div>
       </div>
     </section>
 
     <section id="how" class="how" aria-labelledby="how-title">
-      <div class="container">
-        <h2 id="how-title" class="section-title">How it works</h2>
-        <p class="section-sub">Three beats, over and over, until the story is done.</p>
+      <div class="wrap">
+        <header class="section-head">
+          <h2 id="how-title">How it works</h2>
+          <p class="section-sub">Three beats, over and over, until the story is done.</p>
+        </header>
         <ol class="steps">
-          <li class="step bevel bevel--large">
-            <div class="step__art" aria-hidden="true">
-              <span class="mic-pill bevel"><span class="mic-pill__disc"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="#fff"/><path d="M6 11 a6 6 0 0 0 12 0 M12 17 v3" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg></span><span class="mic-pill__bars"><span></span><span></span><span></span><span></span><span></span></span>Say the word</span>
-            </div>
-            <h3 class="step__title"><span class="step__num" aria-hidden="true">1</span>Say the word</h3>
-            <p>A big word sits on the card. Your child reads it out loud and Hop Tales listens, right on the device.</p>
+          <li class="paper paper--a step">
+            <h3 class="step__title"><span class="step__num">1</span> Say the word</h3>
+            <p>A big word sits on the paper card. Your child reads it out loud, and Hop Tales listens right on the device.</p>
           </li>
-          <li class="step bevel bevel--large">
-            <div class="step__art step__art--hop" aria-hidden="true">
-              <span class="word-pill">cat</span><svg class="step__ball" width="52" height="52" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17" fill="#FF9A3C"/><path d="M4 24 A 17 17 0 0 0 36 24 A 20 12 0 0 1 4 24 Z" fill="#D8601A"/><circle cx="20" cy="20" r="17" fill="none" stroke="#1D1A2C" stroke-width="3"/><ellipse cx="14" cy="12" rx="5" ry="3.4" fill="#FFE2B8" transform="rotate(-30 14 12)"/><circle cx="25" cy="10" r="1.8" fill="#FFE2B8"/></svg><span class="step__word">sat</span>
-            </div>
-            <h3 class="step__title"><span class="step__num" aria-hidden="true">2</span>The ball hops</h3>
-            <p>Heard it! The ball bounces to the next word, and the last one tucks into a gold pill.</p>
+          <li class="paper paper--b step">
+            <h3 class="step__title"><span class="step__num">2</span> The hare hops</h3>
+            <p>Heard it! The hare bounds to the next word, and the last one is washed in gold.</p>
           </li>
-          <li class="step bevel bevel--large">
-            <div class="step__art" aria-hidden="true">
-              <img class="step__fox" src="assets/sprites/fox-trot-0.svg" width="190" height="135" alt="" loading="lazy" decoding="async">
-            </div>
-            <h3 class="step__title"><span class="step__num" aria-hidden="true">3</span>The world grows</h3>
-            <p>Every word walks Pip the fox a little further, from a sunny meadow to the castle road to dragon's hill.</p>
+          <li class="paper paper--c step">
+            <h3 class="step__title"><span class="step__num">3</span> The world changes</h3>
+            <p>Word by word the story walks on: clouds gather, rain falls, the sun sets and the moon comes up.</p>
           </li>
         </ol>
       </div>
     </section>
 
-    <section class="stories" aria-labelledby="stories-title">
-      <div class="container">
-        <h2 id="stories-title" class="section-title">Three stories. <br class="mobile-only">One big adventure.</h2>
-        <p class="section-sub">The world changes as they read — morning sun, golden hour, then torches and a dragon at dusk.</p>
-        <ul class="stories__list">
-          <li class="story story--meadow">
-            <div class="phone"><img src="assets/shots/inkmeadow.jpg" width="780" height="1688" alt="Hop Tales in the meadow at morning, with the word 'sat' on the card" loading="lazy" decoding="async"></div>
-            <p class="story__title">Meadow Morning</p>
-            <p class="story__meta">Short words to start</p>
+    <section class="moods" aria-labelledby="moods-title">
+      <div class="wrap">
+        <header class="section-head">
+          <h2 id="moods-title">A world that keeps going</h2>
+          <p class="section-sub"><span class="wide-only">The meadow never runs out. </span>Morning turns to golden hour, storms roll in and clear, and the moon rises<span class="wide-only">, so every story feels like its own little journey</span>.</p>
+        </header>
+        <ul class="moods__list">
+          <li class="mood mood--read">
+            <div class="phone">
+              <picture><source srcset="assets/shots/phone-read.webp" type="image/webp"><img src="assets/shots/phone-read.jpg" width="480" height="1039" alt="The Meadow Walk on a sunny morning, with the hare sitting by the word card" loading="lazy" decoding="async"></picture>
+            </div>
+            <p class="mood__title">The Meadow Walk</p>
+            <p class="mood__meta">a sunny morning</p>
           </li>
-          <li class="story story--castle">
-            <div class="phone"><img src="assets/shots/inkcastle.jpg" width="780" height="1688" alt="Hop Tales on the castle road at golden hour, with the word 'knight' on the card" loading="lazy" decoding="async"></div>
-            <p class="story__title">The Castle Road</p>
-            <p class="story__meta">Meet Sir Pennant</p>
+          <li class="mood mood--storm">
+            <div class="phone">
+              <picture><source srcset="assets/shots/phone-storm.webp" type="image/webp"><img src="assets/shots/phone-storm.jpg" width="480" height="1039" alt="Storm on the Hill: rain falls as the hare leaps through the grass" loading="lazy" decoding="async"></picture>
+            </div>
+            <p class="mood__title">Storm on the Hill</p>
+            <p class="mood__meta">clouds and rain</p>
           </li>
-          <li class="story story--dragon">
-            <div class="phone"><img src="assets/shots/inkdragon.jpg" width="780" height="1688" alt="Hop Tales at dragon's hill at dusk, with the word 'guarded' on the card" loading="lazy" decoding="async"></div>
-            <p class="story__title">Dragon's Hill</p>
-            <p class="story__meta">Longer words, bigger world</p>
+          <li class="mood mood--golden">
+            <div class="phone">
+              <picture><source srcset="assets/shots/phone-golden.webp" type="image/webp"><img src="assets/shots/phone-golden.jpg" width="480" height="1039" alt="Golden Hour: the hare bounds through a meadow in warm evening light" loading="lazy" decoding="async"></picture>
+            </div>
+            <p class="mood__title">Golden Hour</p>
+            <p class="mood__meta">the long way home</p>
+          </li>
+          <li class="mood mood--night">
+            <div class="phone">
+              <picture><source srcset="assets/shots/phone-night.webp" type="image/webp"><img src="assets/shots/phone-night.jpg" width="480" height="1039" alt="Moonlight Hop: the hare leaps under the stars" loading="lazy" decoding="async"></picture>
+            </div>
+            <p class="mood__title">Moonlight Hop</p>
+            <p class="mood__meta">a bedtime story</p>
           </li>
         </ul>
-        <p class="stories__caption">Meadow · Castle Road · Dragon's Hill<br>Morning sun to torches at dusk.</p>
       </div>
     </section>
 
     <section class="tv" aria-labelledby="tv-title">
-      <div class="container tv__inner">
+      <div class="wrap tv__inner">
         <div class="tv__copy">
-          <h2 id="tv-title" class="section-title">Play it on the big screen</h2>
-          <p>AirPlay Hop Tales to your Apple TV. The phone stays in your child's hands and does the listening, while the TV shows the whole world — castle, knight and dragon in one wide view.</p>
+          <h2 id="tv-title">Play it on the big screen</h2>
+          <p><span class="wide-only">AirPlay Hop Tales to your Apple TV. The phone stays in your child's hands and does the listening, while the TV shows the whole meadow.</span><span class="narrow-only">AirPlay to your Apple TV. The phone does the listening; the TV shows the whole meadow.</span></p>
         </div>
-        <div class="tv__set">
-          <div class="tv__screen"><img src="assets/shots/inktv.jpg" width="3840" height="2160" alt="Hop Tales on a TV at dragon's hill: the castle, the knight and the dragon in one wide view, with the word 'guarded' on the card" loading="lazy" decoding="async"></div>
-          <span class="tv__neck"></span>
-          <span class="tv__base"></span>
+        <div class="tv__screen">
+          <picture><source srcset="assets/shots/tv.webp" type="image/webp"><img src="assets/shots/tv.jpg" width="1520" height="855" alt="Hop Tales on an Apple TV: the whole meadow with the oak, the leaping hare and the words 'hare ran up the hill'" loading="lazy" decoding="async"></picture>
         </div>
       </div>
     </section>
 
     <section id="parents" class="parents" aria-labelledby="parents-title">
-      <div class="container">
-        <h2 id="parents-title" class="section-title">For grown-ups</h2>
+      <div class="wrap">
+        <h2 id="parents-title" class="parents__title">For grown-ups</h2>
         <ul class="features">
-          <li class="feature bevel">
-            <span class="feature__icon feature__icon--teal" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="3" fill="#FFF6E2" stroke="#1D1A2C" stroke-width="2.4"/><path d="M8 10 V7 a4 4 0 0 1 8 0 V10" fill="none" stroke="#1D1A2C" stroke-width="2.4"/><circle cx="12" cy="15" r="1.8" fill="#1D1A2C"/></svg></span>
-            <div>
-              <h3 class="feature__title">Private by design</h3>
-              <p>Speech is recognised on the device. No audio is recorded or stored, and nothing is sent anywhere.</p>
-            </div>
+          <li class="paper paper--d feature">
+            <h3 class="feature__title">Private by design</h3>
+            <p>Speech is recognised on the device. No audio is recorded, stored or sent anywhere.</p>
           </li>
-          <li class="feature bevel">
-            <span class="feature__icon feature__icon--gold" aria-hidden="true"><span class="feature__ag">ag</span></span>
-            <div>
-              <h3 class="feature__title">Made for new readers</h3>
-              <p>Words are set in Andika, a typeface built for literacy, with the same a and g shapes kids learn to write.</p>
-            </div>
+          <li class="paper paper--a feature">
+            <h3 class="feature__title">Made for new readers</h3>
+            <p>Big, calm words in a clear storybook typeface, one at a time.</p>
           </li>
-          <li class="feature bevel">
-            <span class="feature__icon feature__icon--coral" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20 C 4 14 3 10 5 7 C 7 4 11 5 12 8 C 13 5 17 4 19 7 C 21 10 20 14 12 20 Z" fill="#FF6A55" stroke="#1D1A2C" stroke-width="2.2" stroke-linejoin="round"/></svg></span>
-            <div>
-              <h3 class="feature__title">Never a wrong answer</h3>
-              <p>Listening is forgiving. If a word gets stuck, Hop Tales reads it aloud — no buzzers, no timers.</p>
-            </div>
+          <li class="paper paper--b feature">
+            <h3 class="feature__title">Never a wrong answer</h3>
+            <p>Listening is forgiving. If a word gets stuck, the hare waits patiently and helps.</p>
           </li>
-          <li class="feature bevel">
-            <span class="feature__icon feature__icon--lilac" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="#FFF6E2" stroke="#1D1A2C" stroke-width="2.4"/><path d="M6.5 6.5 L17.5 17.5" stroke="#1D1A2C" stroke-width="2.4" stroke-linecap="round"/></svg></span>
-            <div>
-              <h3 class="feature__title">No ads, no sign-ups</h3>
-              <p>Nothing to click away to and no account to make. Open it, pick a story, start reading.</p>
-            </div>
+          <li class="paper paper--c feature">
+            <h3 class="feature__title">No ads, no sign-ups</h3>
+            <p>Nothing to click away to and no account to make. Open it, pick a story, read.</p>
           </li>
         </ul>
       </div>
     </section>
 
     <section class="cta" aria-labelledby="cta-title">
-      <div class="cta__world" aria-hidden="true">
-        <img class="world world--sky" src="assets/world/sky-dusk.svg" width="2340" height="844" alt="" loading="lazy" decoding="async">
-        <img class="world world--far" src="assets/world/far-dusk.svg" width="2340" height="844" alt="" loading="lazy" decoding="async">
-        <img class="world world--mid" src="assets/world/mid-dusk.svg" width="2340" height="844" alt="" loading="lazy" decoding="async">
-        <img class="world world--near" src="assets/world/near-dusk.svg" width="2340" height="844" alt="" loading="lazy" decoding="async">
-      </div>
-      <img class="cta__dragon" src="assets/sprites/dragon.svg" width="420" height="368" alt="" loading="lazy" decoding="async">
-      <div class="cta__copy">
-        <h2 id="cta-title" class="outlined">Ready for the dragon?</h2>
-        <p>Download Hop Tales and read the first story together tonight.</p>
-        <a class="app-store-badge" href="download/"><img src="assets/app-store-badge.svg" width="210" height="70" alt="Download on the App Store" loading="lazy"></a>
+      <picture class="cta__world">
+        <source srcset="assets/art/night.webp" type="image/webp">
+        <img src="assets/art/night.jpg" width="1920" height="908" alt="" loading="lazy" decoding="async">
+      </picture>
+      <div class="wrap cta__copy">
+        <h2 id="cta-title">Ready for a story?</h2>
+        <p><span class="wide-only">Download Hop Tales and read</span><span class="narrow-only">Read</span> the first one together tonight.</p>
+        <a class="app-store-badge app-store-badge--cta" href="download/"><img src="assets/app-store-badge.svg" width="186" height="62" alt="Download on the App Store" loading="lazy"></a>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <svg class="wordmark" width="156" height="40" viewBox="0 0 208 54" role="img" aria-label="Hop Tales"><text class="wordmark__ink" x="104" y="43" text-anchor="middle" font-size="44" letter-spacing="1">Hop Tales</text><text class="wordmark__shine" x="104" y="43" text-anchor="middle" font-size="44" letter-spacing="1" transform="translate(-0.5 -1)" aria-hidden="true">Hop Tales</text></svg>
+    <div class="brand brand--footer">
+      <picture><source srcset="assets/art/icon-96.webp" type="image/webp"><img class="brand__icon" src="assets/art/icon-96.png" width="40" height="40" alt="" loading="lazy"></picture>
+      <span class="brand__name">Hop Tales</span>
+    </div>
     <ul class="site-footer__links">
       <li><a href="privacy.html">Privacy Policy</a></li>
       <li><a href="terms.html">Terms of Service</a></li>
