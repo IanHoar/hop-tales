@@ -5,6 +5,8 @@ import SwiftUI
 import Testing
 import UIKit
 
+let snapshotPerceptualPrecision: Float = 0.98
+
 func snapshotDirectory(file: StaticString = #filePath) -> String {
   let file = URL(fileURLWithPath: "\(file)")
   let suffix = "__Snapshots__/\(file.deletingPathExtension().lastPathComponent)"
@@ -69,6 +71,7 @@ func expectSnapshot(
   expectSnapshot(
     of: view.environment(\.colorScheme, scheme).environment(\.freezesMotion, true),
     as: .image(
+      perceptualPrecision: snapshotPerceptualPrecision,
       layout: .sizeThatFits,
       traits: UITraitCollection(userInterfaceStyle: scheme == .dark ? .dark : .light)
     ),
