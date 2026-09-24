@@ -29,8 +29,14 @@ struct HomePreview: View {
     return withDependencies {
       $0[ProgressStore.self] = ProgressStore(load: { saved }, save: { _ in })
     } operation: {
-      Store(initialState: Home.State(childName: variant == .midway ? "Wren" : nil)) { Home() }
+      Store(initialState: state) { Home() }
     }
+  }
+
+  private var state: Home.State {
+    var state = Home.State(childName: variant == .midway ? "Wren" : nil)
+    state.hour = 9
+    return state
   }
 
   private var progress: Content.Progress {
