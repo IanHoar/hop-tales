@@ -30,6 +30,9 @@ struct HareMotion: Equatable {
   static let moveFrames = 1...6
   static let ride: TimeInterval = 0.45
   static let apex: CGFloat = 46
+  static let sentenceApex: CGFloat = 96
+  static let takeOff = Double(moveFrames.lowerBound) / fps
+  static let airTime = Double(moveFrames.count) / fps
   static let breath: TimeInterval = 3.8
   static let breathY: CGFloat = 0.014
   static let breathX: CGFloat = 0.006
@@ -117,7 +120,7 @@ struct HareMotion: Equatable {
     let moveStart = Double(Self.moveFrames.lowerBound) * frameTime
     let progress = (time - hop.start - moveStart) / (Double(Self.moveFrames.count) * frameTime)
     guard progress > 0, progress < 1 else { return 0 }
-    return Self.apex * CGFloat(sin(.pi * progress))
+    return (hop.carried ? Self.sentenceApex : Self.apex) * CGFloat(sin(.pi * progress))
   }
 
   func pose(at time: TimeInterval, reduceMotion: Bool) -> Pose {

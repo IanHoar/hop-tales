@@ -34,6 +34,14 @@ struct HareMotionTests {
     #expect(motion.lift(at: 7.0 / 14) == 0)
   }
 
+  @Test func aNewSentenceIsABiggerJump() {
+    var motion = HareMotion()
+    motion.jump(at: 0, distance: 400, carried: true)
+    #expect(abs(motion.lift(at: 4.0 / 14) - HareMotion.sentenceApex) < 0.0001)
+    #expect(HareMotion.sentenceApex > HareMotion.apex)
+    #expect(abs(HareMotion.takeOff + HareMotion.airTime - 7.0 / 14) < 0.0001)
+  }
+
   @Test func afterLandingHeRidesTheWordsBackToTheCentre() {
     var motion = HareMotion()
     let landing = motion.jump(at: 0, distance: 80, carried: false)
