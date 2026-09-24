@@ -1,6 +1,11 @@
 [
   {
-    "id": "meadow-morning",
+    "id": "meadow-walk",
+    "title": "The Meadow Walk",
+    "mood": {
+      "sky": "day",
+      "weather": "clear"
+    },
     "sentences": [
       {
         "newWord": null,
@@ -10,24 +15,57 @@
             "text": "The"
           },
           {
-            "homophones": [],
-            "text": "cat"
+            "homophones": [
+              "hair"
+            ],
+            "text": "hare"
           },
           {
             "homophones": [],
             "text": "sat"
           },
           {
-            "homophones": [],
-            "text": "on"
+            "homophones": [
+              "inn"
+            ],
+            "text": "in"
           },
           {
             "homophones": [],
             "text": "the"
           },
           {
+            "homophones": [
+              "son"
+            ],
+            "text": "sun"
+          }
+        ]
+      },
+      {
+        "newWord": "scarf",
+        "words": [
+          {
             "homophones": [],
-            "text": "mat"
+            "text": "He"
+          },
+          {
+            "homophones": [],
+            "text": "had"
+          },
+          {
+            "homophones": [],
+            "text": "a"
+          },
+          {
+            "homophones": [
+              "read"
+            ],
+            "text": "red"
+          },
+          {
+            "homophones": [],
+            "text": "scarf"
           }
         ]
       },
@@ -36,187 +74,11 @@
         "words": [
           {
             "homophones": [],
-            "text": "The"
-          },
-          {
-            "homophones": [],
-            "text": "fox"
+            "text": "He"
           },
           {
             "homophones": [],
             "text": "ran"
-          },
-          {
-            "homophones": [
-              "two",
-              "too"
-            ],
-            "text": "to"
-          },
-          {
-            "homophones": [],
-            "text": "the"
-          },
-          {
-            "homophones": [],
-            "text": "tree"
-          }
-        ]
-      },
-      {
-        "newWord": null,
-        "words": [
-          {
-            "homophones": [],
-            "text": "A"
-          },
-          {
-            "homophones": [],
-            "text": "bird"
-          },
-          {
-            "homophones": [],
-            "text": "sang"
-          },
-          {
-            "homophones": [
-              "inn"
-            ],
-            "text": "in"
-          },
-          {
-            "homophones": [],
-            "text": "the"
-          },
-          {
-            "homophones": [
-              "son"
-            ],
-            "text": "sun"
-          }
-        ]
-      },
-      {
-        "newWord": null,
-        "words": [
-          {
-            "homophones": [],
-            "text": "The"
-          },
-          {
-            "homophones": [],
-            "text": "dog"
-          },
-          {
-            "homophones": [],
-            "text": "dug"
-          },
-          {
-            "homophones": [
-              "inn"
-            ],
-            "text": "in"
-          },
-          {
-            "homophones": [],
-            "text": "the"
-          },
-          {
-            "homophones": [],
-            "text": "mud"
-          }
-        ]
-      },
-      {
-        "newWord": null,
-        "words": [
-          {
-            "homophones": [
-              "wee"
-            ],
-            "text": "We"
-          },
-          {
-            "homophones": [],
-            "text": "can"
-          },
-          {
-            "homophones": [],
-            "text": "hop"
-          },
-          {
-            "homophones": [],
-            "text": "and"
-          },
-          {
-            "homophones": [],
-            "text": "skip"
-          }
-        ]
-      },
-      {
-        "newWord": null,
-        "words": [
-          {
-            "homophones": [],
-            "text": "The"
-          },
-          {
-            "homophones": [
-              "son"
-            ],
-            "text": "sun"
-          },
-          {
-            "homophones": [],
-            "text": "is"
-          },
-          {
-            "homophones": [],
-            "text": "up"
-          },
-          {
-            "homophones": [],
-            "text": "and"
-          },
-          {
-            "homophones": [],
-            "text": "it"
-          },
-          {
-            "homophones": [],
-            "text": "is"
-          },
-          {
-            "homophones": [],
-            "text": "fun"
-          }
-        ]
-      }
-    ],
-    "stage": "meadow",
-    "title": "Meadow morning"
-  },
-  {
-    "id": "castle-road",
-    "sentences": [
-      {
-        "newWord": null,
-        "words": [
-          {
-            "homophones": [],
-            "text": "The"
-          },
-          {
-            "homophones": [
-              "rode",
-              "rowed"
-            ],
-            "text": "road"
-          },
-          {
-            "homophones": [],
-            "text": "went"
           },
           {
             "homophones": [],
@@ -236,14 +98,22 @@
         "newWord": null,
         "words": [
           {
+            "homophones": [],
+            "text": "A"
+          },
+          {
             "homophones": [
-              "wee"
+              "be"
             ],
-            "text": "We"
+            "text": "bee"
           },
           {
             "homophones": [],
-            "text": "saw"
+            "text": "sat"
+          },
+          {
+            "homophones": [],
+            "text": "on"
           },
           {
             "homophones": [],
@@ -251,82 +121,10 @@
           },
           {
             "homophones": [],
-            "text": "big"
-          },
-          {
-            "homophones": [
-              "read"
-            ],
-            "text": "red"
-          },
-          {
-            "homophones": [],
-            "text": "flag"
+            "text": "bud"
           }
-        ]
-      },
-      {
-        "newWord": "knight",
-        "words": [
-          {
-            "homophones": [],
-            "text": "The"
-          },
-          {
-            "homophones": [],
-            "text": "young"
-          },
-          {
-            "homophones": [
-              "night"
-            ],
-            "text": "knight"
-          },
-          {
-            "homophones": [
-              "road",
-              "rowed"
-            ],
-            "text": "rode"
-          },
-          {
-            "homophones": [
-              "passed"
-            ],
-            "text": "past"
-          }
-        ]
-      },
-      {
-        "newWord": null,
-        "words": [
-          {
-            "homophones": [],
-            "text": "His"
-          },
-          {
-            "homophones": [],
-            "text": "horse"
-          },
-          {
-            "homophones": [
-              "wuz"
-            ],
-            "text": "was"
-          },
-          {
-            "homophones": [],
-            "text": "brown"
-          },
-          {
-            "homophones": [],
-            "text": "and"
-          },
-          {
-            "homophones": [],
-            "text": "fast"
-          }
-        ]
+        ],
+        "weather": "clouds"
       },
       {
         "newWord": null,
@@ -336,53 +134,20 @@
             "text": "The"
           },
           {
+            "homophones": [
+              "hair"
+            ],
+            "text": "hare"
+          },
+          {
             "homophones": [],
-            "text": "gate"
+            "text": "hid"
           },
           {
             "homophones": [
-              "wuz"
+              "inn"
             ],
-            "text": "was"
-          },
-          {
-            "homophones": [
-              "maid"
-            ],
-            "text": "made"
-          },
-          {
-            "homophones": [],
-            "text": "of"
-          },
-          {
-            "homophones": [
-              "would"
-            ],
-            "text": "wood"
-          }
-        ]
-      },
-      {
-        "newWord": null,
-        "words": [
-          {
-            "homophones": [],
-            "text": "The"
-          },
-          {
-            "homophones": [],
-            "text": "king"
-          },
-          {
-            "homophones": [
-              "waived"
-            ],
-            "text": "waved"
-          },
-          {
-            "homophones": [],
-            "text": "from"
+            "text": "in"
           },
           {
             "homophones": [],
@@ -390,16 +155,480 @@
           },
           {
             "homophones": [],
-            "text": "wall"
+            "text": "long"
+          },
+          {
+            "homophones": [],
+            "text": "grass"
+          }
+        ]
+      },
+      {
+        "newWord": null,
+        "words": [
+          {
+            "homophones": [],
+            "text": "Then"
+          },
+          {
+            "homophones": [],
+            "text": "he"
+          },
+          {
+            "homophones": [],
+            "text": "ran"
+          },
+          {
+            "homophones": [],
+            "text": "on"
+          },
+          {
+            "homophones": [],
+            "text": "and"
+          },
+          {
+            "homophones": [],
+            "text": "on"
           }
         ]
       }
-    ],
-    "stage": "castle",
-    "title": "The castle road"
+    ]
   },
   {
-    "id": "dragons-hill",
+    "id": "golden-hour",
+    "title": "Golden Hour",
+    "mood": {
+      "sky": "day",
+      "weather": "clouds"
+    },
+    "sentences": [
+      {
+        "newWord": null,
+        "words": [
+          {
+            "homophones": [],
+            "text": "The"
+          },
+          {
+            "homophones": [
+              "son"
+            ],
+            "text": "sun"
+          },
+          {
+            "homophones": [],
+            "text": "is"
+          },
+          {
+            "homophones": [],
+            "text": "low"
+          },
+          {
+            "homophones": [],
+            "text": "and"
+          },
+          {
+            "homophones": [],
+            "text": "warm"
+          }
+        ]
+      },
+      {
+        "newWord": "oak",
+        "words": [
+          {
+            "homophones": [],
+            "text": "The"
+          },
+          {
+            "homophones": [
+              "hair"
+            ],
+            "text": "hare"
+          },
+          {
+            "homophones": [],
+            "text": "hops"
+          },
+          {
+            "homophones": [],
+            "text": "past"
+          },
+          {
+            "homophones": [],
+            "text": "the"
+          },
+          {
+            "homophones": [],
+            "text": "old"
+          },
+          {
+            "homophones": [],
+            "text": "oak"
+          }
+        ],
+        "sky": "golden"
+      },
+      {
+        "newWord": null,
+        "words": [
+          {
+            "homophones": [],
+            "text": "He"
+          },
+          {
+            "homophones": [],
+            "text": "stops"
+          },
+          {
+            "homophones": [
+              "two",
+              "too"
+            ],
+            "text": "to"
+          },
+          {
+            "homophones": [],
+            "text": "smell"
+          },
+          {
+            "homophones": [],
+            "text": "the"
+          },
+          {
+            "homophones": [
+              "flours"
+            ],
+            "text": "flowers"
+          }
+        ]
+      },
+      {
+        "newWord": "robin",
+        "words": [
+          {
+            "homophones": [],
+            "text": "A"
+          },
+          {
+            "homophones": [],
+            "text": "robin"
+          },
+          {
+            "homophones": [],
+            "text": "sings"
+          },
+          {
+            "homophones": [],
+            "text": "on"
+          },
+          {
+            "homophones": [],
+            "text": "the"
+          },
+          {
+            "homophones": [],
+            "text": "fence"
+          }
+        ]
+      },
+      {
+        "newWord": null,
+        "words": [
+          {
+            "homophones": [],
+            "text": "The"
+          },
+          {
+            "homophones": [],
+            "text": "fields"
+          },
+          {
+            "homophones": [],
+            "text": "glow"
+          },
+          {
+            "homophones": [
+              "inn"
+            ],
+            "text": "in"
+          },
+          {
+            "homophones": [],
+            "text": "the"
+          },
+          {
+            "homophones": [],
+            "text": "gold"
+          },
+          {
+            "homophones": [],
+            "text": "light"
+          }
+        ]
+      },
+      {
+        "newWord": null,
+        "words": [
+          {
+            "homophones": [],
+            "text": "The"
+          },
+          {
+            "homophones": [
+              "hair"
+            ],
+            "text": "hare"
+          },
+          {
+            "homophones": [],
+            "text": "hops"
+          },
+          {
+            "homophones": [],
+            "text": "on"
+          },
+          {
+            "homophones": [],
+            "text": "down"
+          },
+          {
+            "homophones": [],
+            "text": "the"
+          },
+          {
+            "homophones": [],
+            "text": "path"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "storm-on-the-hill",
+    "title": "Storm on the Hill",
+    "mood": {
+      "sky": "day",
+      "weather": "clouds"
+    },
+    "sentences": [
+      {
+        "newWord": null,
+        "words": [
+          {
+            "homophones": [],
+            "text": "Dark"
+          },
+          {
+            "homophones": [],
+            "text": "clouds"
+          },
+          {
+            "homophones": [],
+            "text": "roll"
+          },
+          {
+            "homophones": [],
+            "text": "over"
+          },
+          {
+            "homophones": [],
+            "text": "the"
+          },
+          {
+            "homophones": [],
+            "text": "hill"
+          }
+        ]
+      },
+      {
+        "newWord": null,
+        "words": [
+          {
+            "homophones": [],
+            "text": "The"
+          },
+          {
+            "homophones": [],
+            "text": "wind"
+          },
+          {
+            "homophones": [],
+            "text": "shakes"
+          },
+          {
+            "homophones": [],
+            "text": "the"
+          },
+          {
+            "homophones": [],
+            "text": "tall"
+          },
+          {
+            "homophones": [],
+            "text": "grass"
+          }
+        ],
+        "weather": "storm"
+      },
+      {
+        "newWord": "drops",
+        "words": [
+          {
+            "homophones": [],
+            "text": "Big"
+          },
+          {
+            "homophones": [],
+            "text": "drops"
+          },
+          {
+            "homophones": [],
+            "text": "of"
+          },
+          {
+            "homophones": [
+              "reign",
+              "rein"
+            ],
+            "text": "rain"
+          },
+          {
+            "homophones": [],
+            "text": "start"
+          },
+          {
+            "homophones": [
+              "two",
+              "too"
+            ],
+            "text": "to"
+          },
+          {
+            "homophones": [],
+            "text": "fall"
+          }
+        ],
+        "weather": "rain"
+      },
+      {
+        "newWord": null,
+        "words": [
+          {
+            "homophones": [],
+            "text": "The"
+          },
+          {
+            "homophones": [
+              "hair"
+            ],
+            "text": "hare"
+          },
+          {
+            "homophones": [
+              "weights"
+            ],
+            "text": "waits"
+          },
+          {
+            "homophones": [],
+            "text": "under"
+          },
+          {
+            "homophones": [],
+            "text": "the"
+          },
+          {
+            "homophones": [],
+            "text": "oak"
+          },
+          {
+            "homophones": [],
+            "text": "tree"
+          }
+        ]
+      },
+      {
+        "newWord": null,
+        "words": [
+          {
+            "homophones": [],
+            "text": "Soon"
+          },
+          {
+            "homophones": [],
+            "text": "the"
+          },
+          {
+            "homophones": [],
+            "text": "storm"
+          },
+          {
+            "homophones": [],
+            "text": "drifts"
+          },
+          {
+            "homophones": [],
+            "text": "away"
+          }
+        ],
+        "weather": "clouds"
+      },
+      {
+        "newWord": null,
+        "words": [
+          {
+            "homophones": [],
+            "text": "The"
+          },
+          {
+            "homophones": [
+              "son"
+            ],
+            "text": "sun"
+          },
+          {
+            "homophones": [],
+            "text": "comes"
+          },
+          {
+            "homophones": [],
+            "text": "out"
+          },
+          {
+            "homophones": [],
+            "text": "and"
+          },
+          {
+            "homophones": [],
+            "text": "the"
+          },
+          {
+            "homophones": [
+              "hair"
+            ],
+            "text": "hare"
+          },
+          {
+            "homophones": [],
+            "text": "hops"
+          },
+          {
+            "homophones": [],
+            "text": "on"
+          }
+        ],
+        "weather": "clear"
+      }
+    ]
+  },
+  {
+    "id": "moonlight-hop",
+    "title": "Moonlight Hop",
+    "mood": {
+      "sky": "golden",
+      "weather": "clear"
+    },
     "sentences": [
       {
         "newWord": null,
@@ -414,21 +643,65 @@
           },
           {
             "homophones": [],
-            "text": "got"
+            "text": "turns"
           },
           {
             "homophones": [],
-            "text": "dark"
+            "text": "pink"
           },
           {
             "homophones": [],
-            "text": "and"
+            "text": "as"
+          },
+          {
+            "homophones": [],
+            "text": "the"
           },
           {
             "homophones": [
-              "read"
+              "son"
             ],
-            "text": "red"
+            "text": "sun"
+          },
+          {
+            "homophones": [],
+            "text": "sets"
+          }
+        ],
+        "sky": "dusk"
+      },
+      {
+        "newWord": "quiet",
+        "words": [
+          {
+            "homophones": [],
+            "text": "The"
+          },
+          {
+            "homophones": [
+              "hair"
+            ],
+            "text": "hare"
+          },
+          {
+            "homophones": [],
+            "text": "hops"
+          },
+          {
+            "homophones": [],
+            "text": "along"
+          },
+          {
+            "homophones": [],
+            "text": "the"
+          },
+          {
+            "homophones": [],
+            "text": "quiet"
+          },
+          {
+            "homophones": [],
+            "text": "path"
           }
         ]
       },
@@ -437,25 +710,22 @@
         "words": [
           {
             "homophones": [
-              "wee"
+              "won"
             ],
-            "text": "We"
+            "text": "One"
           },
           {
-            "homophones": [],
-            "text": "saw"
+            "homophones": [
+              "buy",
+              "bye"
+            ],
+            "text": "by"
           },
           {
-            "homophones": [],
-            "text": "a"
-          },
-          {
-            "homophones": [],
-            "text": "light"
-          },
-          {
-            "homophones": [],
-            "text": "on"
+            "homophones": [
+              "won"
+            ],
+            "text": "one"
           },
           {
             "homophones": [],
@@ -463,31 +733,70 @@
           },
           {
             "homophones": [],
-            "text": "hill"
+            "text": "stars"
+          },
+          {
+            "homophones": [],
+            "text": "come"
+          },
+          {
+            "homophones": [],
+            "text": "out"
           }
-        ]
+        ],
+        "sky": "night"
       },
       {
-        "newWord": "dragon",
+        "newWord": "moon",
         "words": [
           {
             "homophones": [],
-            "text": "A"
+            "text": "The"
           },
           {
             "homophones": [],
-            "text": "dragon"
+            "text": "moon"
           },
           {
-            "homophones": [
-              "flu",
-              "flue"
-            ],
-            "text": "flew"
+            "homophones": [],
+            "text": "rises"
           },
           {
             "homophones": [],
             "text": "over"
+          },
+          {
+            "homophones": [],
+            "text": "the"
+          },
+          {
+            "homophones": [],
+            "text": "meadow"
+          }
+        ]
+      },
+      {
+        "newWord": null,
+        "words": [
+          {
+            "homophones": [],
+            "text": "An"
+          },
+          {
+            "homophones": [],
+            "text": "owl"
+          },
+          {
+            "homophones": [],
+            "text": "calls"
+          },
+          {
+            "homophones": [],
+            "text": "softly"
+          },
+          {
+            "homophones": [],
+            "text": "from"
           },
           {
             "homophones": [],
@@ -503,99 +812,45 @@
         "newWord": null,
         "words": [
           {
-            "homophones": [
-              "it's"
-            ],
-            "text": "Its"
-          },
-          {
-            "homophones": [],
-            "text": "wings"
-          },
-          {
-            "homophones": [],
-            "text": "were"
-          },
-          {
-            "homophones": [],
-            "text": "big"
-          },
-          {
-            "homophones": [],
-            "text": "and"
-          },
-          {
-            "homophones": [],
-            "text": "purple"
-          }
-        ]
-      },
-      {
-        "newWord": null,
-        "words": [
-          {
             "homophones": [],
             "text": "The"
           },
           {
             "homophones": [],
-            "text": "dragon"
+            "text": "sleepy"
+          },
+          {
+            "homophones": [
+              "hair"
+            ],
+            "text": "hare"
           },
           {
             "homophones": [],
-            "text": "guarded"
+            "text": "curls"
+          },
+          {
+            "homophones": [],
+            "text": "up"
+          },
+          {
+            "homophones": [
+              "four"
+            ],
+            "text": "for"
           },
           {
             "homophones": [],
             "text": "the"
           },
           {
-            "homophones": [],
-            "text": "gold"
-          }
-        ]
-      },
-      {
-        "newWord": null,
-        "words": [
-          {
-            "homophones": [],
-            "text": "It"
-          },
-          {
             "homophones": [
-              "wuz"
+              "knight"
             ],
-            "text": "was"
-          },
-          {
-            "homophones": [],
-            "text": "a"
-          },
-          {
-            "homophones": [],
-            "text": "friend"
-          },
-          {
-            "homophones": [
-              "knot"
-            ],
-            "text": "not"
-          },
-          {
-            "homophones": [],
-            "text": "a"
-          },
-          {
-            "homophones": [
-              "fo"
-            ],
-            "text": "foe"
+            "text": "night"
           }
         ]
       }
-    ],
-    "stage": "dragon",
-    "title": "Dragon's hill"
+    ]
   }
 ]

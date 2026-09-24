@@ -61,7 +61,11 @@ import World
     }
 
     public var worldProgress: Double {
-      Double(wordsCompleted) * story.wordStep
+      Double(wordsCompleted) * Story.stepPerWord
+    }
+
+    public var mood: Mood {
+      story.mood(atSentence: min(sentenceIndex, story.sentences.count - 1))
     }
 
     public var wordsCompleted: Int {
@@ -236,7 +240,6 @@ public struct ReadingScreen: View {
   let store: StoreOf<Reading>
 
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
-  @Environment(\.freezesMotion) private var freezesMotion
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
   @Environment(\.verticalSizeClass) private var verticalSizeClass
   @Environment(\.scenePhase) private var scenePhase
@@ -260,13 +263,8 @@ public struct ReadingScreen: View {
     #endif
   }
 
-  @ViewBuilder
   private var world: some View {
-    if freezesMotion {
-      Color(hex: 0x8FCB6B)
-    } else {
-      WorldView(progress: store.worldProgress, finale: isFinished)
-    }
+    MeadowBackdrop(progress: store.worldProgress, mood: store.mood)
   }
 
   private func card(_ geometry: ReadingGeometry, screenWidth: CGFloat? = nil) -> some View {
@@ -285,11 +283,6 @@ public struct ReadingScreen: View {
     .accessibilityHint("Double tap to hear the word.")
     .accessibilityAddTraits(.startsMediaSession)
     .accessibilityAction { store.send(.currentWordTapped) }
-  }
-
-  private var isFinished: Bool {
-    guard case .story = store.completed else { return false }
-    return true
   }
 
   private var hearing: String? {

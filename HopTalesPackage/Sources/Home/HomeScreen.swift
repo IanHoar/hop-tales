@@ -105,26 +105,16 @@ public struct HomeScreen: View {
     .navigationBarHidden(true)
   }
 
-  private var tone: WorldArt.Tone { colorScheme == .dark ? .dusk : .day }
+  private var headerMood: Mood { Mood(sky: colorScheme == .dark ? .night : .day) }
 
   private var header: some View {
     ZStack(alignment: .topLeading) {
-      GeometryReader { proxy in
-        let width = proxy.size.width
-        let scale = width / 390 * 0.62
-        if let image = WorldPostcard.image(
-          tone: tone,
-          progress: 0,
-          scale: scale,
-          size: CGSize(width: width, height: Self.headerHeight),
-          top: 60 * scale
-        ) {
-          Image(uiImage: image)
-            .resizable()
-            .frame(width: width, height: Self.headerHeight)
-        }
-      }
-      .frame(height: Self.headerHeight)
+      Image(uiImage: MeadowPostcard.image(mood: headerMood, size: CGSize(width: 390, height: 520)))
+        .resizable()
+        .scaledToFill()
+        .frame(minWidth: 0, maxWidth: .infinity, alignment: .bottom)
+        .frame(height: Self.headerHeight)
+        .clipped()
       .accessibilityHidden(true)
       VStack(alignment: .leading, spacing: 10) {
         HStack(alignment: .top) {

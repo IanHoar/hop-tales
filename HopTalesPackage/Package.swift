@@ -97,6 +97,7 @@ let package = Package(
     .target(
       name: "World",
       dependencies: [
+        "Content",
         "DesignSystem"
       ],
       resources: [.process("Resources")]
@@ -128,6 +129,7 @@ let package = Package(
         "Home",
         "Reading",
         "SpeechRecognition",
+        "World",
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
       ],
       resources: [.copy("__Snapshots__")]
@@ -138,7 +140,7 @@ let package = Package(
     ),
     .testTarget(
       name: "WorldTests",
-      dependencies: ["World"]
+      dependencies: ["Content", "World"]
     ),
     .testTarget(
       name: "SpeechTests",

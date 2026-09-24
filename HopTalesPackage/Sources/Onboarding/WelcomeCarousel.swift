@@ -1,3 +1,4 @@
+import Content
 import DesignSystem
 import SwiftUI
 import World
@@ -123,7 +124,7 @@ struct HopArt: View {
 
 struct WorldArt: View {
   var body: some View {
-    WorldView(progress: 700)
+    WorldView(progress: 700, mood: Mood(sky: .golden, weather: .clouds))
       .clipShape(.rect(cornerRadius: 32, style: .continuous))
       .overlay {
         RoundedRectangle(cornerRadius: 32, style: .continuous)

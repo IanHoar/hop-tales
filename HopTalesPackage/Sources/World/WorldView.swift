@@ -1,52 +1,93 @@
+import Content
+import DesignSystem
 import SpriteKit
 import SwiftUI
 
 public struct WorldView: View {
   let progress: Double
-  var finale = false
-  @State private var scene = WorldScene(size: CGSize(width: 1, height: 1))
+  let mood: Mood
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @State private var scene = MeadowScene(size: CGSize(width: 390, height: 844))
 
-  public init(progress: Double, finale: Bool = false) {
+  public init(progress: Double, mood: Mood) {
     self.progress = progress
-    self.finale = finale
+    self.mood = mood
   }
 
   public var body: some View {
     SpriteView(scene: scene, preferredFramesPerSecond: 60, options: [.allowsTransparency])
-      .onAppear { scene.setProgress(progress, animated: false) }
-      .onChange(of: progress) { _, progress in scene.setProgress(progress) }
-      .onChange(of: finale) { _, finale in if finale { scene.roar() } }
+      .onAppear {
+        scene.drifts = !reduceMotion
+        scene.setMood(mood, animated: false)
+        scene.setProgress(progress, animated: false)
+      }
+      .onChange(of: progress) { _, progress in
+        scene.setProgress(progress, animated: !reduceMotion)
+      }
+      .onChange(of: mood) { _, mood in scene.setMood(mood) }
       .accessibilityHidden(true)
   }
 }
 
 #Preview("World") {
   @Previewable @State var progress: Double = 0
-  WorldView(progress: progress)
+  @Previewable @State var mood = Mood()
+  WorldView(progress: progress, mood: mood)
     .ignoresSafeArea()
     .overlay(alignment: .bottom) {
-      HStack {
-        Button("Read a word") { progress += 60 }
-        Button("Castle") { progress = 1000 }
-        Button("Start") { progress = 0 }
+      VStack {
+        Button("Read a word") { progress += Story.stepPerWord }
+        HStack {
+          ForEach(Sky.allCases, id: \.self) { sky in
+            Button(sky.rawValue) { mood.sky = sky }
+          }
+        }
+        HStack {
+          ForEach(Weather.allCases, id: \.self) { weather in
+            Button(weather.rawValue) { mood.weather = weather }
+          }
+        }
       }
       .buttonStyle(.borderedProminent)
       .padding(.bottom, 40)
     }
 }
 
-#Preview("World art") {
-  let tones = WorldArt.Tone.allCases
-  VStack(spacing: 8) {
-    ForEach(tones, id: \.self) { tone in
-      ZStack {
-        ForEach(WorldArt.Layer.allCases, id: \.self) { layer in
-          if let image = WorldArt(layer, tone).image(width: 1170) {
-            Image(uiImage: image).resizable().scaledToFit()
-          }
-        }
+#Preview("Postcards") {
+  let moods = [
+    Mood(sky: .day), Mood(sky: .golden, weather: .clouds), Mood(sky: .day, weather: .rain),
+    Mood(sky: .dusk), Mood(sky: .night)
+  ]
+  ScrollView {
+    VStack(spacing: 8) {
+      ForEach(moods, id: \.self) { mood in
+        Image(uiImage: MeadowPostcard.image(mood: mood, size: CGSize(width: 390, height: 520)))
+          .resizable()
+          .scaledToFit()
       }
     }
   }
-  .padding(8)
+}
+
+public struct MeadowBackdrop: View {
+  let progress: Double
+  let mood: Mood
+  @Environment(\.freezesMotion) private var freezesMotion
+
+  public init(progress: Double, mood: Mood) {
+    self.progress = progress
+    self.mood = mood
+  }
+
+  public var body: some View {
+    GeometryReader { proxy in
+      if freezesMotion {
+        Image(uiImage: MeadowPostcard.image(mood: mood, size: proxy.size, progress: progress))
+          .resizable()
+      } else {
+        WorldView(progress: progress, mood: mood)
+      }
+    }
+    .ignoresSafeArea()
+  }
 }

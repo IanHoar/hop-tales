@@ -1,3 +1,4 @@
+import Content
 import DesignSystem
 import SwiftUI
 import World
@@ -11,7 +12,7 @@ public struct TVWaitingScreen: View {
 
   public var body: some View {
     ZStack {
-      TVWorld(progress: 0)
+      MeadowBackdrop(progress: 0, mood: Mood(sky: .golden, weather: .clouds))
       VStack(spacing: 18) {
         Text("Hop Tales")
           .font(Typography.display(120))
@@ -32,21 +33,5 @@ public struct TVWaitingScreen: View {
       )
     }
     .accessibilityHidden(true)
-  }
-}
-
-struct TVWorld: View {
-  let progress: Double
-  @Environment(\.freezesMotion) private var freezesMotion
-
-  var body: some View {
-    Group {
-      if freezesMotion {
-        Color(hex: 0x8FCB6B)
-      } else {
-        WorldView(progress: progress)
-      }
-    }
-    .ignoresSafeArea()
   }
 }
