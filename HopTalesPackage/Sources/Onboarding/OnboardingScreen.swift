@@ -4,6 +4,7 @@ import Dependencies
 import DesignSystem
 import SpeechRecognition
 import SwiftUI
+import World
 
 @Feature public struct Onboarding {
   public init() {}
@@ -56,6 +57,15 @@ import SwiftUI
 
     public var step: Step { path.last ?? .name }
 
+    public var needsMicrophone: Bool { step == .listening && authorization == nil }
+
+    public var primaryTitle: String {
+      if needsMicrophone { return "Allow microphone" }
+      return step == .accent ? "Start reading" : "Continue"
+    }
+
+    public var primaryEnabled: Bool { needsMicrophone || canContinue(from: step) }
+
     func canContinue(from step: Step) -> Bool {
       switch step {
       case .name: !childName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -69,11 +79,10 @@ import SwiftUI
   public enum Action {
     case accentPicked(Profile.Accent)
     case authorizationResolved(SpeechClient.Authorization)
-    case continueTapped
+    case backTapped
     case finished(Profile)
-    case listenTapped
     case nameChanged(String)
-    case pathChanged([Step])
+    case primaryTapped
     case storyPicked(String)
   }
 
@@ -89,7 +98,22 @@ import SwiftUI
       case let .authorizationResolved(authorization):
         state.authorization = authorization
 
-      case .continueTapped:
+      case .backTapped:
+        guard !state.path.isEmpty else { break }
+        state.path.removeLast()
+
+      case .finished:
+        break
+
+      case .primaryTapped:
+        if state.needsMicrophone {
+          let locale = state.listeningLocale
+          store.addTask {
+            let authorization = await speechClient.requestAuthorization(locale)
+            try store.send(.authorizationResolved(authorization))
+          }
+          break
+        }
         guard state.canContinue(from: state.step) else { break }
         guard let next = Step(rawValue: state.step.rawValue + 1) else {
           let profile = state.profile
@@ -98,22 +122,8 @@ import SwiftUI
         }
         state.path.append(next)
 
-      case .finished:
-        break
-
-      case .listenTapped:
-        let locale = state.listeningLocale
-        store.addTask {
-          let authorization = await speechClient.requestAuthorization(locale)
-          try store.send(.authorizationResolved(authorization))
-        }
-
       case let .nameChanged(name):
         state.childName = String(name.prefix(24))
-
-      case let .pathChanged(path):
-        guard path.count < state.path.count else { break }
-        state.path = path
 
       case let .storyPicked(id):
         state.startingStoryID = id
@@ -136,89 +146,101 @@ import SwiftUI
 
 public struct OnboardingScreen: View {
   let store: StoreOf<Onboarding>
+  @Environment(\.colorScheme) private var colorScheme
 
   public init(store: StoreOf<Onboarding>) {
     self.store = store
   }
 
   public var body: some View {
-    NavigationStack(path: Binding(get: { store.path }, set: { store.send(.pathChanged($0)) })) {
-      screen(for: .name)
-        .navigationDestination(for: Onboarding.Step.self) { step in
-          screen(for: step)
+    GeometryReader { proxy in
+      let insets = proxy.safeAreaInsets
+      let screen = proxy.size.height + insets.top + insets.bottom
+      ZStack(alignment: .bottom) {
+        MeadowBackdrop(progress: 700, mood: meadowMood)
+        ViewThatFits(in: .vertical) {
+          OnboardingSheet(store: store, bottomInset: insets.bottom, scrolls: false)
+            .frame(minHeight: screen * 0.61, alignment: .top)
+            .fixedSize(horizontal: false, vertical: true)
+          OnboardingSheet(store: store, bottomInset: insets.bottom, scrolls: true)
         }
+        .frame(maxWidth: 560)
+        .padding(.top, insets.top + 12)
+      }
+      .frame(maxWidth: .infinity)
+      .ignoresSafeArea(.container, edges: .bottom)
     }
-    .tint(Palette.ink)
   }
 
-  private func screen(for step: Onboarding.Step) -> some View {
-    ScrollView {
-      page(for: step)
-        .padding(.horizontal, 24)
-        .padding(.top, 16)
-        .frame(maxWidth: 560)
-        .frame(maxWidth: .infinity)
+  private var meadowMood: Mood {
+    colorScheme == .dark ? Mood(sky: .night) : Mood(sky: .day)
+  }
+}
+
+struct OnboardingSheet: View {
+  let store: StoreOf<Onboarding>
+  let bottomInset: CGFloat
+  let scrolls: Bool
+
+  var body: some View {
+    VStack(spacing: 16) {
+      header
+      if scrolls {
+        ScrollView { page }
+          .scrollBounceBehavior(.basedOnSize)
+          .scrollIndicators(.hidden)
+          .scrollEdgeEffectHidden(true, for: .all)
+      } else {
+        page
+        Spacer(minLength: 0)
+      }
+      Button(store.primaryTitle) { store.send(.primaryTapped) }
+        .buttonStyle(.paper)
+        .disabled(!store.primaryEnabled)
     }
-    .scrollBounceBehavior(.basedOnSize)
-    .safeAreaInset(edge: .bottom) {
-      continueButton(from: step)
-        .padding(.horizontal, 24)
-        .padding(.top, 12)
-        .padding(.bottom, 16)
-        .background(Palette.page)
+    .padding(.horizontal, 24)
+    .padding(.top, 22)
+    .padding(.bottom, max(bottomInset, 16) + 8)
+    .background {
+      Deckle(seed: 21, jitter: 3, step: 16)
+        .fill(Paper.paper)
+        .padding(.bottom, -12)
+        .shadow(color: Paper.shadow, radius: 10, y: -4)
     }
-    .background(Palette.page.ignoresSafeArea())
-    .navigationBarTitleDisplayMode(.inline)
-    .toolbar {
-      ToolbarItem(placement: .principal) {
-        StepDots(current: step)
+    .tint(Paper.ink)
+  }
+
+  private var page: some View {
+    StepPage(store: store)
+      .id(store.step)
+      .transition(
+        .asymmetric(insertion: .offset(x: 18).combined(with: .opacity), removal: .opacity)
+      )
+      .animation(.easeOut(duration: 0.35), value: store.step)
+  }
+
+  private var header: some View {
+    ZStack {
+      ProgressPills(current: store.step.rawValue - 1, count: Onboarding.Step.allCases.count)
+      if store.step != .name {
+        Button {
+          store.send(.backTapped)
+        } label: {
+          Image(systemName: "chevron.backward")
+            .font(.system(size: 17, weight: .bold))
+            .foregroundStyle(Paper.ink)
+            .frame(width: 44, height: 44)
+            .contentShape(Rectangle())
+        }
+        .accessibilityLabel("Back")
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.leading, -12)
       }
     }
-  }
-
-  @ViewBuilder
-  private func page(for step: Onboarding.Step) -> some View {
-    switch step {
-    case .name:
-      NamePage(name: store.childName) { store.send(.nameChanged($0)) }
-    case .listening:
-      ListeningPage(authorization: store.authorization) { store.send(.listenTapped) }
-    case .story:
-      StoryPage(selected: store.startingStoryID) { store.send(.storyPicked($0)) }
-    case .accent:
-      AccentPage(selected: store.accent) { store.send(.accentPicked($0)) }
-    }
-  }
-
-  private func continueButton(from step: Onboarding.Step) -> some View {
-    PrimaryButton(
-      title: continueTitle(for: step),
-      enabled: store.state.canContinue(from: step)
-    ) {
-      store.send(.continueTapped)
-    }
-  }
-
-  private func continueTitle(for step: Onboarding.Step) -> String {
-    switch step {
-    case .accent: "Start reading"
-    default: "Next"
-    }
+    .frame(height: 24)
   }
 }
 
 #Preview {
   OnboardingScreen(store: Store(initialState: Onboarding.State()) { Onboarding() })
-}
-
-#Preview("Listening") {
-  var state = Onboarding.State()
-  state.path = [.listening]
-  return OnboardingScreen(store: Store(initialState: state) { Onboarding() })
-}
-
-#Preview("Reading level") {
-  var state = Onboarding.State()
-  state.path = [.listening, .story]
-  return OnboardingScreen(store: Store(initialState: state) { Onboarding() })
 }
