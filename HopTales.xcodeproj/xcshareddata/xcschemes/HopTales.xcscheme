@@ -29,6 +29,12 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
       onlyGenerateCoverageForSpecifiedTargets = "NO">
+      <TestPlans>
+         <TestPlanReference
+            default = "YES"
+            reference = "container:HopTales.xctestplan">
+         </TestPlanReference>
+      </TestPlans>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
@@ -39,72 +45,6 @@
          </BuildableReference>
       </MacroExpansion>
       <Testables>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "AppFeatureTests"
-               BuildableName = "AppFeatureTests"
-               BlueprintName = "AppFeatureTests"
-               ReferencedContainer = "container:HopTalesPackage">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "ReadingTests"
-               BuildableName = "ReadingTests"
-               BlueprintName = "ReadingTests"
-               ReferencedContainer = "container:HopTalesPackage">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "SnapshotTests"
-               BuildableName = "SnapshotTests"
-               BlueprintName = "SnapshotTests"
-               ReferencedContainer = "container:HopTalesPackage">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "SpeechTests"
-               BuildableName = "SpeechTests"
-               BlueprintName = "SpeechTests"
-               ReferencedContainer = "container:HopTalesPackage">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "ContentTests"
-               BuildableName = "ContentTests"
-               BlueprintName = "ContentTests"
-               ReferencedContainer = "container:HopTalesPackage">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "WorldTests"
-               BuildableName = "WorldTests"
-               BlueprintName = "WorldTests"
-               ReferencedContainer = "container:HopTalesPackage">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
       <CommandLineArguments>
       </CommandLineArguments>
