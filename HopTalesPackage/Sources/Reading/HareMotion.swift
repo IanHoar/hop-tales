@@ -32,7 +32,6 @@ struct HareMotion: Equatable {
 
   static let fps: Double = 14
   static let hopFrames = 8
-  static let hopLength = Double(hopFrames) / fps
   static let moveFrames = 1...6
   static let ride: TimeInterval = 0.45
   static let apex: CGFloat = 46

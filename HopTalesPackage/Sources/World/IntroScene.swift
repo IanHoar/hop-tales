@@ -49,7 +49,6 @@ struct IntroLayout {
   var k: CGFloat { meadow.k }
   var size: CGSize { meadow.size }
   var landDrop: CGFloat { 26 * k }
-  var sunRise: CGFloat { 210 * k }
   var hareFrontHeight: CGFloat { 132 * k }
   var hareSideHeight: CGFloat { 138 * k }
   var hareRunHeight: CGFloat { hareSideHeight * Self.hopFrame.height / Self.hopUpright }
