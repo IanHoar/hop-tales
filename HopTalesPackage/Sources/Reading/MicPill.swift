@@ -20,20 +20,14 @@ struct MicPill: View {
         bars
       }
       Text(label)
-        .font(Typography.ui(geometry.scaled(17)))
-        .foregroundStyle(heardToken == nil ? Palette.ink : Palette.heardText)
+        .font(Typography.display(geometry.scaled(19)))
+        .foregroundStyle(heardToken == nil ? Paper.ink : Paper.sageDeep)
         .lineLimit(1)
     }
-    .padding(.leading, geometry.scaled(10))
+    .padding(.leading, geometry.scaled(8))
     .padding(.trailing, geometry.scaled(22))
-    .frame(height: geometry.scaled(56))
-    .bevel(
-      heardToken == nil ? Palette.parchment : Palette.heardBg,
-      lip: heardToken == nil ? Palette.parchmentLip : Palette.heardLip,
-      shape: Capsule(),
-      border: geometry.scaled(3),
-      drop: geometry.scaled(4)
-    )
+    .frame(height: geometry.scaled(64))
+    .paperChip(Capsule(), rim: geometry.scaled(5), shadow: 1.3)
     .animation(Motion.recognised, value: heardToken)
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(heardToken.map { "Heard \($0)" } ?? "Listening. Say the word out loud.")
@@ -46,11 +40,10 @@ struct MicPill: View {
 
   private var disc: some View {
     Image(systemName: heardToken == nil ? "mic.fill" : "checkmark")
-      .font(.system(size: geometry.scaled(16), weight: .heavy))
-      .foregroundStyle(.white)
-      .frame(width: geometry.scaled(36), height: geometry.scaled(36))
-      .background(heardToken == nil ? Palette.teal : Palette.heardIcon, in: .circle)
-      .overlay(Circle().strokeBorder(Palette.outline, lineWidth: geometry.scaled(3)))
+      .font(.system(size: geometry.scaled(18), weight: .bold))
+      .foregroundStyle(Paper.onRed)
+      .frame(width: geometry.scaled(40), height: geometry.scaled(40))
+      .background(heardToken == nil ? Paper.sage : Paper.sageDeep, in: .circle)
   }
 
   private var bars: some View {
@@ -77,11 +70,7 @@ struct MicPill: View {
 
     var body: some View {
       RoundedRectangle(cornerRadius: geometry.scaled(3))
-        .fill(Palette.teal)
-        .overlay {
-          RoundedRectangle(cornerRadius: geometry.scaled(3))
-            .strokeBorder(Palette.outline, lineWidth: geometry.scaled(1.5))
-        }
+        .fill(Paper.sageDeep)
         .frame(
           width: geometry.scaled(6),
           height: extended ? geometry.scaled(MicPill.barRange.upperBound) : restingHeight
