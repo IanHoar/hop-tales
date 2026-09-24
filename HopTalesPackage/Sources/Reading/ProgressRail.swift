@@ -1,7 +1,6 @@
 import Content
 import DesignSystem
 import SwiftUI
-import World
 
 struct ProgressRail: View {
   let story: Story
@@ -33,7 +32,6 @@ struct ProgressRail: View {
     ZStack(alignment: .topLeading) {
       track
       nodes
-      glyphs
     }
     .frame(width: geometry.progressWidth, height: geometry.scaled(Self.height))
   }
@@ -60,8 +58,7 @@ struct ProgressRail: View {
   }
 
   private var isDusk: Bool {
-    let words = story.sentences.prefix(sentenceIndex).reduce(0) { $0 + $1.words.count }
-    return WorldStage(progress: Double(words) * story.wordStep) == .dragon
+    [.dusk, .night].contains(story.mood(atSentence: sentenceIndex).sky)
   }
 
   private var lastIndex: Int { max(story.sentences.count - 1, 0) }
@@ -111,47 +108,6 @@ struct ProgressRail: View {
     }
   }
 
-  private var glyphs: some View {
-    ForEach(milestones, id: \.index) { milestone in
-      milestone.glyph
-        .fill(milestone.stage == .castle ? Palette.stone : Palette.dragon)
-        .overlay(milestone.glyph.stroke(Palette.outline, lineWidth: geometry.scaled(2)))
-        .frame(
-          width: geometry.scaled(milestone.size.width),
-          height: geometry.scaled(milestone.size.height)
-        )
-        .position(x: centre(milestone.index), y: centreY - geometry.scaled(Self.haloRadius + 10))
-    }
-  }
-
-  private var milestones: [Milestone] {
-    var wordsBefore = 0
-    var seen: Set<WorldStage> = [.meadow]
-    var found: [Milestone] = []
-    for (index, sentence) in story.sentences.enumerated() {
-      let stage = WorldStage(progress: Double(wordsBefore) * story.wordStep)
-      if !seen.contains(stage) {
-        seen.insert(stage)
-        found.append(Milestone(index: index, stage: stage))
-      }
-      wordsBefore += sentence.words.count
-    }
-    return found
-  }
-
-  struct Milestone {
-    let index: Int
-    let stage: WorldStage
-
-    var size: CGSize {
-      stage == .castle ? CGSize(width: 22, height: 16) : CGSize(width: 24, height: 12)
-    }
-
-    var glyph: AnyShape {
-      stage == .castle ? AnyShape(CastleGlyph()) : AnyShape(DragonGlyph())
-    }
-  }
-
   private var centreY: CGFloat { geometry.scaled(38) }
 
   private func centre(_ index: Int) -> CGFloat {
@@ -166,44 +122,5 @@ struct ProgressRail: View {
       : "SENTENCE \(sentenceIndex + 1) OF \(story.sentences.count)"
     guard let newWord = story.sentences[safe: sentenceIndex]?.newWord else { return base }
     return "NEW WORD · \(newWord.uppercased())"
-  }
-}
-
-struct CastleGlyph: Shape {
-  static let points: [CGPoint] = [
-    CGPoint(x: 0, y: 3), CGPoint(x: 3, y: 3), CGPoint(x: 3, y: 0), CGPoint(x: 6, y: 0),
-    CGPoint(x: 6, y: 3), CGPoint(x: 9, y: 3), CGPoint(x: 9, y: 0), CGPoint(x: 12, y: 0),
-    CGPoint(x: 12, y: 3), CGPoint(x: 14, y: 3), CGPoint(x: 14, y: 9), CGPoint(x: 0, y: 9)
-  ]
-
-  func path(in rect: CGRect) -> Path {
-    var path = Path()
-    for (offset, point) in Self.points.enumerated() {
-      let scaled = CGPoint(
-        x: rect.minX + rect.width * point.x / 14,
-        y: rect.minY + rect.height * point.y / 9
-      )
-      if offset == 0 {
-        path.move(to: scaled)
-      } else {
-        path.addLine(to: scaled)
-      }
-    }
-    path.closeSubpath()
-    return path
-  }
-}
-
-struct DragonGlyph: Shape {
-  func path(in rect: CGRect) -> Path {
-    let x = { (value: CGFloat) in rect.minX + rect.width * value / 16 }
-    let y = { (value: CGFloat) in rect.minY + rect.height * value / 8 }
-    var path = Path()
-    path.move(to: CGPoint(x: x(0), y: y(6)))
-    path.addQuadCurve(to: CGPoint(x: x(9), y: y(4)), control: CGPoint(x: x(4), y: y(0)))
-    path.addQuadCurve(to: CGPoint(x: x(16), y: y(6)), control: CGPoint(x: x(13), y: y(0)))
-    path.addQuadCurve(to: CGPoint(x: x(0), y: y(6)), control: CGPoint(x: x(8), y: y(8)))
-    path.closeSubpath()
-    return path
   }
 }

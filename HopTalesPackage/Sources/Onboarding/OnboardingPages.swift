@@ -171,9 +171,9 @@ struct StoryPage: View {
   let pick: (String) -> Void
 
   static let levels: [(name: String, detail: String)] = [
-    ("Just starting", "Short, simple words like cat, sun and mud."),
-    ("Getting going", "Longer sentences and a few tricky words like knight."),
-    ("Reading well", "Longer words and ideas, like dragon and purple.")
+    ("Just starting", "Short, simple words like sun, hid and ran."),
+    ("Getting going", "Longer sentences and words like robin and flowers."),
+    ("Reading well", "Longer words and ideas, like storm and drifts.")
   ]
 
   var body: some View {

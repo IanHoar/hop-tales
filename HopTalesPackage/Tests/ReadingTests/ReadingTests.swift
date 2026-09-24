@@ -108,12 +108,21 @@ struct ReadingTests {
     #expect(state.completionCount == state.story.sentences.count)
   }
 
-  @Test func worldProgressTraversesTheWorldExactlyOnce() {
+  @Test func eachWordReadWalksTheWorldOneStep() {
     var state = Reading.State(story: StoryLibrary.all[0])
     for sentence in state.story.sentences {
       state.advance(by: sentence.words.count)
     }
-    #expect(state.worldProgress == 1950)
+    #expect(state.worldProgress == Double(state.story.wordCount) * Story.stepPerWord)
+  }
+
+  @Test func theWorldMoodFollowsTheSentence() {
+    var state = Reading.State(story: StoryLibrary["storm-on-the-hill"]!)
+    #expect(state.mood.weather == .clouds)
+    state.advance(by: state.sentence!.words.count)
+    #expect(state.mood.weather == .storm)
+    state.advance(by: state.sentence!.words.count)
+    #expect(state.mood.weather == .rain)
   }
 
   @Test func listeningStartsAgainWhenTheRecogniserStops() async {
@@ -127,7 +136,7 @@ struct ReadingTests {
       return AsyncStream { continuation in
         switch session {
         case 1: continuation.yield(.final(["the"]))
-        case 2: continuation.yield(.final(["cat"]))
+        case 2: continuation.yield(.final(["hare"]))
         default: break
         }
         continuation.finish()
@@ -153,8 +162,8 @@ struct ReadingTests {
       $0.wordIndex = 1
     }
     await store.receive(\.speechResult, timeout: .seconds(2)) {
-      $0.hearing = ["cat"]
-      $0.heardToken = "cat"
+      $0.hearing = ["hare"]
+      $0.heardToken = "hare"
       $0.recognised = Reading.State.Recognised(
         count: 2,
         sentenceIndex: 0,
