@@ -1,3 +1,4 @@
+import CoreImage
 import SpriteKit
 
 public enum IntroTimeline {
@@ -11,7 +12,7 @@ public enum IntroTimeline {
   public static let titleOut: TimeInterval = 6.2
   public static let route: TimeInterval = 6.7
   public static let reducedRoute: TimeInterval = 0.3
-  public static let launchFade: TimeInterval = 0.25
+  public static let launchFade: TimeInterval = 1
 }
 
 struct IntroSpot {
@@ -36,7 +37,8 @@ struct IntroLayout {
   static let night = [UIColor(rgb: 0x1E2A4E), UIColor(rgb: 0x3B4776), UIColor(rgb: 0x6E6D92)]
   static let dawn = [UIColor(rgb: 0x8FA6CF), UIColor(rgb: 0xE7B6A2), UIColor(rgb: 0xF6D6A6)]
   static let day = [UIColor(rgb: 0xBCDCEE), UIColor(rgb: 0xDCEBEF), UIColor(rgb: 0xEEF2E6)]
-  static let dimLand = UIColor(rgb: 0x5E6985)
+  static let dimLand = UIColor(white: 0.42, alpha: 1)
+  static let nightSaturation: CGFloat = 0.55
   static let hopFrames = 8
   static let hopFrame = CGSize(width: 363, height: 346)
   static let hopUpright: CGFloat = 322
@@ -73,7 +75,7 @@ public final class IntroScene: SKScene {
     SKSpriteNode(texture: MeadowArt.texture("sky-cloud-2")),
     SKSpriteNode(texture: MeadowArt.texture("sky-cloud-3"))
   ]
-  let land = SKNode()
+  let land = SKEffectNode()
   let layers = MeadowLayer.allCases.map { TiledLayer($0) }
   let hareFront = SKSpriteNode(texture: MeadowArt.texture("hare-front-sit"))
   let hareSide = SKSpriteNode(texture: MeadowArt.texture("hare-sit"))
@@ -126,6 +128,11 @@ public final class IntroScene: SKScene {
       addChild(cloud)
     }
     for layer in layers { land.addChild(layer) }
+    land.filter = CIFilter(
+      name: "CIColorControls",
+      parameters: [kCIInputSaturationKey: IntroLayout.nightSaturation]
+    )
+    land.shouldEnableEffects = true
     addChild(land)
     hareRun.texture = hopTextures.first
     for hare in [hareFront, hareSide, hareRun] {
@@ -157,10 +164,17 @@ public final class IntroScene: SKScene {
     }
   }
 
+  private var launchFrame: CGSize {
+    launch?.texture?.size() ?? layout.size
+  }
+
   private func placeSky() {
     let size = layout.size
-    let skies = [(night, IntroLayout.night), (dawn, IntroLayout.dawn), (day, IntroLayout.day)]
-    for (node, colors) in skies {
+    let frame = launchFrame
+    let nightSize = CGSize(width: max(size.width, frame.width), height: frame.height)
+    night.texture = SKTexture(image: MeadowArt.gradient(IntroLayout.night, size: nightSize))
+    night.size = nightSize
+    for (node, colors) in [(dawn, IntroLayout.dawn), (day, IntroLayout.day)] {
       node.texture = SKTexture(image: MeadowArt.gradient(colors, size: size))
       node.size = size
     }
@@ -169,8 +183,8 @@ public final class IntroScene: SKScene {
       let width = spot.width * layout.k
       star.size = CGSize(width: width, height: width * MeadowStars.aspect)
       star.position = CGPoint(
-        x: spot.x * size.width + width / 2,
-        y: layout.y(spot.top * size.height) - width / 2
+        x: spot.x * frame.width + width / 2,
+        y: frame.height * (1 - spot.top) - width / 2
       )
     }
     let sunWidth = layout.meadow.sunWidth
@@ -235,17 +249,23 @@ public final class IntroScene: SKScene {
   override public func update(_ currentTime: TimeInterval) {
     guard wantsToPlay, !isPlaying, size.width > 0 else { return }
     isPlaying = true
-    launch?.run(.sequence([.fadeOut(withDuration: IntroTimeline.launchFade), .removeFromParent()]))
+    launch?.run(.sequence([
+      .wait(forDuration: IntroTimeline.sunrise),
+      .fadeOut(withDuration: IntroTimeline.launchFade),
+      .removeFromParent()
+    ]))
     playSunrise()
     playLand()
     playHare()
   }
+}
 
-  private func after(_ delay: TimeInterval, _ action: SKAction) -> SKAction {
+extension IntroScene {
+  fileprivate func after(_ delay: TimeInterval, _ action: SKAction) -> SKAction {
     .sequence([.wait(forDuration: delay), action])
   }
 
-  private func playSunrise() {
+  fileprivate func playSunrise() {
     let start = IntroTimeline.sunrise
     let length = IntroTimeline.sunriseLength
     dawn.run(after(start, .fadeIn(withDuration: length * 0.45)))
@@ -268,11 +288,21 @@ public final class IntroScene: SKScene {
     }
   }
 
-  private func playLand() {
+  fileprivate func playLand() {
     let start = IntroTimeline.sunrise
     let lift = SKAction.moveTo(y: 0, duration: IntroTimeline.sunriseLength)
     lift.timingMode = .easeInEaseOut
     land.run(after(start, lift))
+    let length = IntroTimeline.sunriseLength
+    let saturation = SKAction.customAction(withDuration: length) { node, time in
+      let progress = time / CGFloat(IntroTimeline.sunriseLength)
+      let value = IntroLayout.nightSaturation + (1 - IntroLayout.nightSaturation) * progress
+      (node as? SKEffectNode)?.filter?.setValue(value, forKey: kCIInputSaturationKey)
+    }
+    land.run(after(start, .sequence([
+      saturation,
+      .run { [weak land] in land?.shouldEnableEffects = false }
+    ])))
     for (index, layer) in layers.enumerated() {
       layer.run(after(start + 0.12 * Double(index), .run { [weak layer] in
         layer?.tint(.white, duration: IntroTimeline.sunriseLength)
@@ -280,7 +310,7 @@ public final class IntroScene: SKScene {
     }
   }
 
-  private func playHare() {
+  fileprivate func playHare() {
     let pop = SKAction.sequence([
       .group([.fadeIn(withDuration: 0.2), .scaleX(to: 0.9, y: 1.08, duration: 0)]),
       .scaleX(to: 1.02, y: 0.98, duration: 0.3),
