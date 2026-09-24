@@ -270,8 +270,8 @@ public struct ReadingScreen: View {
   private func card(_ geometry: ReadingGeometry, screenWidth: CGFloat? = nil) -> some View {
     SentenceStrip(
       sentences: store.story.sentences.map(\.words),
-      position: BallTarget(sentence: store.sentenceIndex, word: store.wordIndex),
-      flash: flash.map { BallTarget(sentence: $0.sentenceIndex, word: $0.wordIndex) },
+      position: HopTarget(sentence: store.sentenceIndex, word: store.wordIndex),
+      flash: flash.map { HopTarget(sentence: $0.sentenceIndex, word: $0.wordIndex) },
       isSpeaking: store.isSpeaking,
       geometry: geometry,
       screenWidth: screenWidth
