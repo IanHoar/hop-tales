@@ -10,6 +10,7 @@ public enum Paper {
   public static let red = Color(hex: 0xB8423A)
   public static let onRed = Color(hex: 0xFFFFFF)
   public static let wash = Color(light: 0xF7D774, dark: 0x7A6326)
+  public static let washRing = Color(light: 0xB8862E, dark: 0xD9A94A)
   public static let muted = Color(light: 0x9C8B78, dark: 0xA8A0BE)
   public static let night = Color(hex: 0x1E2A4E)
   public static let rim = Color(light: 0xFFFFFF, dark: 0x3A4674)

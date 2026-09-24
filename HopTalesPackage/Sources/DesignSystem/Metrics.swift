@@ -34,11 +34,11 @@ public struct Metrics: Equatable, Sendable {
     topBarHeight: 48,
     card: Card(
       origin: CGPoint(x: 14, y: 468),
-      size: CGSize(width: 362, height: 190),
+      size: CGSize(width: 362, height: 168),
       cornerRadius: 32,
       ballLaneHeight: 78
     ),
-    words: WordSizes(current: 64, recognised: 36, side: 21, gap: 10),
+    words: WordSizes(current: 54, recognised: 40, side: 31, gap: 12),
     ballRadius: 21,
     ballRestAboveBaseline: 30,
     progressY: 684,
@@ -58,7 +58,7 @@ public struct Metrics: Equatable, Sendable {
       cornerRadius: 44,
       ballLaneHeight: 78
     ),
-    words: WordSizes(current: 100, recognised: 60, side: 32, gap: 22),
+    words: WordSizes(current: 100, recognised: 70, side: 58, gap: 22),
     ballRadius: 26,
     ballRestAboveBaseline: 30,
     progressY: 736,
@@ -78,7 +78,7 @@ public struct Metrics: Equatable, Sendable {
       cornerRadius: 56,
       ballLaneHeight: 78
     ),
-    words: WordSizes(current: 140, recognised: 84, side: 48, gap: 30),
+    words: WordSizes(current: 140, recognised: 100, side: 81, gap: 30),
     ballRadius: 38,
     ballRestAboveBaseline: 30,
     progressY: 930,
