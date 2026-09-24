@@ -10,8 +10,9 @@ public struct ReadingGeometry: Equatable, Sendable {
   }
 
   public var scale: CGFloat {
-    guard metrics.reference.width > 0 else { return 1 }
-    return size.width / metrics.reference.width
+    let reference = min(metrics.reference.width, metrics.reference.height)
+    guard reference > 0 else { return 1 }
+    return min(size.width, size.height) / reference
   }
 
   public func scaled(_ value: CGFloat) -> CGFloat { value * scale }

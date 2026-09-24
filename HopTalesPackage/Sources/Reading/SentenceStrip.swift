@@ -36,7 +36,7 @@ struct SentenceStrip: View {
     .frame(width: geometry.cardSize.width, height: geometry.cardSize.height)
     .overlay(alignment: .top) {
       Hare(target: position, geometry: geometry, hop: hop(to:), onSettle: settle)
-        .offset(y: geometry.scaled(Hare.feetBelowCardTop))
+        .offset(y: Hare.feet(on: geometry))
     }
     .onAppear {
       if settled == nil { settled = position }
