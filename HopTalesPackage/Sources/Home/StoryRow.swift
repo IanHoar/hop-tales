@@ -4,51 +4,20 @@ import SwiftUI
 import World
 
 struct StoryThumbnail: View {
-  let stage: StageTheme
+  let mood: Mood
   var cornerRadius: CGFloat = 18
-  var showsCast = false
   var height: CGFloat = 62
 
   var body: some View {
-    GeometryReader { proxy in
-      ZStack(alignment: .bottomTrailing) {
-        if let image = WorldPostcard.image(
-          tone: tone,
-          progress: WorldPostcard.progress(for: worldStage),
-          scale: scale,
-          size: proxy.size,
-          top: Self.bandTop * scale
-        ) {
-          Image(uiImage: image).resizable()
-        }
-        if showsCast, let cast = CastPortrait.image(for: worldStage) {
-          Image(uiImage: cast)
-            .resizable()
-            .scaledToFit()
-            .frame(height: proxy.size.height * 0.95)
-            .padding(.trailing, proxy.size.width * 0.12)
-            .offset(y: proxy.size.height * 0.06)
-        }
-      }
-    }
-    .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-    .accessibilityHidden(true)
+    Image(uiImage: MeadowPostcard.image(mood: mood, size: CGSize(width: 390, height: 520)))
+      .resizable()
+      .scaledToFill()
+      .frame(
+        minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .bottom
+      )
+      .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+      .accessibilityHidden(true)
   }
-
-  static let bandTop: CGFloat = 170
-  static let bandHeight: CGFloat = 290
-
-  private var scale: CGFloat { height / Self.bandHeight }
-
-  private var worldStage: WorldStage {
-    switch stage {
-    case .meadow: .meadow
-    case .castle: .castle
-    case .dragon: .dragon
-    }
-  }
-
-  private var tone: WorldArt.Tone { WorldArt.Tone(stage: worldStage) }
 }
 
 struct Hill: Shape {
@@ -73,7 +42,7 @@ struct StoryRow: View {
   var body: some View {
     Button(action: action) {
       HStack(spacing: 14) {
-        StoryThumbnail(stage: standing.story.stage, cornerRadius: 14)
+        StoryThumbnail(mood: standing.story.mood, cornerRadius: 14)
           .frame(width: 62, height: 62)
           .overlay {
             RoundedRectangle(cornerRadius: 14, style: .continuous)
@@ -143,7 +112,7 @@ struct KeepGoingCard: View {
   var body: some View {
     Button(action: action) {
       VStack(spacing: 0) {
-        StoryThumbnail(stage: standing.story.stage, cornerRadius: 0, showsCast: true, height: 124)
+        StoryThumbnail(mood: standing.story.mood, cornerRadius: 0, height: 124)
           .frame(height: 124)
         Rectangle().fill(Palette.outline).frame(height: 4)
         HStack(spacing: 14) {
