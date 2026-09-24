@@ -1,5 +1,7 @@
 # Hop Tales marketing site: build handoff
 
+> **Visual update:** the site is now in the collage storybook style. Match `reference/collage-desktop-1440.jpg` and `reference/collage-mobile-390.jpg`, and use the tokens and fonts in `docs/DESIGN-HANDOFF-V3.md` §1 and §7 (these override §2 here). Structure, links, privacy/terms and the PR plan below are unchanged.
+
 A one-page marketing site for hoptales.com, plus Privacy and Terms pages. Issue #44 tracks the privacy policy URL, which App Store submission needs.
 
 - **Design:** the "Marketing site" page of the Hop Tales design canvas. It has two artboards, Desktop 1440 and Mobile 390.

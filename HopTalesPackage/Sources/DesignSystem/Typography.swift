@@ -3,8 +3,8 @@ import UIKit
 
 public enum Typography {
   public enum Face {
-    public static let word = "Andika-Bold"
-    public static let display = "LilitaOne"
+    public static let word = "YoungSerif-Regular"
+    public static let display = "Fraunces-Bold"
     public static let uiMedium = "Fredoka-Medium"
     public static let uiSemiBold = "Fredoka-SemiBold"
     public static let uiBold = "Fredoka-Bold"
@@ -50,7 +50,7 @@ public enum Typography {
 
   public static func wordUIFont(_ size: CGFloat) -> UIFont {
     FontRegistry.register()
-    return UIFont(name: Face.word, size: size) ?? .systemFont(ofSize: size, weight: .bold)
+    return UIFont(name: Face.word, size: size) ?? .systemFont(ofSize: size, weight: .regular)
   }
 
   public static func wordTracking(_ size: CGFloat, em: CGFloat = -0.01) -> CGFloat {
