@@ -24,7 +24,7 @@ struct MeadowSnapshotTests {
       of: Image(uiImage: MeadowPostcard.image(mood: mood, size: size, progress: 600))
         .resizable()
         .frame(width: size.width, height: size.height),
-      as: .image(perceptualPrecision: snapshotPerceptualPrecision, layout: .sizeThatFits),
+      as: .image(layout: .sizeThatFits),
       named: "\(mood.sky.rawValue)-\(mood.weather.rawValue)"
     )
   }

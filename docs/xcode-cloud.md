@@ -85,10 +85,18 @@ package resolution fail with something cryptic.
 
 - **Start Condition:** Pull Request Changes, target branch `main`.
 - **Actions:** Build, then Test.
-- **Test destination: iPhone 18 Pro, iOS 27 — pin it.** The snapshot references in
-  `HopTalesPackage/Tests/SnapshotTests/__Snapshots__` were recorded on that simulator. A different
-  device or OS renders text fractionally differently and the snapshot tests fail on noise rather
-  than on a real change.
+- **Environment: Xcode 27.0 (27A266a), not "Latest Release".** Pin the exact version on both
+  workflows, so a new Xcode or simulator runtime on Xcode Cloud never changes the renderer behind
+  our backs.
+- **Test destination: iPhone 18 Pro, iOS 27.0 — pin it, never "Latest".** The snapshot references in
+  `HopTalesPackage/Tests/SnapshotTests/__Snapshots__` were recorded on that exact simulator. A
+  different device or runtime (27.1 included) resamples images and renders text fractionally
+  differently, and the snapshot tests fail on noise rather than on a real change. `SnapshotSupport`
+  checks the runtime and fails with a message naming both versions if they differ, and
+  `ci_post_clone.sh` prints the machine's Xcode and runtimes into the log.
+- **Moving to a new runtime** is a deliberate change: update `snapshotRuntime` in
+  `SnapshotSupport.swift`, re-record every reference on the new simulator, and change the pinned
+  destination here and in both workflows in the same pull request.
 - Scheme `HopTales`, which runs all four package test targets.
 - **Tick auto-cancel** in the start condition. Without it a second push leaves the first build
   running to completion against a commit nobody is waiting on, and the free tier is 25 hours.

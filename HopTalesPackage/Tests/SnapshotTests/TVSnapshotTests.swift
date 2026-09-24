@@ -30,7 +30,6 @@ struct TVSnapshotTests {
         .environment(\.freezesMotion, true)
         .environment(\.colorScheme, scheme),
       as: .image(
-        perceptualPrecision: snapshotPerceptualPrecision,
         layout: .fixed(width: Self.tv.width, height: Self.tv.height),
         traits: Self.traits(scheme)
       ),
@@ -45,7 +44,6 @@ struct TVSnapshotTests {
         .environment(\.freezesMotion, true)
         .environment(\.colorScheme, scheme),
       as: .image(
-        perceptualPrecision: snapshotPerceptualPrecision,
         layout: .fixed(width: Self.tv.width, height: Self.tv.height),
         traits: Self.traits(scheme)
       ),

@@ -48,10 +48,7 @@ struct ReadingScreenSnapshotTests {
       of: ReadingScreenPreview()
         .environment(\.freezesMotion, true)
         .environment(\.colorScheme, scheme),
-      as: .image(
-        perceptualPrecision: snapshotPerceptualPrecision,
-        layout: .device(config: Self.device(Self.largePhone, scheme))
-      ),
+      as: .image(layout: .device(config: Self.device(Self.largePhone, scheme))),
       named: "large-\(scheme)"
     )
   }
@@ -62,10 +59,7 @@ struct ReadingScreenSnapshotTests {
       of: ReadingScreenPreview()
         .environment(\.freezesMotion, true)
         .environment(\.colorScheme, scheme),
-      as: .image(
-        perceptualPrecision: snapshotPerceptualPrecision,
-        layout: .device(config: Self.device(Self.smallPhone, scheme))
-      ),
+      as: .image(layout: .device(config: Self.device(Self.smallPhone, scheme))),
       named: "small-\(scheme)"
     )
   }
@@ -78,10 +72,7 @@ struct ReadingScreenSnapshotTests {
         .environment(\.colorScheme, scheme)
         .environment(\.horizontalSizeClass, .regular)
         .environment(\.verticalSizeClass, .regular),
-      as: .image(
-        perceptualPrecision: snapshotPerceptualPrecision,
-        layout: .device(config: Self.device(Self.padLandscape, scheme))
-      ),
+      as: .image(layout: .device(config: Self.device(Self.padLandscape, scheme))),
       named: "pad-landscape-\(scheme)"
     )
   }
@@ -94,10 +85,7 @@ struct ReadingScreenSnapshotTests {
         .environment(\.colorScheme, scheme)
         .environment(\.horizontalSizeClass, .regular)
         .environment(\.verticalSizeClass, .regular),
-      as: .image(
-        perceptualPrecision: snapshotPerceptualPrecision,
-        layout: .device(config: Self.device(Self.padPortrait, scheme))
-      ),
+      as: .image(layout: .device(config: Self.device(Self.padPortrait, scheme))),
       named: "pad-portrait-\(scheme)"
     )
   }
