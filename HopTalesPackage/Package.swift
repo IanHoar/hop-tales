@@ -119,6 +119,7 @@ let package = Package(
         "DesignSystem",
         "Reading",
         "SpeechRecognition",
+        "World",
       ]
     ),
     .testTarget(

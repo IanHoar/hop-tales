@@ -39,7 +39,7 @@ public struct TVReadingScreen: View {
         .offset(y: geometry.y(geometry.metrics.topBarY))
         SentenceStrip(
           sentences: store.story.sentences.map(\.words),
-          position: BallTarget(sentence: store.sentenceIndex, word: store.wordIndex),
+          position: HopTarget(sentence: store.sentenceIndex, word: store.wordIndex),
           isSpeaking: store.isSpeaking,
           geometry: geometry,
           screenWidth: proxy.size.width

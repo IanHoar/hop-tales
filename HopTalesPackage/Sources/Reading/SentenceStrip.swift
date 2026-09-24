@@ -4,14 +4,14 @@ import SwiftUI
 
 struct SentenceStrip: View {
   let sentences: [[Word]]
-  let position: BallTarget
-  var flash: BallTarget?
+  let position: HopTarget
+  var flash: HopTarget?
   var isSpeaking = false
   let geometry: ReadingGeometry
   var screenWidth: CGFloat?
-  @State private var settled: BallTarget?
+  @State private var settled: HopTarget?
 
-  private var shown: BallTarget { settled ?? position }
+  private var shown: HopTarget { settled ?? position }
   private var gap: CGFloat {
     let margin = screenWidth.map { max(($0 - geometry.cardSize.width) / 2, 0) } ?? 0
     return margin + geometry.scaled(24)
@@ -27,7 +27,7 @@ struct SentenceStrip: View {
           recognisedIndex: flash?.sentence == index ? flash?.word : nil,
           isSpeaking: isSpeaking && index == shown.sentence,
           geometry: geometry,
-          showsBall: false
+          showsHare: false
         )
       }
     }
@@ -35,8 +35,8 @@ struct SentenceStrip: View {
     .offset(x: (CGFloat(sentences.count - 1) / 2 - CGFloat(shown.sentence)) * pitch)
     .frame(width: geometry.cardSize.width, height: geometry.cardSize.height)
     .overlay(alignment: .top) {
-      Ball(target: position, geometry: geometry, hop: hop(to:), onSettle: settle)
-        .padding(.top, geometry.scaled(14))
+      Hare(target: position, geometry: geometry, hop: hop(to:), onSettle: settle)
+        .offset(y: geometry.scaled(Hare.feetBelowCardTop))
     }
     .onAppear {
       if settled == nil { settled = position }
@@ -49,10 +49,10 @@ struct SentenceStrip: View {
     return 0
   }
 
-  private func hop(to target: BallTarget) -> BallHop {
+  private func hop(to target: HopTarget) -> HopPlan {
     let from = shown
     if target.sentence == from.sentence {
-      return BallHop(
+      return HopPlan(
         distance: WordRow.hopDistance(
           words: sentences[safe: from.sentence] ?? [],
           from: from.word,
@@ -62,12 +62,12 @@ struct SentenceStrip: View {
       )
     }
     guard target.sentence > from.sentence, sentences.indices.contains(target.sentence) else {
-      return BallHop()
+      return HopPlan()
     }
-    return BallHop(distance: pitch * CGFloat(target.sentence - from.sentence), carried: true)
+    return HopPlan(distance: pitch * CGFloat(target.sentence - from.sentence), carried: true)
   }
 
-  private func settle(_ target: BallTarget, _ animation: Animation?) {
+  private func settle(_ target: HopTarget, _ animation: Animation?) {
     guard let animation else {
       settled = target
       return
