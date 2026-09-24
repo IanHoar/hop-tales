@@ -5,6 +5,9 @@ import SwiftUI
 import Testing
 import UIKit
 
+let snapshotRuntime = "27.0"
+let snapshotRuntimeBuild = "24A434"
+
 func snapshotDirectory(file: StaticString = #filePath) -> String {
   let file = URL(fileURLWithPath: "\(file)")
   let suffix = "__Snapshots__/\(file.deletingPathExtension().lastPathComponent)"
@@ -32,6 +35,22 @@ func expectSnapshot<Value, Format>(
   line: UInt = #line,
   column: UInt = #column
 ) {
+  let location = SourceLocation(
+    fileID: "\(fileID)",
+    filePath: "\(file)",
+    line: Int(line),
+    column: Int(column)
+  )
+  let running = UIDevice.current.systemVersion
+  let build = ProcessInfo.processInfo.environment["SIMULATOR_RUNTIME_BUILD_VERSION"] ?? "unknown"
+  guard running == snapshotRuntime, build == snapshotRuntimeBuild else {
+    let message = "Snapshot references were recorded on iOS \(snapshotRuntime) "
+      + "(\(snapshotRuntimeBuild)), but this simulator runs iOS \(running) (\(build)). Test on "
+      + "iPhone 18 Pro with iOS \(snapshotRuntime) (\(snapshotRuntimeBuild)), as "
+      + "docs/xcode-cloud.md pins it, or re-record every reference on the new runtime."
+    Issue.record(Comment(rawValue: message), sourceLocation: location)
+    return
+  }
   guard
     let failure = verifySnapshot(
       of: try value(),
@@ -45,15 +64,7 @@ func expectSnapshot<Value, Format>(
       column: column
     )
   else { return }
-  Issue.record(
-    Comment(rawValue: failure),
-    sourceLocation: SourceLocation(
-      fileID: "\(fileID)",
-      filePath: "\(file)",
-      line: Int(line),
-      column: Int(column)
-    )
-  )
+  Issue.record(Comment(rawValue: failure), sourceLocation: location)
 }
 
 @MainActor

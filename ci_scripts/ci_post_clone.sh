@@ -33,6 +33,12 @@ MESSAGE
   exit 1
 fi
 
+# Snapshot references are pinned to one simulator runtime, so print what this machine has. When a
+# snapshot test fails on the runtime check, this is where to see what Xcode Cloud actually ran.
+echo "Xcode and simulator runtimes on this machine:"
+xcodebuild -version || true
+xcrun simctl list runtimes | grep -i ios || true
+
 echo "Trusting package macros for this build."
 defaults write com.apple.dt.Xcode IDESkipMacroFingerprintValidation -bool YES
 
