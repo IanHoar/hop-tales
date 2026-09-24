@@ -42,19 +42,18 @@ struct OnboardingTests {
       Onboarding().dependency(Self.speech)
     }
 
-    await store.send(.continueTapped) { $0.path = [.name] }
     await store.send(.continueTapped)
     await store.send(.nameChanged("Maya")) { $0.childName = "Maya" }
-    await store.send(.continueTapped) { $0.path = [.name, .listening] }
+    await store.send(.continueTapped) { $0.path = [.listening] }
     await store.send(.continueTapped)
     await store.send(.listenTapped)
     await store.receive(\.authorizationResolved) { $0.authorization = .authorized }
-    await store.send(.continueTapped) { $0.path = [.name, .listening, .story] }
+    await store.send(.continueTapped) { $0.path = [.listening, .story] }
     await store.send(.continueTapped)
     await store.send(.storyPicked(StoryLibrary.all[2].id)) {
       $0.startingStoryID = StoryLibrary.all[2].id
     }
-    await store.send(.continueTapped) { $0.path = [.name, .listening, .story, .accent] }
+    await store.send(.continueTapped) { $0.path = [.listening, .story, .accent] }
     await store.send(.continueTapped)
     await store.send(.accentPicked(.british)) { $0.accent = .british }
     await store.send(.continueTapped)
@@ -63,7 +62,6 @@ struct OnboardingTests {
 
   @Test func eachStepWaitsForAnAnswer() {
     var state = Onboarding.State()
-    #expect(state.canContinue(from: .welcome))
     #expect(!state.canContinue(from: .name))
     state.childName = "   "
     #expect(!state.canContinue(from: .name))
@@ -80,12 +78,11 @@ struct OnboardingTests {
     let store = TestStore(initialState: Onboarding.State()) {
       Onboarding().dependency(speech)
     }
-    await store.send(.continueTapped) { $0.path = [.name] }
     await store.send(.nameChanged("Maya")) { $0.childName = "Maya" }
-    await store.send(.continueTapped) { $0.path = [.name, .listening] }
+    await store.send(.continueTapped) { $0.path = [.listening] }
     await store.send(.listenTapped)
     await store.receive(\.authorizationResolved) { $0.authorization = .denied }
-    await store.send(.continueTapped) { $0.path = [.name, .listening, .story] }
+    await store.send(.continueTapped) { $0.path = [.listening, .story] }
   }
 
   @Test func finishingSavesTheProfileAndShowsTheStories() async throws {
@@ -112,12 +109,12 @@ struct OnboardingTests {
 
   @Test func swipingBackPopsAStepButCannotSkipAhead() async {
     var state = Onboarding.State()
-    state.path = [.name, .listening]
+    state.path = [.listening]
     let store = TestStore(initialState: state) {
       Onboarding().dependency(Self.speech)
     }
-    await store.send(.pathChanged([.name])) { $0.path = [.name] }
-    await store.send(.pathChanged([.name, .listening, .story]))
+    await store.send(.pathChanged([])) { $0.path = [] }
+    await store.send(.pathChanged([.listening, .story]))
   }
 
   @Test func everyAnswerIsKeptAsADraft() async {
@@ -127,7 +124,6 @@ struct OnboardingTests {
         .dependency(Self.speech)
         .dependency(ProfileStore(load: { nil }, save: { _ in }, saveDraft: { draft.setValue($0) }))
     }
-    await store.send(.continueTapped) { $0.path = [.name] }
     await store.send(.nameChanged("Maya")) { $0.childName = "Maya" }
     #expect(draft.value == ProfileDraft(childName: "Maya", step: 1))
   }
@@ -144,7 +140,7 @@ struct OnboardingTests {
         .dependency(Self.speech)
     } changes: {
       $0.onboarding = Onboarding.State.DebugSnapshot(
-        path: [.name, .listening, .story],
+        path: [.listening, .story],
         childName: "Maya",
         startingStoryID: StoryLibrary.all[2].id
       )
