@@ -108,3 +108,25 @@ public struct HareSprite: View {
     .accessibilityHidden(true)
   }
 }
+
+public struct AppMark: View {
+  let size: CGFloat
+
+  public init(size: CGFloat = 40) {
+    self.size = size
+  }
+
+  public var body: some View {
+    Group {
+      if let image = MeadowArt.image("app-mark") {
+        Image(uiImage: image).resizable()
+      } else {
+        Color.clear
+      }
+    }
+    .frame(width: size, height: size)
+    .clipShape(RoundedRectangle(cornerRadius: size * 0.225, style: .continuous))
+    .shadow(color: .black.opacity(0.22), radius: 3.5, y: 3)
+    .accessibilityHidden(true)
+  }
+}
