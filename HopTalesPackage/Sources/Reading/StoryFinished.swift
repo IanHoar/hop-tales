@@ -2,54 +2,45 @@ import DesignSystem
 import SwiftUI
 
 struct StoryFinished: View {
+  static let stickerY: CGFloat = 752
+
   let title: String
   let stars: Int
-  let action: () -> Void
+  let geometry: ReadingGeometry
+  let readAgain: () -> Void
 
   var body: some View {
-    ZStack {
-      Paper.night.opacity(0.45)
-        .ignoresSafeArea()
-      VStack(spacing: 18) {
-        ZStack {
-          ForEach(0..<3, id: \.self) { index in
-            PaperStar(size: index == 1 ? 58 : 42)
-              .offset(x: CGFloat(index - 1) * 52, y: index == 1 ? -8 : 6)
-          }
+    HStack(spacing: geometry.path(12)) {
+      Button(action: readAgain) {
+        HStack(spacing: geometry.path(8)) {
+          Image(systemName: "arrow.clockwise")
+            .font(.system(size: geometry.path(15), weight: .heavy))
+          Text("Read it again")
+            .font(Typography.display(geometry.path(18)))
         }
-        .frame(height: 70)
-        Text("You finished")
-          .font(Typography.ui(16))
-          .foregroundStyle(Paper.muted)
-        Text(title)
-          .font(Typography.display(30))
+        .foregroundStyle(Paper.ink)
+        .padding(.horizontal, geometry.path(18))
+        .frame(height: geometry.path(48))
+        .paperChip(Capsule(), rim: geometry.path(4))
+      }
+      .buttonStyle(.plain)
+      HStack(spacing: geometry.path(6)) {
+        PaperStar(size: geometry.path(20))
+        Text("+\(stars)")
+          .font(Typography.display(geometry.path(18)))
           .foregroundStyle(Paper.ink)
-          .multilineTextAlignment(.center)
-        HStack(spacing: 8) {
-          PaperStar(size: 22)
-          Text("\(stars)")
-            .font(Typography.display(20))
-            .foregroundStyle(Paper.ink)
-            .monospacedDigit()
-        }
-        .padding(.horizontal, 16)
-        .frame(height: 46)
-        .paperChip(Capsule())
-        Button("Back to stories", action: action)
-          .buttonStyle(.paper)
-          .padding(.top, 6)
+          .monospacedDigit()
       }
-      .padding(28)
-      .frame(maxWidth: 330)
-      .background {
-        Deckle(seed: 12, jitter: 3, step: 12)
-          .fill(Paper.paper)
-          .shadow(color: Paper.shadow, radius: 12, y: 8)
-      }
-      .rotationEffect(.degrees(-1))
+      .padding(.horizontal, geometry.path(14))
+      .frame(height: geometry.path(44))
+      .paperChip(Capsule(), rim: geometry.path(4))
+      .rotationEffect(.degrees(4))
+      .accessibilityElement(children: .ignore)
+      .accessibilityLabel("\(stars) stars")
     }
+    .position(x: geometry.size.width / 2, y: geometry.y(Self.stickerY))
     .accessibilityElement(children: .contain)
-    .accessibilityLabel("You finished \(title). \(stars) stars.")
+    .accessibilityLabel("You finished \(title).")
   }
 }
 
@@ -58,7 +49,11 @@ struct StoryFinishedPreview: View {
   var body: some View {
     ZStack {
       Paper.sage
-      StoryFinished(title: "The Meadow Walk", stars: 86) {}
+      StoryFinished(
+        title: "The Meadow Walk",
+        stars: 86,
+        geometry: ReadingGeometry(size: Metrics.phone.reference)
+      ) {}
     }
     .frame(width: Metrics.phone.reference.width, height: Metrics.phone.reference.height)
   }

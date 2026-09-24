@@ -13,6 +13,10 @@ public final class MeadowScene: SKScene {
   public private(set) var mood = Mood()
   public private(set) var target: Double = 0
   public private(set) var shown: Double = 0
+  public private(set) var pan: MeadowCamera?
+  public var framing = MeadowFraming.wide {
+    didSet { if framing != oldValue { relayout() } }
+  }
   private var lastUpdate: TimeInterval?
 
   override public init(size: CGSize) {
@@ -41,12 +45,13 @@ public final class MeadowScene: SKScene {
   }
 
   private func relayout() {
-    meadow = MeadowLayout(size: size)
+    meadow = MeadowLayout(size: size, framing: framing)
     sky.layout(meadow)
     for layer in layers {
       layer.layout(meadow, tint: mood.tint(for: layer.layer))
     }
     props.reset()
+    props.isHidden = !meadow.showsProps
     scroll(to: shown)
   }
 
@@ -60,6 +65,12 @@ public final class MeadowScene: SKScene {
     if !animated {
       scroll(to: progress)
     }
+  }
+
+  public func setCamera(_ camera: MeadowCamera) {
+    pan = camera
+    target = camera.to
+    scroll(to: camera.x(at: MeadowCamera.now))
   }
 
   public func setMood(_ mood: Mood, animated: Bool = true) {
@@ -77,13 +88,18 @@ public final class MeadowScene: SKScene {
     for layer in layers {
       layer.scroll(meadow, progress: progress)
     }
-    props.scroll(meadow, progress: progress)
+    if meadow.showsProps { props.scroll(meadow, progress: progress) }
   }
 
   override public func update(_ currentTime: TimeInterval) {
     let elapsed = lastUpdate.map { min(currentTime - $0, 0.1) } ?? 0
     lastUpdate = currentTime
     sky.update(elapsed)
+    if let pan {
+      let x = pan.x(at: currentTime)
+      if x != shown { scroll(to: x) }
+      return
+    }
     guard abs(target - shown) > 0.1 else {
       if target != shown { scroll(to: target) }
       return

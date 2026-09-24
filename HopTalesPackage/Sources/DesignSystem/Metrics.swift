@@ -27,6 +27,8 @@ public struct Metrics: Equatable, Sendable {
   public var progressWidth: CGFloat
   public var micPillY: CGFloat
   public var minimumTouchTarget: CGFloat
+  public var pathScale: CGFloat = 1
+  public var pathCentre: CGFloat = 640
   public static let phone = Metrics(
     reference: CGSize(width: 390, height: 844),
     topBarY: 48,
@@ -64,7 +66,9 @@ public struct Metrics: Equatable, Sendable {
     progressY: 736,
     progressWidth: 900,
     micPillY: 32,
-    minimumTouchTarget: 56
+    minimumTouchTarget: 56,
+    pathScale: 1.15,
+    pathCentre: 632
   )
 
   public static let tv = Metrics(

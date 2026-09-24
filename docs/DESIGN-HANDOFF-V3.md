@@ -41,7 +41,7 @@ The boards on the canvas are the spec; open each and measure.
 
 | Screen | Board | Notes |
 |---|---|---|
-| Reading | Reading screen | Top bar: back chip, deckled title label, star chip. Word card: deckled paper, 362×168 at y 548. Read words are ink with a gold wash, the current word is 54 pt, upcoming words are muted. Progress dots sit under the card; the mic pill is at the bottom. The hare sits on the card's top edge above the current word. |
+| Reading | Reading screen | Words are printed along the meadow path (Young Serif, current word 46 pt, others at 0.7, tilted 24° onto the ground, multiply). Read words keep a gold wash. The hare sits on the path at x 96 and hops in place while the camera pans one word (0.62 s); the land is drawn closer than the intro (near 0.74, mid 0.5, far 0.42). The title is on a signpost at the start of the path and "The end" on one past the last word. The only control while reading is a 38 pt back chip; the end of a story shows Read it again and a ★ +N sticker. See #117 and `Design/collage/reference/reading-path-minimal.jpg`. |
 | Home | Intro (returning) / Home | The top bar holds the icon, "Hop Tales" and a settings chip for grown-ups. Greeting label: "Good morning, <name>!". A paper sheet from y 430 holds the "Keep reading" card and the "More stories" list. |
 | Onboarding | Intro (first launch) | Four steps on one paper sheet over the live meadow. No carousel. |
 | TV | Apple TV | The same world at 1920×1080 with a large word card. Props scale by depth. |

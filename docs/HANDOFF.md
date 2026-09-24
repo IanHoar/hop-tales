@@ -24,7 +24,7 @@ This document plus `Design/` is everything Claude Code needs to start. Decisions
 
 ## 1. Product rules (don't break these)
 
-1. **The reading surface never moves.** The word card, ball, mic pill and progress rail are in the same place on every stage. Only the world behind changes. A child's eye must never have to re-find the word.
+1. **The current word never moves.** Words are printed on the meadow path and the ground slides under a hare that stays put, so the current word always lands in the same spot (x 236 on the reference phone). A child's eye must never have to re-find the word.
 2. **Only one word is big.** Completed words are small amber pills to the left; upcoming words are small and muted to the right. The current word is 3× the size of everything else.
 3. **Recognition is forgiving.** A five-year-old's pronunciation is not a dictation test. Match loosely (§5), never punish, never show a red X.
 4. **Nothing is timed against the child.** The world only advances when a word is read. Silence is fine. After ~6s of silence, the app *offers help* (word is spoken aloud, gently) — it does not fail.

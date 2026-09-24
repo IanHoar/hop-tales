@@ -15,11 +15,8 @@ struct ReadingTests {
     await store.receive(\.authorizationResolved) {
       $0.authorization = .authorized
     }
+    await store.send(.speechResult(tokens: ["the"], isFinal: false))
     await store.send(.speechResult(tokens: ["the"], isFinal: false)) {
-      $0.hearing = ["the"]
-    }
-    await store.send(.speechResult(tokens: ["the"], isFinal: false)) {
-      $0.heardToken = "the"
       $0.recognised = Reading.State.Recognised(
         count: 1,
         sentenceIndex: 0,
@@ -150,8 +147,6 @@ struct ReadingTests {
       $0.authorization = .authorized
     }
     await store.receive(\.speechResult) {
-      $0.hearing = ["the"]
-      $0.heardToken = "the"
       $0.recognised = Reading.State.Recognised(
         count: 1,
         sentenceIndex: 0,
@@ -162,8 +157,6 @@ struct ReadingTests {
       $0.wordIndex = 1
     }
     await store.receive(\.speechResult, timeout: .seconds(2)) {
-      $0.hearing = ["hare"]
-      $0.heardToken = "hare"
       $0.recognised = Reading.State.Recognised(
         count: 2,
         sentenceIndex: 0,
@@ -200,6 +193,39 @@ struct ReadingTests {
     }
     try? await Task.sleep(for: .milliseconds(200))
     #expect(sessions.value == 2)
+    await store.dismount()
+  }
+
+  @Test func backLeavesAFinishedStoryWithoutAsking() async {
+    var finished = Reading.State(story: StoryLibrary.all[0])
+    finished.sentenceIndex = finished.story.sentences.count
+    finished.completed = .story(stars: 30)
+    let store = TestStore(initialState: finished) {
+      Reading()
+    }
+
+    store.send(.backTapped)
+    await store.receive(\.backToStoriesTapped)
+    await store.dismount()
+  }
+
+  @Test func readingAgainStartsTheStoryOver() async {
+    var finished = Reading.State(story: StoryLibrary.all[0])
+    finished.sentenceIndex = finished.story.sentences.count
+    finished.stars = 30
+    finished.completed = .story(stars: 30)
+    let store = TestStore(initialState: finished) {
+      Reading()
+    }
+
+    store.send(.readAgainTapped) {
+      $0.sentenceIndex = 0
+      $0.stars = 0
+      $0.completed = nil
+    }
+    await store.receive(\.authorizationResolved) {
+      $0.authorization = .authorized
+    }
     await store.dismount()
   }
 

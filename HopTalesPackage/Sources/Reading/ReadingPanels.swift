@@ -16,14 +16,6 @@ struct ReadingPanels: ViewModifier {
         }
       }
       .overlay {
-        if case let .story(stars) = store.completed {
-          StoryFinished(title: store.story.title, stars: stars) {
-            store.send(.backToStoriesTapped)
-          }
-          .transition(.opacity)
-        }
-      }
-      .overlay {
         if store.isConfirmingStop {
           StopReading {
             store.send(.keepReadingTapped)
@@ -33,7 +25,6 @@ struct ReadingPanels: ViewModifier {
           .transition(.opacity)
         }
       }
-      .animation(Motion.recognised, value: store.completed)
       .animation(.easeInOut(duration: 0.2), value: store.isConfirmingStop)
   }
 }
