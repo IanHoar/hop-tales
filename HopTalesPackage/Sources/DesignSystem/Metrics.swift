@@ -53,12 +53,12 @@ public struct Metrics: Equatable, Sendable {
     sidePadding: 32,
     topBarHeight: 48,
     card: Card(
-      origin: CGPoint(x: 147, y: 470),
-      size: CGSize(width: 900, height: 236),
+      origin: CGPoint(x: 317, y: 470),
+      size: CGSize(width: 560, height: 260),
       cornerRadius: 44,
       ballLaneHeight: 78
     ),
-    words: WordSizes(current: 100, recognised: 70, side: 58, gap: 22),
+    words: WordSizes(current: 84, recognised: 62, side: 49, gap: 18),
     ballRadius: 26,
     ballRestAboveBaseline: 30,
     progressY: 736,
