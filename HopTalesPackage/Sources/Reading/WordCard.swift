@@ -41,7 +41,7 @@ struct WordCard: View {
     .overlay(alignment: .top) {
       if showsHare {
         Hare(target: HopTarget(sentence: 0, word: currentIndex), geometry: geometry)
-          .offset(y: geometry.scaled(Hare.feetBelowCardTop))
+          .offset(y: Hare.feet(on: geometry))
       }
     }
   }

@@ -25,6 +25,15 @@ struct Hare: View {
 
   static let height: CGFloat = 176
   static let feetBelowCardTop: CGFloat = 14
+  static let referenceCardHeight: CGFloat = 168
+
+  static func size(_ points: CGFloat, on geometry: ReadingGeometry) -> CGFloat {
+    points * geometry.cardSize.height / referenceCardHeight
+  }
+
+  static func feet(on geometry: ReadingGeometry) -> CGFloat {
+    size(feetBelowCardTop, on: geometry)
+  }
 
   var body: some View {
     Group {
@@ -56,15 +65,18 @@ struct Hare: View {
             colors: [Paper.shadow.opacity(1.6), .clear],
             center: .center,
             startRadius: 0,
-            endRadius: geometry.scaled(46)
+            endRadius: Self.size(46, on: geometry)
           )
         )
-        .frame(width: geometry.scaled(airborne ? 60 : 92), height: geometry.scaled(16))
+        .frame(
+          width: Self.size(airborne ? 60 : 92, on: geometry),
+          height: Self.size(16, on: geometry)
+        )
         .opacity(airborne ? 0.45 : 1)
         .position(x: centre, y: 0)
-      HareSprite(pose.frame, height: geometry.scaled(Self.height))
+      HareSprite(pose.frame, height: Self.size(Self.height, on: geometry))
         .scaleEffect(x: pose.scaleX, y: pose.scaleY, anchor: .center)
-        .position(x: centre, y: -geometry.scaled(pose.lift))
+        .position(x: centre, y: -Self.size(pose.lift, on: geometry))
     }
   }
 
