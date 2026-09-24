@@ -6,6 +6,7 @@ import Testing
 import UIKit
 
 let snapshotRuntime = "27.0"
+let snapshotRuntimeBuild = "24A434"
 
 func snapshotDirectory(file: StaticString = #filePath) -> String {
   let file = URL(fileURLWithPath: "\(file)")
@@ -41,9 +42,11 @@ func expectSnapshot<Value, Format>(
     column: Int(column)
   )
   let running = UIDevice.current.systemVersion
-  guard running == snapshotRuntime else {
-    let message = "Snapshot references were recorded on iOS \(snapshotRuntime), but this "
-      + "simulator runs iOS \(running). Test on iPhone 18 Pro with iOS \(snapshotRuntime), as "
+  let build = ProcessInfo.processInfo.environment["SIMULATOR_RUNTIME_BUILD_VERSION"] ?? "unknown"
+  guard running == snapshotRuntime, build == snapshotRuntimeBuild else {
+    let message = "Snapshot references were recorded on iOS \(snapshotRuntime) "
+      + "(\(snapshotRuntimeBuild)), but this simulator runs iOS \(running) (\(build)). Test on "
+      + "iPhone 18 Pro with iOS \(snapshotRuntime) (\(snapshotRuntimeBuild)), as "
       + "docs/xcode-cloud.md pins it, or re-record every reference on the new runtime."
     Issue.record(Comment(rawValue: message), sourceLocation: location)
     return
