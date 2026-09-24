@@ -17,8 +17,8 @@ struct OnboardingTests {
     speak: { _, _ in }
   )
 
-  @Test func aFirstRunOpensOnboarding() throws {
-    let store = try TestStore(initialState: Root.State()) {
+  @Test func aFirstRunOpensOnboarding() {
+    let store = TestStore(initialState: Root.State()) {
       Root().dependency(ProfileStore.firstRun)
     } changes: {
       $0.onboarding = Onboarding.State.DebugSnapshot()
@@ -26,9 +26,9 @@ struct OnboardingTests {
     #expect(store.state.onboarding != nil)
   }
 
-  @Test func aSavedProfileSkipsOnboardingAndGreetsTheChild() throws {
+  @Test func aSavedProfileSkipsOnboardingAndGreetsTheChild() {
     let profile = Profile(childName: "Maya", startingStoryID: StoryLibrary.all[1].id)
-    let store = try TestStore(initialState: Root.State()) {
+    let store = TestStore(initialState: Root.State()) {
       Root().dependency(ProfileStore(load: { profile }, save: { _ in }))
     } changes: {
       $0.home.childName = "Maya"
@@ -42,23 +42,23 @@ struct OnboardingTests {
       Onboarding().dependency(Self.speech)
     }
 
-    await store.send(.primaryTapped)
-    await store.send(.nameChanged("Maya")) { $0.childName = "Maya" }
-    await store.send(.primaryTapped) { $0.path = [.listening] }
+    store.send(.primaryTapped)
+    store.send(.nameChanged("Maya")) { $0.childName = "Maya" }
+    store.send(.primaryTapped) { $0.path = [.listening] }
     #expect(store.state.primaryTitle == "Allow microphone")
-    await store.send(.primaryTapped)
+    store.send(.primaryTapped)
     await store.receive(\.authorizationResolved) { $0.authorization = .authorized }
     #expect(store.state.primaryTitle == "Continue")
-    await store.send(.primaryTapped) { $0.path = [.listening, .story] }
-    await store.send(.primaryTapped)
-    await store.send(.storyPicked(StoryLibrary.all[2].id)) {
+    store.send(.primaryTapped) { $0.path = [.listening, .story] }
+    store.send(.primaryTapped)
+    store.send(.storyPicked(StoryLibrary.all[2].id)) {
       $0.startingStoryID = StoryLibrary.all[2].id
     }
-    await store.send(.primaryTapped) { $0.path = [.listening, .story, .accent] }
-    await store.send(.primaryTapped)
-    await store.send(.accentPicked(.british)) { $0.accent = .british }
+    store.send(.primaryTapped) { $0.path = [.listening, .story, .accent] }
+    store.send(.primaryTapped)
+    store.send(.accentPicked(.british)) { $0.accent = .british }
     #expect(store.state.primaryTitle == "Start reading")
-    await store.send(.primaryTapped)
+    store.send(.primaryTapped)
     await store.receive(\.finished)
   }
 
@@ -80,22 +80,22 @@ struct OnboardingTests {
     let store = TestStore(initialState: Onboarding.State()) {
       Onboarding().dependency(speech)
     }
-    await store.send(.nameChanged("Maya")) { $0.childName = "Maya" }
-    await store.send(.primaryTapped) { $0.path = [.listening] }
-    await store.send(.primaryTapped)
+    store.send(.nameChanged("Maya")) { $0.childName = "Maya" }
+    store.send(.primaryTapped) { $0.path = [.listening] }
+    store.send(.primaryTapped)
     await store.receive(\.authorizationResolved) { $0.authorization = .denied }
-    await store.send(.primaryTapped) { $0.path = [.listening, .story] }
+    store.send(.primaryTapped) { $0.path = [.listening, .story] }
   }
 
-  @Test func finishingSavesTheProfileAndShowsTheStories() async throws {
+  @Test func finishingSavesTheProfileAndShowsTheStories() {
     let saved = LockIsolated<Profile?>(nil)
-    let store = try TestStore(initialState: Root.State()) {
+    let store = TestStore(initialState: Root.State()) {
       Root().dependency(ProfileStore(load: { nil }, save: { profile in saved.setValue(profile) }))
     } changes: {
       $0.onboarding = Onboarding.State.DebugSnapshot()
     }
     let profile = Profile(childName: "Maya", startingStoryID: StoryLibrary.all[1].id)
-    await store.send(.onboarding(.finished(profile))) {
+    store.send(.onboarding(.finished(profile))) {
       $0.onboarding = nil
       $0.home.childName = "Maya"
       $0.home.startingStoryID = StoryLibrary.all[1].id
@@ -116,29 +116,29 @@ struct OnboardingTests {
       Onboarding().dependency(Self.speech)
     }
     await store.receive(\.authorizationResolved) { $0.authorization = .authorized }
-    await store.send(.backTapped) { $0.path = [.listening] }
-    await store.send(.backTapped) { $0.path = [] }
-    await store.send(.backTapped)
+    store.send(.backTapped) { $0.path = [.listening] }
+    store.send(.backTapped) { $0.path = [] }
+    store.send(.backTapped)
   }
 
-  @Test func everyAnswerIsKeptAsADraft() async {
+  @Test func everyAnswerIsKeptAsADraft() {
     let draft = LockIsolated<ProfileDraft?>(nil)
     let store = TestStore(initialState: Onboarding.State()) {
       Onboarding()
         .dependency(Self.speech)
         .dependency(ProfileStore(load: { nil }, save: { _ in }, saveDraft: { draft.setValue($0) }))
     }
-    await store.send(.nameChanged("Maya")) { $0.childName = "Maya" }
+    store.send(.nameChanged("Maya")) { $0.childName = "Maya" }
     #expect(draft.value == ProfileDraft(childName: "Maya", step: 1))
   }
 
-  @Test func reopeningTheAppResumesAtTheLastStep() async throws {
+  @Test func reopeningTheAppResumesAtTheLastStep() async {
     let draft = ProfileDraft(
       childName: "Maya",
       startingStoryID: StoryLibrary.all[2].id,
       step: Onboarding.Step.story.rawValue
     )
-    let store = try TestStore(initialState: Root.State()) {
+    let store = TestStore(initialState: Root.State()) {
       Root()
         .dependency(ProfileStore(load: { nil }, save: { _ in }, loadDraft: { draft }))
         .dependency(Self.speech)
@@ -155,7 +155,7 @@ struct OnboardingTests {
     await store.dismount()
   }
 
-  @Test func aFullyAnsweredDraftOpensStraightToTheStories() throws {
+  @Test func aFullyAnsweredDraftOpensStraightToTheStories() {
     let draft = ProfileDraft(
       childName: "Maya",
       startingStoryID: StoryLibrary.all[1].id,
@@ -163,7 +163,7 @@ struct OnboardingTests {
       step: Onboarding.Step.accent.rawValue
     )
     let saved = LockIsolated<Profile?>(nil)
-    let store = try TestStore(initialState: Root.State()) {
+    let store = TestStore(initialState: Root.State()) {
       Root().dependency(
         ProfileStore(load: { nil }, save: { saved.setValue($0) }, loadDraft: { draft })
       )
@@ -175,12 +175,12 @@ struct OnboardingTests {
     #expect(saved.value?.accent == .american)
   }
 
-  @Test func resettingOnboardingForgetsTheProfile() async throws {
+  @Test func resettingOnboardingForgetsTheProfile() {
     let erased = LockIsolated(false)
     let profile = Profile(childName: "Maya")
     var state = Root.State()
     state.settings = Settings.State()
-    let store = try TestStore(initialState: state) {
+    let store = TestStore(initialState: state) {
       Root().dependency(
         ProfileStore(load: { profile }, save: { _ in }, erase: { erased.setValue(true) })
       )
@@ -189,7 +189,7 @@ struct OnboardingTests {
       $0.settings?.childName = "Maya"
       $0.settings?.profile = profile
     }
-    await store.send(.settings(.resetOnboardingTapped)) {
+    store.send(.settings(.resetOnboardingTapped)) {
       $0.home.childName = nil
       $0.onboarding = Onboarding.State.DebugSnapshot()
       $0.settings = nil

@@ -14,7 +14,7 @@ struct RootTests {
     let store = TestStore(initialState: Root.State()) {
       Root()
     }
-    await store.send(.intro(.started(reduceMotion: true)))
+    store.send(.intro(.started(reduceMotion: true)))
     await store.receive(\.intro.finished, timeout: .seconds(2)) { $0.intro = nil }
   }
 
@@ -22,8 +22,8 @@ struct RootTests {
     let store = TestStore(initialState: Root.State()) {
       Root()
     }
-    await store.send(.intro(.started(reduceMotion: false)))
-    await store.send(.intro(.skipTapped))
+    store.send(.intro(.started(reduceMotion: false)))
+    store.send(.intro(.skipTapped))
     await store.receive(\.intro.finished) { $0.intro = nil }
   }
 
