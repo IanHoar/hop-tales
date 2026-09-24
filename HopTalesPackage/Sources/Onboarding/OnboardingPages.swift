@@ -9,14 +9,14 @@ struct StepDots: View {
 
   var body: some View {
     HStack(spacing: 8) {
-      ForEach(Onboarding.Step.setup, id: \.self) { step in
+      ForEach(Onboarding.Step.allCases, id: \.self) { step in
         Capsule()
           .fill(step.rawValue <= current.rawValue ? Palette.gold : Palette.stone)
           .frame(width: step == current ? 22 : 8, height: 8)
       }
     }
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel("Step \(current.rawValue) of \(Onboarding.Step.setup.count)")
+    .accessibilityLabel("Step \(current.rawValue) of \(Onboarding.Step.allCases.count)")
   }
 }
 

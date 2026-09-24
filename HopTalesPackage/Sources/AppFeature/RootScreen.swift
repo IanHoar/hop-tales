@@ -17,6 +17,7 @@ import SwiftUI
 
   public struct State {
     public var home = Home.State()
+    public var intro: Intro.State? = Intro.State()
     public var onboarding: Onboarding.State?
     public var path: [Path.State] = []
     public var settings: Settings.State?
@@ -30,6 +31,7 @@ import SwiftUI
 
   public enum Action {
     case home(Home.Action)
+    case intro(Intro.Action)
     case onboarding(Onboarding.Action)
     case path(Path.State.ID, Path.Action)
     case settings(Settings.Action)
@@ -49,6 +51,10 @@ import SwiftUI
           state.settings = nil
           if let profile = profileStore.load() { state.home.apply(profile) }
         case .home(.playOnTVTapped):
+          break
+        case .intro(.finished):
+          state.intro = nil
+        case .intro:
           break
         case let .onboarding(.finished(profile)):
           profileStore.save(profile)
@@ -71,6 +77,9 @@ import SwiftUI
       Scope(\.home) {
         Home()
       }
+    }
+    .ifLet(\.intro) {
+      Intro()
     }
     .ifLet(\.onboarding) {
       Onboarding()
@@ -104,7 +113,27 @@ public struct RootScreen: View {
     self.store = store
   }
 
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
   public var body: some View {
+    ZStack {
+      destination
+        .offset(y: store.intro == nil || reduceMotion ? 0 : 80)
+        .opacity(store.intro == nil ? 1 : 0)
+      if let intro = store.scope(\.intro) {
+        IntroScreen(store: intro)
+          .transition(.opacity)
+          .zIndex(1)
+      }
+    }
+    .animation(handover, value: store.intro == nil)
+  }
+
+  private var handover: Animation {
+    reduceMotion ? .easeInOut(duration: 0.3) : .timingCurve(0.2, 0.8, 0.2, 1, duration: 0.7)
+  }
+
+  private var destination: some View {
     Group {
       if let onboarding = store.scope(\.onboarding) {
         OnboardingScreen(store: onboarding)

@@ -9,13 +9,10 @@ import SwiftUI
   public init() {}
 
   public enum Step: Int, CaseIterable, Hashable, Sendable {
-    case welcome
-    case name
+    case name = 1
     case listening
     case story
     case accent
-
-    public static var setup: [Step] { allCases.filter { $0 != .welcome } }
   }
 
   public struct State {
@@ -30,7 +27,7 @@ import SwiftUI
       childName = draft.childName
       startingStoryID = draft.startingStoryID
       accent = draft.accent
-      path = Step.allCases.filter { $0 != .welcome && $0.rawValue <= draft.step }
+      path = Step.allCases.filter { $0 != .name && $0.rawValue <= draft.step }
     }
 
     public var draft: ProfileDraft {
@@ -44,7 +41,7 @@ import SwiftUI
 
     public var isComplete: Bool {
       step == Step.allCases.last
-        && Step.setup.filter { $0 != .listening }.allSatisfy(canContinue(from:))
+        && Step.allCases.filter { $0 != .listening }.allSatisfy(canContinue(from:))
     }
 
     var listeningLocale: Locale { (accent ?? .canadian).locale }
@@ -57,11 +54,10 @@ import SwiftUI
       )
     }
 
-    public var step: Step { path.last ?? .welcome }
+    public var step: Step { path.last ?? .name }
 
     func canContinue(from step: Step) -> Bool {
       switch step {
-      case .welcome: true
       case .name: !childName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
       case .listening: authorization != nil
       case .story: startingStoryID != nil
@@ -147,7 +143,7 @@ public struct OnboardingScreen: View {
 
   public var body: some View {
     NavigationStack(path: Binding(get: { store.path }, set: { store.send(.pathChanged($0)) })) {
-      WelcomeCarousel { store.send(.continueTapped) }
+      screen(for: .name)
         .navigationDestination(for: Onboarding.Step.self) { step in
           screen(for: step)
         }
@@ -183,8 +179,6 @@ public struct OnboardingScreen: View {
   @ViewBuilder
   private func page(for step: Onboarding.Step) -> some View {
     switch step {
-    case .welcome:
-      EmptyView()
     case .name:
       NamePage(name: store.childName) { store.send(.nameChanged($0)) }
     case .listening:
@@ -207,7 +201,6 @@ public struct OnboardingScreen: View {
 
   private func continueTitle(for step: Onboarding.Step) -> String {
     switch step {
-    case .welcome: "Get started"
     case .accent: "Start reading"
     default: "Next"
     }
@@ -220,12 +213,12 @@ public struct OnboardingScreen: View {
 
 #Preview("Listening") {
   var state = Onboarding.State()
-  state.path = [.name, .listening]
+  state.path = [.listening]
   return OnboardingScreen(store: Store(initialState: state) { Onboarding() })
 }
 
 #Preview("Reading level") {
   var state = Onboarding.State()
-  state.path = [.name, .listening, .story]
+  state.path = [.listening, .story]
   return OnboardingScreen(store: Store(initialState: state) { Onboarding() })
 }

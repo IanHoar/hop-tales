@@ -6,6 +6,27 @@ import Testing
 @testable import Reading
 @MainActor
 struct RootTests {
+  @Test func everyLaunchOpensOnTheIntro() {
+    #expect(Root.State().intro != nil)
+  }
+
+  @Test func theIntroHandsOverWhenTheHareHasRunOff() async {
+    let store = TestStore(initialState: Root.State()) {
+      Root()
+    }
+    await store.send(.intro(.started(reduceMotion: true)))
+    await store.receive(\.intro.finished, timeout: .seconds(2)) { $0.intro = nil }
+  }
+
+  @Test func tappingSkipsTheIntro() async {
+    let store = TestStore(initialState: Root.State()) {
+      Root()
+    }
+    await store.send(.intro(.started(reduceMotion: false)))
+    await store.send(.intro(.skipTapped))
+    await store.receive(\.intro.finished) { $0.intro = nil }
+  }
+
   @Test func tappingAStoryPushesTheReadingScreen() async {
     let store = TestStore(initialState: Root.State()) {
       Root()
