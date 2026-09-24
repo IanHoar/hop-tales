@@ -8,17 +8,27 @@ public enum MeadowPostcard {
     let width: Int
     let height: Int
     let progress: Int
+    let framing: MeadowFraming
   }
 
   private static var cache: [Key: UIImage] = [:]
   private static var tinted: [String: UIImage] = [:]
 
-  public static func image(mood: Mood, size: CGSize, progress: Double = 0) -> UIImage {
+  public static func image(
+    mood: Mood,
+    size: CGSize,
+    progress: Double = 0,
+    framing: MeadowFraming = .wide
+  ) -> UIImage {
     let key = Key(
-      mood: mood, width: Int(size.width), height: Int(size.height), progress: Int(progress)
+      mood: mood,
+      width: Int(size.width),
+      height: Int(size.height),
+      progress: Int(progress),
+      framing: framing
     )
     if let cached = cache[key] { return cached }
-    let layout = MeadowLayout(size: size)
+    let layout = MeadowLayout(size: size, framing: framing)
     let format = UIGraphicsImageRendererFormat.default()
     format.scale = 2
     let image = UIGraphicsImageRenderer(size: size, format: format).image { context in
@@ -89,7 +99,8 @@ public enum MeadowPostcard {
     layout: MeadowLayout,
     progress: Double
   ) {
-    guard let image = tintedLayer(layer, mood: mood) else { return }
+    let detail: CGFloat = layout.framing == .wide ? 4 : 2
+    guard let image = tintedLayer(layer, mood: mood, detail: detail) else { return }
     let tile = layout.tileSize(of: layer)
     let offset = layout.offset(of: layer, progress: progress)
     for index in 0..<layout.tileCount(of: layer) {
@@ -102,11 +113,15 @@ public enum MeadowPostcard {
     }
   }
 
-  private static func tintedLayer(_ layer: MeadowLayer, mood: Mood) -> UIImage? {
-    let key = "\(layer.asset)-\(mood.sky.rawValue)-\(mood.weather.rawValue)"
+  private static func tintedLayer(
+    _ layer: MeadowLayer,
+    mood: Mood,
+    detail: CGFloat
+  ) -> UIImage? {
+    let key = "\(layer.asset)-\(mood.sky.rawValue)-\(mood.weather.rawValue)-\(detail)"
     if let cached = tinted[key] { return cached }
     guard let source = MeadowArt.image(layer.asset) else { return nil }
-    let size = CGSize(width: source.size.width / 4, height: source.size.height / 4)
+    let size = CGSize(width: source.size.width / detail, height: source.size.height / detail)
     let format = UIGraphicsImageRendererFormat.default()
     format.scale = 1
     let image = UIGraphicsImageRenderer(size: size, format: format).image { context in

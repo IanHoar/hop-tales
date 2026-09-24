@@ -1,0 +1,22 @@
+import SnapshotTesting
+import SwiftUI
+import Testing
+
+@testable import Reading
+
+@MainActor
+@Suite(.snapshots(record: .missing, diffTool: .ksdiff))
+struct PathSnapshotTests {
+  @Test(arguments: [ReadingScreenPreview.Moment.start, .midPage, .end])
+  func theWordsLieOnThePath(moment: ReadingScreenPreview.Moment) {
+    expectSnapshot(
+      of: ReadingScreenPreview(moment: moment).environment(\.freezesMotion, true),
+      as: .image(
+        layout: .device(config: ReadingScreenSnapshotTests.device(
+          ReadingScreenSnapshotTests.smallPhone, .light
+        ))
+      ),
+      named: "\(moment)"
+    )
+  }
+}

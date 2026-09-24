@@ -30,8 +30,6 @@ import World
     public var authorization: SpeechClient.Authorization?
     public var completed: Completed?
     public var completionCount = 0
-    public var heardToken: String?
-    public var hearing: [String] = []
     public var isActive = true
     public var isConfirmingStop = false
     public var listeningEpoch = 0
@@ -78,6 +76,7 @@ import World
     case backTapped
     case backToStoriesTapped
     case currentWordTapped
+    case readAgainTapped
     case helpOffered
     case keepReadingTapped
     case speechFinished
@@ -118,7 +117,22 @@ import World
         state.authorization = authorization
 
       case .backTapped:
-        state.isConfirmingStop = true
+        guard case .story = state.completed else {
+          state.isConfirmingStop = true
+          break
+        }
+        store.addTask { try store.send(.backToStoriesTapped) }
+
+      case .readAgainTapped:
+        state.sentenceIndex = 0
+        state.wordIndex = 0
+        state.stars = 0
+        state.usedHelp = false
+        state.completed = nil
+        state.recognised = nil
+        savedStars = 0
+        chimedSentence = 0
+        debouncer.reset()
 
       case .backToStoriesTapped:
         state.isConfirmingStop = false
@@ -148,7 +162,6 @@ import World
 
       case let .speechResult(tokens, isFinal):
         guard !state.isSpeaking else { break }
-        state.hearing = Array(tokens.suffix(3))
         let eligible = debouncer.confirm(tokens: tokens, isFinal: isFinal)
         guard
           let current = state.currentWord,
@@ -161,7 +174,6 @@ import World
         else { break }
         let sentenceBefore = state.sentenceIndex
         let starsBefore = state.stars
-        state.heardToken = match.token
         let readIndex = state.wordIndex
         state.advance(by: match.target == .next ? 2 : 1)
         state.recognised = Reading.State.Recognised(
@@ -230,85 +242,35 @@ import World
 }
 
 public struct ReadingScreen: View {
-  static let heardHold = Duration.milliseconds(1200)
-  static let cardToPill: CGFloat = 40
-  static let pillToEdge: CGFloat = 12
-  static let recognisedHold = Duration.milliseconds(450)
-  static let chipHold = Duration.milliseconds(900)
-
   let store: StoreOf<Reading>
 
-  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
   @Environment(\.verticalSizeClass) private var verticalSizeClass
   @Environment(\.scenePhase) private var scenePhase
-  @State private var showsHearing = false
-  @State private var heldToken: String?
-  @State private var flash: Reading.State.Recognised?
-  @State private var chip: Reading.State.Recognised?
 
   public init(store: StoreOf<Reading>) {
     self.store = store
   }
 
-  @ViewBuilder
-  private var background: some View {
-    #if DEBUG
-      // Tapping anywhere off the card reads the current word, so a whole story can be walked
-      // through in the simulator where nothing is listening.
-      world.modifier(DebugTapToAdvance(store: store))
-    #else
-      world
-    #endif
-  }
-
-  private var world: some View {
-    MeadowBackdrop(progress: store.worldProgress, mood: store.mood)
-  }
-
-  private func card(_ geometry: ReadingGeometry, screenWidth: CGFloat? = nil) -> some View {
-    SentenceStrip(
-      sentences: store.story.sentences.map(\.words),
-      position: HopTarget(sentence: store.sentenceIndex, word: store.wordIndex),
-      flash: flash.map { HopTarget(sentence: $0.sentenceIndex, word: $0.wordIndex) },
-      isSpeaking: store.isSpeaking,
-      geometry: geometry,
-      screenWidth: screenWidth
-    )
-    .contentShape(.rect)
-    .onTapGesture { store.send(.currentWordTapped) }
-    .accessibilityElement(children: .ignore)
-    .accessibilityLabel(store.wordCardLabel)
-    .accessibilityHint("Double tap to hear the word.")
-    .accessibilityAddTraits(.startsMediaSession)
-    .accessibilityAction { store.send(.currentWordTapped) }
-  }
-
-  private var hearing: String? {
-    guard showsHearing, !store.hearing.isEmpty else { return nil }
-    return store.hearing.joined(separator: " ")
-  }
-
-  private var usesPadLayout: Bool {
-    horizontalSizeClass == .regular && verticalSizeClass == .regular
+  private var metrics: Metrics {
+    horizontalSizeClass == .regular && verticalSizeClass == .regular ? .pad : .phone
   }
 
   public var body: some View {
-    GeometryReader { proxy in
-      if usesPadLayout {
-        PadReadingLayout(
-          store: store,
-          size: proxy.size,
-          heldToken: heldToken,
-          hearing: hearing,
-          chip: chip
-        ) {
-          background
-        } card: {
-          card($0, screenWidth: proxy.size.width)
+    GeometryReader { outer in
+      let chrome = ReadingGeometry(metrics: metrics, size: outer.size)
+      ZStack(alignment: .topLeading) {
+        GeometryReader { proxy in
+          PathStage(store: store, geometry: ReadingGeometry(metrics: metrics, size: proxy.size))
         }
-      } else {
-        phone(proxy)
+        .ignoresSafeArea()
+        BackChip(geometry: chrome) { store.send(.backTapped) }
+          .padding(.leading, chrome.path(18) - (chrome.path(44) - chrome.path(38)) / 2)
+          .padding(.top, chrome.path(4))
+        #if DEBUG
+          DebugControls(store: store)
+            .position(x: outer.size.width / 2, y: chrome.path(96))
+        #endif
       }
     }
     .toolbar(.hidden, for: .navigationBar)
@@ -317,67 +279,12 @@ public struct ReadingScreen: View {
       guard store.completionCount > 0, case .sentence = store.completed else { return }
       Haptics.sentenceCompleted()
     }
-    .task {
-      showsHearing = await BuildChannel.isPreRelease()
-    }
     .onChange(of: scenePhase) { _, phase in
       store.send(.scenePhaseChanged(isActive: phase != .background))
     }
     .task(id: store.recognised) {
-      guard let recognised = store.recognised else { return }
-      flash = recognised
-      chip = recognised
+      guard store.recognised != nil else { return }
       Haptics.wordRecognised()
-      try? await Task.sleep(for: Self.recognisedHold)
-      if !Task.isCancelled { flash = nil }
-      try? await Task.sleep(for: Self.chipHold)
-      if !Task.isCancelled { chip = nil }
-    }
-    .task(id: store.heardToken) {
-      guard let token = store.heardToken else {
-        heldToken = nil
-        return
-      }
-      heldToken = token
-      try? await Task.sleep(for: Self.heardHold)
-      guard !Task.isCancelled else { return }
-      heldToken = nil
-    }
-  }
-
-  private func phone(_ proxy: GeometryProxy) -> some View {
-    let geometry = ReadingGeometry(size: proxy.size)
-    return ZStack {
-      background
-        .ignoresSafeArea()
-
-      VStack(spacing: 0) {
-        Spacer(minLength: 0)
-        card(geometry)
-        MicPill(heardToken: heldToken, hearing: hearing, geometry: geometry)
-          .padding(.top, geometry.scaled(Self.cardToPill))
-      }
-      .padding(.bottom, geometry.scaled(Self.pillToEdge))
-      .frame(width: proxy.size.width, height: proxy.size.height)
-
-      VStack(spacing: 0) {
-        ReadingTopBar(title: store.story.title, stars: store.stars, geometry: geometry) {
-          store.send(.backTapped)
-        }
-        .padding(.top, geometry.scaled(6))
-        Spacer()
-      }
-
-      if let chip {
-        StarChip(stars: chip.stars, geometry: geometry)
-          .id(chip.count)
-          .position(x: proxy.size.width - geometry.scaled(58), y: geometry.scaled(96))
-      }
-
-      #if DEBUG
-        DebugControls(store: store)
-          .position(x: proxy.size.width / 2, y: geometry.scaled(150))
-      #endif
     }
   }
 }
