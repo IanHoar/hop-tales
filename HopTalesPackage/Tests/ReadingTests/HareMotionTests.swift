@@ -1,0 +1,94 @@
+import Foundation
+import Testing
+import World
+
+@testable import Reading
+
+struct HareMotionTests {
+  @Test func theHopPlaysEightFramesAtFourteenFramesASecond() {
+    var motion = HareMotion()
+    let length = motion.jump(at: 10, distance: 80, carried: false)
+    #expect(abs(length - 8.0 / 14) < 0.0001)
+    let frames = (0..<8).map { step in
+      motion.pose(at: 10 + (Double(step) + 0.5) / 14, reduceMotion: false).frame
+    }
+    #expect(frames == (0..<8).map { HareFrame(.hop, $0) })
+    #expect(motion.pose(at: 10 + length + 0.01, reduceMotion: false).frame.sheet == .idle)
+  }
+
+  @Test func heOnlyTravelsDuringTheSecondToSeventhFrames() {
+    var motion = HareMotion()
+    motion.jump(at: 0, distance: 80, carried: false)
+    #expect(motion.x(at: 0.5 / 14) == 0)
+    #expect(motion.x(at: 1.0 / 14) == 0)
+    #expect(motion.x(at: 4.0 / 14) > 0)
+    #expect(abs(motion.x(at: 7.0 / 14) - 80) < 0.0001)
+    #expect(abs(motion.x(at: 7.9 / 14) - 80) < 0.0001)
+  }
+
+  @Test func heLeavesTheCardInAnArcAndLandsOnIt() {
+    var motion = HareMotion()
+    motion.jump(at: 0, distance: 80, carried: false)
+    #expect(motion.lift(at: 1.0 / 14) == 0)
+    #expect(abs(motion.lift(at: 4.0 / 14) - HareMotion.apex) < 0.0001)
+    #expect(motion.lift(at: 7.0 / 14) == 0)
+  }
+
+  @Test func afterLandingHeRidesTheWordsBackToTheCentre() {
+    var motion = HareMotion()
+    let landing = motion.jump(at: 0, distance: 80, carried: false)
+    #expect(motion.x(at: landing + HareMotion.ride / 2) < 80)
+    #expect(motion.x(at: landing + HareMotion.ride) == 0)
+  }
+
+  @Test func aWordReadMidHopSetsOffFromWhereHeIs() {
+    var motion = HareMotion()
+    motion.jump(at: 0, distance: 80, carried: false)
+    let midway = motion.x(at: 4.0 / 14)
+    motion.jump(at: 4.0 / 14, distance: 60, carried: false)
+    #expect(motion.hop?.fromX == midway)
+  }
+
+  @Test func aNewSentenceCarriesHimWithTheCards() {
+    var motion = HareMotion()
+    motion.jump(at: 0, distance: 400, carried: true)
+    #expect(motion.x(at: 4.0 / 14) == 0)
+    #expect(motion.pose(at: 4.0 / 14, reduceMotion: false).frame.sheet == .hop)
+  }
+
+  @Test func heRestsMostOfTheTimeAndStillBlinksAndTwitches() {
+    let samples = stride(from: 0.0, to: HareMotion.cycle, by: 0.02).map(HareMotion.idleFrame(at:))
+    let resting = samples.filter { $0 == HareFrame.rest.index }.count
+    #expect(Double(resting) / Double(samples.count) > 0.5)
+    #expect(samples.contains(3))
+    #expect(Set(samples).count > 3)
+  }
+
+  @Test func everyCycleShufflesItsGesturesAndFitsInEighteenSeconds() {
+    let first = HareMotion.schedule(cycle: 0).map(\.gesture)
+    let second = HareMotion.schedule(cycle: 1).map(\.gesture)
+    #expect(first != second)
+    for index in 0..<20 {
+      for event in HareMotion.schedule(cycle: index) {
+        #expect(event.start + HareMotion.length(event.gesture) < HareMotion.cycle)
+      }
+    }
+    let again = HareMotion.schedule(cycle: 3).map(\.start)
+    #expect(HareMotion.schedule(cycle: 3).map(\.start) == again)
+  }
+
+  @Test func heBreathesGentlyFromTheFeet() {
+    let rest = HareMotion.breathing(at: 0)
+    let full = HareMotion.breathing(at: HareMotion.breath / 2)
+    #expect(rest.x == 1 && rest.y == 1)
+    #expect(abs(full.y - 1.014) < 0.0001)
+    #expect(abs(full.x - 1.006) < 0.0001)
+  }
+
+  @Test func reduceMotionHoldsTheRestingPose() {
+    var motion = HareMotion()
+    motion.jump(at: 0, distance: 80, carried: false)
+    #expect(motion.pose(at: 0.2, reduceMotion: true) == .resting)
+    #expect(motion.pose(at: 30, reduceMotion: true) == .resting)
+  }
+}

@@ -9,15 +9,10 @@ struct WordCard: View {
   var isSpeaking = false
   let geometry: ReadingGeometry
   var sceneShadow: Color = Palette.SceneShadow.meadow
-  var showsBall = true
+  var showsHare = true
 
   var body: some View {
     ZStack(alignment: .top) {
-      if showsBall {
-        Ball(target: BallTarget(sentence: 0, word: currentIndex), geometry: geometry)
-          .padding(.top, geometry.scaled(14))
-      }
-
       WordRow(
         words: words,
         currentIndex: currentIndex,
@@ -27,7 +22,7 @@ struct WordCard: View {
       )
         .frame(width: geometry.cardSize.width, height: geometry.scaled(84))
         .mask { edgeFade.padding(.vertical, -geometry.cardSize.height) }
-        .padding(.top, geometry.scaled(96))
+        .padding(.top, (geometry.cardSize.height - geometry.scaled(84)) / 2)
     }
     .frame(width: geometry.cardSize.width, height: geometry.cardSize.height, alignment: .top)
     .clipShape(shape)
@@ -49,6 +44,12 @@ struct WordCard: View {
           y: geometry.scaled(16)
         )
         .offset(y: geometry.scaled(6))
+        .overlay(alignment: .top) {
+          if showsHare {
+            Hare(target: HopTarget(sentence: 0, word: currentIndex), geometry: geometry)
+              .offset(y: geometry.scaled(Hare.feetBelowCardTop))
+          }
+        }
     }
   }
 
