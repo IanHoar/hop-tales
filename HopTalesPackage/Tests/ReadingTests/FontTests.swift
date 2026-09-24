@@ -9,7 +9,7 @@ struct FontTests {
     #expect(UIFont(name: face, size: 20) != nil)
   }
 
-  @Test func wordsAreMeasuredInAndika() {
-    #expect(Typography.wordUIFont(20).fontName == "Andika-Bold")
+  @Test func wordsAreMeasuredInYoungSerif() {
+    #expect(Typography.wordUIFont(20).fontName == "YoungSerif-Regular")
   }
 }

@@ -1,0 +1,171 @@
+{
+ "frame": [
+  260,
+  373
+ ],
+ "names": [
+  "rest",
+  "sniff",
+  "ear",
+  "blink",
+  "tilt",
+  "blink-half",
+  "ear-1",
+  "ear-2",
+  "tilt-1",
+  "tilt-2"
+ ],
+ "loop_seconds": 18.0,
+ "timeline": [
+  {
+   "at": 2.4,
+   "frames": [
+    {
+     "frame": 5,
+     "name": "blink-half",
+     "hold": 0.05
+    },
+    {
+     "frame": 3,
+     "name": "blink",
+     "hold": 0.09
+    },
+    {
+     "frame": 5,
+     "name": "blink-half",
+     "hold": 0.06
+    }
+   ]
+  },
+  {
+   "at": 5.6,
+   "frames": [
+    {
+     "frame": 6,
+     "name": "ear-1",
+     "hold": 0.09
+    },
+    {
+     "frame": 7,
+     "name": "ear-2",
+     "hold": 0.09
+    },
+    {
+     "frame": 2,
+     "name": "ear",
+     "hold": 1.1
+    },
+    {
+     "frame": 7,
+     "name": "ear-2",
+     "hold": 0.1
+    },
+    {
+     "frame": 6,
+     "name": "ear-1",
+     "hold": 0.1
+    }
+   ]
+  },
+  {
+   "at": 8.3,
+   "frames": [
+    {
+     "frame": 8,
+     "name": "tilt-1",
+     "hold": 0.14
+    },
+    {
+     "frame": 9,
+     "name": "tilt-2",
+     "hold": 0.14
+    },
+    {
+     "frame": 4,
+     "name": "tilt",
+     "hold": 2.6
+    },
+    {
+     "frame": 9,
+     "name": "tilt-2",
+     "hold": 0.16
+    },
+    {
+     "frame": 8,
+     "name": "tilt-1",
+     "hold": 0.16
+    }
+   ]
+  },
+  {
+   "at": 10.1,
+   "frames": [
+    {
+     "frame": 5,
+     "name": "blink-half",
+     "hold": 0.05
+    },
+    {
+     "frame": 3,
+     "name": "blink",
+     "hold": 0.08
+    },
+    {
+     "frame": 5,
+     "name": "blink-half",
+     "hold": 0.05
+    }
+   ]
+  },
+  {
+   "at": 12.9,
+   "frames": [
+    {
+     "frame": 5,
+     "name": "blink-half",
+     "hold": 0.05
+    },
+    {
+     "frame": 3,
+     "name": "blink",
+     "hold": 0.09
+    },
+    {
+     "frame": 5,
+     "name": "blink-half",
+     "hold": 0.06
+    }
+   ]
+  },
+  {
+   "at": 13.3,
+   "frames": [
+    {
+     "frame": 5,
+     "name": "blink-half",
+     "hold": 0.05
+    },
+    {
+     "frame": 3,
+     "name": "blink",
+     "hold": 0.08
+    },
+    {
+     "frame": 5,
+     "name": "blink-half",
+     "hold": 0.05
+    }
+   ]
+  },
+  {
+   "at": 15.8,
+   "frames": [
+    {
+     "frame": 1,
+     "name": "sniff",
+     "hold": 0.5
+    }
+   ]
+  }
+ ]
+}

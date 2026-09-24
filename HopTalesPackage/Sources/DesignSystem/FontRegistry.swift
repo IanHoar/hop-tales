@@ -3,7 +3,7 @@ import Foundation
 
 public enum FontRegistry {
   public static let faces = [
-    "Andika-Bold", "Fredoka-Medium", "Fredoka-SemiBold", "Fredoka-Bold", "LilitaOne"
+    "YoungSerif-Regular", "Fraunces-Bold", "Fredoka-Medium", "Fredoka-SemiBold", "Fredoka-Bold"
   ]
 
   static let registered: Bool = {
