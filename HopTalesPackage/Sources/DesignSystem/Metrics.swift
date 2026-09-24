@@ -18,6 +18,8 @@ public struct Metrics: Equatable, Sendable {
   public var sidePadding: CGFloat
   public var card: Card
   public var words: WordSizes
+  public var pathScale: CGFloat = 1
+  public var pathCentre: CGFloat = 640
   public static let phone = Metrics(
     reference: CGSize(width: 390, height: 844),
     topBarY: 48,
@@ -37,7 +39,9 @@ public struct Metrics: Equatable, Sendable {
       origin: CGPoint(x: 317, y: 470),
       size: CGSize(width: 560, height: 260)
     ),
-    words: WordSizes(current: 84, recognised: 62, side: 49, gap: 18)
+    words: WordSizes(current: 84, recognised: 62, side: 49, gap: 18),
+    pathScale: 1.15,
+    pathCentre: 632
   )
 
   public static let tv = Metrics(

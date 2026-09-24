@@ -33,6 +33,10 @@ public struct ReadingGeometry: Equatable, Sendable {
     )
   }
 
+  public var pathScale: CGFloat { scale * metrics.pathScale }
+  public func path(_ value: CGFloat) -> CGFloat { value * pathScale }
+  public var pathCentre: CGFloat { y(metrics.pathCentre) }
+
   public var currentWordSize: CGFloat { scaled(metrics.words.current) }
   public var recognisedWordSize: CGFloat { scaled(metrics.words.recognised) }
   public var sideWordSize: CGFloat { scaled(metrics.words.side) }

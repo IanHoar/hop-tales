@@ -123,11 +123,16 @@ struct HareMotion: Equatable {
     return time >= hop.start && time - hop.start < hop.length
   }
 
-  func lift(at time: TimeInterval) -> CGFloat {
+  func arc(at time: TimeInterval) -> CGFloat {
     guard let hop else { return 0 }
     let progress = (time - hop.start - hop.takeOff) / hop.airTime
     guard progress > 0, progress < 1 else { return 0 }
-    return (hop.carried ? Self.sentenceApex : Self.apex) * CGFloat(sin(.pi * progress))
+    return CGFloat(sin(.pi * progress))
+  }
+
+  func lift(at time: TimeInterval) -> CGFloat {
+    guard let hop else { return 0 }
+    return (hop.carried ? Self.sentenceApex : Self.apex) * arc(at: time)
   }
 
   func pose(at time: TimeInterval, reduceMotion: Bool) -> Pose {

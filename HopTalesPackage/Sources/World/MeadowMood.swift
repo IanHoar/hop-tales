@@ -114,4 +114,6 @@ extension Mood {
   func tint(for layer: MeadowLayer) -> UIColor {
     (sky.style.tints[layer] ?? .white).dimmed(weather.style.dim)
   }
+
+  public var landTint: UIColor { tint(for: .near) }
 }
