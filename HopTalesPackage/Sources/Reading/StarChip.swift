@@ -14,21 +14,15 @@ struct StarChip: View {
 
   var body: some View {
     HStack(spacing: geometry.scaled(6)) {
-      Coin(size: geometry.scaled(26))
+      PaperStar(size: geometry.scaled(18))
       Text("+\(stars)")
-        .font(Typography.display(geometry.scaled(18)))
-        .foregroundStyle(Palette.onAccent)
+        .font(Typography.display(geometry.scaled(17)))
+        .foregroundStyle(Paper.ink)
     }
-    .padding(.leading, geometry.scaled(5))
+    .padding(.leading, geometry.scaled(9))
     .padding(.trailing, geometry.scaled(12))
     .frame(height: geometry.scaled(36))
-    .bevel(
-      Palette.gold,
-      lip: Palette.goldShade,
-      shape: Capsule(),
-      border: geometry.scaled(3),
-      drop: geometry.scaled(3)
-    )
+    .paperChip(Capsule(), fill: Paper.wash, rim: geometry.scaled(3))
       .offset(y: lift)
       .opacity(opacity)
       .task {

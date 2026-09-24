@@ -99,3 +99,37 @@ public struct ProgressPills: View {
     .accessibilityLabel("Step \(current + 1) of \(count)")
   }
 }
+
+extension View {
+  public func paperChip<S: InsettableShape>(
+    _ shape: S,
+    fill: Color = Paper.paper,
+    rim: CGFloat = 4,
+    shadow: CGFloat = 1
+  ) -> some View {
+    background(fill, in: shape)
+      .overlay(shape.strokeBorder(Paper.rim, lineWidth: rim))
+      .compositingGroup()
+      .shadow(color: Paper.shadow, radius: 4 * shadow, y: 3 * shadow)
+  }
+}
+
+public struct WashHighlight: View {
+  public init() {}
+
+  public var body: some View {
+    Rectangle()
+      .fill(
+        EllipticalGradient(
+          stops: [
+            .init(color: Paper.wash.opacity(0.95), location: 0),
+            .init(color: Paper.wash.opacity(0.75), location: 0.76),
+            .init(color: Paper.wash.opacity(0), location: 1)
+          ],
+          center: .center,
+          startRadiusFraction: 0,
+          endRadiusFraction: 0.5
+        )
+      )
+  }
+}

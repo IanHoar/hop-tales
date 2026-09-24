@@ -31,9 +31,6 @@ struct PadReadingLayout<World: View, Card: View>: View {
       card(geometry)
         .frame(width: size.width)
         .offset(y: geometry.y(geometry.metrics.card.origin.y))
-      ProgressRail(story: store.story, sentenceIndex: store.sentenceIndex, geometry: geometry)
-        .frame(width: size.width)
-        .offset(y: geometry.progressY)
       if let chip {
         StarChip(stars: chip.stars, geometry: chrome)
           .id(chip.count)

@@ -26,13 +26,24 @@ struct BackButton: View {
   var body: some View {
     Button(action: action) {
       Image(systemName: "chevron.left")
-        .font(.system(size: geometry.scaled(22), weight: .heavy))
-        .foregroundStyle(Palette.ink)
-        .frame(width: geometry.scaled(52), height: geometry.scaled(52))
-        .parchmentBevel(Circle(), border: geometry.scaled(3), drop: geometry.scaled(4))
+        .font(.system(size: geometry.scaled(19), weight: .heavy))
+        .foregroundStyle(Paper.ink)
+        .frame(width: geometry.scaled(48), height: geometry.scaled(48))
+        .paperChip(Circle(), rim: geometry.scaled(4))
     }
     .buttonStyle(.plain)
     .accessibilityLabel("Back to stories")
+  }
+}
+
+struct PaperStar: View {
+  let size: CGFloat
+
+  var body: some View {
+    Star()
+      .fill(Paper.wash)
+      .overlay(Star().stroke(Paper.washRing, lineWidth: max(1, size * 0.07)))
+      .frame(width: size, height: size)
   }
 }
 
@@ -41,17 +52,17 @@ struct StarTotal: View {
   let geometry: ReadingGeometry
 
   var body: some View {
-    HStack(spacing: geometry.scaled(8)) {
-      Coin(size: geometry.scaled(38))
+    HStack(spacing: geometry.scaled(7)) {
+      PaperStar(size: geometry.scaled(21))
       Text("\(stars)")
-        .font(Typography.display(geometry.scaled(22)))
-        .foregroundStyle(Palette.ink)
+        .font(Typography.display(geometry.scaled(18)))
+        .foregroundStyle(Paper.ink)
         .monospacedDigit()
     }
-    .padding(.leading, geometry.scaled(6))
+    .padding(.leading, geometry.scaled(12))
     .padding(.trailing, geometry.scaled(16))
-    .frame(height: geometry.scaled(52))
-    .parchmentBevel(Capsule(), border: geometry.scaled(3), drop: geometry.scaled(4))
+    .frame(height: geometry.scaled(48))
+    .paperChip(Capsule(), rim: geometry.scaled(4))
     .accessibilityElement(children: .ignore)
     .accessibilityLabel("\(stars) stars")
   }
@@ -62,61 +73,17 @@ struct StoryRibbon: View {
   let geometry: ReadingGeometry
 
   var body: some View {
-    Text(title)
-      .font(Typography.display(geometry.scaled(17)))
-      .foregroundStyle(Palette.labelOnWorld)
-      .inkHalo(geometry.scaled(2))
-      .lineLimit(1)
-      .minimumScaleFactor(0.7)
-      .padding(.horizontal, geometry.scaled(26))
-      .frame(minWidth: geometry.scaled(160), maxWidth: geometry.scaled(230))
-      .frame(height: geometry.scaled(52))
-      .background {
-        RibbonShape(tail: geometry.scaled(18), notch: geometry.scaled(9))
-          .fill(Palette.redShade)
-          .overlay(
-            RibbonShape(tail: geometry.scaled(18), notch: geometry.scaled(9))
-              .stroke(Palette.outline, lineWidth: geometry.scaled(3))
-          )
-          .offset(y: geometry.scaled(6))
-          .padding(.vertical, geometry.scaled(8))
-      }
-      .background {
-        Rectangle()
-          .fill(Palette.red)
-          .overlay(alignment: .top) {
-            Rectangle()
-              .fill(Palette.redLight)
-              .frame(height: geometry.scaled(3))
-              .padding(.top, geometry.scaled(4))
-          }
-          .overlay(Rectangle().strokeBorder(Palette.outline, lineWidth: geometry.scaled(3)))
-          .padding(.horizontal, geometry.scaled(16))
-          .padding(.top, geometry.scaled(4))
-          .padding(.bottom, geometry.scaled(2))
-      }
-      .accessibilityAddTraits(.isHeader)
-  }
-}
-
-struct RibbonShape: Shape {
-  let tail: CGFloat
-  let notch: CGFloat
-
-  func path(in rect: CGRect) -> Path {
-    var path = Path()
-    path.move(to: CGPoint(x: rect.minX, y: rect.minY))
-    path.addLine(to: CGPoint(x: rect.minX + tail, y: rect.minY))
-    path.addLine(to: CGPoint(x: rect.minX + tail, y: rect.maxY))
-    path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
-    path.addLine(to: CGPoint(x: rect.minX + notch, y: rect.midY))
-    path.closeSubpath()
-    path.move(to: CGPoint(x: rect.maxX, y: rect.minY))
-    path.addLine(to: CGPoint(x: rect.maxX - tail, y: rect.minY))
-    path.addLine(to: CGPoint(x: rect.maxX - tail, y: rect.maxY))
-    path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
-    path.addLine(to: CGPoint(x: rect.maxX - notch, y: rect.midY))
-    path.closeSubpath()
-    return path
+    PaperLabel(seed: 5) {
+      Text(title)
+        .font(Typography.display(geometry.scaled(18)))
+        .foregroundStyle(Paper.ink)
+        .lineLimit(1)
+        .minimumScaleFactor(0.7)
+        .padding(.horizontal, geometry.scaled(18))
+        .padding(.vertical, geometry.scaled(9))
+        .frame(maxWidth: geometry.scaled(210))
+    }
+    .rotationEffect(.degrees(-2))
+    .accessibilityAddTraits(.isHeader)
   }
 }

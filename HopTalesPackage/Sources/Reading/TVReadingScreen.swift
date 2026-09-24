@@ -24,7 +24,6 @@ public struct TVReadingScreen: View {
       let tvScale = proxy.size.width / Metrics.tv.reference.width
       let ribbon = Self.chrome(1.7 * tvScale)
       let chips = Self.chrome(1.5 * tvScale)
-      let trail = Self.chrome(1.8 * tvScale)
       ZStack(alignment: .topLeading) {
         MeadowBackdrop(progress: store.worldProgress, mood: store.mood)
         HStack(alignment: .center) {
@@ -46,12 +45,6 @@ public struct TVReadingScreen: View {
         )
         .frame(width: proxy.size.width)
         .offset(y: geometry.y(geometry.metrics.card.origin.y))
-        ProgressRail(story: store.story, sentenceIndex: store.sentenceIndex, geometry: trail)
-          .frame(width: proxy.size.width)
-          .offset(
-            y: geometry.y(geometry.metrics.card.origin.y) + geometry.cardSize.height
-              + geometry.scaled(20)
-          )
       }
     }
     .background(Palette.duskRoot)

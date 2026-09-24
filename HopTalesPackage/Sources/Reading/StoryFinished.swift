@@ -8,45 +8,45 @@ struct StoryFinished: View {
 
   var body: some View {
     ZStack {
-      Palette.duskRoot.opacity(0.55)
+      Paper.night.opacity(0.45)
         .ignoresSafeArea()
-      VStack(spacing: 20) {
+      VStack(spacing: 18) {
         ZStack {
           ForEach(0..<3, id: \.self) { index in
-            Star()
-              .fill(Palette.gold)
-              .overlay(Star().stroke(Palette.outline, lineWidth: 3))
-              .frame(width: index == 1 ? 58 : 42, height: index == 1 ? 58 : 42)
+            PaperStar(size: index == 1 ? 58 : 42)
               .offset(x: CGFloat(index - 1) * 52, y: index == 1 ? -8 : 6)
           }
         }
         .frame(height: 70)
         Text("You finished")
           .font(Typography.ui(16))
-          .foregroundStyle(Palette.muted)
+          .foregroundStyle(Paper.muted)
         Text(title)
           .font(Typography.display(30))
-          .foregroundStyle(Palette.ink)
+          .foregroundStyle(Paper.ink)
           .multilineTextAlignment(.center)
-        CoinChip(count: stars, height: 46)
-        Button(action: action) {
-          Text("Back to stories")
-            .frame(maxWidth: .infinity)
+        HStack(spacing: 8) {
+          PaperStar(size: 22)
+          Text("\(stars)")
+            .font(Typography.display(20))
+            .foregroundStyle(Paper.ink)
+            .monospacedDigit()
         }
-        .buttonStyle(.ink(.primary))
-        .padding(.top, 4)
+        .padding(.horizontal, 16)
+        .frame(height: 46)
+        .paperChip(Capsule())
+        Button("Back to stories", action: action)
+          .buttonStyle(.paper)
+          .padding(.top, 6)
       }
       .padding(28)
       .frame(maxWidth: 330)
-      .bevel(
-        Palette.parchment,
-        lip: Palette.parchmentLip,
-        shape: RoundedRectangle(cornerRadius: 32, style: .continuous),
-        border: 4,
-        drop: 6,
-        lipHeight: 9
-      )
-      .shadow(color: Color(hex: 0x0C0A1E, opacity: 0.32), radius: 17, x: 0, y: 22)
+      .background {
+        Deckle(seed: 12, jitter: 3, step: 12)
+          .fill(Paper.paper)
+          .shadow(color: Paper.shadow, radius: 12, y: 8)
+      }
+      .rotationEffect(.degrees(-1))
     }
     .accessibilityElement(children: .contain)
     .accessibilityLabel("You finished \(title). \(stars) stars.")
@@ -57,8 +57,8 @@ struct StoryFinished: View {
 struct StoryFinishedPreview: View {
   var body: some View {
     ZStack {
-      Color(hex: 0x8FCB6B)
-      StoryFinished(title: "The castle road", stars: 86) {}
+      Paper.sage
+      StoryFinished(title: "The Meadow Walk", stars: 86) {}
     }
     .frame(width: Metrics.phone.reference.width, height: Metrics.phone.reference.height)
   }

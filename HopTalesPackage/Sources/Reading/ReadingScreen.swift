@@ -231,8 +231,7 @@ import World
 
 public struct ReadingScreen: View {
   static let heardHold = Duration.milliseconds(1200)
-  static let cardToRail: CGFloat = 26
-  static let railToPill: CGFloat = 31
+  static let cardToPill: CGFloat = 40
   static let pillToEdge: CGFloat = 12
   static let recognisedHold = Duration.milliseconds(450)
   static let chipHold = Duration.milliseconds(900)
@@ -355,14 +354,8 @@ public struct ReadingScreen: View {
       VStack(spacing: 0) {
         Spacer(minLength: 0)
         card(geometry)
-        ProgressRail(
-          story: store.story,
-          sentenceIndex: store.sentenceIndex,
-          geometry: geometry
-        )
-        .padding(.top, geometry.scaled(Self.cardToRail))
         MicPill(heardToken: heldToken, hearing: hearing, geometry: geometry)
-          .padding(.top, geometry.scaled(Self.railToPill))
+          .padding(.top, geometry.scaled(Self.cardToPill))
       }
       .padding(.bottom, geometry.scaled(Self.pillToEdge))
       .frame(width: proxy.size.width, height: proxy.size.height)

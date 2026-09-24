@@ -8,10 +8,14 @@ struct WordCard: View {
   var recognisedIndex: Int?
   var isSpeaking = false
   let geometry: ReadingGeometry
-  var sceneShadow: Color = Palette.SceneShadow.meadow
   var showsHare = true
 
+  static let rowTop: CGFloat = 26 / 168
+  static let rowHeight: CGFloat = 90 / 168
+  static let dotsTop: CGFloat = 128 / 168
+
   var body: some View {
+    let height = geometry.cardSize.height
     ZStack(alignment: .top) {
       WordRow(
         words: words,
@@ -20,36 +24,25 @@ struct WordCard: View {
         isSpeaking: isSpeaking,
         geometry: geometry
       )
-        .frame(width: geometry.cardSize.width, height: geometry.scaled(84))
-        .mask { edgeFade.padding(.vertical, -geometry.cardSize.height) }
-        .padding(.top, (geometry.cardSize.height - geometry.scaled(84)) / 2)
+      .frame(width: geometry.cardSize.width, height: height * Self.rowHeight)
+      .mask { edgeFade.padding(.vertical, -height) }
+      .padding(.top, height * Self.rowTop)
+      WordDots(count: words.count, current: currentIndex, geometry: geometry)
+        .padding(.top, height * Self.dotsTop)
     }
-    .frame(width: geometry.cardSize.width, height: geometry.cardSize.height, alignment: .top)
-    .clipShape(shape)
-    .bevel(
-      Palette.parchment,
-      lip: Palette.parchmentLip,
-      shape: shape,
-      border: geometry.scaled(4),
-      drop: geometry.scaled(6),
-      lipHeight: geometry.scaled(9)
-    )
+    .frame(width: geometry.cardSize.width, height: height, alignment: .top)
     .background {
-      shape
-        .fill(Palette.outline)
+      Deckle(seed: 40, jitter: geometry.scaled(2.6), step: geometry.scaled(9))
+        .fill(Paper.paper)
         .shadow(
-          color: Color(hex: 0x0C0A1E, opacity: 0.32),
-          radius: geometry.scaled(17),
-          x: 0,
-          y: geometry.scaled(16)
+          color: Paper.shadow.opacity(1.15), radius: geometry.scaled(7), y: geometry.scaled(5)
         )
-        .offset(y: geometry.scaled(6))
-        .overlay(alignment: .top) {
-          if showsHare {
-            Hare(target: HopTarget(sentence: 0, word: currentIndex), geometry: geometry)
-              .offset(y: geometry.scaled(Hare.feetBelowCardTop))
-          }
-        }
+    }
+    .overlay(alignment: .top) {
+      if showsHare {
+        Hare(target: HopTarget(sentence: 0, word: currentIndex), geometry: geometry)
+          .offset(y: geometry.scaled(Hare.feetBelowCardTop))
+      }
     }
   }
 
@@ -68,8 +61,33 @@ struct WordCard: View {
       endPoint: .trailing
     )
   }
+}
 
-  private var shape: RoundedRectangle {
-    RoundedRectangle(cornerRadius: geometry.cardCornerRadius, style: .continuous)
+struct WordDots: View {
+  let count: Int
+  let current: Int
+  let geometry: ReadingGeometry
+
+  var body: some View {
+    HStack(spacing: geometry.scaled(9)) {
+      ForEach(0..<count, id: \.self) { index in
+        Circle()
+          .fill(fill(index))
+          .overlay(Circle().strokeBorder(ring(index), lineWidth: geometry.scaled(2)))
+          .frame(width: geometry.scaled(12), height: geometry.scaled(12))
+      }
+    }
+    .animation(.easeInOut(duration: 0.25), value: current)
+    .accessibilityHidden(true)
+  }
+
+  private func fill(_ index: Int) -> Color {
+    if index < current { return Paper.wash }
+    if index == current { return Paper.rim }
+    return Paper.muted.opacity(0.25)
+  }
+
+  private func ring(_ index: Int) -> Color {
+    index <= current ? Paper.washRing : Paper.muted.opacity(0.45)
   }
 }

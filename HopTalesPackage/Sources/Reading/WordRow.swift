@@ -24,15 +24,12 @@ enum WordDisplayState: Equatable {
 
   var foreground: Color {
     switch self {
-    case .completed: Palette.pillText
-    case .current: Palette.ink
-    case .next: Palette.muted
-    case .recognised: Palette.onAccent
-    case .upcoming: Palette.faint
+    case .completed, .current, .recognised: Paper.ink
+    case .next, .upcoming: Paper.muted
     }
   }
 
-  var isPill: Bool { self == .completed || self == .recognised }
+  var isWashed: Bool { self == .completed || self == .recognised }
 }
 
 struct WordRow: View {
@@ -92,12 +89,7 @@ struct WordRow: View {
 
     let neighbours = [words[safe: currentIndex - 1], words[safe: currentIndex + 1]]
       .compactMap(\.self)
-      .enumerated()
-      .map { index, word -> CGFloat in
-        let isCompleted = index == 0 && currentIndex > 0
-        let padding = isCompleted ? WordLabel.pillPadding(geometry).width * 2 : 0
-        return Typography.width(of: word.text, size: geometry.sideWordSize) + padding
-      }
+      .map { Typography.width(of: $0.text, size: geometry.sideWordSize) }
     let budget =
       geometry.cardSize.width
       - neighbours.reduce(0, +)
@@ -122,10 +114,6 @@ struct WordLabel: View {
   var isPulsing = false
   let geometry: ReadingGeometry
 
-  static func pillPadding(_ geometry: ReadingGeometry) -> CGSize {
-    CGSize(width: geometry.scaled(9), height: geometry.scaled(3))
-  }
-
   var body: some View {
     Text(word.text)
       .font(Typography.word(size))
@@ -134,57 +122,24 @@ struct WordLabel: View {
       .lineLimit(1)
       .fixedSize()
       .padding(.horizontal, horizontalPadding)
-      .padding(.vertical, verticalPadding)
-      .background { pill }
+      .background { wash }
       .scaleEffect(isPulsing ? 1.08 : 1)
       .animation(.easeInOut(duration: 0.28).repeatCount(3, autoreverses: true), value: isPulsing)
   }
 
   @ViewBuilder
-  private var pill: some View {
-    switch state {
-    case .completed:
-      Color.clear.bevel(
-        Palette.goldLight,
-        lip: Palette.gold,
-        shape: RoundedRectangle(cornerRadius: geometry.scaled(12), style: .continuous),
-        border: geometry.scaled(2.5),
-        drop: geometry.scaled(3)
-      )
-    case .recognised:
-      let shape = RoundedRectangle(cornerRadius: geometry.scaled(14), style: .continuous)
-      Color.clear
-        .bevel(
-          Palette.gold,
-          lip: Palette.goldShade,
-          shape: shape,
-          border: geometry.scaled(3),
-          drop: geometry.scaled(4)
-        )
-        .background {
-          shape
-            .fill(Palette.goldLight.opacity(0.6))
-            .padding(-geometry.scaled(6))
-        }
-    default:
-      EmptyView()
+  private var wash: some View {
+    if state.isWashed {
+      WashHighlight()
+        .padding(.horizontal, -size * 0.24)
+        .padding(.top, size * 0.14)
+        .padding(.bottom, -size * 0.04)
+        .transition(.opacity)
     }
   }
 
   private var horizontalPadding: CGFloat {
-    switch state {
-    case .completed: Self.pillPadding(geometry).width
-    case .recognised: geometry.scaled(12)
-    default: 0
-    }
-  }
-
-  private var verticalPadding: CGFloat {
-    switch state {
-    case .completed: Self.pillPadding(geometry).height
-    case .recognised: geometry.scaled(4)
-    default: 0
-    }
+    state == .recognised ? geometry.scaled(12) : 0
   }
 
   private var size: CGFloat {
