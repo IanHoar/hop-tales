@@ -128,6 +128,7 @@ let package = Package(
         "DesignSystem",
         "GrownUps",
         "Home",
+        "Onboarding",
         "Reading",
         "SpeechRecognition",
         "World",

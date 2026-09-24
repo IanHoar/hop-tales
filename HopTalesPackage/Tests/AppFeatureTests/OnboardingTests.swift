@@ -42,21 +42,23 @@ struct OnboardingTests {
       Onboarding().dependency(Self.speech)
     }
 
-    await store.send(.continueTapped)
+    await store.send(.primaryTapped)
     await store.send(.nameChanged("Maya")) { $0.childName = "Maya" }
-    await store.send(.continueTapped) { $0.path = [.listening] }
-    await store.send(.continueTapped)
-    await store.send(.listenTapped)
+    await store.send(.primaryTapped) { $0.path = [.listening] }
+    #expect(store.state.primaryTitle == "Allow microphone")
+    await store.send(.primaryTapped)
     await store.receive(\.authorizationResolved) { $0.authorization = .authorized }
-    await store.send(.continueTapped) { $0.path = [.listening, .story] }
-    await store.send(.continueTapped)
+    #expect(store.state.primaryTitle == "Continue")
+    await store.send(.primaryTapped) { $0.path = [.listening, .story] }
+    await store.send(.primaryTapped)
     await store.send(.storyPicked(StoryLibrary.all[2].id)) {
       $0.startingStoryID = StoryLibrary.all[2].id
     }
-    await store.send(.continueTapped) { $0.path = [.listening, .story, .accent] }
-    await store.send(.continueTapped)
+    await store.send(.primaryTapped) { $0.path = [.listening, .story, .accent] }
+    await store.send(.primaryTapped)
     await store.send(.accentPicked(.british)) { $0.accent = .british }
-    await store.send(.continueTapped)
+    #expect(store.state.primaryTitle == "Start reading")
+    await store.send(.primaryTapped)
     await store.receive(\.finished)
   }
 
@@ -79,10 +81,10 @@ struct OnboardingTests {
       Onboarding().dependency(speech)
     }
     await store.send(.nameChanged("Maya")) { $0.childName = "Maya" }
-    await store.send(.continueTapped) { $0.path = [.listening] }
-    await store.send(.listenTapped)
+    await store.send(.primaryTapped) { $0.path = [.listening] }
+    await store.send(.primaryTapped)
     await store.receive(\.authorizationResolved) { $0.authorization = .denied }
-    await store.send(.continueTapped) { $0.path = [.listening, .story] }
+    await store.send(.primaryTapped) { $0.path = [.listening, .story] }
   }
 
   @Test func finishingSavesTheProfileAndShowsTheStories() async throws {
@@ -107,14 +109,16 @@ struct OnboardingTests {
     #expect(home.keepGoing?.story.id == StoryLibrary.all[1].id)
   }
 
-  @Test func swipingBackPopsAStepButCannotSkipAhead() async {
+  @Test func backReturnsToThePreviousQuestion() async {
     var state = Onboarding.State()
-    state.path = [.listening]
+    state.path = [.listening, .story]
     let store = TestStore(initialState: state) {
       Onboarding().dependency(Self.speech)
     }
-    await store.send(.pathChanged([])) { $0.path = [] }
-    await store.send(.pathChanged([.listening, .story]))
+    await store.receive(\.authorizationResolved) { $0.authorization = .authorized }
+    await store.send(.backTapped) { $0.path = [.listening] }
+    await store.send(.backTapped) { $0.path = [] }
+    await store.send(.backTapped)
   }
 
   @Test func everyAnswerIsKeptAsADraft() async {
