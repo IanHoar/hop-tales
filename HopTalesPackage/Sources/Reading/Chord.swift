@@ -65,10 +65,8 @@ final class ChordPlayer {
 
   func play() async {
     guard let chord else { return }
-    let session = AVAudioSession.sharedInstance()
     do {
-      try session.setCategory(.ambient)
-      try session.setActive(true)
+      guard try await Self.activateSession() else { return }
       if player.engine == nil {
         engine.attach(player)
         try engine.connectNode(player, to: engine.mainMixerNode, format: chord.format)
@@ -92,5 +90,14 @@ final class ChordPlayer {
     }
     player.stop()
     engine.stop()
+  }
+
+  @concurrent
+  nonisolated private static func activateSession() async throws -> Bool {
+    let session = AVAudioSession.sharedInstance()
+    if session.category != .ambient {
+      try session.setCategory(.ambient)
+    }
+    return try await session.activate(options: [])
   }
 }
