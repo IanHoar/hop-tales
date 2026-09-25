@@ -1,0 +1,190 @@
+{
+ "characters": {
+  "frog": [
+   613,
+   515
+  ],
+  "crow": [
+   680,
+   688
+  ],
+  "cat": [
+   597,
+   776
+  ],
+  "crab": [
+   650,
+   396
+  ],
+  "grasshopper": [
+   739,
+   484
+  ],
+  "bunny": [
+   598,
+   693
+  ]
+ },
+ "sprites": {
+  "frog": {
+   "frame": [
+    504,
+    440
+   ],
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "note": "feet on a common baseline; air frames already lifted; body-centred, so play in place while the ground moves"
+  },
+  "crow": {
+   "frame": [
+    430,
+    440
+   ],
+   "frames": 8,
+   "fps": 12,
+   "loop": false,
+   "note": "feet on a common baseline; air frames already lifted; body-centred, so play in place while the ground moves"
+  },
+  "cat": {
+   "frame": [
+    537,
+    440
+   ],
+   "frames": 8,
+   "fps": 14,
+   "loop": false,
+   "note": "feet on a common baseline; air frames already lifted; body-centred, so play in place while the ground moves"
+  },
+  "crab": {
+   "frame": [
+    559,
+    440
+   ],
+   "frames": 8,
+   "fps": 16,
+   "loop": false,
+   "note": "feet on a common baseline; air frames already lifted; body-centred, so play in place while the ground moves"
+  },
+  "grasshopper": {
+   "frame": [
+    408,
+    440
+   ],
+   "frames": 8,
+   "fps": 14,
+   "loop": false,
+   "note": "feet on a common baseline; air frames already lifted; body-centred, so play in place while the ground moves"
+  },
+  "bunny": {
+   "frame": [
+    470,
+    440
+   ],
+   "frames": 8,
+   "fps": 14,
+   "loop": false,
+   "note": "feet on a common baseline; air frames already lifted; body-centred, so play in place while the ground moves"
+  }
+ },
+ "collectibles": {
+  "carrot": [
+   434,
+   529
+  ],
+  "lily": [
+   480,
+   378
+  ],
+  "yarn": [
+   347,
+   349
+  ],
+  "shell": [
+   421,
+   408
+  ],
+  "clover": [
+   400,
+   422
+  ],
+  "strawberry": [
+   358,
+   347
+  ],
+  "basket": [
+   403,
+   426
+  ],
+  "rosette": [
+   303,
+   461
+  ],
+  "carrot-gold": [
+   407,
+   480
+  ],
+  "button": [
+   406,
+   411
+  ],
+  "clover-four": [
+   407,
+   421
+  ],
+  "star": [
+   405,
+   395
+  ]
+ },
+ "wardrobe": {
+  "straw": [
+   526,
+   348
+  ],
+  "bobble": [
+   398,
+   449
+  ],
+  "crown": [
+   521,
+   300
+  ],
+  "acorn": [
+   336,
+   442
+  ],
+  "paper-crown": [
+   379,
+   306
+  ],
+  "wizard": [
+   451,
+   455
+  ],
+  "pirate": [
+   514,
+   319
+  ],
+  "specs": [
+   469,
+   241
+  ],
+  "bowtie": [
+   419,
+   238
+  ],
+  "neckerchief": [
+   356,
+   459
+  ],
+  "satchel": [
+   474,
+   380
+  ],
+  "cape": [
+   507,
+   390
+  ]
+ }
+}

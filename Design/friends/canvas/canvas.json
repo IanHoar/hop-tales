@@ -1,0 +1,219 @@
+{
+  "v": 3,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-09-25T02:25:12Z"
+  },
+  "title": "Hop Tales — friends, collectibles and dress-up",
+  "launch": {
+    "view": "canvas"
+  },
+  "pages": [],
+  "boards": {
+    "CastPlan.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 1680,
+      "h": 1240,
+      "title": "Plan · friends are reading levels"
+    },
+    "CastJourney.dc.html": {
+      "x": 1760,
+      "y": 0,
+      "w": 1680,
+      "h": 1240,
+      "title": "Reading journey · levels, steps and the big story"
+    },
+    "CastLineup.dc.html": {
+      "x": 0,
+      "y": 1560,
+      "w": 1680,
+      "h": 720,
+      "title": "Cast · the new friends"
+    },
+    "CastMotion.dc.html": {
+      "x": 1760,
+      "y": 1560,
+      "w": 1680,
+      "h": 1830,
+      "title": "Motion studies · tap Play motion",
+      "is_interactive": true
+    },
+    "CastWorlds.dc.html": {
+      "x": 3520,
+      "y": 1560,
+      "w": 1680,
+      "h": 1390,
+      "title": "Worlds · where each friend lives"
+    },
+    "CastCollect.dc.html": {
+      "x": 0,
+      "y": 3870,
+      "w": 1680,
+      "h": 1000,
+      "title": "Collectibles and celebration moments"
+    },
+    "CastWardrobe.dc.html": {
+      "x": 1760,
+      "y": 3870,
+      "w": 1680,
+      "h": 1030,
+      "title": "Hare's wardrobe and how items fit"
+    },
+    "PhoneBigWord.dc.html": {
+      "x": 470,
+      "y": 6020,
+      "w": 390,
+      "h": 844,
+      "title": "Reading · a big word on the path"
+    },
+    "PhonePickup.dc.html": {
+      "x": 940,
+      "y": 6020,
+      "w": 390,
+      "h": 844,
+      "title": "Reading · a carrot where he'll land"
+    },
+    "PhonePickupAfter.dc.html": {
+      "x": 1410,
+      "y": 6020,
+      "w": 390,
+      "h": 844,
+      "title": "Reading · picked up, into the basket"
+    },
+    "PhoneTally.dc.html": {
+      "x": 1880,
+      "y": 6020,
+      "w": 390,
+      "h": 844,
+      "title": "End of story · treats, big words, the path to the next friend"
+    },
+    "PhoneLevelUp.dc.html": {
+      "x": 2350,
+      "y": 6020,
+      "w": 390,
+      "h": 844,
+      "title": "Basket full · tap the present, then Try it on",
+      "is_interactive": true
+    },
+    "PhoneBigStory.dc.html": {
+      "x": 2820,
+      "y": 6020,
+      "w": 390,
+      "h": 844,
+      "title": "The big story · the next friend invites you up a level"
+    },
+    "PhoneNewFriend.dc.html": {
+      "x": 3290,
+      "y": 6020,
+      "w": 390,
+      "h": 844,
+      "title": "Passed · a new friend and a new level"
+    },
+    "PhoneJourney.dc.html": {
+      "x": 3760,
+      "y": 6020,
+      "w": 390,
+      "h": 844,
+      "title": "Journey map · friends met and the next one"
+    },
+    "PhoneFriends.dc.html": {
+      "x": 4230,
+      "y": 6020,
+      "w": 390,
+      "h": 844,
+      "title": "Friends · one per reading level"
+    },
+    "PhoneWardrobe.dc.html": {
+      "x": 4700,
+      "y": 6020,
+      "w": 390,
+      "h": 844,
+      "title": "Wardrobe · tap a hat",
+      "is_interactive": true
+    },
+    "PhoneBook.dc.html": {
+      "x": 5170,
+      "y": 6020,
+      "w": 390,
+      "h": 844,
+      "title": "Collection book · what each friend has found"
+    },
+    "PhoneHome.dc.html": {
+      "x": 5640,
+      "y": 6020,
+      "w": 390,
+      "h": 844,
+      "title": "Home · friend, level and the path to the next friend"
+    },
+    "CastSuits.dc.html": {
+      "x": 3520,
+      "y": 3870,
+      "w": 1680,
+      "h": 1690,
+      "title": "Wardrobes · 8 items for each new friend"
+    },
+    "PhoneOnboard.dc.html": {
+      "x": 0,
+      "y": 6020,
+      "w": 390,
+      "h": 844,
+      "title": "Onboarding · pick one of the first three friends",
+      "is_interactive": true
+    }
+  },
+  "order": [
+    "CastPlan.dc.html",
+    "CastJourney.dc.html",
+    "CastLineup.dc.html",
+    "CastMotion.dc.html",
+    "CastWorlds.dc.html",
+    "CastCollect.dc.html",
+    "CastWardrobe.dc.html",
+    "CastSuits.dc.html",
+    "PhoneOnboard.dc.html",
+    "PhoneBigWord.dc.html",
+    "PhonePickup.dc.html",
+    "PhonePickupAfter.dc.html",
+    "PhoneTally.dc.html",
+    "PhoneLevelUp.dc.html",
+    "PhoneBigStory.dc.html",
+    "PhoneNewFriend.dc.html",
+    "PhoneJourney.dc.html",
+    "PhoneFriends.dc.html",
+    "PhoneWardrobe.dc.html",
+    "PhoneBook.dc.html",
+    "PhoneHome.dc.html"
+  ],
+  "notes": {
+    "f1": {
+      "kind": "title1",
+      "x": 0,
+      "y": -300,
+      "text": "Friends are reading levels · the plan",
+      "maxW": 3440
+    },
+    "f2": {
+      "kind": "title1",
+      "x": 0,
+      "y": 1320,
+      "text": "The friends: who they are, how they move, where they live",
+      "maxW": 5200
+    },
+    "f3": {
+      "kind": "title1",
+      "x": 0,
+      "y": 3630,
+      "text": "Treats, baskets and a wardrobe for every friend",
+      "maxW": 5200
+    },
+    "f4": {
+      "kind": "title1",
+      "x": 0,
+      "y": 5780,
+      "text": "Screens · onboarding, big words, treats, the big story, a new friend, the path, wardrobe, home",
+      "maxW": 6030
+    }
+  },
+  "designSystems": []
+}
