@@ -15,20 +15,20 @@ public struct StoryResult: Equatable, Sendable {
   public var wordsRead: Int
   public var bigWordsRead: Int
   public var helpedWords: Int
-  public var trailCollected: Int
+  public var treat: CollectedTreat?
 
   public init(
     storyID: String,
     wordsRead: Int,
     bigWordsRead: Int = 0,
     helpedWords: Int = 0,
-    trailCollected: Int = 0
+    treat: CollectedTreat? = nil
   ) {
     self.storyID = storyID
     self.wordsRead = wordsRead
     self.bigWordsRead = bigWordsRead
     self.helpedWords = helpedWords
-    self.trailCollected = trailCollected
+    self.treat = treat
   }
 
   public var helpRate: Double {
@@ -47,19 +47,23 @@ public enum JourneyMoment: Equatable, Sendable {
   case bigStoryReady(Friend)
   case notYet(Friend)
   case newFriend(Friend, via: LevelUp)
+  case treat(CollectedTreat, trail: Int)
+  case basketFull(Friend, number: Int)
 }
 
 extension JourneyMoment {
   public var isCallout: Bool {
-    if case .tally = self { return false }
-    return true
+    switch self {
+    case .tally, .treat: false
+    case .bigStoryReady, .notYet, .newFriend, .basketFull: true
+    }
   }
 
   public var story: Story? {
     switch self {
     case let .bigStoryReady(friend): StoryLibrary.bigStory(at: friend.level)
     case let .newFriend(friend, _): StoryLibrary.stories(at: friend.level).first
-    case .tally, .notYet: nil
+    case .tally, .notYet, .treat, .basketFull: nil
     }
   }
 }
@@ -166,7 +170,10 @@ public struct Journey: Codable, Hashable, Sendable {
 
     let readWell = result.helpRate <= Levels.sustainedHelpRate
     if story.level >= level, readWell { storiesReadWell += 1 }
-    trail += result.trailCollected
+    if result.treat?.isTrail == true { trail += 1 }
+    if let treat = result.treat {
+      moments.append(.treat(treat, trail: treat.isTrail ? trail : 0))
+    }
 
     if trail >= Levels.trailGoal, let friend = levelUp() {
       moments.append(.newFriend(friend, via: .trail))

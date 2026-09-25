@@ -91,16 +91,16 @@ struct JourneyTests {
     #expect(journey.storiesReadWell == 0)
   }
 
-  @Test func twentyTrailTreatsBringTheNextFriend() {
+  @Test func sixTrailTreatsBringTheNextFriend() {
     var journey = Journey(starting: .hare)
-    _ = journey.record(
-      StoryResult(storyID: "crunchy-carrot", wordsRead: 5, helpedWords: 5, trailCollected: 12)
-    )
-    #expect(journey.level == 2)
-    let moments = journey.record(
-      StoryResult(storyID: "chat-on-the-hill", wordsRead: 5, helpedWords: 5, trailCollected: 8)
-    )
-    #expect(moments.last == .newFriend(.frog, via: .trail))
+    let trail = CollectedTreat(friend: .frog, isTrail: true, isGolden: false)
+    var last: [JourneyMoment] = []
+    for _ in 0..<Levels.trailGoal {
+      last = journey.record(
+        StoryResult(storyID: "crunchy-carrot", wordsRead: 5, helpedWords: 5, treat: trail)
+      )
+    }
+    #expect(last.last == .newFriend(.frog, via: .trail))
     #expect(journey.trail == 0)
   }
 

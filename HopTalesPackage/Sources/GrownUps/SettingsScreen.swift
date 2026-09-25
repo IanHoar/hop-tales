@@ -81,7 +81,10 @@ import SwiftUI
 
       case .debugResetJourneyTapped:
         state.journey = Journey(starting: state.profile.startingFriend)
-        saveJourney(state.journey)
+        var progress = progressStore.load()
+        progress.journey = state.journey
+        progress.baskets = [:]
+        progressStore.save(progress)
 
       case .debugUnlockEverythingTapped:
         state.journey = .everything

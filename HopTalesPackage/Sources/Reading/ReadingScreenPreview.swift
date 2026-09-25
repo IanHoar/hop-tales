@@ -7,6 +7,7 @@ struct ReadingScreenPreview: View {
   enum Moment {
     case start
     case midPage
+    case nearTheEnd
     case end
     case bigStoryReady
     case newFriend
@@ -30,12 +31,18 @@ struct ReadingScreenPreview: View {
       state.wordIndex = 3
       state.stars = 3
       state.bigWords = [WordRef(sentence: 0, word: 2), WordRef(sentence: 0, word: 4)]
+    case .nearTheEnd:
+      state.sentenceIndex = story.sentences.count - 1
+      state.treat = StoryTreat(
+        word: WordRef(sentence: story.sentences.count - 1, word: 1), friend: .hare, isTrail: false
+      )
     case .end, .bigStoryReady, .newFriend:
       state.sentenceIndex = story.sentences.count
       state.stars = 42
       state.completed = .story(stars: 42)
       state.journeyMoments = [
-        .tally(steps: 41, total: 412, goal: 500, bigWords: 3, next: .frog)
+        .tally(steps: 41, total: 412, goal: 500, bigWords: 3, next: .frog),
+        .treat(CollectedTreat(friend: .hare, isTrail: false, isGolden: true), trail: 0)
       ]
       if moment == .bigStoryReady { state.journeyMoments.append(.bigStoryReady(.frog)) }
       if moment == .newFriend { state.journeyMoments.append(.newFriend(.frog, via: .bigStory)) }
