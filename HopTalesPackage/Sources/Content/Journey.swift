@@ -87,6 +87,12 @@ public struct Journey: Codable, Hashable, Sendable {
     cleanStreak = 0
   }
 
+  public static var everything: Journey {
+    var journey = Journey(starting: .grasshopper)
+    journey.met = Set(Friend.allCases)
+    return journey
+  }
+
   public var nextFriend: Friend? {
     level < Levels.top ? Friend.at(level: level + 1) : nil
   }
