@@ -90,29 +90,55 @@ public struct HomeScreen: View {
   static let sheetTop: CGFloat = 0.51
   static let feetAboveSheet: CGFloat = 100
   static let landScale: CGFloat = 0.6
+  static let friendHeight: CGFloat = 170
+  static let columnWidth: CGFloat = 560
+  static let wideLayout: CGFloat = 760
+  static let tornEdge: CGFloat = 6
+  static let ground = LinearGradient(
+    colors: [Color(hex: 0xB7BF7B), Color(hex: 0xD9D6A6), Color(hex: 0xEDE6C8)],
+    startPoint: .top,
+    endPoint: .bottom
+  )
 
   public var body: some View {
     GeometryReader { proxy in
       let screen = proxy.size.height + proxy.safeAreaInsets.top + proxy.safeAreaInsets.bottom
+      let mood = Mood(sky: colorScheme == .dark ? .night : .day)
+      let framing = MeadowFraming.path(
+        scale: Self.landScale * min(max(proxy.size.width / 390, 1), 1.3),
+        centre: screen * Self.sheetTop - Self.feetAboveSheet - 20
+      )
+      let land = MeadowLayout(
+        size: CGSize(width: proxy.size.width, height: screen), framing: framing
+      )
+      let groundTop = land.top(of: .near) + land.tileSize(of: .near).height - Self.tornEdge
       ZStack(alignment: .top) {
-        MeadowBackdrop(
-          camera: MeadowCamera(at: 900),
-          mood: Mood(sky: colorScheme == .dark ? .night : .day),
-          framing: .path(
-            scale: Self.landScale * min(max(proxy.size.width / 390, 1), 1.3),
-            centre: screen * Self.sheetTop - Self.feetAboveSheet - 20
-          )
-        )
+        MeadowBackdrop(camera: MeadowCamera(at: 900), mood: mood, framing: framing)
+        Self.ground
+          .colorMultiply(Color(uiColor: mood.landTint))
+          .frame(height: max(0, screen - groundTop))
+          .frame(maxHeight: .infinity, alignment: .bottom)
+          .ignoresSafeArea()
+          .accessibilityHidden(true)
+        if proxy.size.width > Self.wideLayout {
+          friend
+            .position(
+              x: (proxy.size.width - Self.columnWidth) / 4,
+              y: screen * Self.sheetTop - Self.feetAboveSheet - Self.friendHeight / 2
+            )
+            .frame(width: proxy.size.width, height: screen)
+            .ignoresSafeArea()
+        }
         ScrollView {
           VStack(spacing: 0) {
             topBar
               .padding(.top, 8)
             Spacer(minLength: 0)
               .frame(height: max(0, screen * Self.sheetTop - proxy.safeAreaInsets.top - 330))
-            friendOnThePath
+            friendOnThePath(standsAside: proxy.size.width > Self.wideLayout)
             sheet(bottomInset: proxy.safeAreaInsets.bottom)
           }
-          .frame(maxWidth: 560)
+          .frame(maxWidth: Self.columnWidth)
           .frame(maxWidth: .infinity)
           .frame(minHeight: proxy.size.height, alignment: .top)
         }
@@ -150,15 +176,22 @@ public struct HomeScreen: View {
     .padding(.horizontal, 20)
   }
 
-  private var friendOnThePath: some View {
+  private var friend: some View {
+    let journey = store.progress.journey
+    return DressedFriend(
+      journey.activeFriend,
+      wearing: store.progress.outfit(for: journey.activeFriend),
+      height: Self.friendHeight
+    )
+    .shadow(color: Paper.shadow, radius: 6, y: 4)
+  }
+
+  private func friendOnThePath(standsAside: Bool) -> some View {
     let journey = store.progress.journey
     return VStack(spacing: 14) {
-      DressedFriend(
-        journey.activeFriend,
-        wearing: store.progress.outfit(for: journey.activeFriend),
-        height: 170
-      )
-      .shadow(color: Paper.shadow, radius: 6, y: 4)
+      friend
+        .opacity(standsAside ? 0 : 1)
+        .accessibilityHidden(standsAside)
       LevelChip(journey: journey) { store.send(.journeyTapped) }
         .padding(.horizontal, 28)
     }
