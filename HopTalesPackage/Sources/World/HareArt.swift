@@ -161,3 +161,26 @@ public struct FriendSticker: View {
     }
   }
 }
+
+public struct Sticker: View {
+  let name: String
+  let height: CGFloat
+
+  public init(_ name: String, height: CGFloat) {
+    self.name = name
+    self.height = height
+  }
+
+  public static func postcard(_ friend: Friend) -> String {
+    friend == .hare ? "near-day" : "postcard-\(friend.rawValue)"
+  }
+
+  public var body: some View {
+    if let image = MeadowArt.image(name) {
+      Image(uiImage: image)
+        .resizable()
+        .frame(width: height * image.size.width / max(image.size.height, 1), height: height)
+        .accessibilityHidden(true)
+    }
+  }
+}

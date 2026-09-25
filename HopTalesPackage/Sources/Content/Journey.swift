@@ -43,10 +43,25 @@ public enum LevelUp: String, Codable, Hashable, Sendable {
 }
 
 public enum JourneyMoment: Equatable, Sendable {
-  case tally(steps: Double, total: Double, goal: Double, bigWords: Int)
+  case tally(steps: Double, total: Double, goal: Double, bigWords: Int, next: Friend)
   case bigStoryReady(Friend)
   case notYet(Friend)
   case newFriend(Friend, via: LevelUp)
+}
+
+extension JourneyMoment {
+  public var isCallout: Bool {
+    if case .tally = self { return false }
+    return true
+  }
+
+  public var story: Story? {
+    switch self {
+    case let .bigStoryReady(friend): StoryLibrary.bigStory(at: friend.level)
+    case let .newFriend(friend, _): StoryLibrary.stories(at: friend.level).first
+    case .tally, .notYet: nil
+    }
+  }
 }
 
 public struct Journey: Codable, Hashable, Sendable {
@@ -135,12 +150,12 @@ public struct Journey: Codable, Hashable, Sendable {
     }
     recentHelpRates = Array((recentHelpRates + [result.helpRate]).suffix(3))
     cleanStreak = result.helpedWords == 0 ? cleanStreak + 1 : 0
-    guard nextFriend != nil else { return [] }
+    guard let next = nextFriend else { return [] }
 
     let earned = stepsEarned(by: result, in: story)
     steps = min(steps + earned, goal)
     var moments: [JourneyMoment] = [
-      .tally(steps: earned, total: steps, goal: goal, bigWords: result.bigWordsRead)
+      .tally(steps: earned, total: steps, goal: goal, bigWords: result.bigWordsRead, next: next)
     ]
 
     let readWell = result.helpRate <= Levels.sustainedHelpRate
