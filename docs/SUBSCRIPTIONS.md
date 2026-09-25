@@ -171,8 +171,8 @@ All of this is StoreKit 2 on the device.
   a month**, announced on the paywall ("New stories every month") and in the app's release notes.
 - Aim for at least **12 stories at launch**. At the current six sentences each, that's about three
   weeks of reading, and the yearly plan's trial then shows off a real shelf.
-- The build can be ready before then. Hold the paywall behind a remote-free switch, a build-time
-  flag, until the library is ready.
+- The build can be ready before then. Hold the paywall behind a build-time flag
+  until the library is ready.
 
 **Positioning.**
 - "One story free, forever. Plus unlocks every story, and new ones every month, for the whole
