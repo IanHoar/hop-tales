@@ -62,19 +62,24 @@ public struct PaperChoice: View {
             .fixedSize(horizontal: false, vertical: true)
         }
       }
-      .frame(maxWidth: .infinity, alignment: .leading)
+      .paperChoice(isSelected: isSelected)
+    }
+    .buttonStyle(.plain)
+    .accessibilityAddTraits(isSelected ? .isSelected : [])
+  }
+}
+
+extension View {
+  public func paperChoice(isSelected: Bool) -> some View {
+    let shape = RoundedRectangle(cornerRadius: 18, style: .continuous)
+    return frame(maxWidth: .infinity, alignment: .leading)
       .padding(.horizontal, 16)
       .padding(.vertical, 14)
       .background(isSelected ? Paper.red.opacity(0.1) : Paper.rim.opacity(0.6), in: shape)
       .overlay(shape.strokeBorder(isSelected ? Paper.red : Paper.rim, lineWidth: 3))
       .shadow(color: Paper.shadow.opacity(0.5), radius: 3, y: 2)
       .contentShape(shape)
-    }
-    .buttonStyle(.plain)
-    .accessibilityAddTraits(isSelected ? .isSelected : [])
   }
-
-  private var shape: RoundedRectangle { RoundedRectangle(cornerRadius: 18, style: .continuous) }
 }
 
 public struct ProgressPills: View {
