@@ -125,6 +125,7 @@ let package = Package(
     .testTarget(
       name: "SnapshotTests",
       dependencies: [
+        "AppFeature",
         "Content",
         "DesignSystem",
         "GrownUps",
