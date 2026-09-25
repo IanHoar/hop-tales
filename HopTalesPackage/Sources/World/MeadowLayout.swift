@@ -14,10 +14,18 @@ public enum MeadowLayer: CaseIterable, Sendable {
     }
   }
 
+  private func own(_ world: Friend) -> String {
+    "\(asset.prefix { $0 != "-" })-\(world.rawValue)"
+  }
+
+  @MainActor
+  static func hasOwnLand(_ world: Friend) -> Bool {
+    world != .hare && allCases.allSatisfy { MeadowArt.image($0.own(world)) != nil }
+  }
+
   @MainActor
   func asset(in world: Friend) -> String {
-    let own = "\(asset.prefix { $0 != "-" })-\(world.rawValue)"
-    return world != .hare && MeadowArt.image(own) != nil ? own : asset
+    Self.hasOwnLand(world) ? own(world) : asset
   }
 
   var pixelSize: CGSize {

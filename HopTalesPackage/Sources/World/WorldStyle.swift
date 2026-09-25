@@ -9,7 +9,7 @@ public struct WorldStyle: Equatable, Sendable {
 
   @MainActor
   public static func of(_ world: Friend) -> WorldStyle {
-    guard MeadowLayer.near.asset(in: world) != MeadowLayer.near.asset else { return .meadow }
+    guard MeadowLayer.hasOwnLand(world) else { return .meadow }
     switch world {
     case .crow: return WorldStyle(feetAbovePath: 70, chalk: true)
     case .cat: return WorldStyle(feetAbovePath: 70)
