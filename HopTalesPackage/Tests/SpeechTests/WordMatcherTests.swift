@@ -34,6 +34,28 @@ struct WordMatcherTests {
     )
   }
 
+  @Test(arguments: ["set", "sit", "said", "sed"])
+  func aShortWordWithAnotherVowelIsHeardWhenGentle(token: String) {
+    #expect(WordMatcher.match(tokens: [token], current: sat, next: nil)?.target == .current)
+  }
+
+  @Test(arguments: ["had", "head", "hed"])
+  func hidIsHeardThroughItsCommonMishearings(token: String) {
+    let hid = Word(text: "hid")
+    #expect(WordMatcher.match(tokens: [token], current: hid, next: nil)?.target == .current)
+  }
+
+  @Test(arguments: ["cat", "hat", "sun", "seats"])
+  func aShortWordStillNeedsItsOwnConsonants(token: String) {
+    #expect(WordMatcher.match(tokens: [token], current: sat, next: nil) == nil)
+  }
+
+  @Test func theShortWordRuleStaysOffWhenStandard() {
+    #expect(
+      WordMatcher.match(tokens: ["set"], current: sat, next: nil, strictness: .standard) == nil
+    )
+  }
+
   @Test func homophonesAreAcceptedWhenGentle() {
     let would = Word(text: "would", homophones: ["wood"])
     #expect(WordMatcher.match(tokens: ["wood"], current: would, next: nil)?.target == .current)

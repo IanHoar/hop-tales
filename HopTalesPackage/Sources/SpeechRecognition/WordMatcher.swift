@@ -26,6 +26,11 @@ public enum WordMatcher {
     "the": ["a", "uh", "duh", "da", "de", "dee", "thee", "thuh", "they", "then"]
   ]
 
+  static let vowels = Set("aeiouy")
+  static let voicing: [Character: Character] = [
+    "t": "d", "d": "t", "p": "b", "b": "p", "k": "g", "g": "k", "s": "z", "z": "s"
+  ]
+
   static let spelledNumbers: [String: String] = [
     "0": "zero", "1": "one", "2": "two", "3": "three", "4": "four", "5": "five",
     "6": "six", "7": "seven", "8": "eight", "9": "nine", "10": "ten"
@@ -75,7 +80,18 @@ public enum WordMatcher {
     if token.count == text.count, token.prefix(2) == text.prefix(2) { return true }
     if target.homophones.contains(where: { $0.lowercased() == token }) { return true }
     if soundsAlike[text]?.contains(token) == true { return true }
-    return false
+    return soundsLikeShortWord(token, text)
+  }
+
+  static func soundsLikeShortWord(_ token: String, _ text: String) -> Bool {
+    let target = Array(text), heard = Array(token)
+    guard
+      target.count == 3, !vowels.contains(target[0]), vowels.contains(target[1]),
+      !vowels.contains(target[2]), (3...4).contains(heard.count),
+      let first = heard.first, let last = heard.last, first == target[0],
+      last == target[2] || last == voicing[target[2]]
+    else { return false }
+    return heard.dropFirst().dropLast().allSatisfy(vowels.contains)
   }
 
   static func levenshtein(_ lhs: String, _ rhs: String) -> Int {
