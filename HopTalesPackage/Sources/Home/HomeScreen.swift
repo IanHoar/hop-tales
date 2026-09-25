@@ -52,7 +52,10 @@ import World
 
   public enum Action {
     case grownUpsTapped
+    case bookTapped
+    case friendsTapped
     case journeyTapped
+    case wardrobeTapped
     case playOnTVTapped
     case storyTapped(Story)
   }
@@ -62,7 +65,8 @@ import World
   public var body: some Feature {
     Update { _, action in
       switch action {
-      case .grownUpsTapped, .journeyTapped, .playOnTVTapped, .storyTapped:
+      case .bookTapped, .friendsTapped, .grownUpsTapped, .journeyTapped, .playOnTVTapped,
+        .storyTapped, .wardrobeTapped:
         break
       }
     }
@@ -84,37 +88,57 @@ public struct HomeScreen: View {
   }
 
   static let sheetTop: CGFloat = 0.51
+  static let feetAboveSheet: CGFloat = 100
+  static let landScale: CGFloat = 0.6
+  static let friendHeight: CGFloat = 170
+  static let columnWidth: CGFloat = 560
+  static let wideLayout: CGFloat = 760
+  static let tornEdge: CGFloat = 6
+  static let ground = LinearGradient(
+    colors: [Color(hex: 0xB7BF7B), Color(hex: 0xD9D6A6), Color(hex: 0xEDE6C8)],
+    startPoint: .top,
+    endPoint: .bottom
+  )
 
   public var body: some View {
     GeometryReader { proxy in
       let screen = proxy.size.height + proxy.safeAreaInsets.top + proxy.safeAreaInsets.bottom
+      let mood = Mood(sky: colorScheme == .dark ? .night : .day)
+      let framing = MeadowFraming.path(
+        scale: Self.landScale * min(max(proxy.size.width / 390, 1), 1.3),
+        centre: screen * Self.sheetTop - Self.feetAboveSheet - 20
+      )
+      let land = MeadowLayout(
+        size: CGSize(width: proxy.size.width, height: screen), framing: framing
+      )
+      let groundTop = land.top(of: .near) + land.tileSize(of: .near).height - Self.tornEdge
       ZStack(alignment: .top) {
-        MeadowBackdrop(progress: 900, mood: Mood(sky: colorScheme == .dark ? .night : .day))
+        MeadowBackdrop(camera: MeadowCamera(at: 900), mood: mood, framing: framing)
+        Self.ground
+          .colorMultiply(Color(uiColor: mood.landTint))
+          .frame(height: max(0, screen - groundTop))
+          .frame(maxHeight: .infinity, alignment: .bottom)
+          .ignoresSafeArea()
+          .accessibilityHidden(true)
+        if proxy.size.width > Self.wideLayout {
+          friend
+            .position(
+              x: (proxy.size.width - Self.columnWidth) / 4,
+              y: screen * Self.sheetTop - Self.feetAboveSheet - Self.friendHeight / 2
+            )
+            .frame(width: proxy.size.width, height: screen)
+            .ignoresSafeArea()
+        }
         ScrollView {
           VStack(spacing: 0) {
             topBar
               .padding(.top, 8)
-            HStack {
-              PaperLabel(seed: 7) {
-                Text(store.greeting)
-                  .font(Typography.display(21))
-                  .foregroundStyle(Paper.ink)
-                  .lineLimit(1)
-                  .minimumScaleFactor(0.7)
-                  .padding(.horizontal, 18)
-                  .padding(.vertical, 9)
-              }
-              .rotationEffect(.degrees(-3))
-              .accessibilityAddTraits(.isHeader)
-              Spacer(minLength: 0)
-            }
-            .padding(.top, 22)
-            .padding(.horizontal, 6)
             Spacer(minLength: 0)
-              .frame(height: max(0, screen * Self.sheetTop - proxy.safeAreaInsets.top - 124))
+              .frame(height: max(0, screen * Self.sheetTop - proxy.safeAreaInsets.top - 330))
+            friendOnThePath(standsAside: proxy.size.width > Self.wideLayout)
             sheet(bottomInset: proxy.safeAreaInsets.bottom)
           }
-          .frame(maxWidth: 560)
+          .frame(maxWidth: Self.columnWidth)
           .frame(maxWidth: .infinity)
           .frame(minHeight: proxy.size.height, alignment: .top)
         }
@@ -126,25 +150,19 @@ public struct HomeScreen: View {
   }
 
   private var topBar: some View {
-    HStack(spacing: 10) {
-      AppMark(size: 40)
-      Text("Hop Tales")
-        .font(Typography.display(24))
-        .foregroundStyle(Paper.ink)
-        .accessibilityAddTraits(.isHeader)
-      Spacer(minLength: 8)
-      HStack(spacing: 6) {
-        StarBadge(size: 19)
-        Text("\(store.progress.stars)")
-          .font(Typography.display(17))
+    HStack(alignment: .top) {
+      PaperLabel(seed: 7) {
+        Text(store.greeting)
+          .font(Typography.display(21))
           .foregroundStyle(Paper.ink)
-          .monospacedDigit()
+          .lineLimit(1)
+          .minimumScaleFactor(0.7)
+          .padding(.horizontal, 18)
+          .padding(.vertical, 9)
       }
-      .padding(.horizontal, 13)
-      .frame(height: 46)
-      .paperChip(Capsule())
-      .accessibilityElement(children: .ignore)
-      .accessibilityLabel("\(store.progress.stars) stars")
+      .rotationEffect(.degrees(-3))
+      .accessibilityAddTraits(.isHeader)
+      Spacer(minLength: 8)
       Button { store.send(.grownUpsTapped) } label: {
         Image(systemName: "gearshape")
           .font(.system(size: 19, weight: .semibold))
@@ -158,12 +176,57 @@ public struct HomeScreen: View {
     .padding(.horizontal, 20)
   }
 
+  private var friend: some View {
+    let journey = store.progress.journey
+    return DressedFriend(
+      journey.activeFriend,
+      wearing: store.progress.outfit(for: journey.activeFriend),
+      height: Self.friendHeight
+    )
+    .shadow(color: Paper.shadow, radius: 6, y: 4)
+  }
+
+  private func friendOnThePath(standsAside: Bool) -> some View {
+    let journey = store.progress.journey
+    return VStack(spacing: 14) {
+      friend
+        .opacity(standsAside ? 0 : 1)
+        .accessibilityHidden(standsAside)
+      LevelChip(journey: journey) { store.send(.journeyTapped) }
+        .padding(.horizontal, 28)
+    }
+    .padding(.bottom, 18)
+  }
+
+  private var stickerButtons: some View {
+    HStack(spacing: 0) {
+      StickerButton(title: "Friends") {
+        FriendSticker(store.progress.journey.activeFriend, height: 52)
+      } action: {
+        store.send(.friendsTapped)
+      }
+      StickerButton(title: "Wardrobe") {
+        if let item = store.progress.newestItem(for: store.progress.journey.activeFriend) {
+          Sticker("wear-\(store.progress.journey.activeFriend.rawValue)-\(item.id)", height: 44)
+        }
+      } action: {
+        store.send(.wardrobeTapped)
+      }
+      StickerButton(title: "Book") {
+        Sticker("collect-basket", height: 50)
+      } action: {
+        store.send(.bookTapped)
+      }
+    }
+    .padding(.vertical, 6)
+  }
+
   private func sheet(bottomInset: CGFloat) -> some View {
     VStack(alignment: .leading, spacing: 12) {
-      LevelChip(journey: store.progress.journey) { store.send(.journeyTapped) }
       if let keepGoing = store.keepGoing {
         KeepGoingCard(standing: keepGoing) { store.send(.storyTapped(keepGoing.story)) }
       }
+      stickerButtons
       Text("More stories")
         .font(Typography.display(20))
         .foregroundStyle(Paper.ink)
@@ -213,6 +276,30 @@ struct StarBadge: View {
   }
 }
 
+struct StickerButton<Art: View>: View {
+  let title: String
+  @ViewBuilder let art: () -> Art
+  let action: () -> Void
+
+  var body: some View {
+    Button(action: action) {
+      VStack(spacing: 6) {
+        art()
+          .frame(width: 84, height: 84)
+          .background(Paper.rim.opacity(0.7), in: Circle())
+          .overlay(Circle().strokeBorder(Paper.rim, lineWidth: 3))
+          .shadow(color: Paper.shadow.opacity(0.6), radius: 4, y: 3)
+        Text(title)
+          .font(Typography.display(16))
+          .foregroundStyle(Paper.ink)
+      }
+      .frame(maxWidth: .infinity)
+    }
+    .buttonStyle(.plain)
+    .accessibilityLabel(title)
+  }
+}
+
 struct LevelChip: View {
   let journey: Journey
   let action: () -> Void
@@ -220,12 +307,14 @@ struct LevelChip: View {
   var body: some View {
     Button(action: action) {
       HStack(spacing: 12) {
-        FriendSticker(journey.activeFriend, height: 40)
-          .frame(width: 44)
+        Rosette(level: journey.level)
+          .frame(width: 40)
         VStack(alignment: .leading, spacing: 5) {
           Text(title)
             .font(Typography.display(16))
             .foregroundStyle(Paper.ink)
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
           if journey.nextFriend != nil {
             GeometryReader { proxy in
               ZStack(alignment: .leading) {

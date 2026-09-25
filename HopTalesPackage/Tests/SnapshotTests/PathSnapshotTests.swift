@@ -8,7 +8,8 @@ import Testing
 @Suite(.snapshots(record: .missing, diffTool: .ksdiff))
 struct PathSnapshotTests {
   @Test(arguments: [
-    ReadingScreenPreview.Moment.start, .midPage, .nearTheEnd, .end, .bigStoryReady, .newFriend
+    ReadingScreenPreview.Moment.start, .midPage, .nearTheEnd, .end, .bigStoryReady, .newFriend,
+    .basketFull
   ])
   func theWordsLieOnThePath(moment: ReadingScreenPreview.Moment) {
     expectSnapshot(

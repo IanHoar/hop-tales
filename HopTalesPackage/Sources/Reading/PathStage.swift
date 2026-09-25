@@ -126,6 +126,7 @@ struct PathStage: View {
       if let callout = store.callout {
         CalloutCard(moment: callout, geometry: geometry) {
           if let story = callout.story { store.send(.continueTapped(story)) }
+          if case let .basketFull(friend, _) = callout { store.send(.tryItOnTapped(friend)) }
         } dismiss: {
           store.send(.momentDismissed)
         }
