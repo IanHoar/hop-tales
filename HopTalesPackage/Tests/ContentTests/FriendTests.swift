@@ -32,3 +32,46 @@ struct FriendTests {
     #expect(decoded == profile)
   }
 }
+
+struct LevelContentTests {
+  @Test(arguments: 1...7)
+  func everyLevelHasFourStoriesTwoOfThemStretch(level: Int) {
+    let stories = StoryLibrary.stories(at: level)
+    #expect(stories.count == 4)
+    #expect(stories.filter(\.stretch).count == 2)
+  }
+
+  @Test(arguments: 2...7)
+  func everyLevelUpHasABigStoryWithNoBigWords(level: Int) throws {
+    let story = try #require(StoryLibrary.bigStory(at: level))
+    #expect(!story.stretch)
+    #expect(story.sentences.allSatisfy { $0.words.allSatisfy { !$0.big } })
+  }
+
+  @Test func theFirstLevelHasNoBigStory() {
+    #expect(StoryLibrary.bigStory(at: 1) == nil)
+  }
+
+  @Test(arguments: 1...7)
+  func regularStoriesCarryBigWords(level: Int) {
+    for story in StoryLibrary.stories(at: level) {
+      #expect(story.sentences.contains { $0.words.contains(where: \.big) }, "\(story.id)")
+    }
+  }
+
+  @Test func storyIDsAreUnique() {
+    let ids = StoryLibrary.all.map(\.id)
+    #expect(Set(ids).count == ids.count)
+  }
+
+  @Test func theShelfStopsAtTheOnboardingLevelsAndLeavesOutBigStories() {
+    let shelf = StoryLibrary.shelf(upTo: 3)
+    #expect(shelf.count == 12)
+    #expect(shelf.allSatisfy { $0.level <= 3 && !$0.isBigStory })
+  }
+
+  @Test func eachStoryBelongsToItsLevelsFriend() {
+    #expect(StoryLibrary["puddle-kite"]?.friend == .frog)
+    #expect(StoryLibrary["sprig-big-story"]?.friend == .grasshopper)
+  }
+}

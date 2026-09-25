@@ -1,0 +1,295 @@
+# Hop Tales stories. scripts/build-stories.py turns this file into
+# HopTalesPackage/Sources/Content/Resources/stories.json; don't edit the JSON by hand.
+#
+# == id | Title | level N | sky weather [| stretch] [| big]
+#   stretch  one of the hardest stories at its level, where the next friend's trail treats appear
+#   big      the level's big story, read to meet that level's friend
+# One sentence per line, ending in a full stop. [sky] or [weather] at the start changes the mood
+# from that sentence on. *word* is a big word, from a level or two up. ^word is the sentence's new
+# word. Keep words free of apostrophes and hyphens: the matcher compares plain words.
+
+== meadow-walk | The Meadow Walk | level 1 | day clear
+The hare sat in the sun.
+He had a red ^scarf.
+He ran up the hill.
+[clouds] A bee sat on a bud.
+The hare hid in the long *grass*.
+Then he ran on and on.
+
+== golden-hour | Golden Hour | level 2 | day clouds
+The sun is low and warm.
+[golden] The hare hops past the old ^oak.
+He stops to smell the *flowers*.
+A ^robin sings on the fence.
+The fields glow in the gold light.
+The hare hops on down the path.
+
+== storm-on-the-hill | Storm on the Hill | level 3 | day clouds
+Dark *clouds* roll over the hill.
+[storm] The wind shakes the tall grass.
+[rain] Big ^drops of rain start to fall.
+The hare waits under the oak tree.
+[clouds] Soon the storm *drifts* away.
+[clear] The sun comes out and the hare hops on.
+
+== moonlight-hop | Moonlight Hop | level 3 | golden clear
+[dusk] The sky turns pink as the sun sets.
+The hare hops along the ^quiet path.
+[night] One by one the stars come out.
+The ^moon rises over the meadow.
+An owl calls *softly* from the trees.
+The *sleepy* hare curls up for the night.
+
+# Level 1 · Bramble · short vowels, three-letter words · 3 to 5 words
+
+== bramble-bug | Bramble and the Bug | level 1 | day clear
+Bramble sat on a log.
+A red bug ran up.
+The bug had six legs.
+It sat on his *nose*.
+Bramble did not *jump*.
+The bug hid in moss.
+
+== big-nap | The Big Nap | level 1 | golden clear | stretch
+Bramble had a big nap.
+He sat in the sun.
+A fat hen got in.
+It sat on his *tail*.
+Bramble let out a *yelp*.
+Then the hen ran off.
+
+== mud-and-jam | Mud and Jam | level 1 | day clouds | stretch
+Bramble dug in the mud.
+Mud got on his leg.
+[rain] Then the *rain* fell.
+He ran to the den.
+Mum had jam buns.
+Bramble had a *snack*.
+
+# Level 2 · Hare · blends and digraphs · 5 to 7 words
+
+== hare-and-frog | Hare and the Frog | level 2 | day clear
+Hare hops up the *grassy* hill.
+A green frog sits on a stump.
+The frog has a chat with Hare.
+Then the frog jumps into the pond.
+Splash goes the cold water.
+Hare laughs and shakes his *whiskers*.
+
+== crunchy-carrot | The Crunchy Carrot | level 2 | day clouds | stretch
+Hare digs in the soft black soil.
+He finds a thick *orange* carrot.
+It is the best carrot yet.
+He brings it back to his nest.
+Crunch crunch goes the fresh carrot.
+Hare is *stuffed* and has a *snooze*.
+
+== chat-on-the-hill | Chat on the Hill | level 2 | golden clear | stretch
+Hare and the thrush sit still.
+They chat as the sun slips down.
+The thrush sings a *sweet* *little* song.
+Hare thumps his feet to the song.
+A moth flaps past in the dusk.
+Then they rush home to bed.
+
+== hare-big-story | Hare and the Brook | level 2 | day clear | big
+Hare hops to the brook.
+The brook is fast and wide.
+He spots a log across it.
+Hare steps on the log with care.
+Drip drop splash goes the brook below.
+Hare jumps off on the far bank.
+
+# Level 3 · Puddle · long vowels, magic e · 6 to 8 words
+
+== puddle-kite | Puddle and the Kite | level 3 | day clear | stretch
+Puddle the frog sits by the lake.
+A red kite *floats* high in the sky.
+The wind takes the kite over the reeds.
+It lands on a lily pad near Puddle.
+Puddle hops out and grabs the *string*.
+He waves as the kite rises up again.
+
+== home-by-the-lake | A Home by the Lake | level 3 | golden clouds | stretch
+Puddle wants a home by the lake.
+He tries a hole under a *smooth* stone.
+It is too cold and much too damp.
+He tries a *hollow* reed but it bends.
+At last he finds a wide lily pad.
+Puddle makes his home and *yawns* with joy.
+
+== puddle-big-story | The Lily Pad Race | level 3 | day clear | big
+The frogs line up on the lily pads.
+They will race across the whole lake.
+Puddle takes a deep breath and waits.
+Then the frogs leap from pad to pad.
+Puddle slips but he gets up and hops.
+He is not first but he smiles.
+
+# Level 4 · Button · vowel teams, two beats · 7 to 9 words
+
+== button-finds-a-button | Button Finds a Button | level 4 | day clear
+Button the crow flies over the yellow field.
+He sees *something* shine down in the mud.
+He swoops down and grabs it with his beak.
+It is a round blue button from a coat.
+Button keeps it safe in his *hidden* nest.
+Now he has seven buttons in a neat row.
+
+== rain-on-the-field | Rain on the Field | level 4 | day clouds
+Gray clouds *gather* over the field of corn.
+[rain] Soon the rain comes down in cool drops.
+Button tucks his head under his black wing.
+The farmer runs to the barn with a pail.
+[clouds] After the rain the air smells sweet and clean.
+[clear] Button shakes his *feathers* and flies up again.
+
+== scarecrow-coat | The Scarecrow Coat | level 4 | golden clear | stretch
+The old scarecrow stands alone in the garden.
+His coat has a hole and a missing button.
+Button feels sorry for his *lonely* friend.
+He brings a shiny button from his nest.
+He pokes it into the coat with his beak.
+The scarecrow looks proud and Button *chuckles* happily.
+
+== paper-boat | The Paper Boat | level 4 | day clouds | stretch
+A child makes a paper boat by the stream.
+The boat floats away down the *rushing* water.
+Button sees it spin around a muddy rock.
+He flaps down and lifts the boat with care.
+He carries it back and sets it down.
+The child cheers and Button bows in the *sunshine*.
+
+== button-big-story | The Harvest Moon | level 4 | dusk clear | big
+The harvest moon rises over the golden field.
+Button counts the stars as the night grows cool.
+A little mouse is lost in the corn.
+Button calls to the mouse from a post.
+He shows the mouse the way to its burrow.
+Then Button flies home to his nest of buttons.
+
+# Level 5 · Marmalade · -ing, -ed and compound words · 8 to 10 words
+
+== marmalade-sunflower | The Tallest Sunflower | level 5 | day clear
+Marmalade the cat was napping under the garden bench.
+She yawned and *stretched* and looked up at the sky.
+A sunflower was reaching higher than the cottage roof.
+Marmalade wanted to see the sunflower from the top.
+She climbed the fence and jumped onto the *windowsill*.
+From there she smiled at the tallest sunflower in town.
+
+== wool-in-the-wind | Wool in the Wind | level 5 | day clouds
+Marmalade was playing with a ball of green wool.
+The wind picked up and the wool started rolling away.
+It bounced along the path and *tangled* around the roses.
+Marmalade followed the trail of wool through the garden.
+She found the ball resting beside the old *watering* can.
+She carried it home and curled up for a rest.
+
+== garden-party | The Garden Party | level 5 | golden clear | stretch
+The children were planning a party in the cottage garden.
+They hung *lanterns* and baked cupcakes with pink icing.
+Marmalade watched everything from the top of the wall.
+When the guests arrived she jumped down to say hello.
+Everyone laughed as she chased the bubbles across the grass.
+It was the most *wonderful* party the garden had seen.
+
+== rainy-afternoon | A Rainy Afternoon | level 5 | day clouds | stretch
+[rain] Raindrops were tapping on the window of the cottage.
+Marmalade stayed indoors and watched the puddles growing bigger.
+She listened to the kettle *whistling* in the kitchen.
+Grandma was knitting a scarf beside the crackling fire.
+Marmalade pounced on the dangling wool and rolled it away.
+Grandma chuckled and they spent the *afternoon* playing together.
+
+== marmalade-big-story | The Lost Kitten | level 5 | golden clouds | big
+One morning Marmalade heard a tiny meow from the hedge.
+She searched between the flowerpots and behind the shed.
+At last she discovered a kitten hiding under a bucket.
+The kitten was shivering and wanted to find its mother.
+Marmalade walked beside it all the way down the lane.
+Its mother was waiting and they purred at the gate.
+
+# Level 6 · Nipper · longer words, tricky spellings · 9 to 12 words
+
+== nipper-shells | Nipper and the Shells | level 6 | day clear
+Nipper the crab lives in a rock pool beside the sea.
+Every morning he searches the sand for *beautiful* shells.
+Today he found a spiral shell as pink as a sunset.
+He carried it carefully because the waves were getting stronger.
+He placed it on a flat rock with the other shells.
+Now his *collection* shines like treasure when the sun comes out.
+
+== tide-comes-in | When the Tide Comes In | level 6 | golden clouds
+Twice every day the tide comes in and covers the rocks.
+Nipper knows *exactly* when the water will start to rise.
+He watches the seaweed begin to float and sway gently.
+Tiny fish arrive and dart through the clear salty water.
+Nipper hides in his *favourite* crack until the tide goes out.
+Then he climbs out again to see what the sea has left.
+
+== island-adventure | The Island Across the Bay | level 6 | day clear | stretch
+Nipper could see a small island across the sparkling bay.
+He wondered if anyone lived on the rocks beneath the *lighthouse*.
+One calm morning he decided to walk along the sandbar.
+The journey was longer than he *expected* but he kept going.
+On the island he met a family of seals sunbathing together.
+They told him stories about the ocean until the sun went down.
+
+== nipper-storm | The Night of the Storm | level 6 | dusk clouds | stretch
+[storm] The sky turned dark and the wind began to howl.
+*Enormous* waves crashed against the rocks and sprayed white foam.
+Nipper held on tightly to the seaweed in his rock pool.
+*Although* he was frightened he remembered the storm would pass.
+[rain] Thunder rumbled while the rain poured down for hours.
+[clear] By morning the sea was calm and the beach was *peaceful* again.
+
+== nipper-big-story | The Message in a Bottle | level 6 | day clear | big
+One morning Nipper noticed a glass bottle wedged between two rocks.
+Inside the bottle there was a rolled up piece of paper.
+He pulled and twisted until the cork finally popped out.
+The message was a drawing of a smiling crab waving hello.
+Someone far across the ocean had sent it just for him.
+Nipper kept the drawing and dreamed about his faraway friend.
+
+# Level 7 · Sprig · big words, longer sentences · 10 to 14 words
+
+== sprig-tall-grass | Sprig in the Tall Grass | level 7 | day clear
+Sprig the grasshopper lives where the grass grows taller than a house.
+Every morning he climbs to the top of a stem to watch the sunrise.
+From up there the meadow looks like an *enormous* green ocean.
+He practises his jumping until he can leap across three stems at once.
+The ladybirds cheer whenever he lands without wobbling on the clover.
+Sprig believes that every day brings a brand new *adventure*.
+
+== sprig-fiddle | The Evening Concert | level 7 | dusk clear
+When the sun sets Sprig takes out his tiny wooden fiddle.
+The crickets gather beneath the dandelions to listen very quietly.
+He plays a gentle *melody* that drifts across the whole meadow.
+Even the sleepy bumblebees stop buzzing to hear the music.
+The fireflies begin to glow as if they are dancing to the tune.
+When the concert ends everyone *whispers* thank you and goes home to sleep.
+
+== sprig-journey | The Journey to the Old Oak | level 7 | golden clouds | stretch
+Sprig had heard stories about an *ancient* oak at the edge of the meadow.
+He packed his leather satchel with clover and set off before breakfast.
+The journey was *difficult* because the grass was thick and tangled.
+He crossed a trickling stream by balancing carefully on a fallen twig.
+By afternoon he finally reached the enormous tree with its twisted roots.
+Resting in its shade he felt proud of how far he had travelled.
+
+== sprig-rainbow | Chasing the Rainbow | level 7 | day clouds | stretch
+[rain] After a heavy shower a *magnificent* rainbow appeared above the meadow.
+Sprig was curious to discover where the colourful arch touched the ground.
+He hopped and scrambled through puddles that reflected the brightening sky.
+Every time he came closer the rainbow seemed to move further away.
+[clear] Eventually the warm sunshine returned and the colours slowly *disappeared*.
+Sprig laughed because the adventure had been the treasure all along.
+
+== sprig-big-story | The Great Meadow Festival | level 7 | golden clear | big
+Once a year every creature in the meadow gathers for a festival.
+The beetles decorate the stems with petals and shimmering spider silk.
+Bramble brings strawberries and Hare arrives with a basket of carrots.
+Puddle and Button organise races while Marmalade and Nipper tell stories.
+When the moon rises Sprig climbs onto a mushroom to play his fiddle.
+All his friends dance together and it is the happiest night of the year.
