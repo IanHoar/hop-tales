@@ -22,6 +22,7 @@ import SwiftUI
     public var path: [Path.State] = []
     public var settings: Settings.State?
     public var journeyMap: JourneyMap.State?
+    public var wardrobe: Wardrobe.State?
     public init() {}
 
     public var storyOnScreen: Story? {
@@ -37,6 +38,7 @@ import SwiftUI
     case path(Path.State.ID, Path.Action)
     case settings(Settings.Action)
     case journeyMap(JourneyMap.Action)
+    case wardrobe(Wardrobe.Action)
   }
 
   @Dependency(ProfileStore.self) var profileStore
@@ -59,6 +61,20 @@ import SwiftUI
             story: story, bigWords: journey.bigWords(in: story), treat: journey.treat(in: story)
           )
           state.path.append(.reading(reading))
+        case .home(.wardrobeTapped):
+          state.wardrobe = Wardrobe.State(friend: progressStore.load().journey.activeFriend)
+        case let .path(_, .reading(.tryItOnTapped(friend))):
+          var progress = progressStore.load()
+          if let item = progress.newestItem(for: friend) {
+            progress.wear(item, on: friend)
+            progressStore.save(progress)
+          }
+          state.wardrobe = Wardrobe.State(friend: friend)
+        case .wardrobe(.doneTapped):
+          state.wardrobe = nil
+          state.home.apply(progressStore.load())
+        case .wardrobe:
+          break
         case .home(.journeyTapped):
           state.journeyMap = JourneyMap.State()
         case .journeyMap(.doneTapped):
@@ -126,6 +142,9 @@ import SwiftUI
     }
     .ifLet(\.journeyMap) {
       JourneyMap()
+    }
+    .ifLet(\.wardrobe) {
+      Wardrobe()
     }
     .onMount { state in
       if let profile = profileStore.load() {
@@ -206,6 +225,10 @@ public struct RootScreen: View {
     }
     .sheet(item: $store.scope(\.journeyMap)) { journeyMap in
       JourneyMapScreen(store: journeyMap)
+        .interactiveDismissDisabled()
+    }
+    .sheet(item: $store.scope(\.wardrobe)) { wardrobe in
+      WardrobeScreen(store: wardrobe)
         .interactiveDismissDisabled()
     }
   }

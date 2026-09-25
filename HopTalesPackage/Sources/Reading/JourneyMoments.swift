@@ -146,7 +146,8 @@ struct CalloutCard: View {
             .paperChip(Capsule(), rim: geometry.path(3))
             .buttonStyle(.plain)
         }
-        Button(primaryTitle, action: moment.story == nil ? dismiss : primary)
+        let leads = moment.story != nil || moment.unlockedItem != nil
+        Button(primaryTitle, action: leads ? primary : dismiss)
           .font(Typography.display(geometry.path(16)))
           .foregroundStyle(Paper.onRed)
           .padding(.horizontal, geometry.path(18))
@@ -187,9 +188,11 @@ struct CalloutCard: View {
       }
     case let .basketFull(friend, _):
       HStack(alignment: .bottom, spacing: geometry.path(8)) {
+        Sticker("collect-basket", height: geometry.path(64))
+        if let item = moment.unlockedItem {
+          Sticker("wear-\(friend.rawValue)-\(item.id)", height: geometry.path(64))
+        }
         FriendSticker(friend, height: geometry.path(70))
-        Sticker("collect-basket", height: geometry.path(72))
-        Sticker("collect-\(friend.treat.art)", height: geometry.path(34))
       }
     case .tally, .treat:
       EmptyView()
@@ -215,9 +218,10 @@ struct CalloutCard: View {
     case let .newFriend(friend, via):
       "\(friend.name) is your new friend. \(friend.name) gave you \(friend.gift)."
         + (via == .trail ? " You found all the \(friend.treat.many)!" : "")
-    case let .basketFull(friend, number):
-      "You filled \(friend.name)'s basket of \(friend.treat.many). "
-        + (number == 1 ? "That's the first one!" : "That's basket number \(number)!")
+    case let .basketFull(friend, _):
+      "You filled \(friend.name)'s basket of \(friend.treat.many). Inside is "
+        + (moment.unlockedItem.map { "a \($0.name.lowercased())" } ?? "a present")
+        + " for \(friend.name)!"
     case .tally, .treat:
       ""
     }
@@ -228,7 +232,7 @@ struct CalloutCard: View {
     case .bigStoryReady: "Try the big story"
     case .notYet: "OK"
     case let .newFriend(friend, _): "Go to \(friend.place)"
-    case .basketFull: "Lovely!"
+    case .basketFull: "Try it on"
     case .tally, .treat: ""
     }
   }
@@ -236,8 +240,8 @@ struct CalloutCard: View {
   private var secondary: String? {
     switch moment {
     case .bigStoryReady: "Not yet"
-    case .newFriend: "Later"
-    case .notYet, .tally, .treat, .basketFull: nil
+    case .newFriend, .basketFull: "Later"
+    case .notYet, .tally, .treat: nil
     }
   }
 }

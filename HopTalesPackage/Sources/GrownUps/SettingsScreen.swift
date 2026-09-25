@@ -88,7 +88,13 @@ import SwiftUI
 
       case .debugUnlockEverythingTapped:
         state.journey = .everything
-        saveJourney(state.journey)
+        var progress = progressStore.load()
+        progress.journey = state.journey
+        for friend in Friend.allCases {
+          let items = WardrobeLibrary.items(for: friend).count
+          progress.baskets[friend, default: Basket()].filled = items
+        }
+        progressStore.save(progress)
 
       case .resetOnboardingTapped:
         break

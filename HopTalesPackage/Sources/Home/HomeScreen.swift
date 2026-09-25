@@ -53,6 +53,7 @@ import World
   public enum Action {
     case grownUpsTapped
     case journeyTapped
+    case wardrobeTapped
     case playOnTVTapped
     case storyTapped(Story)
   }
@@ -62,7 +63,7 @@ import World
   public var body: some Feature {
     Update { _, action in
       switch action {
-      case .grownUpsTapped, .journeyTapped, .playOnTVTapped, .storyTapped:
+      case .grownUpsTapped, .journeyTapped, .playOnTVTapped, .storyTapped, .wardrobeTapped:
         break
       }
     }
@@ -160,7 +161,11 @@ public struct HomeScreen: View {
 
   private func sheet(bottomInset: CGFloat) -> some View {
     VStack(alignment: .leading, spacing: 12) {
-      LevelChip(journey: store.progress.journey) { store.send(.journeyTapped) }
+      JourneyRow(progress: store.progress) {
+        store.send(.journeyTapped)
+      } wardrobe: {
+        store.send(.wardrobeTapped)
+      }
       if let keepGoing = store.keepGoing {
         KeepGoingCard(standing: keepGoing) { store.send(.storyTapped(keepGoing.story)) }
       }
@@ -213,6 +218,37 @@ struct StarBadge: View {
   }
 }
 
+struct JourneyRow: View {
+  let progress: Content.Progress
+  let journey: () -> Void
+  let wardrobe: () -> Void
+
+  var body: some View {
+    HStack(spacing: 10) {
+      LevelChip(journey: progress.journey) { journey() }
+      Button(action: wardrobe) {
+        DressedFriend(
+          progress.journey.activeFriend,
+          wearing: progress.outfit(for: progress.journey.activeFriend),
+          height: 44
+        )
+        .frame(width: 60, height: 60)
+        .paperChip(RoundedRectangle(cornerRadius: 18, style: .continuous), rim: 3)
+        .overlay(alignment: .bottomTrailing) {
+          Image(systemName: "tshirt.fill")
+            .font(.system(size: 11, weight: .bold))
+            .foregroundStyle(Paper.onRed)
+            .frame(width: 22, height: 22)
+            .background(Paper.red, in: Circle())
+            .offset(x: 4, y: 4)
+        }
+      }
+      .buttonStyle(.plain)
+      .accessibilityLabel("Wardrobe")
+    }
+  }
+}
+
 struct LevelChip: View {
   let journey: Journey
   let action: () -> Void
@@ -226,6 +262,8 @@ struct LevelChip: View {
           Text(title)
             .font(Typography.display(16))
             .foregroundStyle(Paper.ink)
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
           if journey.nextFriend != nil {
             GeometryReader { proxy in
               ZStack(alignment: .leading) {
