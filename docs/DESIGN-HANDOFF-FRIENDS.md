@@ -269,9 +269,13 @@ struct Wardrobe: Codable {
 
 ## 10. Decisions for Ian
 
-1. **Who picks in onboarding:** the grown-up alone, or the child with the grown-up?
+1. **Who picks in onboarding:** decided: the grown-up picks, with the child watching. The step stays grown-up-facing like the rest of onboarding. The friend cards are big and friendly enough to show the child, and the copy invites them to look.
 2. **The big-story bar:** is 85 % of words without help right?
-3. **Level ups:** is the big story the only way up, or should a level also rise on its own after many stories read well at the current level?
+3. **Level ups:** decided: the big story is the main way up, and a level also rises on its own after sustained reading. The first-pass rule, kept in the level table so it's easy to tune:
+   - **8 stories at the current level**, each read with help on no more than 1 word in 10, since the last level up.
+   - When that's reached, the next friend arrives at the next The end exactly as if the big story had been passed. The new-friend moment plays and the level rises, without the child having to read the big story.
+   - The big story stays on the journey map to read later, and still earns its stamp in the collection book.
+   - The count resets on every level up, however it happened.
 4. **Level definitions:** check the seven levels with a teacher or against his school's phonics order.
 5. **Names:** Bramble, Puddle, Button, Marmalade, Nipper and Sprig are placeholders. Does Hare get a name?
 
