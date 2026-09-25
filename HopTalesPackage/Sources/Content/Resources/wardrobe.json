@@ -1,0 +1,1056 @@
+{
+  "hare": [
+    {
+      "id": "straw",
+      "name": "Straw hat",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.7,
+          "y": 0.33,
+          "w": 0.48,
+          "rot": -6,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bowtie",
+      "name": "Bow tie",
+      "slot": "neck",
+      "parts": [
+        {
+          "x": 0.66,
+          "y": 0.43,
+          "w": 0.46,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "neckerchief",
+      "name": "Spotty neckerchief",
+      "slot": "neck",
+      "parts": [
+        {
+          "x": 0.66,
+          "y": 0.43,
+          "w": 0.46,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "crown",
+      "name": "Flower crown",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.7,
+          "y": 0.33,
+          "w": 0.48,
+          "rot": -6,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "satchel",
+      "name": "Satchel",
+      "slot": "back",
+      "parts": [
+        {
+          "x": 0.46,
+          "y": 0.59,
+          "w": 0.36,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bobble",
+      "name": "Bobble hat",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.7,
+          "y": 0.33,
+          "w": 0.48,
+          "rot": -6,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "specs",
+      "name": "Round glasses",
+      "slot": "eyes",
+      "parts": [
+        {
+          "x": 0.74,
+          "y": 0.36,
+          "w": 0.3,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pirate",
+      "name": "Pirate hat",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.7,
+          "y": 0.33,
+          "w": 0.48,
+          "rot": -6,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wizard",
+      "name": "Wizard hat",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.7,
+          "y": 0.33,
+          "w": 0.48,
+          "rot": -6,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "acorn",
+      "name": "Acorn cap",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.71,
+          "y": 0.335,
+          "w": 0.288,
+          "rot": -6,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cape",
+      "name": "Cape",
+      "slot": "back",
+      "parts": [
+        {
+          "x": 0.46,
+          "y": 0.57,
+          "w": 0.52,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "paper-crown",
+      "name": "Paper crown",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.7,
+          "y": 0.33,
+          "w": 0.48,
+          "rot": -6,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    }
+  ],
+  "bunny": [
+    {
+      "id": "bluebell-crown",
+      "name": "Bluebell crown",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.7,
+          "y": 0.345,
+          "w": 0.378,
+          "rot": -8,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bonnet",
+      "name": "Straw bonnet",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.7,
+          "y": 0.335,
+          "w": 0.42,
+          "rot": -8,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "headscarf",
+      "name": "Polka-dot headscarf",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.7,
+          "y": 0.345,
+          "w": 0.336,
+          "rot": -8,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "heart-glasses",
+      "name": "Heart glasses",
+      "slot": "eyes",
+      "parts": [
+        {
+          "x": 0.735,
+          "y": 0.355,
+          "w": 0.28,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "daisy-chain",
+      "name": "Daisy chain",
+      "slot": "neck",
+      "parts": [
+        {
+          "x": 0.73,
+          "y": 0.48,
+          "w": 0.289,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "berry-kerchief",
+      "name": "Strawberry neckerchief",
+      "slot": "neck",
+      "parts": [
+        {
+          "x": 0.73,
+          "y": 0.47,
+          "w": 0.34,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "basket-pack",
+      "name": "Wicker backpack",
+      "slot": "back",
+      "parts": [
+        {
+          "x": 0.34,
+          "y": 0.52,
+          "w": 0.34,
+          "rot": -6,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shawl",
+      "name": "Lilac shawl",
+      "slot": "body",
+      "parts": [
+        {
+          "x": 0.62,
+          "y": 0.54,
+          "w": 0.532,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    }
+  ],
+  "frog": [
+    {
+      "id": "lilypad-hat",
+      "name": "Lily-pad hat",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.71,
+          "y": 0.21,
+          "w": 0.32,
+          "rot": -4,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "souwester",
+      "name": "Rain hat",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.71,
+          "y": 0.21,
+          "w": 0.32,
+          "rot": -4,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "frog-crown",
+      "name": "Golden crown",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.71,
+          "y": 0.215,
+          "w": 0.256,
+          "rot": -4,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "goggles",
+      "name": "Swimming goggles",
+      "slot": "eyes",
+      "parts": [
+        {
+          "x": 0.735,
+          "y": 0.2,
+          "w": 0.28,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "check-bowtie",
+      "name": "Check bow tie",
+      "slot": "neck",
+      "parts": [
+        {
+          "x": 0.75,
+          "y": 0.31,
+          "w": 0.3,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "swim-ring",
+      "name": "Swim ring",
+      "slot": "body",
+      "parts": [
+        {
+          "x": 0.62,
+          "y": 0.58,
+          "w": 0.46,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reed-satchel",
+      "name": "Reed satchel",
+      "slot": "back",
+      "parts": [
+        {
+          "x": 0.46,
+          "y": 0.32,
+          "w": 0.3,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "raincoat",
+      "name": "Raincoat",
+      "slot": "body",
+      "parts": [
+        {
+          "x": 0.62,
+          "y": 0.56,
+          "w": 0.46,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    }
+  ],
+  "crow": [
+    {
+      "id": "flat-cap",
+      "name": "Tweed flat cap",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.64,
+          "y": 0.2,
+          "w": 0.3,
+          "rot": -6,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "scarecrow-hat",
+      "name": "Scarecrow hat",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.64,
+          "y": 0.2,
+          "w": 0.3,
+          "rot": -6,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "top-hat",
+      "name": "Top hat",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.64,
+          "y": 0.2,
+          "w": 0.3,
+          "rot": -6,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "aviator-goggles",
+      "name": "Flying goggles",
+      "slot": "eyes",
+      "parts": [
+        {
+          "x": 0.71,
+          "y": 0.225,
+          "w": 0.24,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "autumn-scarf",
+      "name": "Autumn scarf",
+      "slot": "neck",
+      "parts": [
+        {
+          "x": 0.66,
+          "y": 0.3,
+          "w": 0.28,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pocket-watch",
+      "name": "Pocket watch",
+      "slot": "neck",
+      "parts": [
+        {
+          "x": 0.66,
+          "y": 0.32,
+          "w": 0.168,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waistcoat",
+      "name": "Patchwork waistcoat",
+      "slot": "body",
+      "parts": [
+        {
+          "x": 0.52,
+          "y": 0.52,
+          "w": 0.46,
+          "rot": -18,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "post-satchel",
+      "name": "Postbag",
+      "slot": "back",
+      "parts": [
+        {
+          "x": 0.43,
+          "y": 0.53,
+          "w": 0.26,
+          "rot": -10,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    }
+  ],
+  "cat": [
+    {
+      "id": "garden-hat",
+      "name": "Gardening hat",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.74,
+          "y": 0.155,
+          "w": 0.48,
+          "rot": -4,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "beret",
+      "name": "Beret",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.74,
+          "y": 0.155,
+          "w": 0.384,
+          "rot": -4,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rose-clip",
+      "name": "Rose clip",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.66,
+          "y": 0.095,
+          "w": 0.216,
+          "rot": 16,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cateye-glasses",
+      "name": "Cat-eye glasses",
+      "slot": "eyes",
+      "parts": [
+        {
+          "x": 0.8,
+          "y": 0.21,
+          "w": 0.34,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lace-collar",
+      "name": "Lace collar",
+      "slot": "neck",
+      "parts": [
+        {
+          "x": 0.72,
+          "y": 0.265,
+          "w": 0.3,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "red-bell-collar",
+      "name": "Red bell collar",
+      "slot": "neck",
+      "parts": [
+        {
+          "x": 0.72,
+          "y": 0.265,
+          "w": 0.255,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "apron",
+      "name": "Gardening apron",
+      "slot": "body",
+      "parts": [
+        {
+          "x": 0.62,
+          "y": 0.52,
+          "w": 0.58,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cardigan",
+      "name": "Knitted cardigan",
+      "slot": "body",
+      "parts": [
+        {
+          "x": 0.62,
+          "y": 0.52,
+          "w": 0.58,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    }
+  ],
+  "crab": [
+    {
+      "id": "sailor-cap",
+      "name": "Sailor cap",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.58,
+          "y": 0.16,
+          "w": 0.3,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bandana",
+      "name": "Pirate bandana",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.58,
+          "y": 0.16,
+          "w": 0.3,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "captain-hat",
+      "name": "Captain's hat",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.58,
+          "y": 0.16,
+          "w": 0.3,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "diving-mask",
+      "name": "Diving mask",
+      "slot": "eyes",
+      "parts": [
+        {
+          "x": 0.6,
+          "y": 0.22,
+          "w": 0.26,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "eyepatch",
+      "name": "Eyepatch",
+      "slot": "eyes",
+      "parts": [
+        {
+          "x": 0.6,
+          "y": 0.22,
+          "w": 0.26,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "life-ring",
+      "name": "Life ring",
+      "slot": "body",
+      "parts": [
+        {
+          "x": 0.56,
+          "y": 0.5,
+          "w": 0.44,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "claw-mittens",
+      "name": "Claw mittens",
+      "slot": "claws",
+      "parts": [
+        {
+          "x": 0.41,
+          "y": 0.66,
+          "w": 0.17,
+          "rot": -12,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        {
+          "x": 0.64,
+          "y": 0.6,
+          "w": 0.16,
+          "rot": 14,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chest-pack",
+      "name": "Treasure backpack",
+      "slot": "back",
+      "parts": [
+        {
+          "x": 0.4,
+          "y": 0.18,
+          "w": 0.24,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    }
+  ],
+  "grasshopper": [
+    {
+      "id": "acorn-cap",
+      "name": "Acorn cap",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.78,
+          "y": 0.31,
+          "w": 0.16,
+          "rot": -8,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "leaf-hat",
+      "name": "Leaf hat",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.78,
+          "y": 0.31,
+          "w": 0.16,
+          "rot": -8,
+          "pivot": [
+            0.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "antenna-poms",
+      "name": "Antenna pom-poms",
+      "slot": "antennae",
+      "parts": [
+        {
+          "x": 0.885,
+          "y": 0.05,
+          "w": 0.07,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        {
+          "x": 0.95,
+          "y": 0.07,
+          "w": 0.07,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "explorer-goggles",
+      "name": "Explorer goggles",
+      "slot": "eyes",
+      "parts": [
+        {
+          "x": 0.79,
+          "y": 0.37,
+          "w": 0.16,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "clover-bowtie",
+      "name": "Clover bow tie",
+      "slot": "neck",
+      "parts": [
+        {
+          "x": 0.73,
+          "y": 0.48,
+          "w": 0.13,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fiddle",
+      "name": "Tiny fiddle",
+      "slot": "back",
+      "parts": [
+        {
+          "x": 0.55,
+          "y": 0.36,
+          "w": 0.24,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ladybird-cape",
+      "name": "Ladybird cape",
+      "slot": "back",
+      "parts": [
+        {
+          "x": 0.55,
+          "y": 0.36,
+          "w": 0.24,
+          "rot": 0,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "id": "leaf-poncho",
+      "name": "Leaf poncho",
+      "slot": "body",
+      "parts": [
+        {
+          "x": 0.62,
+          "y": 0.5,
+          "w": 0.3,
+          "rot": -6,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    }
+  ]
+}

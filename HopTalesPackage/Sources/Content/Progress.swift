@@ -6,19 +6,22 @@ public struct Progress: Codable, Hashable, Sendable {
   public var wordsRead: [String: Int]
   public var journey: Journey
   public var baskets: [Friend: Basket]
+  public var outfits: [Friend: [Slot: String]]
 
   public init(
     stars: Int = 0,
     completedSentences: [String: Int] = [:],
     wordsRead: [String: Int] = [:],
     journey: Journey = Journey(),
-    baskets: [Friend: Basket] = [:]
+    baskets: [Friend: Basket] = [:],
+    outfits: [Friend: [Slot: String]] = [:]
   ) {
     self.completedSentences = completedSentences
     self.stars = stars
     self.wordsRead = wordsRead
     self.journey = journey
     self.baskets = baskets
+    self.outfits = outfits
   }
 
   enum CodingKeys: String, CodingKey {
@@ -27,6 +30,7 @@ public struct Progress: Codable, Hashable, Sendable {
     case wordsRead
     case journey
     case baskets
+    case outfits
   }
 
   public init(from decoder: any Decoder) throws {
@@ -36,5 +40,6 @@ public struct Progress: Codable, Hashable, Sendable {
     wordsRead = try container.decode([String: Int].self, forKey: .wordsRead)
     journey = try container.decodeIfPresent(Journey.self, forKey: .journey) ?? Journey()
     baskets = try container.decodeIfPresent([Friend: Basket].self, forKey: .baskets) ?? [:]
+    outfits = try container.decodeIfPresent([Friend: [Slot: String]].self, forKey: .outfits) ?? [:]
   }
 }

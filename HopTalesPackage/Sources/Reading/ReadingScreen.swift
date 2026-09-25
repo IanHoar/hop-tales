@@ -85,6 +85,7 @@ import World
     case readAgainTapped
     case helpOffered
     case keepReadingTapped
+    case tryItOnTapped(Friend)
     case momentDismissed
     case speechFinished
     case scenePhaseChanged(isActive: Bool)
@@ -152,7 +153,7 @@ import World
       case .keepReadingTapped:
         state.isConfirmingStop = false
 
-      case .continueTapped:
+      case .continueTapped, .tryItOnTapped:
         break
 
       case .momentDismissed:

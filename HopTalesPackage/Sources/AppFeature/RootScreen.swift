@@ -22,6 +22,9 @@ import SwiftUI
     public var path: [Path.State] = []
     public var settings: Settings.State?
     public var journeyMap: JourneyMap.State?
+    public var wardrobe: Wardrobe.State?
+    public var friends: Friends.State?
+    public var book: Book.State?
     public init() {}
 
     public var storyOnScreen: Story? {
@@ -37,6 +40,9 @@ import SwiftUI
     case path(Path.State.ID, Path.Action)
     case settings(Settings.Action)
     case journeyMap(JourneyMap.Action)
+    case wardrobe(Wardrobe.Action)
+    case friends(Friends.Action)
+    case book(Book.Action)
   }
 
   @Dependency(ProfileStore.self) var profileStore
@@ -59,6 +65,34 @@ import SwiftUI
             story: story, bigWords: journey.bigWords(in: story), treat: journey.treat(in: story)
           )
           state.path.append(.reading(reading))
+        case .home(.friendsTapped):
+          state.friends = Friends.State()
+        case .home(.bookTapped):
+          state.book = Book.State(friend: progressStore.load().journey.activeFriend)
+        case .friends(.journeyTapped):
+          state.friends = nil
+          state.journeyMap = JourneyMap.State()
+        case .friends(.doneTapped):
+          state.friends = nil
+          state.home.apply(progressStore.load())
+        case .book(.doneTapped):
+          state.book = nil
+        case .friends, .book:
+          break
+        case .home(.wardrobeTapped):
+          state.wardrobe = Wardrobe.State(friend: progressStore.load().journey.activeFriend)
+        case let .path(_, .reading(.tryItOnTapped(friend))):
+          var progress = progressStore.load()
+          if let item = progress.newestItem(for: friend) {
+            progress.wear(item, on: friend)
+            progressStore.save(progress)
+          }
+          state.wardrobe = Wardrobe.State(friend: friend)
+        case .wardrobe(.doneTapped):
+          state.wardrobe = nil
+          state.home.apply(progressStore.load())
+        case .wardrobe:
+          break
         case .home(.journeyTapped):
           state.journeyMap = JourneyMap.State()
         case .journeyMap(.doneTapped):
@@ -126,6 +160,15 @@ import SwiftUI
     }
     .ifLet(\.journeyMap) {
       JourneyMap()
+    }
+    .ifLet(\.wardrobe) {
+      Wardrobe()
+    }
+    .ifLet(\.friends) {
+      Friends()
+    }
+    .ifLet(\.book) {
+      Book()
     }
     .onMount { state in
       if let profile = profileStore.load() {
@@ -206,6 +249,18 @@ public struct RootScreen: View {
     }
     .sheet(item: $store.scope(\.journeyMap)) { journeyMap in
       JourneyMapScreen(store: journeyMap)
+        .interactiveDismissDisabled()
+    }
+    .sheet(item: $store.scope(\.wardrobe)) { wardrobe in
+      WardrobeScreen(store: wardrobe)
+        .interactiveDismissDisabled()
+    }
+    .sheet(item: $store.scope(\.friends)) { friends in
+      FriendsScreen(store: friends)
+        .interactiveDismissDisabled()
+    }
+    .sheet(item: $store.scope(\.book)) { book in
+      BookScreen(store: book)
         .interactiveDismissDisabled()
     }
   }
