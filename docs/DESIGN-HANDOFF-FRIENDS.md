@@ -182,13 +182,24 @@ A third way up, made for a child who loves collecting.
 11. cape
 12. paper crown
 
-**Slots and fitting:**
+**Slots and fitting** (board `CastFit`, anchors in `Design/friends/wardrobe-anchors.json`):
 
 - **Slots:** `head`, `eyes`, `neck`, `body` and `back`, plus `claws` for Nipper and `antennae` for Sprig. One item per slot.
-- **Anchors:** each friend defines an anchor for every slot it uses (x, y, rotation, scale). They're defined for the sit pose and every hop frame, in `wardrobe-anchors.json` per friend. An item's pivot is the bottom middle of a hat, the bridge of glasses, the knot of a neck item, or the top of a strap.
-- **Following the motion:** an item follows its anchor frame by frame.
+- **`wardrobe-anchors.json`** has, for each friend:
+  - `sit`: the base sticker it was measured on.
+  - `anchors`: one per slot, as `{x, y, w, rot}`. `x` and `y` are fractions of the sit sticker's width and height, `w` is the item's width as a fraction of the sticker's width, and `rot` is in degrees (clockwise).
+  - `items`: the final transform for every item in that friend's wardrobe, anchor plus any per-item tweak, with its `pivot`.
+- **Pivots:** a head item sits by its **bottom middle** (`[0.5, 1]`), a neck item hangs from its **top middle** (`[0.5, 0]`), and everything else is placed by its **centre**. The item is rotated around its pivot.
+- **Pairs:** claw mittens and antenna pom-poms are one sticker with two parts. Split the sticker down the middle: the left half goes on `claws` / `antennae` and the right half on `claws2` / `antennae2`. Those items list two transforms.
+- **The board is the reference:** `CastFit` composes every item from these numbers in CSS, so it shows exactly what the numbers produce.
 - **Masks:** a front mask covers ears and antennae where they should sit over a hat.
 - **Neck items:** these replace the friend's own accessory while worn.
+
+**Still needed before wardrobes ship:**
+
+1. **Accessory-free base stickers** for all seven friends (the same pose without the bow, neckerchiefs, cap, collar, satchel and scarf). Today the built-in accessory shows under the items: a hat sits on Button's cap, and a collar sits over Marmalade's. The friend's own accessory then becomes their default outfit rather than part of the drawing. These couldn't be generated yet because the Gemini account is out of prepaid credit; the edit prompt is in `Design/friends/tools/gen_bare.py`. Re-measure the anchors on the new bases (they should barely move).
+2. **Hop-frame anchors.** The numbers are for the sit pose only. Each hop frame needs its own anchors so items move with the body. A small debug overlay that lets you drag the anchors on each frame and writes this JSON is the quickest way.
+3. **Tuning on device.** Treat these numbers as the starting point and adjust them on device at real size.
 
 **The screen** (`PhoneWardrobe`):
 

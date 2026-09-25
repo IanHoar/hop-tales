@@ -466,6 +466,63 @@ BOARDS = [board_plan, board_journey, board_lineup, cb.board_motion, cb.board_wor
           phone_onboard, phone_bigword, cb.phone_pickup_before, cb.phone_pickup_after, phone_tally, phone_levelup, phone_bigstory, phone_newfriend,
           phone_journey, phone_friends, phone_wardrobe, phone_book, phone_home]
 
+# ------------------------------------------------------------------ fit check (items composed from anchors, no new art)
+import fit as FIT
+
+
+def fit_tile(k, iid, slot, src, box=150):
+    from PIL import Image as _I
+    base_src = FIT.SIT[k]
+    bw, bh = _I.open(os.path.join(P, base_src)).size
+    s = min(box / bw, box / bh) * 0.78
+    W, H = bw * s, bh * s
+    ox, oy = (box - W) / 2, (box - H) / 2 + 8
+    parts = [f'<img src="./{base_src}" alt="" style="position: absolute; left: {ox:.1f}px; top: {oy:.1f}px; width: {W:.1f}px; height: {H:.1f}px;">']
+    img = _I.open(os.path.join(P, src))
+    pieces = [(slot, None)] if slot not in FIT.PAIRS else [(slot, "l"), (slot + "2", "r")]
+    for sl, half in pieces:
+        t = FIT.transform(k, iid, sl)
+        iw = t["w"] * W
+        if half:
+            hw = img.width / 2
+            ih = img.height * iw / hw
+            full = iw * 2
+            clip = f'clip-path: inset(0 {50 if half == "l" else 0}% 0 {0 if half == "l" else 50}%);'
+            left = ox + t["x"] * W - (iw * t["pivot"][0]) - (0 if half == "l" else iw)
+            parts.append(f'<img src="./{src}" alt="" style="position: absolute; left: {left:.1f}px; top: {oy + t["y"] * H - ih * t["pivot"][1]:.1f}px; width: {full:.1f}px; height: {ih:.1f}px; {clip} '
+                         f'transform: rotate({t["rot"]}deg); transform-origin: {(25 if half == "l" else 75)}% {t["pivot"][1] * 100:.0f}%;">')
+        else:
+            ih = img.height * iw / img.width
+            parts.append(f'<img src="./{src}" alt="" style="position: absolute; left: {ox + t["x"] * W - iw * t["pivot"][0]:.1f}px; top: {oy + t["y"] * H - ih * t["pivot"][1]:.1f}px; '
+                         f'width: {iw:.1f}px; height: {ih:.1f}px; transform: rotate({t["rot"]}deg); transform-origin: {t["pivot"][0] * 100:.0f}% {t["pivot"][1] * 100:.0f}%;">')
+    return f'<div style="position: relative; width: {box}px; height: {box}px; overflow: visible;">{"".join(parts)}</div>'
+
+
+def board_fit():
+    order = ["bunny", "hare", "frog", "crow", "cat", "crab", "grasshopper"]
+    box, gap = 150, 12
+    W = 56 + 160 + 12 * (box + gap) + 40
+    rowh = box + 50
+    H = 150 + rowh * len(order) + 60
+    rows = []
+    for r, k in enumerate(order):
+        y = 140 + r * rowh
+        name = FR[k][1]
+        rows.append(f'<div style="position: absolute; left: 56px; top: {y + 60}px; width: 150px;">{T(name, 20, 700, "Fraunces")}'
+                    f'{T(str(len(FIT.items_for(k))) + " items", 12.5, 600, "Fredoka", MUTED)}</div>')
+        for c, (iid, slot, src) in enumerate(FIT.items_for(k)):
+            x = 216 + c * (box + gap)
+            rows.append(f'<div style="position: absolute; left: {x}px; top: {y}px; width: {box}px; height: {box + 36}px; border-radius: 14px; background: rgba(251,244,228,0.6);">'
+                        f'{fit_tile(k, iid, slot, src, box)}<div style="position: absolute; left: 8px; right: 6px; top: {box + 4}px; font-family: Fredoka, sans-serif; font-weight: 600; font-size: 11px; color: {MUTED};">{iid} · {slot}</div></div>')
+    note = T("Every item placed from the anchors in Design/friends/wardrobe-anchors.json, on the sit pose. The built-in accessories (Bramble&#39;s bow, Puddle&#39;s and Nipper&#39;s neckerchiefs, Button&#39;s cap, Marmalade&#39;s collar, Sprig&#39;s satchel, Hare&#39;s scarf) still show underneath: each friend needs an accessory-free base sticker before this ships. Pairs (claw mittens, antenna pom-poms) are split in half, one per claw or antenna.",
+             14, 500, "Fredoka", INK, f"position: absolute; left: 56px; top: {H - 70}px; width: {W - 112}px;")
+    b = head("Fit check · every item on its friend", "composed live from anchors (no painting), so the numbers are the spec · sit pose; hop frames need their own anchors", w=W - 112) + "".join(rows) + note
+    return "CastFit", W, H, b, STATIC_LOGIC, "", "Fit check · every item on its friend"
+
+
+BOARDS.insert(BOARDS.index(board_suits) + 1, board_fit)
+
+
 if __name__ == "__main__":
     built = []
     css0 = pw.CSS.replace("var(--sheet)", f"{-(pw.HOP[0] * 116 / pw.HOP[1]) * 8:.0f}px")

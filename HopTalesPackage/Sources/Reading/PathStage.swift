@@ -11,6 +11,7 @@ struct PathStage: View {
   @Environment(\.freezesMotion) private var freezesMotion
   @State private var camera: MeadowCamera?
   @State private var motion = HareMotion()
+  @State private var bigHop = false
 
   private var position: HopTarget {
     HopTarget(sentence: store.sentenceIndex, word: store.wordIndex)
@@ -40,6 +41,7 @@ struct PathStage: View {
             cameraX: camera.x(at: now),
             pose: motion.pose(at: now, reduceMotion: false),
             lift: motion.arc(at: now) * path.apex(carried: motion.hop?.carried ?? false)
+              * (bigHop ? WordPath.bigWordLift : 1)
           )
         }
       }
@@ -48,12 +50,42 @@ struct PathStage: View {
           store.send(.readAgainTapped)
         }
         .transition(.opacity.animation(.easeOut(duration: 0.4).delay(WordPath.pan)))
+        journeyPanel
+          .transition(.opacity.animation(.easeOut(duration: 0.4).delay(WordPath.pan)))
       }
     }
     .frame(width: geometry.size.width, height: geometry.size.height)
     .animation(Motion.recognised, value: store.completed)
     .onChange(of: position) { old, new in advance(from: old, to: new, on: path) }
     .onChange(of: geometry) { self.camera = nil }
+  }
+
+  @ViewBuilder
+  private var journeyPanel: some View {
+    VStack {
+      if let callout = store.callout {
+        CalloutCard(moment: callout, geometry: geometry) {
+          if let story = callout.story { store.send(.continueTapped(story)) }
+        } dismiss: {
+          store.send(.momentDismissed)
+        }
+        .id(String(describing: callout))
+        .transition(.scale(scale: 0.9).combined(with: .opacity))
+      } else if case let .tally(steps, total, goal, bigWords, next) = store.tally {
+        TallyCard(
+          steps: steps, total: total, goal: goal, bigWords: bigWords, next: next,
+          geometry: geometry
+        )
+        .transition(.opacity)
+      }
+      Spacer()
+    }
+    .padding(.top, geometry.y(110))
+    .frame(width: geometry.size.width, height: geometry.size.height)
+    .overlay {
+      if case .newFriend = store.callout { PaperConfetti(size: geometry.size) }
+    }
+    .animation(.easeInOut(duration: 0.3), value: store.journeyMoments)
   }
 
   @ViewBuilder
@@ -83,6 +115,8 @@ struct PathStage: View {
       pose: pose,
       lift: lift,
       title: store.story.title,
+      bigWords: store.bigWords,
+      waiting: store.callout?.waitingFriend,
       tint: Color(uiColor: store.mood.landTint),
       isSpeaking: store.isSpeaking,
       label: store.wordCardLabel
@@ -99,6 +133,7 @@ struct PathStage: View {
       return
     }
     let now = MeadowCamera.now
+    bigHop = store.bigWords.contains(WordRef(sentence: old.sentence, word: old.word))
     motion.jump(at: now, distance: 0, carried: new.sentence != old.sentence)
     let rate = motion.hop?.rate ?? 1
     let current = camera ?? MeadowCamera(at: path.camera(at: old))
@@ -113,6 +148,8 @@ struct PathScene: View {
   let pose: HareMotion.Pose
   let lift: CGFloat
   let title: String
+  let bigWords: Set<WordRef>
+  let waiting: Friend?
   let tint: Color
   let isSpeaking: Bool
   let label: String
@@ -134,9 +171,19 @@ struct PathScene: View {
           state: WordPath.state(of: stop.target, at: position),
           size: path.wordSize,
           overhang: geometry.path(14),
+          isBig: bigWords.contains(WordRef(sentence: stop.target.sentence, word: stop.target.word)),
           isPulsing: isSpeaking && stop.target == position
         )
         .position(x: stop.centre - cameraX, y: path.wordY)
+      }
+      if let waiting {
+        FriendSticker(waiting, height: path.hareHeight(hopping: false) * 0.78)
+          .position(
+            x: path.endSign - cameraX - geometry.path(72),
+            y: path.hareFeetY - path.hareHeight(hopping: false) * 0.39
+          )
+          .allowsHitTesting(false)
+          .accessibilityHidden(true)
       }
       hare
       currentWordTarget
@@ -220,10 +267,14 @@ struct PathScene: View {
 
 struct PathWord: View {
   @Environment(\.freezesMotion) private var freezesMotion
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @State private var popped = false
+  @State private var floated = false
   let text: String
   let state: PathWordState
   let size: CGFloat
   let overhang: CGFloat
+  var isBig = false
   var isPulsing = false
 
   var body: some View {
@@ -238,6 +289,12 @@ struct PathWord: View {
           .opacity(state == .read ? 1 : 0)
           .animation(.easeOut(duration: 0.35).delay(0.25), value: state == .read)
       }
+      .overlay(alignment: .bottom) {
+        if isBig { underline }
+      }
+      .overlay(alignment: .top) {
+        if isBig { star }
+      }
       .scaleEffect(scale)
       .animation(.easeInOut(duration: 0.3), value: state)
       .animation(.easeInOut(duration: 0.28).repeatCount(3, autoreverses: true), value: isPulsing)
@@ -250,11 +307,51 @@ struct PathWord: View {
       .blendMode(.multiply)
       .allowsHitTesting(false)
       .accessibilityHidden(true)
+      .onChange(of: state) { _, state in
+        guard isBig, state == .read, !reduceMotion else { return }
+        withAnimation(.easeOut(duration: 0.3)) { popped = true }
+        withAnimation(.easeOut(duration: 0.9).delay(0.1)) { floated = true }
+      }
+  }
+
+  private var underline: some View {
+    let solid = state == .read && reduceMotion
+    return Capsule()
+      .stroke(
+        PathWash.gold,
+        style: StrokeStyle(
+          lineWidth: size * 0.07, lineCap: .round, dash: solid ? [] : [1, size * 0.16]
+        )
+      )
+      .frame(height: size * 0.07)
+      .padding(.horizontal, size * 0.05)
+      .offset(y: -size * 0.12)
+  }
+
+  @ViewBuilder
+  private var star: some View {
+    let read = state == .read
+    ZStack {
+      if !read || popped {
+        Sticker("collect-star", height: size * 0.42)
+          .scaleEffect(popped ? 0 : read ? 1.4 : 1)
+          .opacity(popped ? 0 : 1)
+      }
+      if popped {
+        Text("+5")
+          .font(Typography.display(size * 0.4))
+          .foregroundStyle(Paper.ink)
+          .offset(y: floated ? -size * 0.9 : -size * 0.2)
+          .opacity(floated ? 0 : 1)
+      }
+    }
+    .offset(y: -size * 0.5)
   }
 
   private var scale: CGFloat {
-    guard state == .current else { return WordPath.sideScale }
-    return isPulsing ? 1.08 : 1
+    let big = isBig ? WordPath.bigWordScale : 1
+    guard state == .current else { return WordPath.sideScale * big }
+    return (isPulsing ? 1.08 : 1) * big
   }
 }
 

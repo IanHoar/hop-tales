@@ -7,7 +7,7 @@ import Testing
 @MainActor
 @Suite(.snapshots(record: .missing, diffTool: .ksdiff))
 struct PathSnapshotTests {
-  @Test(arguments: [ReadingScreenPreview.Moment.start, .midPage, .end])
+  @Test(arguments: [ReadingScreenPreview.Moment.start, .midPage, .end, .bigStoryReady, .newFriend])
   func theWordsLieOnThePath(moment: ReadingScreenPreview.Moment) {
     expectSnapshot(
       of: ReadingScreenPreview(moment: moment).environment(\.freezesMotion, true),

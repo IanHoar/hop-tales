@@ -20,6 +20,18 @@ def cut(path, min_area=12000, rows=2):
     edge = np.unique(np.concatenate([lab[:4][cand[:4]], lab[-4:][cand[-4:]], lab[:, :4][cand[:, :4]], lab[:, -4:][cand[:, -4:]]]))
     edge = edge[edge > 0]
     fg = ndi.binary_fill_holes(~np.isin(lab, edge))
+    # background showing through holes (rings, straps, handles): key those out too
+    tight = d < 16
+    hl, hn = ndi.label(tight & fg)
+    if hn:
+        areas = ndi.sum(np.ones_like(d), hl, index=np.arange(1, hn + 1))
+        big = np.nonzero(areas > 600)[0] + 1
+        for h in big:
+            hole = hl == h
+            ring = ndi.binary_dilation(hole, iterations=4) & ~hole
+            # a real hole is framed by the white paper rim; grey paint inside an item is not
+            if a[ring].min(1).mean() > 132:
+                fg &= ~hole
     fg = ndi.binary_opening(fg, iterations=2)
     lab, n = ndi.label(fg)
     parts = []
