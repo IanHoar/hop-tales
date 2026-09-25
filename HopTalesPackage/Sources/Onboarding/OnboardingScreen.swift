@@ -12,7 +12,7 @@ import World
   public enum Step: Int, CaseIterable, Hashable, Sendable {
     case name = 1
     case listening
-    case story
+    case friend
     case accent
   }
 
@@ -20,13 +20,13 @@ import World
     public var path: [Step] = []
     public var childName = ""
     public var authorization: SpeechClient.Authorization?
-    public var startingStoryID: String?
+    public var startingFriend: Friend?
     public var accent: Profile.Accent?
     public init() {}
 
     public init(resuming draft: ProfileDraft) {
       childName = draft.childName
-      startingStoryID = draft.startingStoryID
+      startingFriend = draft.startingFriend
       accent = draft.accent
       path = Step.allCases.filter { $0 != .name && $0.rawValue <= draft.step }
     }
@@ -34,7 +34,7 @@ import World
     public var draft: ProfileDraft {
       ProfileDraft(
         childName: childName,
-        startingStoryID: startingStoryID,
+        startingFriend: startingFriend,
         accent: accent,
         step: step.rawValue
       )
@@ -50,7 +50,7 @@ import World
     public var profile: Profile {
       Profile(
         childName: childName.trimmingCharacters(in: .whitespacesAndNewlines),
-        startingStoryID: startingStoryID ?? StoryLibrary.all[0].id,
+        startingFriend: startingFriend ?? .bunny,
         accent: accent ?? .canadian
       )
     }
@@ -70,7 +70,7 @@ import World
       switch step {
       case .name: !childName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
       case .listening: authorization != nil
-      case .story: startingStoryID != nil
+      case .friend: startingFriend != nil
       case .accent: accent != nil
       }
     }
@@ -81,9 +81,9 @@ import World
     case authorizationResolved(SpeechClient.Authorization)
     case backTapped
     case finished(Profile)
+    case friendPicked(Friend)
     case nameChanged(String)
     case primaryTapped
-    case storyPicked(String)
   }
 
   @Dependency(ProfileStore.self) var profileStore
@@ -125,8 +125,8 @@ import World
       case let .nameChanged(name):
         state.childName = String(name.prefix(24))
 
-      case let .storyPicked(id):
-        state.startingStoryID = id
+      case let .friendPicked(friend):
+        state.startingFriend = friend
 
       }
       profileStore.saveDraft(state.draft)

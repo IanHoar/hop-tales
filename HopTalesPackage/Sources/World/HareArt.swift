@@ -1,3 +1,4 @@
+import Content
 import SwiftUI
 import UIKit
 
@@ -128,5 +129,35 @@ public struct AppMark: View {
     .clipShape(RoundedRectangle(cornerRadius: size * 0.225, style: .continuous))
     .shadow(color: .black.opacity(0.22), radius: 3.5, y: 3)
     .accessibilityHidden(true)
+  }
+}
+
+public struct FriendSticker: View {
+  let friend: Friend
+  let height: CGFloat
+  var isSilhouette = false
+
+  public init(_ friend: Friend, height: CGFloat, isSilhouette: Bool = false) {
+    self.friend = friend
+    self.height = height
+    self.isSilhouette = isSilhouette
+  }
+
+  public var body: some View {
+    if let image = MeadowArt.image(friend == .hare ? "hare-sit" : "friend-\(friend.rawValue)") {
+      let width = height * image.size.width / max(image.size.height, 1)
+      Group {
+        if isSilhouette {
+          Image(uiImage: image)
+            .resizable()
+            .renderingMode(.template)
+            .foregroundStyle(.secondary)
+        } else {
+          Image(uiImage: image).resizable()
+        }
+      }
+      .frame(width: width, height: height)
+      .accessibilityHidden(true)
+    }
   }
 }
