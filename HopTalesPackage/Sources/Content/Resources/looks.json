@@ -6,10 +6,27 @@
     "daisy-chain",
     "basket-pack"
   ],
-  "cat": [],
-  "crab": [],
+  "cat": [
+    "garden-hat",
+    "beret",
+    "cateye-glasses",
+    "red-bell-collar",
+    "cardigan"
+  ],
+  "crab": [
+    "sailor-cap",
+    "captain-hat",
+    "diving-mask",
+    "life-ring",
+    "claw-mittens",
+    "chest-pack"
+  ],
   "crow": [
-    "flat-cap"
+    "flat-cap",
+    "top-hat",
+    "aviator-goggles",
+    "autumn-scarf",
+    "post-satchel"
   ],
   "frog": [
     "lilypad-hat",
@@ -18,7 +35,13 @@
     "reed-satchel",
     "raincoat"
   ],
-  "grasshopper": [],
+  "grasshopper": [
+    "acorn-cap",
+    "antenna-poms",
+    "explorer-goggles",
+    "clover-bowtie",
+    "ladybird-cape"
+  ],
   "hare": [
     "straw",
     "bowtie",
