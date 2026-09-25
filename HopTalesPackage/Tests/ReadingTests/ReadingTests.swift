@@ -56,13 +56,13 @@ struct ReadingTests {
     await store.receive(\.authorizationResolved) {
       $0.authorization = .authorized
     }
-    await store.send(.currentWordTapped) {
+    store.send(.currentWordTapped) {
       $0.isSpeaking = true
       $0.usedHelp = true
     }
     await store.send(.speechResult(tokens: ["the"], isFinal: true))
     await store.send(.speechResult(tokens: ["the"], isFinal: true))
-    await store.send(.speechFinished) {
+    store.send(.speechFinished) {
       $0.isSpeaking = false
     }
 
@@ -77,12 +77,12 @@ struct ReadingTests {
     await store.receive(\.authorizationResolved) {
       $0.authorization = .authorized
     }
-    await store.send(.currentWordTapped) {
+    store.send(.currentWordTapped) {
       $0.isSpeaking = true
       $0.usedHelp = true
     }
-    await store.send(.currentWordTapped)
-    await store.send(.speechFinished) {
+    store.send(.currentWordTapped)
+    store.send(.speechFinished) {
       $0.isSpeaking = false
     }
 
@@ -183,11 +183,11 @@ struct ReadingTests {
     await store.receive(\.authorizationResolved) {
       $0.authorization = .authorized
     }
-    await store.send(.scenePhaseChanged(isActive: false)) {
+    store.send(.scenePhaseChanged(isActive: false)) {
       $0.isActive = false
       $0.listeningEpoch = 1
     }
-    await store.send(.scenePhaseChanged(isActive: true)) {
+    store.send(.scenePhaseChanged(isActive: true)) {
       $0.isActive = true
       $0.listeningEpoch = 2
     }
@@ -237,16 +237,16 @@ struct ReadingTests {
     await store.receive(\.authorizationResolved) {
       $0.authorization = .authorized
     }
-    await store.send(.backTapped) {
+    store.send(.backTapped) {
       $0.isConfirmingStop = true
     }
-    await store.send(.keepReadingTapped) {
+    store.send(.keepReadingTapped) {
       $0.isConfirmingStop = false
     }
-    await store.send(.backTapped) {
+    store.send(.backTapped) {
       $0.isConfirmingStop = true
     }
-    await store.send(.backToStoriesTapped) {
+    store.send(.backToStoriesTapped) {
       $0.isConfirmingStop = false
     }
 

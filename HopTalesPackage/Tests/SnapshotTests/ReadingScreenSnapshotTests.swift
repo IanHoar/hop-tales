@@ -35,10 +35,9 @@ struct ReadingScreenSnapshotTests {
 
   static func device(_ config: ViewImageConfig, _ scheme: ColorScheme) -> ViewImageConfig {
     var config = config
-    config.traits = UITraitCollection(traitsFrom: [
-      config.traits,
-      UITraitCollection(userInterfaceStyle: scheme == .dark ? .dark : .light)
-    ])
+    config.traits = config.traits.modifyingTraits {
+      $0.userInterfaceStyle = scheme == .dark ? .dark : .light
+    }
     return config
   }
 
