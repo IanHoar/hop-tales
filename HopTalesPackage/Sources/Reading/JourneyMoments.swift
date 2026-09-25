@@ -122,6 +122,12 @@ struct CalloutCard: View {
   let geometry: ReadingGeometry
   let primary: () -> Void
   let dismiss: () -> Void
+  @State private var opened = false
+
+  private var waitsForOpening: Bool {
+    if case .basketFull = moment { return !opened }
+    return false
+  }
 
   var body: some View {
     VStack(spacing: geometry.path(12)) {
@@ -137,7 +143,11 @@ struct CalloutCard: View {
         .multilineTextAlignment(.center)
         .fixedSize(horizontal: false, vertical: true)
       HStack(spacing: geometry.path(10)) {
-        if let secondary {
+        if waitsForOpening {
+          Text("Tap the present to open it")
+            .font(Typography.ui(geometry.path(14), weight: .semibold))
+            .foregroundStyle(Paper.muted)
+        } else if let secondary {
           Button(secondary, action: dismiss)
             .font(Typography.display(geometry.path(16)))
             .foregroundStyle(Paper.ink)
@@ -147,14 +157,9 @@ struct CalloutCard: View {
             .buttonStyle(.plain)
         }
         let leads = moment.story != nil || moment.unlockedItem != nil
-        Button(primaryTitle, action: leads ? primary : dismiss)
-          .font(Typography.display(geometry.path(16)))
-          .foregroundStyle(Paper.onRed)
-          .padding(.horizontal, geometry.path(18))
-          .frame(height: geometry.path(46))
-          .background(Paper.red, in: Capsule())
-          .overlay(Capsule().strokeBorder(Paper.rim, lineWidth: geometry.path(3)))
-          .buttonStyle(.plain)
+        if !waitsForOpening {
+          primaryButton(action: leads ? primary : dismiss)
+        }
       }
       .padding(.top, geometry.path(4))
     }
@@ -167,6 +172,17 @@ struct CalloutCard: View {
     }
     .rotationEffect(.degrees(-1))
     .accessibilityElement(children: .contain)
+  }
+
+  private func primaryButton(action: @escaping () -> Void) -> some View {
+    Button(primaryTitle, action: action)
+      .font(Typography.display(geometry.path(16)))
+      .foregroundStyle(Paper.onRed)
+      .padding(.horizontal, geometry.path(18))
+      .frame(height: geometry.path(46))
+      .background(Paper.red, in: Capsule())
+      .overlay(Capsule().strokeBorder(Paper.rim, lineWidth: geometry.path(3)))
+      .buttonStyle(.plain)
   }
 
   @ViewBuilder
@@ -187,13 +203,7 @@ struct CalloutCard: View {
         FriendSticker(friend, height: geometry.path(78))
       }
     case let .basketFull(friend, _):
-      HStack(alignment: .bottom, spacing: geometry.path(8)) {
-        Sticker("collect-basket", height: geometry.path(64))
-        if let item = moment.unlockedItem {
-          Sticker("wear-\(friend.rawValue)-\(item.id)", height: geometry.path(64))
-        }
-        FriendSticker(friend, height: geometry.path(70))
-      }
+      PresentReveal(friend: friend, item: moment.unlockedItem, geometry: geometry, opened: $opened)
     case .tally, .treat:
       EmptyView()
     }
@@ -219,9 +229,10 @@ struct CalloutCard: View {
       "\(friend.name) is your new friend. \(friend.name) gave you \(friend.gift)."
         + (via == .trail ? " You found all the \(friend.treat.many)!" : "")
     case let .basketFull(friend, _):
-      "You filled \(friend.name)'s basket of \(friend.treat.many). Inside is "
-        + (moment.unlockedItem.map { "a \($0.name.lowercased())" } ?? "a present")
-        + " for \(friend.name)!"
+      opened
+        ? "It's " + (moment.unlockedItem.map { "a \($0.name.lowercased())" } ?? "a present")
+          + " for \(friend.name)!"
+        : "You filled \(friend.name)'s basket of \(friend.treat.many). There's a present inside!"
     case .tally, .treat:
       ""
     }
@@ -243,6 +254,39 @@ struct CalloutCard: View {
     case .newFriend, .basketFull: "Later"
     case .notYet, .tally, .treat: nil
     }
+  }
+}
+
+struct PresentReveal: View {
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  let friend: Friend
+  let item: WardrobeItem?
+  let geometry: ReadingGeometry
+  @Binding var opened: Bool
+
+  var body: some View {
+    Button {
+      withAnimation(reduceMotion ? nil : .spring(duration: 0.5, bounce: 0.4)) { opened = true }
+    } label: {
+      ZStack {
+        if opened {
+          Sticker("collect-present-open", height: geometry.path(96))
+            .offset(x: -geometry.path(40))
+          if let item {
+            Sticker("wear-\(friend.rawValue)-\(item.id)", height: geometry.path(78))
+              .offset(x: geometry.path(56), y: -geometry.path(24))
+              .transition(.scale(scale: 0.2, anchor: .bottomLeading).combined(with: .opacity))
+          }
+        } else {
+          Sticker("collect-present", height: geometry.path(110))
+            .transition(.scale(scale: 1.1).combined(with: .opacity))
+        }
+      }
+      .frame(height: geometry.path(120))
+    }
+    .buttonStyle(.plain)
+    .disabled(opened)
+    .accessibilityLabel(opened ? (item?.name ?? "A present") : "A present. Double tap to open it.")
   }
 }
 
