@@ -160,6 +160,13 @@
       "h": 844,
       "title": "Onboarding · pick one of the first three friends",
       "is_interactive": true
+    },
+    "CastFit.dc.html": {
+      "x": 5280,
+      "y": 3870,
+      "w": 2200,
+      "h": 1610,
+      "title": "Fit check · every item on its friend"
     }
   },
   "order": [
@@ -171,6 +178,7 @@
     "CastCollect.dc.html",
     "CastWardrobe.dc.html",
     "CastSuits.dc.html",
+    "CastFit.dc.html",
     "PhoneOnboard.dc.html",
     "PhoneBigWord.dc.html",
     "PhonePickup.dc.html",
@@ -205,7 +213,7 @@
       "x": 0,
       "y": 3630,
       "text": "Treats, baskets and a wardrobe for every friend",
-      "maxW": 5200
+      "maxW": 7480
     },
     "f4": {
       "kind": "title1",

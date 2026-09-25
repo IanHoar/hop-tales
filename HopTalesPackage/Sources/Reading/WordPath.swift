@@ -21,6 +21,8 @@ struct WordPath: Equatable {
   static let signFeetAbovePath: CGFloat = 40
   static let rise: CGFloat = 0.58
   static let pan: TimeInterval = 0.62
+  static let bigWordLift: CGFloat = 1.4
+  static let bigWordScale: CGFloat = 1.08
 
   struct Stop: Equatable {
     var target: HopTarget

@@ -81,6 +81,12 @@ import SwiftUI
           state.path = []
           state.home = Home.State()
           state.onboarding = Onboarding.State()
+        case let .path(_, .reading(.continueTapped(story))):
+          state.path.removeLast()
+          let journey = progressStore.load().journey
+          let reading = Reading.State(story: story, bigWords: journey.bigWords(in: story))
+          state.path.append(.reading(reading))
+          state.home.apply(progressStore.load())
         case .path(_, .reading(.backToStoriesTapped)):
           state.path.removeLast()
           state.home.apply(progressStore.load())

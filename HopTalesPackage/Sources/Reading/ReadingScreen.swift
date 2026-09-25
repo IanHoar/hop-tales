@@ -69,6 +69,14 @@ import World
       story.mood(atSentence: min(sentenceIndex, story.sentences.count - 1))
     }
 
+    public var tally: JourneyMoment? {
+      journeyMoments.first { !$0.isCallout }
+    }
+
+    public var callout: JourneyMoment? {
+      journeyMoments.first(where: \.isCallout)
+    }
+
     public var wordsCompleted: Int {
       story.sentences.prefix(sentenceIndex).reduce(0) { $0 + $1.words.count } + wordIndex
     }
@@ -78,10 +86,12 @@ import World
     case authorizationResolved(SpeechClient.Authorization)
     case backTapped
     case backToStoriesTapped
+    case continueTapped(Story)
     case currentWordTapped
     case readAgainTapped
     case helpOffered
     case keepReadingTapped
+    case momentDismissed
     case speechFinished
     case scenePhaseChanged(isActive: Bool)
     case speechResult(tokens: [String], isFinal: Bool)
@@ -159,6 +169,13 @@ import World
 
       case .keepReadingTapped:
         state.isConfirmingStop = false
+
+      case .continueTapped:
+        break
+
+      case .momentDismissed:
+        guard let index = state.journeyMoments.firstIndex(where: \.isCallout) else { break }
+        state.journeyMoments.remove(at: index)
 
       case .currentWordTapped, .helpOffered:
         guard let word = state.currentWord?.text, !state.isSpeaking else { break }

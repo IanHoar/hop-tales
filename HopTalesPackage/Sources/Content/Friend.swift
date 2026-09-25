@@ -46,6 +46,54 @@ public enum Friend: String, Codable, CaseIterable, Hashable, Sendable {
     }
   }
 
+  public var world: String {
+    switch self {
+    case .bunny: "Bluebell Wood"
+    case .hare: "The Meadow"
+    case .frog: "Willow Pond"
+    case .crow: "Harvest Field"
+    case .cat: "Cottage Garden"
+    case .crab: "Rock Pools"
+    case .grasshopper: "Tall Grass"
+    }
+  }
+
+  public var place: String {
+    switch self {
+    case .bunny: "the wood"
+    case .hare: "the meadow"
+    case .frog: "the pond"
+    case .crow: "the field"
+    case .cat: "the garden"
+    case .crab: "the rock pools"
+    case .grasshopper: "the tall grass"
+    }
+  }
+
+  public var treat: Treat {
+    switch self {
+    case .bunny: Treat(one: "strawberry", many: "strawberries", art: "strawberry")
+    case .hare: Treat(one: "carrot", many: "carrots", art: "carrot")
+    case .frog: Treat(one: "water lily", many: "water lilies", art: "lily")
+    case .crow: Treat(one: "button", many: "buttons", art: "button")
+    case .cat: Treat(one: "ball of wool", many: "balls of wool", art: "yarn")
+    case .crab: Treat(one: "shell", many: "shells", art: "shell")
+    case .grasshopper: Treat(one: "clover leaf", many: "clover leaves", art: "clover")
+    }
+  }
+
+  public var gift: String {
+    switch self {
+    case .bunny: "a bluebell crown"
+    case .hare: "a straw hat"
+    case .frog: "a lily-pad hat"
+    case .crow: "a tweed flat cap"
+    case .cat: "a gardening hat"
+    case .crab: "a sailor cap"
+    case .grasshopper: "an acorn cap"
+    }
+  }
+
   public static func at(level: Int) -> Friend {
     allCases[min(max(level, 1), allCases.count) - 1]
   }
@@ -57,4 +105,10 @@ public enum Friend: String, Codable, CaseIterable, Hashable, Sendable {
   public init(startingStoryID: String) {
     self = Self.starters.first { $0.startingStoryID == startingStoryID } ?? .bunny
   }
+}
+
+public struct Treat: Hashable, Sendable {
+  public var one: String
+  public var many: String
+  public var art: String
 }
