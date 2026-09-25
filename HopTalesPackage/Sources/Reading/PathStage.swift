@@ -155,7 +155,8 @@ struct PathStage: View {
     let world = MeadowBackdrop(
       camera: camera,
       mood: store.mood,
-      framing: .path(scale: geometry.pathScale, centre: geometry.pathCentre)
+      framing: .path(scale: geometry.pathScale, centre: geometry.pathCentre),
+      world: store.friend
     )
     #if DEBUG
       world.modifier(DebugTapToAdvance(store: store))

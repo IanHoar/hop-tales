@@ -41,10 +41,14 @@ final class TiledLayer: SKNode {
     fatalError("init(coder:) is not supported")
   }
 
-  func layout(_ layout: MeadowLayout, tint: UIColor) {
+  func layout(_ layout: MeadowLayout, world: Friend, tint: UIColor) {
     let count = layout.tileCount(of: layer)
+    let texture = MeadowArt.texture(layer.asset(in: world))
+    for tile in tiles where tile.texture != texture {
+      tile.texture = texture
+    }
     while tiles.count < count {
-      let tile = SKSpriteNode(texture: MeadowArt.texture(layer.asset))
+      let tile = SKSpriteNode(texture: texture)
       tile.anchorPoint = CGPoint(x: 0, y: 1)
       tile.color = tint
       tile.colorBlendFactor = 1
