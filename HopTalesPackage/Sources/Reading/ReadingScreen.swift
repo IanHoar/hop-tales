@@ -109,6 +109,7 @@ import World
   @Dependency(SoundPreference.self) var soundPreference
   @Dependency(SpeechClient.self) var speechClient
   @Dependency(StrictnessPreference.self) var strictnessPreference
+  @Dependency(SpeechLog.self) var speechLog
 
   private func persist(_ state: State) {
     var progress = progressStore.load()
@@ -187,17 +188,26 @@ import World
         state.listeningEpoch += 1
 
       case let .speechResult(tokens, isFinal):
-        guard !state.isSpeaking else { break }
+        guard !state.isSpeaking else {
+          log(tokens, isFinal: isFinal, outcome: .speaking, in: state)
+          break
+        }
         let eligible = debouncer.confirm(tokens: tokens, isFinal: isFinal)
-        guard
-          let current = state.currentWord,
-          let match = WordMatcher.match(
+        let match = state.currentWord.flatMap { current in
+          WordMatcher.match(
             tokens: eligible,
             current: current,
             next: state.nextWord,
             strictness: state.strictness
           )
-        else { break }
+        }
+        let outcome: SpeechLogEntry.Outcome = switch match?.target {
+        case .current: .current
+        case .next: .next
+        case nil: eligible.isEmpty ? .waiting : .none
+        }
+        log(tokens, isFinal: isFinal, outcome: outcome, in: state)
+        guard let match else { break }
         let sentenceBefore = state.sentenceIndex
         let starsBefore = state.stars
         let readIndex = state.wordIndex
@@ -273,6 +283,21 @@ import World
 }
 
 extension Reading {
+  func log(
+    _ tokens: [String], isFinal: Bool, outcome: SpeechLogEntry.Outcome, in state: State
+  ) {
+    speechLog.record(
+      SpeechLogEntry(
+        story: state.story.id,
+        sentence: state.sentenceIndex,
+        word: state.currentWord?.text ?? "",
+        heard: tokens,
+        isFinal: isFinal,
+        outcome: outcome
+      )
+    )
+  }
+
   func finish(_ state: inout State) {
     var progress = progressStore.load()
     let helped = wordsHelped.intersection(wordsRead).count
