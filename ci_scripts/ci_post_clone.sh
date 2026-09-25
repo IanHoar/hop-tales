@@ -70,5 +70,7 @@ done
 
 # The build phase lints, and without swiftlint on the machine it can only warn about itself.
 # Installed here rather than in the build phase so a failure is a setup failure, not a build one.
+# brew updates itself before every install, which is minutes of a build spent refreshing formulae we
+# do not need. The formula on the image is recent enough for swiftlint.
 echo "Installing swiftlint."
-brew install swiftlint
+HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew install swiftlint
