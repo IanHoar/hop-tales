@@ -46,7 +46,8 @@ struct HomePreview: View {
     case .midway:
       Content.Progress(
         stars: 56,
-        completedSentences: ["meadow-walk": 6, "golden-hour": 3]
+        completedSentences: ["meadow-walk": 6, "golden-hour": 3],
+        journey: Journey(starting: .hare)
       )
     }
   }

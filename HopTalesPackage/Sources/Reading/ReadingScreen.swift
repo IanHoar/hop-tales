@@ -28,9 +28,11 @@ import World
     }
 
     public var authorization: SpeechClient.Authorization?
+    public var bigWords: Set<WordRef> = []
     public var completed: Completed?
     public var completionCount = 0
     public var isActive = true
+    public var journeyMoments: [JourneyMoment] = []
     public var isConfirmingStop = false
     public var listeningEpoch = 0
     public var isSpeaking = false
@@ -42,8 +44,9 @@ import World
     public var usedHelp = false
     public var wordIndex = 0
 
-    public init(story: Story) {
+    public init(story: Story, bigWords: Set<WordRef> = []) {
       self.story = story
+      self.bigWords = bigWords
     }
 
     public var currentWord: Word? {
@@ -88,6 +91,8 @@ import World
   @FeatureState var savedStars = 0
   @FeatureState var chimedSentence: Int?
   @FeatureState var profile = Profile()
+  @FeatureState var wordsHelped: Set<WordRef> = []
+  @FeatureState var wordsRead: Set<WordRef> = []
   @Dependency(ProfileStore.self) var profileStore
   @Dependency(ProgressStore.self) var progressStore
   @Dependency(SoundClient.self) var sound
@@ -110,6 +115,18 @@ import World
     savedStars = state.stars
   }
 
+  private func finish(_ state: inout State) {
+    var progress = progressStore.load()
+    let result = StoryResult(
+      storyID: state.story.id,
+      wordsRead: wordsRead.count,
+      bigWordsRead: wordsRead.intersection(state.bigWords).count,
+      helpedWords: wordsHelped.intersection(wordsRead).count
+    )
+    state.journeyMoments = progress.journey.record(result)
+    progressStore.save(progress)
+  }
+
   public var body: some Feature {
     Update { state, action in
       switch action {
@@ -128,6 +145,9 @@ import World
         state.wordIndex = 0
         state.stars = 0
         state.usedHelp = false
+        state.journeyMoments = []
+        wordsHelped = []
+        wordsRead = []
         state.completed = nil
         state.recognised = nil
         savedStars = 0
@@ -142,6 +162,7 @@ import World
 
       case .currentWordTapped, .helpOffered:
         guard let word = state.currentWord?.text, !state.isSpeaking else { break }
+        wordsHelped.insert(WordRef(sentence: state.sentenceIndex, word: state.wordIndex))
         state.usedHelp = true
         state.isSpeaking = true
         let voice = profile.voiceID
@@ -175,7 +196,11 @@ import World
         let sentenceBefore = state.sentenceIndex
         let starsBefore = state.stars
         let readIndex = state.wordIndex
-        state.advance(by: match.target == .next ? 2 : 1)
+        let count = match.target == .next ? 2 : 1
+        for offset in 0..<count {
+          wordsRead.insert(WordRef(sentence: sentenceBefore, word: readIndex + offset))
+        }
+        state.advance(by: count)
         state.recognised = Reading.State.Recognised(
           count: (state.recognised?.count ?? 0) + 1,
           sentenceIndex: sentenceBefore,
@@ -186,6 +211,7 @@ import World
         if state.sentenceIndex != sentenceBefore {
           debouncer.reset()
           persist(state)
+          if case .story = state.completed { finish(&state) }
         }
       }
     }
