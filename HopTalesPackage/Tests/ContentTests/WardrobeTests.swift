@@ -2,11 +2,19 @@ import Testing
 
 @testable import Content
 
+@Suite(.everyLookPainted)
 struct WardrobeTests {
-  @Test func everyFriendHasTheirWardrobe() {
-    #expect(WardrobeLibrary.items(for: .hare).count == 12)
-    for friend in Friend.allCases where friend != .hare {
-      #expect(WardrobeLibrary.items(for: friend).count == 8, "\(friend)")
+  @Test(.noLooksPainted) func onlyFullyPaintedLooksAreOffered() {
+    for friend in Friend.allCases {
+      #expect(WardrobeLibrary.items(for: friend).isEmpty, "\(friend)")
+    }
+  }
+
+  @Test func everyFriendWearsFiveOfTheirWardrobe() {
+    #expect(WardrobeLibrary.all[.hare]?.count == 12)
+    for friend in Friend.allCases {
+      #expect(WardrobeLibrary.items(for: friend).count == 5, "\(friend)")
+      if friend != .hare { #expect(WardrobeLibrary.all[friend]?.count == 8, "\(friend)") }
     }
   }
 
@@ -16,7 +24,7 @@ struct WardrobeTests {
     #expect(progress.unlockedCount(for: .frog) == 0)
     progress.baskets[.hare, default: Basket()].filled = 2
     #expect(progress.unlockedCount(for: .hare) == 3)
-    #expect(progress.newestItem(for: .hare)?.id == "neckerchief")
+    #expect(progress.newestItem(for: .hare)?.id == "crown")
   }
 
   @Test func onlyUnlockedItemsCanBeWornAndOneItemPerSlot() throws {
@@ -33,6 +41,17 @@ struct WardrobeTests {
     #expect(progress.outfit(for: .bunny).isEmpty)
   }
 
+  @Test func aFriendWearsOneLookAtATime() throws {
+    var progress = Progress(journey: Journey(starting: .hare))
+    let items = WardrobeLibrary.items(for: .hare)
+    progress.baskets[.hare, default: Basket()].filled = items.count
+    let first = try #require(items.first)
+    let other = try #require(items.first { $0.slot != first.slot })
+    progress.wear(first, on: .hare)
+    progress.wear(other, on: .hare)
+    #expect(progress.outfit(for: .hare) == [other])
+  }
+
   @Test func aFullBasketNamesTheItemItUnlocks() {
     let moment = JourneyMoment.basketFull(.bunny, number: 1)
     #expect(moment.unlockedItem?.id == "bonnet")
@@ -43,4 +62,22 @@ struct WardrobeTests {
     #expect(mittens.parts.count == 2)
     #expect(mittens.slot == .claws)
   }
+}
+
+struct PaintedLooks: TestTrait, SuiteTrait, TestScoping {
+  let painted: [Friend: Set<String>]
+
+  func provideScope(
+    for test: Test, testCase: Test.Case?, performing function: () async throws -> Void
+  ) async throws {
+    try await WardrobeLibrary.$painted.withValue(painted, operation: function)
+  }
+}
+
+extension Trait where Self == PaintedLooks {
+  static var everyLookPainted: Self {
+    PaintedLooks(painted: WardrobeLibrary.wearable.mapValues(Set.init))
+  }
+
+  static var noLooksPainted: Self { PaintedLooks(painted: [:]) }
 }

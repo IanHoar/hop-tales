@@ -215,10 +215,11 @@ struct WardrobePreview: View {
   private var store: StoreOf<Wardrobe> {
     var basket = Basket()
     basket.filled = 3
+    let worn = WardrobeLibrary.items(for: friend).dropFirst().first
     let saved = Content.Progress(
       journey: Journey(starting: .frog),
       baskets: [friend: basket],
-      outfits: [friend: [.head: WardrobeLibrary.items(for: friend)[1].id]]
+      outfits: worn.map { [friend: [$0.slot: $0.id]] } ?? [:]
     )
     return withDependencies {
       $0[ProgressStore.self] = ProgressStore(load: { saved }, save: { _ in })

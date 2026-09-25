@@ -5,7 +5,7 @@ import Testing
 @testable import Home
 
 @MainActor
-@Suite(.snapshots(record: .missing, diffTool: .ksdiff))
+@Suite(.snapshots(record: .missing, diffTool: .ksdiff), .everyLookPainted)
 struct FriendsSnapshotTests {
   @Test(arguments: [ColorScheme.light, .dark])
   func theFriendsInLevelOrder(scheme: ColorScheme) {
