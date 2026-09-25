@@ -118,6 +118,7 @@ struct OnboardingTests {
     store.send(.backTapped) { $0.path = [.listening] }
     store.send(.backTapped) { $0.path = [] }
     store.send(.backTapped)
+    await store.dismount()
   }
 
   @Test func everyAnswerIsKeptAsADraft() {
