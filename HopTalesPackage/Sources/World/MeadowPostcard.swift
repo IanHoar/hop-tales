@@ -9,6 +9,7 @@ public enum MeadowPostcard {
     let height: Int
     let progress: Int
     let framing: MeadowFraming
+    let world: Friend
   }
 
   private static var cache: [Key: UIImage] = [:]
@@ -18,14 +19,16 @@ public enum MeadowPostcard {
     mood: Mood,
     size: CGSize,
     progress: Double = 0,
-    framing: MeadowFraming = .wide
+    framing: MeadowFraming = .wide,
+    world: Friend = .hare
   ) -> UIImage {
     let key = Key(
       mood: mood,
       width: Int(size.width),
       height: Int(size.height),
       progress: Int(progress),
-      framing: framing
+      framing: framing,
+      world: world
     )
     if let cached = cache[key] { return cached }
     let layout = MeadowLayout(size: size, framing: framing)
@@ -36,7 +39,7 @@ public enum MeadowPostcard {
         .draw(in: CGRect(origin: .zero, size: size))
       drawSky(mood, layout: layout)
       for layer in MeadowLayer.allCases {
-        drawLayer(layer, mood: mood, layout: layout, progress: progress)
+        drawLayer(layer, in: world, mood: mood, layout: layout, progress: progress)
       }
       let weather = mood.weather.style
       if weather.overlay > 0 {
@@ -95,12 +98,13 @@ public enum MeadowPostcard {
 
   private static func drawLayer(
     _ layer: MeadowLayer,
+    in world: Friend,
     mood: Mood,
     layout: MeadowLayout,
     progress: Double
   ) {
     let detail: CGFloat = layout.framing == .wide ? 4 : 2
-    guard let image = tintedLayer(layer, mood: mood, detail: detail) else { return }
+    guard let image = tintedLayer(layer, in: world, mood: mood, detail: detail) else { return }
     let tile = layout.tileSize(of: layer)
     let offset = layout.offset(of: layer, progress: progress)
     for index in 0..<layout.tileCount(of: layer) {
@@ -115,12 +119,14 @@ public enum MeadowPostcard {
 
   private static func tintedLayer(
     _ layer: MeadowLayer,
+    in world: Friend,
     mood: Mood,
     detail: CGFloat
   ) -> UIImage? {
-    let key = "\(layer.asset)-\(mood.sky.rawValue)-\(mood.weather.rawValue)-\(detail)"
+    let asset = layer.asset(in: world)
+    let key = "\(asset)-\(mood.sky.rawValue)-\(mood.weather.rawValue)-\(detail)"
     if let cached = tinted[key] { return cached }
-    guard let source = MeadowArt.image(layer.asset) else { return nil }
+    guard let source = MeadowArt.image(asset) else { return nil }
     let size = CGSize(width: source.size.width / detail, height: source.size.height / detail)
     let format = UIGraphicsImageRendererFormat.default()
     format.scale = 1

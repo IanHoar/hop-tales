@@ -17,6 +17,9 @@ public final class MeadowScene: SKScene {
   public var framing = MeadowFraming.wide {
     didSet { if framing != oldValue { relayout() } }
   }
+  public var world = Friend.hare {
+    didSet { if world != oldValue { relayout() } }
+  }
   private var lastUpdate: TimeInterval?
 
   override public init(size: CGSize) {
@@ -48,12 +51,14 @@ public final class MeadowScene: SKScene {
     meadow = MeadowLayout(size: size, framing: framing)
     sky.layout(meadow)
     for layer in layers {
-      layer.layout(meadow, tint: mood.tint(for: layer.layer))
+      layer.layout(meadow, world: world, tint: mood.tint(for: layer.layer))
     }
     props.reset()
-    props.isHidden = !meadow.showsProps
+    props.isHidden = !showsProps
     scroll(to: shown)
   }
+
+  private var showsProps: Bool { meadow.showsProps && world == .hare }
 
   public var drifts: Bool {
     get { sky.drifts }
@@ -88,7 +93,7 @@ public final class MeadowScene: SKScene {
     for layer in layers {
       layer.scroll(meadow, progress: progress)
     }
-    if meadow.showsProps { props.scroll(meadow, progress: progress) }
+    if showsProps { props.scroll(meadow, progress: progress) }
   }
 
   override public func update(_ currentTime: TimeInterval) {

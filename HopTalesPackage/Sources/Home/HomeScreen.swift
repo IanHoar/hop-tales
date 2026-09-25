@@ -113,7 +113,10 @@ public struct HomeScreen: View {
       )
       let groundTop = land.top(of: .near) + land.tileSize(of: .near).height - Self.tornEdge
       ZStack(alignment: .top) {
-        MeadowBackdrop(camera: MeadowCamera(at: 900), mood: mood, framing: framing)
+        MeadowBackdrop(
+          camera: MeadowCamera(at: 900), mood: mood, framing: framing,
+          world: store.progress.journey.activeFriend
+        )
         Self.ground
           .colorMultiply(Color(uiColor: mood.landTint))
           .frame(height: max(0, screen - groundTop))

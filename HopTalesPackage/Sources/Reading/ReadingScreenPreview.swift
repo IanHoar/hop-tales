@@ -16,6 +16,7 @@ struct ReadingScreenPreview: View {
 
   var story = StoryLibrary.all[0]
   var moment = Moment.start
+  var friend = Friend.hare
 
   var body: some View {
     NavigationStack {
@@ -24,7 +25,7 @@ struct ReadingScreenPreview: View {
   }
 
   private var state: Reading.State {
-    var state = Reading.State(story: story)
+    var state = Reading.State(story: story, friend: friend)
     switch moment {
     case .start:
       break
@@ -54,6 +55,7 @@ struct ReadingScreenPreview: View {
 }
 
 #Preview("Start") { ReadingScreenPreview() }
+#Preview("Bramble") { ReadingScreenPreview(moment: .midPage, friend: .bunny) }
 #Preview("Mid page") { ReadingScreenPreview(moment: .midPage) }
 #Preview("End") { ReadingScreenPreview(moment: .end) }
 #Preview("Big story ready") { ReadingScreenPreview(moment: .bigStoryReady) }

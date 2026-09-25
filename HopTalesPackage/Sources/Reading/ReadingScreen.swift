@@ -29,6 +29,7 @@ import World
 
     public var authorization: SpeechClient.Authorization?
     public var bigWords: Set<WordRef> = []
+    public var friend = Friend.hare
     public var treat: StoryTreat?
     public var completed: Completed?
     public var completionCount = 0
@@ -45,8 +46,11 @@ import World
     public var usedHelp = false
     public var wordIndex = 0
 
-    public init(story: Story, bigWords: Set<WordRef> = [], treat: StoryTreat? = nil) {
+    public init(
+      story: Story, friend: Friend = .hare, bigWords: Set<WordRef> = [], treat: StoryTreat? = nil
+    ) {
       self.story = story
+      self.friend = friend
       self.bigWords = bigWords
       self.treat = treat
     }

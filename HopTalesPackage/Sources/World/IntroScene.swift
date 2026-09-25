@@ -217,7 +217,7 @@ public final class IntroScene: SKScene {
 
   private func placeLand() {
     for layer in layers {
-      layer.layout(layout.meadow, tint: IntroLayout.dimLand)
+      layer.layout(layout.meadow, world: .hare, tint: IntroLayout.dimLand)
       layer.scroll(layout.meadow, progress: layout.progress(of: layer.layer))
     }
     land.position.y = -layout.landDrop

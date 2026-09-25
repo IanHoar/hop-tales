@@ -6,13 +6,6 @@ public enum HareSheet: Sendable {
   case idle
   case hop
 
-  var asset: String {
-    switch self {
-    case .idle: "hare-idle-frames"
-    case .hop: "hare-hop"
-    }
-  }
-
   public var frameCount: Int {
     switch self {
     case .idle: 10
@@ -20,40 +13,67 @@ public enum HareSheet: Sendable {
     }
   }
 
-  public var cell: CGSize {
-    switch self {
-    case .idle: CGSize(width: 260, height: 373)
-    case .hop: CGSize(width: 363, height: 346)
-    }
-  }
-
-  public var anchor: UnitPoint {
-    switch self {
-    case .idle: UnitPoint(x: 142 / 260, y: 361 / 373)
-    case .hop: UnitPoint(x: 194 / 363, y: 334 / 346)
-    }
-  }
-
-  public var scale: CGFloat {
-    switch self {
-    case .idle: 1
-    case .hop: 345 / 322
-    }
-  }
-
   public static let restHeight: CGFloat = 345
+}
+
+public struct SpriteSheet: Equatable, Sendable {
+  public let asset: String
+  public let cell: CGSize
+  public let anchor: UnitPoint
+  public let scale: CGFloat
+
+  public static func of(_ sheet: HareSheet, for friend: Friend) -> SpriteSheet {
+    switch (sheet, SpriteSheet.hasOwnSheets(friend) ? friend : .hare) {
+    case (.idle, .bunny):
+      SpriteSheet(
+        asset: "bunny-idle-frames",
+        cell: CGSize(width: 322, height: 369),
+        anchor: UnitPoint(x: 158 / 322, y: 357 / 369),
+        scale: 1
+      )
+    case (.hop, .bunny):
+      SpriteSheet(
+        asset: "bunny-hop",
+        cell: CGSize(width: 370, height: 346),
+        anchor: UnitPoint(x: 175 / 370, y: 335 / 346),
+        scale: 344 / 323
+      )
+    case (.idle, _):
+      SpriteSheet(
+        asset: "hare-idle-frames",
+        cell: CGSize(width: 260, height: 373),
+        anchor: UnitPoint(x: 142 / 260, y: 361 / 373),
+        scale: 1
+      )
+    case (.hop, _):
+      SpriteSheet(
+        asset: "hare-hop",
+        cell: CGSize(width: 363, height: 346),
+        anchor: UnitPoint(x: 194 / 363, y: 334 / 346),
+        scale: 345 / 322
+      )
+    }
+  }
+
+  public static func hasOwnSheets(_ friend: Friend) -> Bool {
+    [.hare, .bunny].contains(friend)
+  }
 }
 
 public struct HareFrame: Equatable, Sendable {
   public var sheet: HareSheet
   public var index: Int
+  public var friend: Friend
 
-  public init(_ sheet: HareSheet, _ index: Int) {
+  public init(_ sheet: HareSheet, _ index: Int, friend: Friend = .hare) {
     self.sheet = sheet
     self.index = index
+    self.friend = friend
   }
 
   public static let rest = HareFrame(.idle, 0)
+
+  public var art: SpriteSheet { .of(sheet, for: friend) }
 }
 
 @MainActor
@@ -61,10 +81,11 @@ public enum HareArt {
   private static var frames: [String: UIImage] = [:]
 
   public static func image(_ frame: HareFrame) -> UIImage? {
-    let key = "\(frame.sheet.asset)-\(frame.index)"
+    let asset = frame.art.asset
+    let key = "\(asset)-\(frame.index)"
     if let cached = frames[key] { return cached }
     guard
-      let sheet = MeadowArt.image(frame.sheet.asset),
+      let sheet = MeadowArt.image(asset),
       let cgImage = sheet.cgImage
     else { return nil }
     let width = CGFloat(cgImage.width) / CGFloat(frame.sheet.frameCount)
@@ -88,10 +109,10 @@ public struct HareSprite: View {
   }
 
   public var body: some View {
-    let sheet = frame.sheet
-    let pointsPerPixel = height / HareSheet.restHeight * sheet.scale
+    let art = frame.art
+    let pointsPerPixel = height / HareSheet.restHeight * art.scale
     let size = CGSize(
-      width: sheet.cell.width * pointsPerPixel, height: sheet.cell.height * pointsPerPixel
+      width: art.cell.width * pointsPerPixel, height: art.cell.height * pointsPerPixel
     )
     Group {
       if let image = HareArt.image(frame) {
@@ -102,8 +123,8 @@ public struct HareSprite: View {
     }
     .frame(width: size.width, height: size.height)
     .offset(
-      x: size.width * (0.5 - sheet.anchor.x),
-      y: size.height * (0.5 - sheet.anchor.y)
+      x: size.width * (0.5 - art.anchor.x),
+      y: size.height * (0.5 - art.anchor.y)
     )
     .frame(width: 0, height: 0)
     .accessibilityHidden(true)

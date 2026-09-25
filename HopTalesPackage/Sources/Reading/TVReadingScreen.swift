@@ -25,7 +25,7 @@ public struct TVReadingScreen: View {
       let ribbon = Self.chrome(1.7 * tvScale)
       let chips = Self.chrome(1.5 * tvScale)
       ZStack(alignment: .topLeading) {
-        MeadowBackdrop(progress: store.worldProgress, mood: store.mood)
+        MeadowBackdrop(progress: store.worldProgress, mood: store.mood, world: store.friend)
         HStack(alignment: .center) {
           StoryRibbon(title: store.story.title, geometry: ribbon)
           Spacer()
