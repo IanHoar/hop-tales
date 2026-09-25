@@ -15,6 +15,8 @@ struct PathStage: View {
   @State private var pickup: StoryTreat?
   @State private var pickupLanded = false
   @State private var showsBasket = false
+  @State private var clock = HopClock()
+  @State private var paths = PathCache()
 
   private var position: HopTarget {
     HopTarget(sentence: store.sentenceIndex, word: store.wordIndex)
@@ -23,11 +25,7 @@ struct PathStage: View {
   private var isStill: Bool { reduceMotion || freezesMotion }
 
   var body: some View {
-    let path = WordPath(
-      sentences: store.story.sentences.map(\.words),
-      geometry: geometry,
-      style: WorldStyle.of(store.friend)
-    )
+    let path = paths.path(for: store.story, friend: store.friend, geometry: geometry)
     let camera = camera ?? MeadowCamera(at: path.camera(at: position))
     ZStack {
       backdrop(camera)
@@ -42,7 +40,7 @@ struct PathStage: View {
         .animation(MeadowBackdrop.stillCrossfade, value: position)
       } else {
         TimelineView(.animation) { _ in
-          let now = MeadowCamera.now
+          let now = clock.time(at: MeadowCamera.now)
           scene(
             path,
             cameraX: camera.x(at: now),
@@ -207,6 +205,7 @@ struct PathStage: View {
     if let treat = store.treat, treat.word == WordRef(sentence: old.sentence, word: old.word) {
       pickUp(treat)
     }
+    clock.began(at: now)
     motion.jump(at: now, distance: 0, carried: new.sentence != old.sentence)
     let rate = motion.hop?.rate ?? 1
     let current = camera ?? MeadowCamera(at: path.camera(at: old))
