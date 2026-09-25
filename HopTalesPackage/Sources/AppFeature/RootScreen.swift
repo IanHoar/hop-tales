@@ -60,7 +60,7 @@ import SwiftUI
       Update { state, action in
         switch action {
         case let .home(.storyTapped(story)):
-          let reading = Reading.State(story, on: progressStore.load().journey)
+          let reading = Reading.State(story, on: progressStore.load())
           state.path.append(.reading(reading))
         case .home(.friendsTapped):
           state.friends = Friends.State()
@@ -97,7 +97,7 @@ import SwiftUI
           state.home.apply(progressStore.load())
         case let .journeyMap(.bigStoryTapped(story)):
           state.journeyMap = nil
-          let reading = Reading.State(story, on: progressStore.load().journey)
+          let reading = Reading.State(story, on: progressStore.load())
           state.path.append(.reading(reading))
         case .journeyMap:
           break
@@ -129,7 +129,7 @@ import SwiftUI
           state.onboarding = Onboarding.State()
         case let .path(_, .reading(.continueTapped(story))):
           state.path.removeLast()
-          let reading = Reading.State(story, on: progressStore.load().journey)
+          let reading = Reading.State(story, on: progressStore.load())
           state.path.append(.reading(reading))
           state.home.apply(progressStore.load())
         case .path(_, .reading(.backToStoriesTapped)):
@@ -265,12 +265,14 @@ public struct RootScreen: View {
 }
 
 extension Reading.State {
-  init(_ story: Story, on journey: Journey) {
+  init(_ story: Story, on progress: Content.Progress) {
+    let journey = progress.journey
     self.init(
       story: story,
       friend: journey.activeFriend,
       bigWords: journey.bigWords(in: story),
       treat: journey.treat(in: story)
     )
+    look = progress.outfit(for: journey.activeFriend).first?.id
   }
 }

@@ -33,6 +33,17 @@ struct WardrobeTests {
     #expect(progress.outfit(for: .bunny).isEmpty)
   }
 
+  @Test func aFriendWearsOneLookAtATime() throws {
+    var progress = Progress(journey: Journey(starting: .hare))
+    let items = WardrobeLibrary.items(for: .hare)
+    progress.baskets[.hare, default: Basket()].filled = items.count
+    let first = try #require(items.first)
+    let other = try #require(items.first { $0.slot != first.slot })
+    progress.wear(first, on: .hare)
+    progress.wear(other, on: .hare)
+    #expect(progress.outfit(for: .hare) == [other])
+  }
+
   @Test func aFullBasketNamesTheItemItUnlocks() {
     let moment = JourneyMoment.basketFull(.bunny, number: 1)
     #expect(moment.unlockedItem?.id == "bonnet")

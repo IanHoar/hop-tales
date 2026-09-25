@@ -181,6 +181,7 @@ struct PathStage: View {
       cameraX: cameraX,
       pose: pose,
       friend: store.friend,
+      look: store.look,
       lift: lift,
       title: store.story.title,
       bigWords: store.bigWords,
@@ -219,6 +220,7 @@ struct PathScene: View {
   let cameraX: CGFloat
   let pose: HareMotion.Pose
   let friend: Friend
+  let look: String?
   let lift: CGFloat
   let title: String
   let bigWords: Set<WordRef>
@@ -336,7 +338,7 @@ struct PathScene: View {
         .opacity(airborne ? 0.45 : 1)
         .position(x: path.hareX, y: path.hareFeetY)
       HareSprite(
-        HareFrame(pose.frame.sheet, pose.frame.index, friend: friend),
+        HareFrame(pose.frame.sheet, pose.frame.index, friend: friend, look: look),
         height: path.hareHeight(hopping: hopping)
       )
         .scaleEffect(x: pose.scaleX, y: pose.scaleY, anchor: .center)

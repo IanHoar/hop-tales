@@ -92,7 +92,7 @@ extension Progress {
 
   public mutating func wear(_ item: WardrobeItem, on friend: Friend) {
     guard isUnlocked(item, for: friend) else { return }
-    outfits[friend, default: [:]][item.slot] = item.id
+    outfits[friend] = [item.slot: item.id]
   }
 
   public mutating func takeOff(_ slot: Slot, from friend: Friend) {
