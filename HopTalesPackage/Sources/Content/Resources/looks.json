@@ -1,9 +1,29 @@
 {
-  "bunny": [],
+  "bunny": [
+    "bluebell-crown",
+    "bonnet",
+    "heart-glasses",
+    "daisy-chain",
+    "basket-pack"
+  ],
   "cat": [],
   "crab": [],
-  "crow": [],
-  "frog": [],
+  "crow": [
+    "flat-cap"
+  ],
+  "frog": [
+    "lilypad-hat",
+    "goggles",
+    "check-bowtie",
+    "reed-satchel",
+    "raincoat"
+  ],
   "grasshopper": [],
-  "hare": []
+  "hare": [
+    "straw",
+    "bowtie",
+    "crown",
+    "satchel",
+    "specs"
+  ]
 }
