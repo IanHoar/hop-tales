@@ -12,12 +12,17 @@ import SwiftUI
 
   public struct State {
     public var childName = ""
+    public var journey = Journey()
     public var profile = Profile()
     public var soundOn = true
     public var strictness: WordMatcher.Strictness = .gentle
     public var voices: [Voice] = []
 
     public init() {}
+
+    public var readingFriends: [Friend] {
+      Friend.allCases.filter { journey.met.contains($0) || Friend.starters.contains($0) }
+    }
 
     public var voiceName: String {
       guard let id = profile.voiceID, let voice = voices.first(where: { $0.id == id }) else {
@@ -30,6 +35,7 @@ import SwiftUI
   public enum Action {
     case accentPicked(Profile.Accent)
     case doneTapped
+    case friendPicked(Friend)
     case hearVoiceTapped
     case nameChanged(String)
     case nameSubmitted
@@ -40,6 +46,7 @@ import SwiftUI
   }
 
   @Dependency(ProfileStore.self) var profileStore
+  @Dependency(ProgressStore.self) var progressStore
   @Dependency(SoundPreference.self) var soundPreference
   @Dependency(SpeechClient.self) var speechClient
   @Dependency(StrictnessPreference.self) var strictnessPreference
@@ -59,6 +66,12 @@ import SwiftUI
 
       case .doneTapped, .nameSubmitted:
         save(state)
+
+      case let .friendPicked(friend):
+        state.journey.grownUpMoves(to: friend)
+        var progress = progressStore.load()
+        progress.journey = state.journey
+        progressStore.save(progress)
 
       case .resetOnboardingTapped:
         break
@@ -87,6 +100,7 @@ import SwiftUI
     .onMount { state in
       state.profile = profileStore.load() ?? Profile()
       state.childName = state.profile.childName
+      state.journey = progressStore.load().journey
       state.soundOn = soundPreference.load()
       state.strictness = strictnessPreference.load()
       state.voices = speechClient.voices()
@@ -127,6 +141,7 @@ public struct SettingsScreen: View {
           .foregroundStyle(Palette.ink)
           .accessibilityAddTraits(.isHeader)
         SettingsSection("Reader") { NameField(store: store) }
+        SettingsSection("Reading with") { FriendChoices(store: store) }
         SettingsSection("Accent") { AccentChoices(store: store) }
         SettingsSection("Listening") { StrictnessChoices(store: store) }
         SettingsSection("Help voice") { VoiceRow(store: store) }
@@ -220,6 +235,22 @@ struct NameField: View {
     .settingsField()
     .contentShape(.rect(cornerRadius: 20))
     .onTapGesture { focused = true }
+  }
+}
+
+struct FriendChoices: View {
+  let store: StoreOf<Settings>
+
+  var body: some View {
+    ForEach(store.readingFriends, id: \.self) { friend in
+      Choice(
+        title: friend.name,
+        detail: "\(friend.stage) · \(friend.examples.joined(separator: ", "))",
+        isSelected: friend == store.journey.activeFriend
+      ) {
+        store.send(.friendPicked(friend))
+      }
+    }
   }
 }
 

@@ -33,13 +33,16 @@ struct RootTests {
       Root()
     }
     let story = StoryLibrary.all[0]
+    let big = Journey().bigWords(in: story)
     store.send(.home(.storyTapped(story))) {
-      $0.path = [.reading(Reading.State.DebugSnapshot(story: story))]
+      $0.path = [.reading(Reading.State.DebugSnapshot(bigWords: big, story: story))]
     }
 
     await store.receive(\.path) {
       $0.path = [
-        .reading(Reading.State.DebugSnapshot(authorization: .authorized, story: story))
+        .reading(
+          Reading.State.DebugSnapshot(authorization: .authorized, bigWords: big, story: story)
+        )
       ]
     }
 
@@ -53,14 +56,17 @@ struct RootTests {
     #expect(store.state.storyOnScreen == nil)
 
     let story = StoryLibrary.all[1]
+    let big = Journey().bigWords(in: story)
     store.send(.home(.storyTapped(story))) {
-      $0.path = [.reading(Reading.State.DebugSnapshot(story: story))]
+      $0.path = [.reading(Reading.State.DebugSnapshot(bigWords: big, story: story))]
     }
     #expect(store.state.storyOnScreen == story)
 
     await store.receive(\.path) {
       $0.path = [
-        .reading(Reading.State.DebugSnapshot(authorization: .authorized, story: story))
+        .reading(
+          Reading.State.DebugSnapshot(authorization: .authorized, bigWords: big, story: story)
+        )
       ]
     }
     await store.dismount()
