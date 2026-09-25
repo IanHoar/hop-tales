@@ -86,8 +86,8 @@ IDLE_GESTURES = {
     'grasshopper': dict(
         subject="a grasshopper", border="same satchel",
         ear=("the long antenna at the back is swept backwards", "a little, about 10 degrees", "about 20 degrees",
-             "well back, about 35 degrees"),
-        sniff="the antennae are both raised and twitching forward, feeling the air.",
+             "about 25 degrees, while the head, the eye and the front antenna stay exactly where they are"),
+        sniff="the small mouthparts and palps under the head are moving, tasting the air, the head raised a touch.",
         tilt="head", eyes="eyes"),
     'crow': dict(
         subject="a crow", border="same blue knitted cap",
@@ -145,15 +145,15 @@ def load(key, p):
     return a[:, ::-1].copy() if flip else a
 
 
-def trim_above_rim(a, allowance=140, fade=60):
+def trim_above_rim(a, allowance=140, fade=60, lo=0.25):
     from scipy import ndimage as ndi
     bright = (a[..., :3].mean(2) > 228) & (a[..., 3] > 128)
     H, Wd = bright.shape
     rim = np.full(Wd, H, np.float32)
     for x in range(Wd):
-        ys = np.nonzero(bright[int(H * 0.25):int(H * 0.85), x])[0]
+        ys = np.nonzero(bright[int(H * lo):int(H * 0.85), x])[0]
         if len(ys):
-            rim[x] = ys[0] + int(H * 0.25)
+            rim[x] = ys[0] + int(H * lo)
     rim = ndi.median_filter(rim, 301, mode='wrap')
     y = np.arange(H, dtype=np.float32)[:, None]
     keep = np.clip((y - (rim[None, :] - allowance - fade)) / fade, 0, 1)
@@ -166,10 +166,10 @@ def trim_above_rim(a, allowance=140, fade=60):
     return out
 
 
-def normalise(sec, band, ref_band):
+def normalise(sec, band, ref_band, force=False):
     cs, ts = band
     cr, tr = ref_band
-    s = tr / ts if 0.8 < tr / ts < 1.25 else 1.0
+    s = tr / ts if force or 0.8 < tr / ts < 1.25 else 1.0
     H, Wd, _ = sec.shape
     im = Image.fromarray(sec.clip(0, 255).astype(np.uint8), 'RGBA').resize((int(Wd * s), int(H * s)), Image.LANCZOS)
     b = np.asarray(im).astype(np.float32)
@@ -217,9 +217,12 @@ def build(key, names):
             allow = int(os.environ.get(name.upper() + '_ALLOW', 90))
             secs = [trim_above_rim(s, allowance=allow) for s in secs]
         if name == 'near':
-            secs = [trim_above_rim(s, allowance=int(os.environ.get('NEAR_ALLOW', 110)), fade=40) for s in secs]
+            wall = c['mode'] == 'wall'
+            if not wall:
+                secs = [trim_above_rim(s, allowance=int(os.environ.get('NEAR_ALLOW', 110)), fade=40)
+                        for s in secs]
             ref_band = band_of(c['mode'], secs[0], key)
-            secs = [normalise(s, band_of(c['mode'], s, key), ref_band) for s in secs]
+            secs = [normalise(s, band_of(c['mode'], s, key), ref_band, force=wall) for s in secs]
             print('bands', [band_of(c['mode'], s, key) for s in secs], flush=True)
         n = len(secs)
         span = float(os.environ.get(name.upper() + '_SPAN', 0.42))
@@ -248,7 +251,7 @@ def build(key, names):
         im = Image.fromarray(tile.clip(0, 255).astype(np.uint8), 'RGBA')
         if name == 'near':
             cr, tr = ref_band
-            s = BAND[1] / tr
+            s = (float(os.environ.get('WALL_T', 230)) if c['mode'] == 'wall' else BAND[1]) / tr
             im = im.resize((int(im.width * s), int(im.height * s)), Image.LANCZOS)
             y0 = int(round(cr * s - BAND[0]))
         else:
@@ -281,6 +284,8 @@ def build(key, names):
         o = np.asarray(out).astype(np.float32)
         print(name, dict(size=out.size, sections=paths, ridge=float(np.median(np.argmax(o[..., 3] > 128, 0)))),
               flush=True)
+        if name == 'near' and c['mode'] == 'wall':
+            print('wall band (final px)', band_of('wall', o, key), flush=True)
 
 
 def idle_prompts(key):
@@ -299,7 +304,8 @@ def idle_prompts(key):
         'ear': f"{ear} {e3}.",
         'tilt-1': "the head is tilted a little downwards, about 4 degrees.",
         'tilt-2': "the head is tilted downwards about 8 degrees, curious.",
-        'tilt': "the head is tilted downwards about 12 degrees, looking at something on the ground.",
+        'tilt': ("the head is tilted downwards about 10 degrees, pivoting where it meets the body, looking at "
+                 "something on the ground; the head stays the same size and in the same place."),
         'sniff': g['sniff'],
     }
 
@@ -322,7 +328,7 @@ def gen_idle(key, _):
         out = os.path.join(idle_raw(key), f'{name}.png')
         if os.path.exists(out):
             continue
-        im, _, _ = nb.generate(base + change, [base_img], aspect='3:4', size='1K')
+        im, _, _ = nb.generate(base + change, [base_img], aspect=os.environ.get('IDLE_ASPECT', '3:4'), size='1K')
         im.convert('RGB').resize(base_img.size, Image.LANCZOS).save(out)
         print(out, flush=True)
 
@@ -348,7 +354,7 @@ def build_idle(key, _):
     rest = W.keyed(os.path.join(idle_raw(key), 'rest.png'))
     fit, move_all, face, (top, bottom) = head_regions(key, rest)
     frames = [rest]
-    stand_in = {'ear': 'ear-2', 'ear-2': 'ear-1', 'sniff': 'ear-1', 'tilt': 'blink-half', 'tilt-1': 'rest',
+    stand_in = {'ear': 'ear-2', 'ear-2': 'ear-1', 'sniff': 'ear-1', 'tilt': 'tilt-2', 'tilt-1': 'rest',
                 'tilt-2': 'rest', 'blink-half': 'blink', 'ear-1': 'rest'}
     for name in NAMES[1:]:
         pick = name

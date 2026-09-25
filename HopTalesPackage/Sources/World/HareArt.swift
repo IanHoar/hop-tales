@@ -37,16 +37,6 @@ public struct SpriteSheet: Equatable, Sendable {
     SpriteSheet(asset, cell: cell, feet: feet, scale: size, frames: HareSheet.idle.frameCount)
   }
 
-  static func still(_ friend: Friend, cell: CGSize, feetX: CGFloat) -> SpriteSheet {
-    SpriteSheet(
-      "friend-\(friend.rawValue)",
-      cell: cell,
-      feet: CGPoint(x: feetX, y: cell.height),
-      scale: HareSheet.restHeight / cell.height,
-      frames: 1
-    )
-  }
-
   static func hop(
     _ asset: String, cell: CGSize, feet: CGPoint, standing: CGFloat, size: CGFloat = 1
   ) -> SpriteSheet {
@@ -96,14 +86,18 @@ public struct SpriteSheet: Equatable, Sendable {
       )
     ),
     .crow: (
-      .still(.crow, cell: CGSize(width: 474, height: 480), feetX: 305),
+      .idle(
+        "crow-idle-frames", cell: CGSize(width: 370, height: 369), feet: CGPoint(x: 227, y: 357)
+      ),
       .hop(
         "crow-hop", cell: CGSize(width: 338, height: 346), feet: CGPoint(x: 166, y: 336),
         standing: 259
       )
     ),
     .cat: (
-      .still(.cat, cell: CGSize(width: 369, height: 480), feetX: 124),
+      .idle(
+        "cat-idle-frames", cell: CGSize(width: 291, height: 366), feet: CGPoint(x: 150, y: 355)
+      ),
       .hop(
         "cat-hop", cell: CGSize(width: 422, height: 346), feet: CGPoint(x: 182, y: 335),
         standing: 305
