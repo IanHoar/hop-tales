@@ -1,3 +1,4 @@
+import Content
 import SnapshotTesting
 import SwiftUI
 import Testing
@@ -20,6 +21,20 @@ struct PathSnapshotTests {
         ))
       ),
       named: "\(moment)"
+    )
+  }
+
+  @Test(arguments: [Friend.bunny])
+  func eachFriendReadsInTheirOwnWorld(friend: Friend) {
+    expectSnapshot(
+      of: ReadingScreenPreview(moment: .midPage, friend: friend)
+        .environment(\.freezesMotion, true),
+      as: .image(
+        layout: .device(config: ReadingScreenSnapshotTests.device(
+          ReadingScreenSnapshotTests.smallPhone, .light
+        ))
+      ),
+      named: "\(friend)"
     )
   }
 }

@@ -81,6 +81,17 @@ public struct WorldView: View {
     }
 }
 
+#Preview("Worlds") {
+  VStack(spacing: 0) {
+    ForEach([Friend.hare, .bunny], id: \.self) { world in
+      MeadowBackdrop(
+        camera: MeadowCamera(at: 900), mood: Mood(),
+        framing: .path(scale: 0.74, centre: 420), world: world
+      )
+    }
+  }
+}
+
 #Preview("Postcards") {
   let moods = [
     Mood(sky: .day), Mood(sky: .golden, weather: .clouds), Mood(sky: .day, weather: .rain),
