@@ -4,7 +4,7 @@ import Testing
 
 struct StoryMoodTests {
   @Test func everyStoryDecodesWithAMood() {
-    #expect(StoryLibrary.all.count == 4)
+    #expect(StoryLibrary.all.count == 34)
     #expect(StoryLibrary.all.allSatisfy { !$0.sentences.isEmpty })
   }
 

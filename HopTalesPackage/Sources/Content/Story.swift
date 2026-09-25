@@ -27,10 +27,12 @@ public struct Mood: Codable, Hashable, Sendable {
 public struct Word: Codable, Hashable, Sendable {
   public var homophones: [String]
   public var text: String
+  public var big: Bool
 
-  public init(text: String, homophones: [String] = []) {
+  public init(text: String, homophones: [String] = [], big: Bool = false) {
     self.homophones = homophones
     self.text = text
+    self.big = big
   }
 }
 
@@ -55,13 +57,29 @@ public struct Story: Codable, Hashable, Sendable, Identifiable {
   public var sentences: [Sentence]
   public var mood: Mood
   public var title: String
+  public var level: Int
+  public var stretch: Bool
+  public var isBigStory: Bool
 
-  public init(id: String, title: String, sentences: [Sentence], mood: Mood = Mood()) {
+  public init(
+    id: String,
+    title: String,
+    sentences: [Sentence],
+    mood: Mood = Mood(),
+    level: Int = 1,
+    stretch: Bool = false,
+    isBigStory: Bool = false
+  ) {
     self.id = id
     self.sentences = sentences
     self.mood = mood
     self.title = title
+    self.level = level
+    self.stretch = stretch
+    self.isBigStory = isBigStory
   }
+
+  public var friend: Friend { Friend.at(level: level) }
 
   public var wordCount: Int {
     sentences.reduce(0) { $0 + $1.words.count }
