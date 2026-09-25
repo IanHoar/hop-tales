@@ -21,34 +21,79 @@ public struct SpriteSheet: Equatable, Sendable {
   public let cell: CGSize
   public let anchor: UnitPoint
   public let scale: CGFloat
+  public let frameCount: Int
 
-  init(_ asset: String, cell: CGSize, feet: CGPoint, scale: CGFloat = 1) {
+  init(_ asset: String, cell: CGSize, feet: CGPoint, scale: CGFloat = 1, frames: Int) {
     self.asset = asset
     self.cell = cell
     anchor = UnitPoint(x: feet.x / cell.width, y: feet.y / cell.height)
     self.scale = scale
+    frameCount = frames
+  }
+
+  static func idle(_ asset: String, cell: CGSize, feet: CGPoint) -> SpriteSheet {
+    SpriteSheet(asset, cell: cell, feet: feet, frames: HareSheet.idle.frameCount)
+  }
+
+  static func still(_ friend: Friend, cell: CGSize, feetX: CGFloat) -> SpriteSheet {
+    SpriteSheet(
+      "friend-\(friend.rawValue)",
+      cell: cell,
+      feet: CGPoint(x: feetX, y: cell.height),
+      scale: HareSheet.restHeight / cell.height,
+      frames: 1
+    )
+  }
+
+  static func hop(_ asset: String, cell: CGSize, feet: CGPoint, standing: CGFloat) -> SpriteSheet {
+    SpriteSheet(
+      asset, cell: cell, feet: feet, scale: HareSheet.restHeight / standing,
+      frames: HareSheet.hop.frameCount
+    )
   }
 
   private typealias Pair = (idle: SpriteSheet, hop: SpriteSheet)
 
   private static let hare: Pair = (
-    SpriteSheet(
-      "hare-idle-frames", cell: CGSize(width: 260, height: 373), feet: CGPoint(x: 142, y: 361)
-    ),
-    SpriteSheet(
+    .idle("hare-idle-frames", cell: CGSize(width: 260, height: 373), feet: CGPoint(x: 142, y: 361)),
+    .hop(
       "hare-hop", cell: CGSize(width: 363, height: 346), feet: CGPoint(x: 194, y: 334),
-      scale: 345 / 322
+      standing: 322
     )
   )
 
   private static let sheets: [Friend: Pair] = [
     .bunny: (
-      SpriteSheet(
+      .idle(
         "bunny-idle-frames", cell: CGSize(width: 322, height: 369), feet: CGPoint(x: 158, y: 357)
       ),
-      SpriteSheet(
+      .hop(
         "bunny-hop", cell: CGSize(width: 370, height: 346), feet: CGPoint(x: 175, y: 335),
-        scale: 344 / 323
+        standing: 323
+      )
+    ),
+    .crow: (
+      .still(.crow, cell: CGSize(width: 474, height: 480), feetX: 305),
+      .hop(
+        "crow-hop", cell: CGSize(width: 338, height: 346), feet: CGPoint(x: 166, y: 336),
+        standing: 259
+      )
+    ),
+    .cat: (
+      .still(.cat, cell: CGSize(width: 369, height: 480), feetX: 124),
+      .hop(
+        "cat-hop", cell: CGSize(width: 422, height: 346), feet: CGPoint(x: 182, y: 335),
+        standing: 305
+      )
+    ),
+    .grasshopper: (
+      .idle(
+        "grasshopper-idle-frames", cell: CGSize(width: 562, height: 380),
+        feet: CGPoint(x: 245, y: 363)
+      ),
+      .hop(
+        "grasshopper-hop", cell: CGSize(width: 321, height: 346), feet: CGPoint(x: 137, y: 336),
+        standing: 170
       )
     )
   ]
@@ -81,15 +126,19 @@ public enum HareArt {
 
   public static func image(_ frame: HareFrame) -> UIImage? {
     let asset = frame.art.asset
-    let key = "\(asset)-\(frame.index)"
+    let key = "\(asset)-\(min(frame.index, frame.art.frameCount - 1))"
     if let cached = frames[key] { return cached }
     guard
       let sheet = MeadowArt.image(asset),
       let cgImage = sheet.cgImage
     else { return nil }
-    let width = CGFloat(cgImage.width) / CGFloat(frame.sheet.frameCount)
+    let art = frame.art
+    let width = CGFloat(cgImage.width) / CGFloat(art.frameCount)
     let rect = CGRect(
-      x: CGFloat(frame.index) * width, y: 0, width: width, height: CGFloat(cgImage.height)
+      x: CGFloat(min(frame.index, art.frameCount - 1)) * width,
+      y: 0,
+      width: width,
+      height: CGFloat(cgImage.height)
     )
     guard let cell = cgImage.cropping(to: rect) else { return nil }
     let image = UIImage(cgImage: cell, scale: sheet.scale, orientation: .up)
