@@ -1,6 +1,7 @@
 import Content
 import DesignSystem
 import SwiftUI
+import World
 
 struct WordPath: Equatable {
   static let wordSize: CGFloat = 46
@@ -36,9 +37,11 @@ struct WordPath: Equatable {
 
   let geometry: ReadingGeometry
   let stops: [Stop]
+  let style: WorldStyle
 
-  init(sentences: [[Word]], geometry: ReadingGeometry) {
+  init(sentences: [[Word]], geometry: ReadingGeometry, style: WorldStyle = .meadow) {
     self.geometry = geometry
+    self.style = style
     let size = geometry.path(Self.wordSize)
     var stops: [Stop] = []
     for (sentence, words) in sentences.enumerated() {
@@ -66,7 +69,9 @@ struct WordPath: Equatable {
   var wordHeight: CGFloat { Typography.wordUIFont(wordSize).lineHeight }
   var wordY: CGFloat { geometry.pathCentre + (0.5 - Self.rise) * wordHeight }
   var hareX: CGFloat { geometry.path(Self.hareX) }
-  var hareFeetY: CGFloat { geometry.pathCentre + geometry.path(Self.hareFeetBelowPath) }
+  var hareFeetY: CGFloat {
+    geometry.pathCentre + geometry.path(style.feetAbovePath.map { -$0 } ?? Self.hareFeetBelowPath)
+  }
   var signFeetY: CGFloat { geometry.pathCentre - geometry.path(Self.signFeetAbovePath) }
   var signHeight: CGFloat { geometry.path(Self.signHeight) }
 
@@ -111,6 +116,14 @@ enum PathWordState: Equatable {
     case .read: Color(hex: 0x3B2A20)
     case .current: Color(hex: 0x2E2018)
     case .upcoming: Color(hex: 0x3B2A20, opacity: 0.42)
+    }
+  }
+
+  var chalk: Color {
+    switch self {
+    case .read: Color(hex: 0xF4EFE4, opacity: 0.85)
+    case .current: Color(hex: 0xFFFDF7)
+    case .upcoming: Color(hex: 0xF4EFE4, opacity: 0.45)
     }
   }
 }
