@@ -57,7 +57,7 @@ iOS read-aloud game for early readers. SwiftUI shell + SpriteKit world, on-devic
 
 - Open `HopTales.xcworkspace`, not the `.xcodeproj` — the local package lives in the workspace.
 - Build: `xcodebuild -workspace HopTales.xcworkspace -scheme HopTales -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -skipMacroValidation build`
-- Tests: same command with `test` — the `HopTales` scheme runs all three package test targets.
+- Tests: same command with `test` — the `HopTales` scheme runs all six package test targets.
   `WordMatcherTests` must stay green; they encode the tolerance rules.
 - `-skipMacroValidation` is required from the CLI: the package macros need one-time approval that
   only the Xcode UI can give.
