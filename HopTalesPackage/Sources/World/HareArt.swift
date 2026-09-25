@@ -17,7 +17,7 @@ public enum HareSheet: Sendable {
 }
 
 public struct SpriteSheet: Equatable, Sendable {
-  public let asset: String
+  public private(set) var asset: String
   public let cell: CGSize
   public let anchor: UnitPoint
   public let scale: CGFloat
@@ -29,6 +29,12 @@ public struct SpriteSheet: Equatable, Sendable {
     anchor = UnitPoint(x: feet.x / cell.width, y: feet.y / cell.height)
     self.scale = scale
     frameCount = frames
+  }
+
+  func named(_ asset: String) -> SpriteSheet {
+    var sheet = self
+    sheet.asset = asset
+    return sheet
   }
 
   static func idle(
@@ -126,15 +132,24 @@ public struct HareFrame: Equatable, Sendable {
   public var index: Int
   public var friend: Friend
 
-  public init(_ sheet: HareSheet, _ index: Int, friend: Friend = .hare) {
+  public var look: String?
+
+  public init(_ sheet: HareSheet, _ index: Int, friend: Friend = .hare, look: String? = nil) {
     self.sheet = sheet
     self.index = index
     self.friend = friend
+    self.look = look
   }
 
   public static let rest = HareFrame(.idle, 0)
 
-  public var art: SpriteSheet { .of(sheet, for: friend) }
+  @MainActor
+  public var art: SpriteSheet {
+    let base = SpriteSheet.of(sheet, for: friend)
+    guard let look else { return base }
+    let dressed = "look-\(friend.rawValue)-\(look)-\(sheet == .idle ? "idle" : "hop")"
+    return MeadowArt.image(dressed) == nil ? base : base.named(dressed)
+  }
 }
 
 @MainActor

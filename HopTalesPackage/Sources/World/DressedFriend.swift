@@ -13,10 +13,22 @@ public struct DressedFriend: View {
   }
 
   public var body: some View {
+    if let look = outfit.first.map({ "look-\(friend.rawValue)-\($0.id)" }),
+       let image = MeadowArt.image(look) {
+      Image(uiImage: image)
+        .resizable()
+        .frame(width: height * image.size.width / max(image.size.height, 1), height: height)
+        .accessibilityHidden(true)
+    } else {
+      collage
+    }
+  }
+
+  private var collage: some View {
     let sticker = MeadowArt.image(friend == .hare ? "hare-sit" : "friend-\(friend.rawValue)")
     let aspect = sticker.map { $0.size.width / max($0.size.height, 1) } ?? 0.8
     let size = CGSize(width: height * aspect, height: height)
-    ZStack(alignment: .topLeading) {
+    return ZStack(alignment: .topLeading) {
       FriendSticker(friend, height: height)
       ForEach(outfit) { item in
         ForEach(Array(item.parts.enumerated()), id: \.offset) { index, part in

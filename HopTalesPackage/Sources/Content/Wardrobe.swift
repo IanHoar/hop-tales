@@ -56,8 +56,38 @@ public enum WardrobeLibrary {
     }
   }()
 
+  public static let wearable: [Friend: [String]] = [
+    .hare: ["straw", "bowtie", "crown", "specs", "satchel"],
+    .bunny: ["bluebell-crown", "bonnet", "heart-glasses", "daisy-chain", "basket-pack"],
+    .frog: ["lilypad-hat", "goggles", "check-bowtie", "reed-satchel", "raincoat"],
+    .crow: ["flat-cap", "top-hat", "aviator-goggles", "autumn-scarf", "post-satchel"],
+    .cat: ["garden-hat", "beret", "cateye-glasses", "red-bell-collar", "cardigan"],
+    .crab: ["sailor-cap", "captain-hat", "diving-mask", "claw-mittens", "life-ring"],
+    .grasshopper: [
+      "acorn-cap", "antenna-poms", "explorer-goggles", "clover-bowtie", "ladybird-cape"
+    ]
+  ]
+
+  @TaskLocal public static var painted: [Friend: Set<String>] = {
+    guard
+      let url = Bundle.module.url(forResource: "looks", withExtension: "json"),
+      let data = try? Data(contentsOf: url),
+      let decoded = try? JSONDecoder().decode([String: [String]].self, from: data)
+    else {
+      assertionFailure("looks.json is missing or unreadable; run scripts/export-looks.py")
+      return [:]
+    }
+    return Dictionary(uniqueKeysWithValues: decoded.compactMap { key, ids in
+      Friend(rawValue: key).map { ($0, Set(ids)) }
+    })
+  }()
+
   public static func items(for friend: Friend) -> [WardrobeItem] {
-    all[friend] ?? []
+    let library = all[friend] ?? []
+    let painted = painted[friend] ?? []
+    return (wearable[friend] ?? []).filter(painted.contains).compactMap { id in
+      library.first { $0.id == id }
+    }
   }
 
   public static func slots(for friend: Friend) -> [Slot] {
@@ -92,7 +122,7 @@ extension Progress {
 
   public mutating func wear(_ item: WardrobeItem, on friend: Friend) {
     guard isUnlocked(item, for: friend) else { return }
-    outfits[friend, default: [:]][item.slot] = item.id
+    outfits[friend] = [item.slot: item.id]
   }
 
   public mutating func takeOff(_ slot: Slot, from friend: Friend) {
