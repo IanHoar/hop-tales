@@ -164,41 +164,11 @@ extension ButtonStyle where Self == InkButtonStyle {
   }
 }
 
-public struct Coin: View {
-  let size: CGFloat
-
-  public init(size: CGFloat) {
-    self.size = size
-  }
-
-  public var body: some View {
-    ZStack {
-      Circle().fill(Palette.goldShade)
-      Circle().fill(Palette.gold).padding(.bottom, size * 0.1)
-      Star()
-        .fill(Palette.goldLight)
-        .overlay(Star().stroke(Palette.goldShade, lineWidth: size * 0.04))
-        .padding(size * 0.26)
-    }
-    .overlay(Circle().strokeBorder(Palette.outline, lineWidth: max(2, size * 0.08)))
-    .frame(width: size, height: size)
-    .accessibilityHidden(true)
-  }
-}
-
 #Preview("Ink kit") {
   VStack(spacing: 24) {
     Button("Start reading") {}.buttonStyle(.ink(.primary))
     Button("Play on the TV") {}.buttonStyle(.ink(.secondary))
     Button("Not now") {}.buttonStyle(.ink(.tertiary))
-    HStack(spacing: 10) {
-      Coin(size: 38)
-      Text("12").font(Typography.display(22)).foregroundStyle(Palette.ink)
-    }
-    .padding(.leading, 7)
-    .padding(.trailing, 16)
-    .frame(height: 52)
-    .parchmentBevel(Capsule())
   }
   .padding(40)
   .frame(maxWidth: .infinity, maxHeight: .infinity)
