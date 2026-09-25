@@ -22,41 +22,40 @@ public struct SpriteSheet: Equatable, Sendable {
   public let anchor: UnitPoint
   public let scale: CGFloat
 
-  public static func of(_ sheet: HareSheet, for friend: Friend) -> SpriteSheet {
-    switch (sheet, SpriteSheet.hasOwnSheets(friend) ? friend : .hare) {
-    case (.idle, .bunny):
-      SpriteSheet(
-        asset: "bunny-idle-frames",
-        cell: CGSize(width: 322, height: 369),
-        anchor: UnitPoint(x: 158 / 322, y: 357 / 369),
-        scale: 1
-      )
-    case (.hop, .bunny):
-      SpriteSheet(
-        asset: "bunny-hop",
-        cell: CGSize(width: 370, height: 346),
-        anchor: UnitPoint(x: 175 / 370, y: 335 / 346),
-        scale: 344 / 323
-      )
-    case (.idle, _):
-      SpriteSheet(
-        asset: "hare-idle-frames",
-        cell: CGSize(width: 260, height: 373),
-        anchor: UnitPoint(x: 142 / 260, y: 361 / 373),
-        scale: 1
-      )
-    case (.hop, _):
-      SpriteSheet(
-        asset: "hare-hop",
-        cell: CGSize(width: 363, height: 346),
-        anchor: UnitPoint(x: 194 / 363, y: 334 / 346),
-        scale: 345 / 322
-      )
-    }
+  init(_ asset: String, cell: CGSize, feet: CGPoint, scale: CGFloat = 1) {
+    self.asset = asset
+    self.cell = cell
+    anchor = UnitPoint(x: feet.x / cell.width, y: feet.y / cell.height)
+    self.scale = scale
   }
 
-  public static func hasOwnSheets(_ friend: Friend) -> Bool {
-    [.hare, .bunny].contains(friend)
+  private typealias Pair = (idle: SpriteSheet, hop: SpriteSheet)
+
+  private static let hare: Pair = (
+    SpriteSheet(
+      "hare-idle-frames", cell: CGSize(width: 260, height: 373), feet: CGPoint(x: 142, y: 361)
+    ),
+    SpriteSheet(
+      "hare-hop", cell: CGSize(width: 363, height: 346), feet: CGPoint(x: 194, y: 334),
+      scale: 345 / 322
+    )
+  )
+
+  private static let sheets: [Friend: Pair] = [
+    .bunny: (
+      SpriteSheet(
+        "bunny-idle-frames", cell: CGSize(width: 322, height: 369), feet: CGPoint(x: 158, y: 357)
+      ),
+      SpriteSheet(
+        "bunny-hop", cell: CGSize(width: 370, height: 346), feet: CGPoint(x: 175, y: 335),
+        scale: 344 / 323
+      )
+    )
+  ]
+
+  public static func of(_ sheet: HareSheet, for friend: Friend) -> SpriteSheet {
+    let pair = sheets[friend] ?? hare
+    return sheet == .idle ? pair.idle : pair.hop
   }
 }
 

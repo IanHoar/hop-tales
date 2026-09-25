@@ -13,11 +13,12 @@ struct PathWord: View {
   let overhang: CGFloat
   var isBig = false
   var isPulsing = false
+  var chalk = false
 
   var body: some View {
     Text(text)
       .font(Typography.word(size))
-      .foregroundStyle(state.ink)
+      .foregroundStyle(chalk ? state.chalk : state.ink)
       .lineLimit(1)
       .fixedSize()
       .background {
@@ -41,7 +42,7 @@ struct PathWord: View {
         anchor: UnitPoint(x: 0.5, y: 0.6),
         perspective: 0.5
       )
-      .blendMode(.multiply)
+      .blendMode(chalk ? .screen : .multiply)
       .allowsHitTesting(false)
       .accessibilityHidden(true)
       .onChange(of: state) { _, state in

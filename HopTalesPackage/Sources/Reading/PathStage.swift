@@ -23,7 +23,11 @@ struct PathStage: View {
   private var isStill: Bool { reduceMotion || freezesMotion }
 
   var body: some View {
-    let path = WordPath(sentences: store.story.sentences.map(\.words), geometry: geometry)
+    let path = WordPath(
+      sentences: store.story.sentences.map(\.words),
+      geometry: geometry,
+      style: WorldStyle.of(store.friend)
+    )
     let camera = camera ?? MeadowCamera(at: path.camera(at: position))
     ZStack {
       backdrop(camera)
@@ -242,7 +246,8 @@ struct PathScene: View {
           size: path.wordSize,
           overhang: geometry.path(14),
           isBig: bigWords.contains(WordRef(sentence: stop.target.sentence, word: stop.target.word)),
-          isPulsing: isSpeaking && stop.target == position
+          isPulsing: isSpeaking && stop.target == position,
+          chalk: path.style.chalk
         )
         .position(x: stop.centre - cameraX, y: path.wordY)
       }
