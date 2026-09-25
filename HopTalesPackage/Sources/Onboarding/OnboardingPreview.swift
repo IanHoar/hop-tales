@@ -23,8 +23,9 @@ struct OnboardingPreview: View {
     state.childName = "Wren"
     state.path = Onboarding.Step.allCases.filter { $0 != .name && $0.rawValue <= step.rawValue }
     if step.rawValue > Onboarding.Step.listening.rawValue { state.authorization = .authorized }
+    if step == .friend { state.startingFriend = .hare }
     if step == .accent {
-      state.startingStoryID = StoryLibrary.all[0].id
+      state.startingFriend = .bunny
       state.accent = .canadian
     }
     return state
@@ -33,6 +34,6 @@ struct OnboardingPreview: View {
 
 #Preview("Name") { OnboardingPreview(.name) }
 #Preview("Microphone") { OnboardingPreview(.listening) }
-#Preview("Reading level") { OnboardingPreview(.story) }
+#Preview("Starting friend") { OnboardingPreview(.friend) }
 #Preview("Accent") { OnboardingPreview(.accent) }
 #endif

@@ -19,8 +19,8 @@ struct OnboardingSnapshotTests {
   }
 
   @Test(arguments: [ColorScheme.light, .dark])
-  func pickingAReadingLevel(scheme: ColorScheme) {
-    expectSnapshot(of: OnboardingPreview(.story), scheme: scheme)
+  func pickingAStartingFriend(scheme: ColorScheme) {
+    expectSnapshot(of: OnboardingPreview(.friend), scheme: scheme)
   }
 
   @Test(arguments: [ColorScheme.light, .dark])
@@ -30,6 +30,6 @@ struct OnboardingSnapshotTests {
 
   @Test(arguments: [ColorScheme.light, .dark])
   func theSheetIsCentredOnAnIPad(scheme: ColorScheme) {
-    expectSnapshot(of: OnboardingPreview(.story, size: Metrics.pad.reference), scheme: scheme)
+    expectSnapshot(of: OnboardingPreview(.friend, size: Metrics.pad.reference), scheme: scheme)
   }
 }

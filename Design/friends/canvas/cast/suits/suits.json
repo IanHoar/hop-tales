@@ -1,0 +1,710 @@
+{
+ "bunny": {
+  "items": [
+   {
+    "id": "bluebell-crown",
+    "name": "Bluebell crown",
+    "slot": "head",
+    "size": [
+     200,
+     140
+    ],
+    "full": [
+     653,
+     458
+    ]
+   },
+   {
+    "id": "bonnet",
+    "name": "Straw bonnet",
+    "slot": "head",
+    "size": [
+     200,
+     169
+    ],
+    "full": [
+     639,
+     539
+    ]
+   },
+   {
+    "id": "headscarf",
+    "name": "Polka-dot headscarf",
+    "slot": "head",
+    "size": [
+     200,
+     194
+    ],
+    "full": [
+     542,
+     527
+    ]
+   },
+   {
+    "id": "heart-glasses",
+    "name": "Heart glasses",
+    "slot": "eyes",
+    "size": [
+     200,
+     103
+    ],
+    "full": [
+     610,
+     315
+    ]
+   },
+   {
+    "id": "daisy-chain",
+    "name": "Daisy chain",
+    "slot": "neck",
+    "size": [
+     200,
+     174
+    ],
+    "full": [
+     574,
+     500
+    ]
+   },
+   {
+    "id": "berry-kerchief",
+    "name": "Strawberry neckerchief",
+    "slot": "neck",
+    "size": [
+     194,
+     200
+    ],
+    "full": [
+     544,
+     562
+    ]
+   },
+   {
+    "id": "basket-pack",
+    "name": "Wicker backpack",
+    "slot": "back",
+    "size": [
+     200,
+     198
+    ],
+    "full": [
+     574,
+     567
+    ]
+   },
+   {
+    "id": "shawl",
+    "name": "Lilac shawl",
+    "slot": "body",
+    "size": [
+     200,
+     177
+    ],
+    "full": [
+     629,
+     557
+    ]
+   }
+  ],
+  "dressed": {
+   "a": [
+    258,
+    300
+   ],
+   "b": [
+    260,
+    300
+   ]
+  }
+ },
+ "frog": {
+  "items": [
+   {
+    "id": "lilypad-hat",
+    "name": "Lily-pad hat",
+    "slot": "head",
+    "size": [
+     200,
+     117
+    ],
+    "full": [
+     673,
+     395
+    ]
+   },
+   {
+    "id": "souwester",
+    "name": "Rain hat",
+    "slot": "head",
+    "size": [
+     200,
+     160
+    ],
+    "full": [
+     544,
+     436
+    ]
+   },
+   {
+    "id": "frog-crown",
+    "name": "Golden crown",
+    "slot": "head",
+    "size": [
+     200,
+     148
+    ],
+    "full": [
+     419,
+     311
+    ]
+   },
+   {
+    "id": "goggles",
+    "name": "Swimming goggles",
+    "slot": "eyes",
+    "size": [
+     200,
+     82
+    ],
+    "full": [
+     556,
+     229
+    ]
+   },
+   {
+    "id": "check-bowtie",
+    "name": "Check bow tie",
+    "slot": "neck",
+    "size": [
+     200,
+     118
+    ],
+    "full": [
+     473,
+     278
+    ]
+   },
+   {
+    "id": "swim-ring",
+    "name": "Swim ring",
+    "slot": "body",
+    "size": [
+     197,
+     200
+    ],
+    "full": [
+     514,
+     523
+    ]
+   },
+   {
+    "id": "reed-satchel",
+    "name": "Reed satchel",
+    "slot": "back",
+    "size": [
+     200,
+     151
+    ],
+    "full": [
+     558,
+     421
+    ]
+   },
+   {
+    "id": "raincoat",
+    "name": "Raincoat",
+    "slot": "body",
+    "size": [
+     174,
+     200
+    ],
+    "full": [
+     549,
+     631
+    ]
+   }
+  ],
+  "dressed": {
+   "a": [
+    313,
+    300
+   ],
+   "b": [
+    354,
+    300
+   ]
+  }
+ },
+ "crow": {
+  "items": [
+   {
+    "id": "flat-cap",
+    "name": "Tweed flat cap",
+    "slot": "head",
+    "size": [
+     200,
+     132
+    ],
+    "full": [
+     527,
+     348
+    ]
+   },
+   {
+    "id": "scarecrow-hat",
+    "name": "Scarecrow hat",
+    "slot": "head",
+    "size": [
+     200,
+     123
+    ],
+    "full": [
+     612,
+     377
+    ]
+   },
+   {
+    "id": "top-hat",
+    "name": "Top hat",
+    "slot": "head",
+    "size": [
+     200,
+     174
+    ],
+    "full": [
+     482,
+     419
+    ]
+   },
+   {
+    "id": "aviator-goggles",
+    "name": "Flying goggles",
+    "slot": "eyes",
+    "size": [
+     200,
+     127
+    ],
+    "full": [
+     525,
+     333
+    ]
+   },
+   {
+    "id": "autumn-scarf",
+    "name": "Autumn scarf",
+    "slot": "neck",
+    "size": [
+     155,
+     200
+    ],
+    "full": [
+     443,
+     570
+    ]
+   },
+   {
+    "id": "pocket-watch",
+    "name": "Pocket watch",
+    "slot": "neck",
+    "size": [
+     100,
+     200
+    ],
+    "full": [
+     308,
+     615
+    ]
+   },
+   {
+    "id": "waistcoat",
+    "name": "Patchwork waistcoat",
+    "slot": "body",
+    "size": [
+     165,
+     200
+    ],
+    "full": [
+     453,
+     549
+    ]
+   },
+   {
+    "id": "post-satchel",
+    "name": "Postbag",
+    "slot": "back",
+    "size": [
+     110,
+     200
+    ],
+    "full": [
+     391,
+     709
+    ]
+   }
+  ],
+  "dressed": {
+   "a": [
+    274,
+    300
+   ],
+   "b": [
+    296,
+    300
+   ]
+  }
+ },
+ "cat": {
+  "items": [
+   {
+    "id": "garden-hat",
+    "name": "Gardening hat",
+    "slot": "head",
+    "size": [
+     200,
+     129
+    ],
+    "full": [
+     654,
+     421
+    ]
+   },
+   {
+    "id": "beret",
+    "name": "Beret",
+    "slot": "head",
+    "size": [
+     200,
+     144
+    ],
+    "full": [
+     480,
+     346
+    ]
+   },
+   {
+    "id": "rose-clip",
+    "name": "Rose clip",
+    "slot": "head",
+    "size": [
+     200,
+     150
+    ],
+    "full": [
+     409,
+     307
+    ]
+   },
+   {
+    "id": "cateye-glasses",
+    "name": "Cat-eye glasses",
+    "slot": "eyes",
+    "size": [
+     200,
+     83
+    ],
+    "full": [
+     548,
+     228
+    ]
+   },
+   {
+    "id": "lace-collar",
+    "name": "Lace collar",
+    "slot": "neck",
+    "size": [
+     200,
+     120
+    ],
+    "full": [
+     592,
+     354
+    ]
+   },
+   {
+    "id": "red-bell-collar",
+    "name": "Red bell collar",
+    "slot": "neck",
+    "size": [
+     200,
+     151
+    ],
+    "full": [
+     526,
+     398
+    ]
+   },
+   {
+    "id": "apron",
+    "name": "Gardening apron",
+    "slot": "body",
+    "size": [
+     156,
+     200
+    ],
+    "full": [
+     469,
+     600
+    ]
+   },
+   {
+    "id": "cardigan",
+    "name": "Knitted cardigan",
+    "slot": "body",
+    "size": [
+     200,
+     148
+    ],
+    "full": [
+     612,
+     453
+    ]
+   }
+  ],
+  "dressed": {
+   "a": [
+    239,
+    300
+   ],
+   "b": [
+    232,
+    300
+   ]
+  }
+ },
+ "crab": {
+  "items": [
+   {
+    "id": "sailor-cap",
+    "name": "Sailor cap",
+    "slot": "head",
+    "size": [
+     200,
+     149
+    ],
+    "full": [
+     564,
+     420
+    ]
+   },
+   {
+    "id": "bandana",
+    "name": "Pirate bandana",
+    "slot": "head",
+    "size": [
+     200,
+     153
+    ],
+    "full": [
+     637,
+     487
+    ]
+   },
+   {
+    "id": "captain-hat",
+    "name": "Captain's hat",
+    "slot": "head",
+    "size": [
+     200,
+     138
+    ],
+    "full": [
+     614,
+     423
+    ]
+   },
+   {
+    "id": "diving-mask",
+    "name": "Diving mask",
+    "slot": "eyes",
+    "size": [
+     200,
+     152
+    ],
+    "full": [
+     594,
+     450
+    ]
+   },
+   {
+    "id": "eyepatch",
+    "name": "Eyepatch",
+    "slot": "eyes",
+    "size": [
+     200,
+     126
+    ],
+    "full": [
+     516,
+     325
+    ]
+   },
+   {
+    "id": "life-ring",
+    "name": "Life ring",
+    "slot": "body",
+    "size": [
+     197,
+     200
+    ],
+    "full": [
+     582,
+     591
+    ]
+   },
+   {
+    "id": "claw-mittens",
+    "name": "Claw mittens",
+    "slot": "claws",
+    "size": [
+     200,
+     145
+    ],
+    "full": [
+     633,
+     459
+    ]
+   },
+   {
+    "id": "chest-pack",
+    "name": "Treasure backpack",
+    "slot": "back",
+    "size": [
+     184,
+     200
+    ],
+    "full": [
+     517,
+     562
+    ]
+   }
+  ],
+  "dressed": {
+   "a": [
+    360,
+    269
+   ],
+   "b": [
+    360,
+    251
+   ]
+  }
+ },
+ "grasshopper": {
+  "items": [
+   {
+    "id": "acorn-cap",
+    "name": "Acorn cap",
+    "slot": "head",
+    "size": [
+     200,
+     183
+    ],
+    "full": [
+     453,
+     414
+    ]
+   },
+   {
+    "id": "leaf-hat",
+    "name": "Leaf hat",
+    "slot": "head",
+    "size": [
+     200,
+     168
+    ],
+    "full": [
+     552,
+     464
+    ]
+   },
+   {
+    "id": "antenna-poms",
+    "name": "Antenna pom-poms",
+    "slot": "antennae",
+    "size": [
+     200,
+     156
+    ],
+    "full": [
+     524,
+     409
+    ]
+   },
+   {
+    "id": "explorer-goggles",
+    "name": "Explorer goggles",
+    "slot": "eyes",
+    "size": [
+     200,
+     119
+    ],
+    "full": [
+     613,
+     364
+    ]
+   },
+   {
+    "id": "clover-bowtie",
+    "name": "Clover bow tie",
+    "slot": "neck",
+    "size": [
+     200,
+     143
+    ],
+    "full": [
+     486,
+     347
+    ]
+   },
+   {
+    "id": "fiddle",
+    "name": "Tiny fiddle",
+    "slot": "back",
+    "size": [
+     163,
+     200
+    ],
+    "full": [
+     489,
+     599
+    ]
+   },
+   {
+    "id": "ladybird-cape",
+    "name": "Ladybird cape",
+    "slot": "back",
+    "size": [
+     200,
+     171
+    ],
+    "full": [
+     539,
+     461
+    ]
+   },
+   {
+    "id": "leaf-poncho",
+    "name": "Leaf poncho",
+    "slot": "body",
+    "size": [
+     200,
+     192
+    ],
+    "full": [
+     538,
+     516
+    ]
+   }
+  ],
+  "dressed": {
+   "a": [
+    360,
+    236
+   ],
+   "b": [
+    360,
+    236
+   ]
+  }
+ }
+}

@@ -21,39 +21,70 @@ public struct Profile: Codable, Hashable, Sendable {
   }
 
   public var childName: String
-  public var startingStoryID: String
+  public var startingFriend: Friend
   public var accent: Accent
   public var voiceID: String?
 
   public init(
     childName: String = "",
-    startingStoryID: String = StoryLibrary.all[0].id,
+    startingFriend: Friend = .bunny,
     accent: Accent = .canadian,
     voiceID: String? = nil
   ) {
     self.childName = childName
-    self.startingStoryID = startingStoryID
+    self.startingFriend = startingFriend
     self.accent = accent
     self.voiceID = voiceID
+  }
+
+  public var startingStoryID: String { startingFriend.startingStoryID }
+
+  enum CodingKeys: String, CodingKey {
+    case childName
+    case startingFriend
+    case startingStoryID
+    case accent
+    case voiceID
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    childName = try container.decode(String.self, forKey: .childName)
+    accent = try container.decode(Accent.self, forKey: .accent)
+    voiceID = try container.decodeIfPresent(String.self, forKey: .voiceID)
+    if let friend = try container.decodeIfPresent(Friend.self, forKey: .startingFriend) {
+      startingFriend = friend
+    } else {
+      let story = try container.decodeIfPresent(String.self, forKey: .startingStoryID)
+      startingFriend = story.map(Friend.init(startingStoryID:)) ?? .bunny
+    }
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(childName, forKey: .childName)
+    try container.encode(startingFriend, forKey: .startingFriend)
+    try container.encode(accent, forKey: .accent)
+    try container.encodeIfPresent(voiceID, forKey: .voiceID)
   }
 }
 
 public struct ProfileDraft: Codable, Hashable, Sendable {
   public var childName: String
-  public var startingStoryID: String?
+  public var startingFriend: Friend?
   public var accent: Profile.Accent?
   public var voiceID: String?
   public var step: Int
 
   public init(
     childName: String = "",
-    startingStoryID: String? = nil,
+    startingFriend: Friend? = nil,
     accent: Profile.Accent? = nil,
     voiceID: String? = nil,
     step: Int
   ) {
     self.childName = childName
-    self.startingStoryID = startingStoryID
+    self.startingFriend = startingFriend
     self.accent = accent
     self.voiceID = voiceID
     self.step = step

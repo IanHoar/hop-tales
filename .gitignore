@@ -36,3 +36,6 @@ wordhop-handoff.zip
 # Rebrand: raw generations and PNG masters stay local (regenerate or keep in Design backups)
 Design/collage/raw/
 Design/collage/world/*-day.png
+
+# Original generated sheets for the friends; the cut assets are committed instead.
+Design/friends/raw/

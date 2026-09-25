@@ -3,13 +3,14 @@ import Content
 import DesignSystem
 import SpeechRecognition
 import SwiftUI
+import World
 
 extension Onboarding.Step {
   var title: String {
     switch self {
     case .name: "What should we call you?"
     case .listening: "Can Hop Tales use the microphone?"
-    case .story: "What's your reader's reading level?"
+    case .friend: "Who should your reader start with?"
     case .accent: "What's your reader's accent?"
     }
   }
@@ -23,8 +24,9 @@ extension Onboarding.Step {
       "The microphone lets Hop Tales hear your child read, so the hare can hop to the next "
         + "word. Everything is heard on this device. Nothing is recorded, and nothing is sent "
         + "anywhere."
-    case .story:
-      "Hop Tales starts them on a story that fits. You can change this later."
+    case .friend:
+      "Pick the friend whose words look about right, and let your reader have a look too. "
+        + "You can change this later."
     case .accent:
       "Hop Tales listens for this accent, so it understands your child's words the way they "
         + "say them."
@@ -64,8 +66,8 @@ struct StepPage: View {
       NameField(name: store.childName) { store.send(.nameChanged($0)) }
     case .listening:
       MicrophoneNote(authorization: store.authorization)
-    case .story:
-      LevelChoices(selected: store.startingStoryID) { store.send(.storyPicked($0)) }
+    case .friend:
+      FriendChoices(selected: store.startingFriend) { store.send(.friendPicked($0)) }
     case .accent:
       AccentGrid(selected: store.accent) { store.send(.accentPicked($0)) }
     }
@@ -146,24 +148,73 @@ struct MicrophoneNote: View {
   }
 }
 
-struct LevelChoices: View {
-  let selected: String?
-  let pick: (String) -> Void
-
-  static let levels: [(name: String, detail: String)] = [
-    ("Just starting", "Short, simple words like sun, hid and ran."),
-    ("Getting going", "Longer sentences and words like robin and flowers."),
-    ("Reading well", "Longer words and ideas, like storm and drifts.")
-  ]
+struct FriendChoices: View {
+  let selected: Friend?
+  let pick: (Friend) -> Void
 
   var body: some View {
     VStack(spacing: 10) {
-      ForEach(Array(zip(StoryLibrary.all, Self.levels)), id: \.0.id) { story, level in
-        PaperChoice(title: level.name, detail: level.detail, isSelected: story.id == selected) {
-          pick(story.id)
+      ForEach(Friend.starters, id: \.self) { friend in
+        FriendChoice(friend: friend, isSelected: friend == selected) { pick(friend) }
+      }
+      LaterFriends()
+        .padding(.top, 6)
+    }
+  }
+}
+
+struct FriendChoice: View {
+  let friend: Friend
+  let isSelected: Bool
+  let action: () -> Void
+
+  var body: some View {
+    Button(action: action) {
+      HStack(spacing: 14) {
+        FriendSticker(friend, height: 58)
+          .frame(width: 58)
+        VStack(alignment: .leading, spacing: 2) {
+          HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Text(friend.name)
+              .font(Typography.display(19))
+              .foregroundStyle(Paper.ink)
+            Text(friend.stage)
+              .font(Typography.ui(14))
+              .foregroundStyle(Paper.muted)
+          }
+          Text(friend.examples.joined(separator: " · "))
+            .font(Typography.word(18))
+            .foregroundStyle(Paper.ink.opacity(0.85))
         }
       }
+      .paperChoice(isSelected: isSelected)
     }
+    .buttonStyle(.plain)
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel(
+      "\(friend.name), \(friend.stage). Words like \(friend.examples.joined(separator: ", "))."
+    )
+    .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
+  }
+}
+
+struct LaterFriends: View {
+  var body: some View {
+    VStack(spacing: 6) {
+      HStack(alignment: .bottom, spacing: 12) {
+        ForEach(Friend.allCases.filter { !Friend.starters.contains($0) }, id: \.self) { friend in
+          FriendSticker(friend, height: 34, isSilhouette: true)
+            .opacity(0.45)
+        }
+      }
+      Text("\(Friend.allCases.count - Friend.starters.count) more friends join as your reader "
+        + "gets stronger")
+        .font(Typography.ui(13, weight: .medium))
+        .foregroundStyle(Paper.muted)
+        .multilineTextAlignment(.center)
+    }
+    .frame(maxWidth: .infinity)
+    .accessibilityElement(children: .combine)
   }
 }
 
