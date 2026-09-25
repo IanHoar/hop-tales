@@ -52,6 +52,7 @@ import World
 
   public enum Action {
     case grownUpsTapped
+    case journeyTapped
     case playOnTVTapped
     case storyTapped(Story)
   }
@@ -61,7 +62,7 @@ import World
   public var body: some Feature {
     Update { _, action in
       switch action {
-      case .grownUpsTapped, .playOnTVTapped, .storyTapped:
+      case .grownUpsTapped, .journeyTapped, .playOnTVTapped, .storyTapped:
         break
       }
     }
@@ -159,6 +160,7 @@ public struct HomeScreen: View {
 
   private func sheet(bottomInset: CGFloat) -> some View {
     VStack(alignment: .leading, spacing: 12) {
+      LevelChip(journey: store.progress.journey) { store.send(.journeyTapped) }
       if let keepGoing = store.keepGoing {
         KeepGoingCard(standing: keepGoing) { store.send(.storyTapped(keepGoing.story)) }
       }
@@ -208,5 +210,51 @@ struct StarBadge: View {
 #Preview {
   NavigationStack {
     HomeScreen(store: Store(initialState: Home.State(childName: "Wren")) { Home() })
+  }
+}
+
+struct LevelChip: View {
+  let journey: Journey
+  let action: () -> Void
+
+  var body: some View {
+    Button(action: action) {
+      HStack(spacing: 12) {
+        FriendSticker(journey.activeFriend, height: 40)
+          .frame(width: 44)
+        VStack(alignment: .leading, spacing: 5) {
+          Text(title)
+            .font(Typography.display(16))
+            .foregroundStyle(Paper.ink)
+          if journey.nextFriend != nil {
+            GeometryReader { proxy in
+              ZStack(alignment: .leading) {
+                Capsule().fill(Paper.muted.opacity(0.22))
+                Capsule()
+                  .fill(Paper.wash)
+                  .frame(width: proxy.size.width * journey.fill)
+              }
+            }
+            .frame(height: 8)
+          }
+        }
+        Image(systemName: "map")
+          .font(.system(size: 17, weight: .semibold))
+          .foregroundStyle(Paper.ink)
+      }
+      .padding(.horizontal, 14)
+      .padding(.vertical, 10)
+      .paperChip(RoundedRectangle(cornerRadius: 18, style: .continuous), rim: 3)
+    }
+    .buttonStyle(.plain)
+    .accessibilityLabel(title)
+    .accessibilityHint("Opens your journey.")
+  }
+
+  private var title: String {
+    guard let next = journey.nextFriend else {
+      return "Level \(journey.level) · \(journey.activeFriend.name)"
+    }
+    return "Level \(journey.level) · \(Int(journey.steps)) of \(Int(journey.goal)) to \(next.name)"
   }
 }

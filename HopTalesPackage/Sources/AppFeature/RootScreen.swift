@@ -21,6 +21,7 @@ import SwiftUI
     public var onboarding: Onboarding.State?
     public var path: [Path.State] = []
     public var settings: Settings.State?
+    public var journeyMap: JourneyMap.State?
     public init() {}
 
     public var storyOnScreen: Story? {
@@ -35,6 +36,7 @@ import SwiftUI
     case onboarding(Onboarding.Action)
     case path(Path.State.ID, Path.Action)
     case settings(Settings.Action)
+    case journeyMap(JourneyMap.Action)
   }
 
   @Dependency(ProfileStore.self) var profileStore
@@ -55,6 +57,17 @@ import SwiftUI
           let journey = progressStore.load().journey
           let reading = Reading.State(story: story, bigWords: journey.bigWords(in: story))
           state.path.append(.reading(reading))
+        case .home(.journeyTapped):
+          state.journeyMap = JourneyMap.State()
+        case .journeyMap(.doneTapped):
+          state.journeyMap = nil
+          state.home.apply(progressStore.load())
+        case let .journeyMap(.bigStoryTapped(story)):
+          state.journeyMap = nil
+          let reading = Reading.State(story: story)
+          state.path.append(.reading(reading))
+        case .journeyMap:
+          break
         case .home(.grownUpsTapped):
           state.settings = Settings.State()
         case .settings(.doneTapped):
@@ -106,6 +119,9 @@ import SwiftUI
     }
     .ifLet(\.settings) {
       Settings()
+    }
+    .ifLet(\.journeyMap) {
+      JourneyMap()
     }
     .onMount { state in
       if let profile = profileStore.load() {
@@ -182,6 +198,10 @@ public struct RootScreen: View {
     .sheet(item: $store.scope(\.settings)) { settings in
       SettingsScreen(store: settings)
         .tint(Palette.ink)
+        .interactiveDismissDisabled()
+    }
+    .sheet(item: $store.scope(\.journeyMap)) { journeyMap in
+      JourneyMapScreen(store: journeyMap)
         .interactiveDismissDisabled()
     }
   }
