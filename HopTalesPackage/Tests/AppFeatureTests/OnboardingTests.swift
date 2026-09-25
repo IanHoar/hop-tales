@@ -10,6 +10,7 @@ import Testing
 @testable import Onboarding
 
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct OnboardingTests {
   nonisolated static let speech = SpeechClient(
     listen: { _, _ in AsyncStream { $0.finish() } },

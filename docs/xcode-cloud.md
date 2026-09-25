@@ -97,7 +97,13 @@ package resolution fail with something cryptic.
 - **Moving to a new runtime** is a deliberate change: update `snapshotRuntime` and
   `snapshotRuntimeBuild` in `SnapshotSupport.swift`, re-record every reference on the new simulator, and change the pinned
   destination here and in both workflows in the same pull request.
-- Scheme `HopTales`, which runs all four package test targets.
+- Scheme `HopTales`, Test Plan `HopTales` — the scheme's default plan, `HopTales.xctestplan`, which
+  runs all six package test targets.
+- **Leave test retries and repetitions off.** A failing snapshot fails the same way every time, so
+  "Retry on failure" or "Run until failure" in the test action only reruns it. The test plan already
+  sets repetition to none; nothing in the workflow should override it.
+- **One test destination.** Every extra device or runtime is another full simulator run, and on
+  anything but the pinned one the snapshot tests fail the runtime check anyway.
 - **Tick auto-cancel** in the start condition. Without it a second push leaves the first build
   running to completion against a commit nobody is waiting on, and the free tier is 25 hours.
 
@@ -156,6 +162,24 @@ test action took 10m24s and a warm one 4m33s, so most of the caching win is alre
 - **Drop the Build action from the pull request workflow.** The test action compiles the same
   thing, so building first is roughly two minutes of the free tier spent twice.
 - **Auto-cancel.** Covered in step 4 — a superseded build otherwise runs to completion.
+
+## Failing fast
+
+A failing test does not keep the test action going. The snapshot failure that turned `main` red
+failed in under a minute, and those runs finished no later than the passing runs beside them. A
+Test check on GitHub reads as 17 to 30 minutes because its clock starts when the action is created:
+it includes the wait for a machine while several pull requests build at once, then the build for
+testing, and only then the seconds of testing.
+
+What the test plan guards against is a test that never finishes — a `TestStore` waiting on an effect,
+a `receive` that never arrives. `HopTales.xctestplan` turns test timeouts on at 60 seconds, and
+Xcode hands that limit to Swift Testing, so a hung test fails after a minute instead of running
+until Xcode Cloud's own action timeout. The `TestStore` suites also carry `.timeLimit(.minutes(1))`,
+which holds when they run from the package's own scheme without the plan.
+
+Test settings live in `HopTales.xctestplan`, not the scheme. XcodeGen writes the scheme and drops
+anything edited into it by hand, and it cannot express test timeouts; it only points the scheme at
+the plan.
 
 ## Known limits
 

@@ -6,6 +6,7 @@ import Testing
 
 @testable import Reading
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct ReadingTests {
   @Test func readingAWordAdvancesTheBallAndAwardsAStar() async {
     let store = TestStore(initialState: Reading.State(story: StoryLibrary.all[0])) {

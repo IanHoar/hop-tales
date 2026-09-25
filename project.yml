@@ -73,10 +73,6 @@ schemes:
       config: Debug
     test:
       config: Debug
-      targets:
-        - package: HopTalesPackage/AppFeatureTests
-        - package: HopTalesPackage/ContentTests
-        - package: HopTalesPackage/ReadingTests
-        - package: HopTalesPackage/SnapshotTests
-        - package: HopTalesPackage/SpeechTests
-        - package: HopTalesPackage/WorldTests
+      testPlans:
+        - path: HopTales.xctestplan
+          defaultPlan: true
