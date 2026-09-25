@@ -62,7 +62,7 @@ public enum WardrobeLibrary {
     .frog: ["lilypad-hat", "goggles", "check-bowtie", "reed-satchel", "raincoat"],
     .crow: ["flat-cap", "top-hat", "aviator-goggles", "autumn-scarf", "post-satchel"],
     .cat: ["garden-hat", "beret", "cateye-glasses", "red-bell-collar", "cardigan"],
-    .crab: ["sailor-cap", "captain-hat", "diving-mask", "claw-mittens", "life-ring"],
+    .crab: ["sailor-cap", "captain-hat", "diving-mask", "claw-mittens", "chest-pack"],
     .grasshopper: [
       "acorn-cap", "antenna-poms", "explorer-goggles", "clover-bowtie", "ladybird-cape"
     ]

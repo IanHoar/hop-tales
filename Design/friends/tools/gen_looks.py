@@ -288,8 +288,7 @@ def build_one(friend, item, fit):
     lab, n = ndi.label(alpha > 0.5)
     if n > 1:
         sizes = ndi.sum(np.ones_like(lab), lab, range(1, n + 1))
-        keep = np.isin(lab, [i + 1 for i, v in enumerate(sizes) if v > sizes.max() * 0.02])
-        alpha = alpha * ndi.binary_dilation(keep, iterations=3)
+        alpha = alpha * ndi.binary_dilation(lab == 1 + int(np.argmax(sizes)), iterations=3)
     gen = Image.fromarray(np.dstack([rgb, alpha * 255]).clip(0, 255).astype(np.uint8), "RGBA")
     x0, y0, x1, y1 = bbox(np.asarray(gen)[..., 3] > 8)
     gen = gen.crop((x0, y0, x1, y1))
@@ -940,6 +939,9 @@ def check_anchor(friend, item, mask, W, H):
     spot = anchors(friend).get(slot)
     if spot is None or not mask.any():
         return "no anchor" if spot is None else "no item"
+    pair = anchors(friend).get(slot + "2")
+    if pair:
+        spot = {"x": (spot["x"] + pair["x"]) / 2, "y": (spot["y"] + pair["y"]) / 2}
     ax, ay = spot["x"] * W, spot["y"] * H
     ys, xs = np.nonzero(mask)
     if slot == "head":
@@ -947,7 +949,7 @@ def check_anchor(friend, item, mask, W, H):
         limit = 0.12 * W
     else:
         d = np.hypot(xs.mean() - ax, ys.mean() - ay)
-        limit = (0.24 if slot == "body" else 0.18) * W
+        limit = (0.24 if slot in ("body", "antennae") else 0.18) * W
     if d > limit:
         raise SystemExit(f"{friend}/{item['id']}: {slot} item sits {d:.0f}px from its anchor (limit {limit:.0f})")
     return round(float(d / W), 3)
@@ -987,9 +989,12 @@ def anim_build(friend, item_id):
     a0 = np.asarray(base_idle[0]).astype(np.float32)
     for i in range(idle_count):
         change = np.abs(np.asarray(base_idle[i]).astype(np.float32) - a0).max(2)[region].mean()
-        if item["slot"] == "antennae":
-            frame = on_tips(rest, base_idle[i], mask, ears[0], ears[i])
-            report[f"idle-{i}"] = "tips"
+        if item["slot"] == "antennae" and i:
+            frame = own_frame_item(friend, item, folder, i, base_idle[i])
+            report[f"idle-{i}"] = "own"
+        elif item["slot"] == "antennae":
+            frame = overlay(base_idle[0], rest, mask)
+            report["idle-0"] = "rest"
         elif item["slot"] == "claws" and i and change > 12:
             frame = own_frame_item(friend, item, folder, i, base_idle[i])
             report[f"idle-{i}"] = "own"
