@@ -10,6 +10,7 @@ import Testing
 @testable import Home
 
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct GrownUpsTests {
   nonisolated static let voices = [
     Voice(id: "com.apple.voice.enhanced.en-US.Samantha", name: "Samantha", language: "en-US")

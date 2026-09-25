@@ -1,0 +1,68 @@
+{
+  "configurations" : [
+    {
+      "id" : "5C1B9E0A-3F4D-4B8E-9A61-2D7C0E8F4A11",
+      "name" : "Default",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "defaultTestExecutionTimeAllowance" : 60,
+    "maximumTestExecutionTimeAllowance" : 60,
+    "testRepetitionMode" : "none",
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:HopTalesPackage",
+        "identifier" : "AppFeatureTests",
+        "name" : "AppFeatureTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:HopTalesPackage",
+        "identifier" : "ContentTests",
+        "name" : "ContentTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:HopTalesPackage",
+        "identifier" : "ReadingTests",
+        "name" : "ReadingTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:HopTalesPackage",
+        "identifier" : "SnapshotTests",
+        "name" : "SnapshotTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:HopTalesPackage",
+        "identifier" : "SpeechTests",
+        "name" : "SpeechTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:HopTalesPackage",
+        "identifier" : "WorldTests",
+        "name" : "WorldTests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -5,6 +5,7 @@ import Testing
 @testable import AppFeature
 @testable import Reading
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct RootTests {
   @Test func everyLaunchOpensOnTheIntro() {
     #expect(Root.State().intro != nil)
