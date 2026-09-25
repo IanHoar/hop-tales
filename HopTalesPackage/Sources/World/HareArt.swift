@@ -31,8 +31,10 @@ public struct SpriteSheet: Equatable, Sendable {
     frameCount = frames
   }
 
-  static func idle(_ asset: String, cell: CGSize, feet: CGPoint) -> SpriteSheet {
-    SpriteSheet(asset, cell: cell, feet: feet, frames: HareSheet.idle.frameCount)
+  static func idle(
+    _ asset: String, cell: CGSize, feet: CGPoint, size: CGFloat = 1
+  ) -> SpriteSheet {
+    SpriteSheet(asset, cell: cell, feet: feet, scale: size, frames: HareSheet.idle.frameCount)
   }
 
   static func still(_ friend: Friend, cell: CGSize, feetX: CGFloat) -> SpriteSheet {
@@ -45,9 +47,11 @@ public struct SpriteSheet: Equatable, Sendable {
     )
   }
 
-  static func hop(_ asset: String, cell: CGSize, feet: CGPoint, standing: CGFloat) -> SpriteSheet {
+  static func hop(
+    _ asset: String, cell: CGSize, feet: CGPoint, standing: CGFloat, size: CGFloat = 1
+  ) -> SpriteSheet {
     SpriteSheet(
-      asset, cell: cell, feet: feet, scale: HareSheet.restHeight / standing,
+      asset, cell: cell, feet: feet, scale: HareSheet.restHeight / standing * size,
       frames: HareSheet.hop.frameCount
     )
   }
@@ -70,6 +74,25 @@ public struct SpriteSheet: Equatable, Sendable {
       .hop(
         "bunny-hop", cell: CGSize(width: 370, height: 346), feet: CGPoint(x: 175, y: 335),
         standing: 323
+      )
+    ),
+    .frog: (
+      .idle(
+        "frog-idle-frames", cell: CGSize(width: 447, height: 400), feet: CGPoint(x: 222, y: 384)
+      ),
+      .hop(
+        "frog-hop", cell: CGSize(width: 396, height: 346), feet: CGPoint(x: 206, y: 335),
+        standing: 242
+      )
+    ),
+    .crab: (
+      .idle(
+        "crab-idle-frames", cell: CGSize(width: 621, height: 517), feet: CGPoint(x: 305, y: 496),
+        size: 0.75
+      ),
+      .hop(
+        "crab-hop", cell: CGSize(width: 440, height: 346), feet: CGPoint(x: 211, y: 333),
+        standing: 286, size: 0.75
       )
     ),
     .crow: (

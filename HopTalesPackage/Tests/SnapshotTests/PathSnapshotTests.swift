@@ -24,7 +24,7 @@ struct PathSnapshotTests {
     )
   }
 
-  @Test(arguments: [Friend.bunny, .crow, .cat, .grasshopper])
+  @Test(arguments: [Friend.bunny, .frog, .crow, .cat, .crab, .grasshopper])
   func eachFriendReadsInTheirOwnWorld(friend: Friend) {
     expectSnapshot(
       of: ReadingScreenPreview(moment: .midPage, friend: friend)
