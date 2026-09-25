@@ -210,12 +210,12 @@ public struct HomeScreen: View {
       } action: {
         store.send(.friendsTapped)
       }
-      StickerButton(title: "Wardrobe") {
-        if let item = store.progress.newestItem(for: store.progress.journey.activeFriend) {
+      if let item = store.progress.newestItem(for: store.progress.journey.activeFriend) {
+        StickerButton(title: "Wardrobe") {
           Sticker("wear-\(store.progress.journey.activeFriend.rawValue)-\(item.id)", height: 44)
+        } action: {
+          store.send(.wardrobeTapped)
         }
-      } action: {
-        store.send(.wardrobeTapped)
       }
       StickerButton(title: "Book") {
         Sticker("collect-basket", height: 50)
