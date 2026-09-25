@@ -20,13 +20,11 @@ public enum Levels {
   public static let sustainedStories = 8
   public static let sustainedHelpRate = 0.1
 
-  public static let trailGoal = 20
-  public static let trailPerStretchStory = 3
-
-  public static let treatEvery = 3
+  public static let trailGoal = 6
   public static let goldenTreatWorth = 3
+  public static let goldenHelpRate = 0.1
 
-  public static func treatsForBasket(_ number: Int) -> Int { 10 + 5 * number }
+  public static func treatsForBasket(_ number: Int) -> Int { 3 + number }
 
   public static var top: Int { Friend.allCases.count }
 }

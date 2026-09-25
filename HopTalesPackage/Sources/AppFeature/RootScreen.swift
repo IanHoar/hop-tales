@@ -55,7 +55,9 @@ import SwiftUI
         switch action {
         case let .home(.storyTapped(story)):
           let journey = progressStore.load().journey
-          let reading = Reading.State(story: story, bigWords: journey.bigWords(in: story))
+          let reading = Reading.State(
+            story: story, bigWords: journey.bigWords(in: story), treat: journey.treat(in: story)
+          )
           state.path.append(.reading(reading))
         case .home(.journeyTapped):
           state.journeyMap = JourneyMap.State()
@@ -97,7 +99,9 @@ import SwiftUI
         case let .path(_, .reading(.continueTapped(story))):
           state.path.removeLast()
           let journey = progressStore.load().journey
-          let reading = Reading.State(story: story, bigWords: journey.bigWords(in: story))
+          let reading = Reading.State(
+            story: story, bigWords: journey.bigWords(in: story), treat: journey.treat(in: story)
+          )
           state.path.append(.reading(reading))
           state.home.apply(progressStore.load())
         case .path(_, .reading(.backToStoriesTapped)):
