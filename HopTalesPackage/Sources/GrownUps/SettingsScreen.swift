@@ -34,6 +34,8 @@ import SwiftUI
 
   public enum Action {
     case accentPicked(Profile.Accent)
+    case debugResetJourneyTapped
+    case debugUnlockEverythingTapped
     case doneTapped
     case friendPicked(Friend)
     case hearVoiceTapped
@@ -50,6 +52,12 @@ import SwiftUI
   @Dependency(SoundPreference.self) var soundPreference
   @Dependency(SpeechClient.self) var speechClient
   @Dependency(StrictnessPreference.self) var strictnessPreference
+
+  private func saveJourney(_ journey: Journey) {
+    var progress = progressStore.load()
+    progress.journey = journey
+    progressStore.save(progress)
+  }
 
   private func save(_ state: State) {
     var saved = state.profile
@@ -69,9 +77,15 @@ import SwiftUI
 
       case let .friendPicked(friend):
         state.journey.grownUpMoves(to: friend)
-        var progress = progressStore.load()
-        progress.journey = state.journey
-        progressStore.save(progress)
+        saveJourney(state.journey)
+
+      case .debugResetJourneyTapped:
+        state.journey = Journey(starting: state.profile.startingFriend)
+        saveJourney(state.journey)
+
+      case .debugUnlockEverythingTapped:
+        state.journey = .everything
+        saveJourney(state.journey)
 
       case .resetOnboardingTapped:
         break
@@ -150,6 +164,14 @@ public struct SettingsScreen: View {
           SettingsSection("Debug") {
             Button("Reset onboarding", systemImage: "arrow.counterclockwise") {
               store.send(.resetOnboardingTapped)
+            }
+            .buttonStyle(.ink(.tertiary))
+            Button("Reset reading journey", systemImage: "arrow.uturn.backward") {
+              store.send(.debugResetJourneyTapped)
+            }
+            .buttonStyle(.ink(.tertiary))
+            Button("Unlock everything", systemImage: "lock.open") {
+              store.send(.debugUnlockEverythingTapped)
             }
             .buttonStyle(.ink(.tertiary))
           }
