@@ -39,7 +39,13 @@ LAYERS = {
                     "bluebells with ferns, a few white wood anemones and mossy stones, then the lower torn edge and "
                     "deep green moss at the bottom as before. No trees."),
 }
-SOURCES = {'far': ['far-src', 'far-src2', 'far-src3'], 'mid': ['mid-src', 'mid-src2', 'mid-src3'],
+LAYERS['far-trees'] = EDIT + (
+    "Turn the rolling hills into the distant edge of a bluebell wood seen across a valley: a continuous tree line "
+    "of soft rounded blue-green canopies, oak and beech crowns overlapping, their tops forming the ragged upper "
+    "edge of the strip, with a few taller crowns rising above the rest. Misty and pale with distance, cool "
+    "blue-green and a hint of lilac, low contrast, only faint ink linework, no individual trunks, no fields and "
+    "no field lines. Towards the lower part of the strip the trees fade into a soft haze of bluebell lilac.")
+SOURCES = {'far-trees': ['far-src', 'far-src2', 'far-src3'], 'far': ['far-src', 'far-src2', 'far-src3'], 'mid': ['mid-src', 'mid-src2', 'mid-src3'],
            'near': ['near-src', 'near-src2', 'near-src3']}
 TARGET = {'far': (5615, 826), 'mid': (4692, 834), 'near': (3555, 834)}
 
@@ -51,6 +57,8 @@ def gen(names):
     for name in names:
         for i, src in enumerate(SOURCES[name]):
             out = os.path.join(RAW, f'{name}-{i + 1}.png')
+            if name == 'far-trees':
+                out = os.path.join(RAW, f'far-{i + 6}.png')
             if os.path.exists(out):
                 continue
             ref = Image.open(os.path.join(MEADOW, f'{src}.png'))
@@ -102,7 +110,7 @@ def build(names):
             pieces.append(secs[i][:, x_in:x_out])
             xp, xq = joins[i]
             A, B = secs[i][:, xp:xp + C.O], secs[(i + 1) % n][:, xq:xq + C.O]
-            if name == 'far':
+            if name == 'far' and not os.environ.get('FAR_SEAM'):
                 w = np.linspace(0, 1, C.O)[None, :, None]
                 w = w * w * (3 - 2 * w)
                 blend = A * (1 - w) + B * w
@@ -138,7 +146,7 @@ def build(names):
         if yd + hh < H:
             canvas[yd + hh:] = canvas[yd + hh - 1]
         if name == 'far':
-            k = np.array([1.7, 1.55, 1.7])
+            k = np.array([1.7, 1.55, 1.7]) * float(os.environ.get('FAR_K', 1)) + 1 - float(os.environ.get('FAR_K', 1))
             rgb = canvas[..., :3].astype(np.float32)
             canvas[..., :3] = (255 - (255 - rgb) * k).clip(0, 255).astype(np.uint8)
         out = Image.fromarray(canvas, 'RGBA').resize((W, H), Image.LANCZOS)
