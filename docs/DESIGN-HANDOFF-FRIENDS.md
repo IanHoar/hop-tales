@@ -7,7 +7,8 @@ This is a plan, not built yet. It builds on the collage storybook (`docs/DESIGN-
 - **Friends are reading levels.** There are seven, each a friend with its own world and stories written at that level. A child starts with Bramble the rabbit at level 1, then Hare at level 2, then Puddle, Button, Marmalade, Nipper and Sprig.
 - **Steps fill the path.** Every word read is a step along the path to the next friend. **Big words** (harder words from a level or two up, marked on the path) are worth 5 steps.
 - **The big story.** When the path is full, the next friend waits at The end with a **big story** from their level. Reading it well unlocks that friend and moves the child up a level.
-- **Treats and wardrobes.** Treats picked up along the path fill that friend's basket, and each full basket unlocks the next item in that friend's own wardrobe (8 items each; Hare has 12). Treats never gate levels; reading does.
+- **Treats and wardrobes.** Treats picked up along the path fill that friend's basket, and each full basket unlocks the next item in that friend's own wardrobe (8 items each; Hare has 12).
+- **The next friend's trail.** The hardest stories at a level are also sprinkled with the *next* friend's treat: Hare's carrots for a Bramble reader, Puddle's water lilies for a Hare reader. Collect 20 and the next friend comes, a third way up alongside the big story and sustained reading (§3a).
 
 **Where things are:**
 
@@ -26,6 +27,7 @@ This is a plan, not built yet. It builds on the collage storybook (`docs/DESIGN-
 3. **Gentle push forward.** Easier stories are always there to re-read, but they earn fewer steps, and stories at the child's level carry a few big words from the level above.
 4. **Levels above 3 are earned.** Onboarding only offers the first three friends. Levels 4 to 7 are reached only by reading.
 5. **No shop and no in-app currency for sale.** Everything stays on the device in `ProgressStore`.
+6. **Only reading collects.** Treats are picked up by reading the word they sit on, so the trail treats that can unlock a friend are still earned by reading, never bought or tapped for.
 
 ## 1. The seven levels
 
@@ -106,6 +108,25 @@ This is a plan, not built yet. It builds on the collage storybook (`docs/DESIGN-
   - A gold dot shows how far along the path to the next friend the child is.
   - It opens from home and the friends screen.
 
+## 3a. The next friend's trail
+
+A third way up, made for a child who loves collecting.
+
+- **What:** the next friend's treat. For a Bramble reader it's Hare's carrots; for a Hare reader, Puddle's water lilies; and so on up to Sprig's clover for a Nipper reader. Sprig is the top, so level 7 has no trail.
+- **Where:** only on the **hardest stories of the current level**, the stories tagged `"stretch": true` in `stories.json`. Tag about the top third of each level's stories by difficulty (longer sentences and more big words), with at least two stretch stories per level.
+- **How many:** about **3 per stretch story**, placed like ordinary treats (where the friend lands, picked up on hop frame 6). They fly to the next friend's grey sticker rather than to the basket chip.
+- **The goal:** **20** of them, kept in the level table so it can be tuned. That's about seven stretch-story reads, so re-reading the hard stories counts, and re-reads keep sprinkling.
+- **When the goal is reached:** at the next The end, the next friend arrives with the same new-friend moment as passing the big story ("You found 20 carrots! Hare is your new friend"), and the level rises.
+- **Where the count shows:**
+  - The tally sheet shows it next to the path meter: "Carrots for Hare · 14 of 20", with the carrot sticker.
+  - The journey map shows it by the next friend's grey stop.
+  - Home's level chip alternates between steps and the trail count.
+- **Rules:**
+  - Trail treats never go in a basket, and never count towards the wardrobe. They're the next friend's, and are "given back" when that friend is met.
+  - Help never costs a trail treat: a word read after tapping for help still collects the treat on it.
+  - The count resets on every level up, however it happened.
+  - The three routes (big story, sustained reading and the trail) are equal. Whichever finishes first moves the child up, and the others reset.
+
 ## 4. Treats and baskets (the fun layer)
 
 - **Placement:** every friend has a treat (strawberries, carrots, water lilies, buttons, wool, shells, clover).
@@ -122,7 +143,7 @@ This is a plan, not built yet. It builds on the collage storybook (`docs/DESIGN-
 - **Baskets:**
   - Each friend has their own basket, filled by that friend's treats. Their basket n needs `10 + 5n` treats.
   - Each full basket is a present (`PhoneLevelUp`, now "A full basket!"): paper confetti, a wrapped present to tap, the item pops out, and **Try it on** puts it on the current friend.
-  - Baskets never affect reading levels.
+  - Baskets never affect reading levels. Only the next friend's trail treats do (§3a).
 
 ## 5. Wardrobes
 
@@ -253,6 +274,8 @@ struct Wardrobe: Codable {
 - **What changes in the content:**
   - `Story` gains `level: Int` and `isBigStory: Bool`.
   - `Word` gains `big: Bool`.
+  - `Story` gains `stretch: Bool`, which marks the hardest stories at a level, where the next friend's trail treats appear.
+  - `Journey` gains `trail: Int`, the next friend's treats collected since the last level up.
 - **Who does what:**
   - `Reading` emits `wordRead(big:helped:)`, `treatCollected` and `storyFinished(helpRate:)`.
   - A `Journey` feature applies steps, decides when the big story is offered and whether it was passed, and produces the moments (tally, big story, new friend, basket full) for the reading panels.
