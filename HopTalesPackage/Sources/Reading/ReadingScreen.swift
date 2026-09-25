@@ -29,7 +29,7 @@ import World
 
     public var authorization: SpeechClient.Authorization?
     public var bigWords: Set<WordRef> = []
-    public var friend: Friend
+    public var friend = Friend.hare
     public var treat: StoryTreat?
     public var completed: Completed?
     public var completionCount = 0

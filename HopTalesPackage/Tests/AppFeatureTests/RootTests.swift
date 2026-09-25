@@ -35,15 +35,18 @@ struct RootTests {
     let story = StoryLibrary.all[0]
     let big = Journey().bigWords(in: story)
     let treat = Journey().treat(in: story)
+    let friend = Journey().activeFriend
     store.send(.home(.storyTapped(story))) {
-      $0.path = [.reading(Reading.State.DebugSnapshot(bigWords: big, treat: treat, story: story))]
+      $0.path = [.reading(Reading.State.DebugSnapshot(
+        bigWords: big, friend: friend, treat: treat, story: story
+      ))]
     }
 
     await store.receive(\.path) {
       $0.path = [
         .reading(
           Reading.State.DebugSnapshot(
-            authorization: .authorized, bigWords: big, treat: treat, story: story
+            authorization: .authorized, bigWords: big, friend: friend, treat: treat, story: story
           )
         )
       ]
@@ -61,8 +64,11 @@ struct RootTests {
     let story = StoryLibrary.all[1]
     let big = Journey().bigWords(in: story)
     let treat = Journey().treat(in: story)
+    let friend = Journey().activeFriend
     store.send(.home(.storyTapped(story))) {
-      $0.path = [.reading(Reading.State.DebugSnapshot(bigWords: big, treat: treat, story: story))]
+      $0.path = [.reading(Reading.State.DebugSnapshot(
+        bigWords: big, friend: friend, treat: treat, story: story
+      ))]
     }
     #expect(store.state.storyOnScreen == story)
 
@@ -70,7 +76,7 @@ struct RootTests {
       $0.path = [
         .reading(
           Reading.State.DebugSnapshot(
-            authorization: .authorized, bigWords: big, treat: treat, story: story
+            authorization: .authorized, bigWords: big, friend: friend, treat: treat, story: story
           )
         )
       ]
