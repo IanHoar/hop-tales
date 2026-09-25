@@ -59,8 +59,12 @@ public struct IntroScreen: View {
 }
 
 struct IntroTitle: View {
-  @State private var shown = false
+  @State private var shown: Bool
   @State private var gone = false
+
+  init(shown: Bool = false) {
+    _shown = State(initialValue: shown)
+  }
 
   var body: some View {
     GeometryReader { proxy in
@@ -85,7 +89,9 @@ struct IntroTitle: View {
       .offset(y: gone ? -24 : shown ? 0 : 10)
     }
     .ignoresSafeArea()
+    .environment(\.colorScheme, .light)
     .task {
+      guard !shown else { return }
       try? await Task.sleep(for: .seconds(IntroTimeline.titleIn))
       withAnimation(.easeInOut(duration: 0.6)) { shown = true }
       try? await Task.sleep(for: .seconds(IntroTimeline.titleOut - IntroTimeline.titleIn))
