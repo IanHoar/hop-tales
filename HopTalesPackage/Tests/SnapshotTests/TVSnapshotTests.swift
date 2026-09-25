@@ -12,10 +12,10 @@ struct TVSnapshotTests {
   static let tv = CGSize(width: 1920, height: 1080)
 
   static func traits(_ scheme: ColorScheme) -> UITraitCollection {
-    UITraitCollection(traitsFrom: [
-      UITraitCollection(displayScale: 1),
-      UITraitCollection(userInterfaceStyle: scheme == .dark ? .dark : .light)
-    ])
+    UITraitCollection {
+      $0.displayScale = 1
+      $0.userInterfaceStyle = scheme == .dark ? .dark : .light
+    }
   }
 
   @Test(arguments: [ColorScheme.light, .dark])
