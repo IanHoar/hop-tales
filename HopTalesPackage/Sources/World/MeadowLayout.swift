@@ -1,3 +1,4 @@
+import Content
 import CoreGraphics
 
 public enum MeadowLayer: CaseIterable, Sendable {
@@ -11,6 +12,12 @@ public enum MeadowLayer: CaseIterable, Sendable {
     case .mid: "mid-day"
     case .near: "near-day"
     }
+  }
+
+  @MainActor
+  func asset(in world: Friend) -> String {
+    let own = "\(asset.prefix { $0 != "-" })-\(world.rawValue)"
+    return world != .hare && MeadowArt.image(own) != nil ? own : asset
   }
 
   var pixelSize: CGSize {

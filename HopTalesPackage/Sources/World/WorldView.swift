@@ -8,20 +8,25 @@ public struct WorldView: View {
   let camera: MeadowCamera?
   let framing: MeadowFraming
   let mood: Mood
+  let world: Friend
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @State private var scene = MeadowScene(size: CGSize(width: 390, height: 844))
 
-  public init(progress: Double, mood: Mood) {
+  public init(progress: Double, mood: Mood, world: Friend = .hare) {
     self.progress = progress
     self.mood = mood
+    self.world = world
     camera = nil
     framing = .wide
   }
 
-  public init(camera: MeadowCamera, mood: Mood, framing: MeadowFraming) {
+  public init(
+    camera: MeadowCamera, mood: Mood, framing: MeadowFraming, world: Friend = .hare
+  ) {
     self.camera = camera
     self.mood = mood
     self.framing = framing
+    self.world = world
     progress = Double(camera.to)
   }
 
@@ -30,6 +35,7 @@ public struct WorldView: View {
       .onAppear {
         scene.drifts = !reduceMotion
         scene.framing = framing
+        scene.world = world
         scene.setMood(mood, animated: false)
         if let camera {
           scene.setCamera(camera)
@@ -45,6 +51,7 @@ public struct WorldView: View {
         if let camera { scene.setCamera(camera) }
       }
       .onChange(of: framing) { _, framing in scene.framing = framing }
+      .onChange(of: world) { _, world in scene.world = world }
       .onChange(of: mood) { _, mood in scene.setMood(mood) }
       .accessibilityHidden(true)
   }
@@ -74,6 +81,17 @@ public struct WorldView: View {
     }
 }
 
+#Preview("Worlds") {
+  VStack(spacing: 0) {
+    ForEach([Friend.hare, .bunny], id: \.self) { world in
+      MeadowBackdrop(
+        camera: MeadowCamera(at: 900), mood: Mood(),
+        framing: .path(scale: 0.74, centre: 420), world: world
+      )
+    }
+  }
+}
+
 #Preview("Postcards") {
   let moods = [
     Mood(sky: .day), Mood(sky: .golden, weather: .clouds), Mood(sky: .day, weather: .rain),
@@ -97,26 +115,33 @@ public struct MeadowBackdrop: View {
   let camera: MeadowCamera?
   let framing: MeadowFraming
   let mood: Mood
+  let world: Friend
   @Environment(\.freezesMotion) private var freezesMotion
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-  public init(progress: Double, mood: Mood) {
+  public init(progress: Double, mood: Mood, world: Friend = .hare) {
     self.progress = progress
     self.mood = mood
+    self.world = world
     camera = nil
     framing = .wide
   }
 
-  public init(camera: MeadowCamera, mood: Mood, framing: MeadowFraming) {
+  public init(
+    camera: MeadowCamera, mood: Mood, framing: MeadowFraming, world: Friend = .hare
+  ) {
     self.camera = camera
     self.mood = mood
     self.framing = framing
+    self.world = world
     progress = Double(camera.to)
   }
 
   private func postcard(_ size: CGSize) -> some View {
     Image(
-      uiImage: MeadowPostcard.image(mood: mood, size: size, progress: progress, framing: framing)
+      uiImage: MeadowPostcard.image(
+        mood: mood, size: size, progress: progress, framing: framing, world: world
+      )
     )
     .resizable()
   }
@@ -133,9 +158,9 @@ public struct MeadowBackdrop: View {
         }
         .animation(Self.stillCrossfade, value: progress)
       } else if let camera {
-        WorldView(camera: camera, mood: mood, framing: framing)
+        WorldView(camera: camera, mood: mood, framing: framing, world: world)
       } else {
-        WorldView(progress: progress, mood: mood)
+        WorldView(progress: progress, mood: mood, world: world)
       }
     }
     .ignoresSafeArea()
