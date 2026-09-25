@@ -17,4 +17,16 @@ public enum StoryLibrary {
   public static subscript(id: Story.ID) -> Story? {
     all.first { $0.id == id }
   }
+
+  public static func stories(at level: Int) -> [Story] {
+    all.filter { $0.level == level && !$0.isBigStory }
+  }
+
+  public static func bigStory(at level: Int) -> Story? {
+    all.first { $0.level == level && $0.isBigStory }
+  }
+
+  public static func shelf(upTo level: Int) -> [Story] {
+    all.filter { $0.level <= level && !$0.isBigStory }
+  }
 }

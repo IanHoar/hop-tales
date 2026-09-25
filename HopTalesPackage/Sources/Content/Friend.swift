@@ -46,10 +46,12 @@ public enum Friend: String, Codable, CaseIterable, Hashable, Sendable {
     }
   }
 
+  public static func at(level: Int) -> Friend {
+    allCases[min(max(level, 1), allCases.count) - 1]
+  }
+
   public var startingStoryID: String {
-    let stories = StoryLibrary.all
-    let index = Self.starters.firstIndex(of: self) ?? stories.count - 1
-    return stories[min(index, stories.count - 1)].id
+    StoryLibrary.stories(at: level).first?.id ?? StoryLibrary.all[0].id
   }
 
   public init(startingStoryID: String) {

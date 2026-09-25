@@ -12,7 +12,7 @@ import World
     public var childName: String?
     public var startingStoryID = StoryLibrary.all[0].id
     var progress = Content.Progress()
-    var stories = StoryLibrary.all
+    var stories = StoryLibrary.shelf(upTo: Friend.starters.count)
     var hour: Int?
 
     public init(childName: String? = nil) {
