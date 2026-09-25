@@ -1,5 +1,6 @@
 import Dependencies
 import Foundation
+import Synchronization
 
 public struct ProgressStore: Sendable {
   public var load: @Sendable () -> Progress
@@ -17,22 +18,37 @@ public struct ProgressStore: Sendable {
 extension ProgressStore: DependencyKey {
   public static let fileName = "progress.json"
 
+  static let writes = DispatchQueue(label: "com.hoptales.progress-writes", qos: .utility)
+
   public static func file(in directory: URL) -> ProgressStore {
     let url = directory.appending(path: fileName)
+    let cached = Mutex<Progress?>(nil)
     return ProgressStore(
       load: {
-        guard let data = try? Data(contentsOf: url) else { return Progress() }
-        return (try? JSONDecoder().decode(Progress.self, from: data)) ?? Progress()
+        cached.withLock { cached in
+          if let cached { return cached }
+          let progress = (try? Data(contentsOf: url))
+            .flatMap { try? JSONDecoder().decode(Progress.self, from: $0) } ?? Progress()
+          cached = progress
+          return progress
+        }
       },
       save: { progress in
-        guard let data = try? JSONEncoder().encode(progress) else { return }
-        try? FileManager.default.createDirectory(
-          at: directory,
-          withIntermediateDirectories: true
-        )
-        try? data.write(to: url, options: .atomic)
+        cached.withLock { $0 = progress }
+        writes.async {
+          guard let data = try? JSONEncoder().encode(progress) else { return }
+          try? FileManager.default.createDirectory(
+            at: directory,
+            withIntermediateDirectories: true
+          )
+          try? data.write(to: url, options: .atomic)
+        }
       }
     )
+  }
+
+  static func finishWriting() {
+    writes.sync {}
   }
 
   public static let liveValue = file(in: applicationSupport)

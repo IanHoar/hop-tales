@@ -20,6 +20,13 @@ struct ProgressStoreTests {
     #expect(loaded.completedSentences["castle-road"] == 3)
   }
 
+  @Test func whatIsSavedSurvivesARelaunch() {
+    let folder = directory()
+    ProgressStore.file(in: folder).save(Content.Progress(stars: 12))
+    ProgressStore.finishWriting()
+    #expect(ProgressStore.file(in: folder).load().stars == 12)
+  }
+
   @Test func rubbishOnDiskReadsAsFreshProgressRatherThanCrashing() throws {
     let folder = directory()
     try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)

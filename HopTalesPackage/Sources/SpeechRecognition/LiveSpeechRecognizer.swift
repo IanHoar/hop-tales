@@ -18,6 +18,9 @@ actor LiveSpeechRecognizer {
   private let engine = AVAudioEngine()
   private var request: SFSpeechAudioBufferRecognitionRequest?
   private var task: SFSpeechRecognitionTask?
+  private var release: Task<Void, Never>?
+
+  static let releaseSessionAfter = Duration.seconds(3)
 
   static func authorization(for locale: Locale) async -> SpeechClient.Authorization {
     guard let recognizer = SFSpeechRecognizer(locale: locale),
@@ -45,7 +48,9 @@ actor LiveSpeechRecognizer {
     }
     guard recognizer.isAvailable else { throw Failure.notAuthorized }
 
-    try configureSession()
+    release?.cancel()
+    release = nil
+    try ReadingAudio.activate()
 
     let request = SFSpeechAudioBufferRecognitionRequest()
     request.requiresOnDeviceRecognition = true
@@ -183,19 +188,16 @@ actor LiveSpeechRecognizer {
     }
     request?.endAudio()
     request = nil
-    try? AVAudioSession.sharedInstance().setActive(
-      false,
-      options: .notifyOthersOnDeactivation
-    )
+    release?.cancel()
+    release = Task { [weak self] in
+      try? await Task.sleep(for: Self.releaseSessionAfter)
+      guard !Task.isCancelled else { return }
+      await self?.releaseSession()
+    }
   }
 
-  private func configureSession() throws {
-    let session = AVAudioSession.sharedInstance()
-    try session.setCategory(
-      .record,
-      mode: .measurement,
-      options: [.duckOthers, .allowBluetoothHFP]
-    )
-    try session.setActive(true, options: .notifyOthersOnDeactivation)
+  private func releaseSession() {
+    guard request == nil else { return }
+    ReadingAudio.deactivate()
   }
 }

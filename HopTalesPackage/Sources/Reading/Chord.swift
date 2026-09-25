@@ -1,5 +1,6 @@
 import AVFoundation
 import Dependencies
+import SpeechRecognition
 
 public struct SoundClient: Sendable {
   public var sentenceCompleted: @Sendable () async -> Void
@@ -102,6 +103,7 @@ final class ChordPlayer {
 
   @concurrent
   nonisolated private static func activateSession() async throws -> Bool {
+    if ReadingAudio.isReading { return true }
     let session = AVAudioSession.sharedInstance()
     if session.category != .ambient {
       try session.setCategory(.ambient)
