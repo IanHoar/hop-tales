@@ -16,8 +16,8 @@ public struct WorldStyle: Equatable, Sendable {
     case .frog: return WorldStyle(ground: 0xB6AE66)
     case .crab: return WorldStyle(ground: 0xD4AF6F)
     case .grasshopper: return WorldStyle(ground: 0xC0B66D)
-    case .crow: return WorldStyle(feetAbovePath: 70, chalk: true)
-    case .cat: return WorldStyle(feetAbovePath: 70)
+    case .crow: return WorldStyle(feetAbovePath: 170, chalk: true, ground: 0xB1934A)
+    case .cat: return WorldStyle(feetAbovePath: 170, ground: 0xBFB46A)
     case .hare: return .meadow
     }
   }
