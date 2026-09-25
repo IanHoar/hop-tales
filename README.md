@@ -17,7 +17,8 @@ makes no network calls.
 
 ## Getting started
 
-Requires Xcode 27 (iOS 27 SDK) and access to the private `pointfreeco/TCA26` package.
+Requires Xcode 27 (iOS 27 SDK) and access to the private `pointfreeco/TCA26` package. The app runs on
+iOS 26 and later.
 
 ```sh
 open HopTales.xcworkspace          # not the .xcodeproj — the local package is in the workspace

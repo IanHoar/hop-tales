@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
   name: "HopTalesPackage",
   platforms: [
-    .iOS(.v27)
+    .iOS(.v26)
   ],
   products: [
     .library(name: "AppFeature", targets: ["AppFeature"])

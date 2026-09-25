@@ -69,10 +69,18 @@ final class ChordPlayer {
       guard try await Self.activateSession() else { return }
       if player.engine == nil {
         engine.attach(player)
-        try engine.connectNode(player, to: engine.mainMixerNode, format: chord.format)
+        if #available(iOS 27, *) {
+          try engine.connectNode(player, to: engine.mainMixerNode, format: chord.format)
+        } else {
+          engine.connect(player, to: engine.mainMixerNode, format: chord.format)
+        }
       }
       try engine.start()
-      try player.playAudio()
+      if #available(iOS 27, *) {
+        try player.playAudio()
+      } else {
+        player.play()
+      }
     } catch {
       return
     }
@@ -97,6 +105,10 @@ final class ChordPlayer {
     let session = AVAudioSession.sharedInstance()
     if session.category != .ambient {
       try session.setCategory(.ambient)
+    }
+    guard #available(iOS 27, *) else {
+      try session.setActive(true)
+      return true
     }
     return try await session.activate(options: [])
   }

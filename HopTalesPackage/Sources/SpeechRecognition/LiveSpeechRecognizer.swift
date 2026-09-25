@@ -91,8 +91,11 @@ actor LiveSpeechRecognizer {
     guard format.sampleRate > 0, format.channelCount > 0 else {
       throw Failure.audioSessionUnavailable
     }
-    try input.__installTap(onBus: 0, bufferSize: 1024, format: format, error: ()) { buffer, _ in
-      request.append(buffer)
+    let feed: AVAudioNodeTapBlock = { buffer, _ in request.append(buffer) }
+    if #available(iOS 27, *) {
+      try input.__installTap(onBus: 0, bufferSize: 1024, format: format, error: (), block: feed)
+    } else {
+      input.installTap(onBus: 0, bufferSize: 1024, format: format, block: feed)
     }
     engine.prepare()
     try engine.start()
