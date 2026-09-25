@@ -15,6 +15,9 @@ import SwiftUI
     public var journey = Journey()
     public var profile = Profile()
     public var soundOn = true
+    public var speechLogOn = false
+    public var speechLogLines = 0
+    public var speechLogFile: URL?
     public var strictness: WordMatcher.Strictness = .gentle
     public var voices: [Voice] = []
 
@@ -43,6 +46,8 @@ import SwiftUI
     case nameSubmitted
     case resetOnboardingTapped
     case soundToggled(Bool)
+    case speechLogCleared
+    case speechLogToggled(Bool)
     case strictnessPicked(WordMatcher.Strictness)
     case voicePicked(String?)
   }
@@ -51,12 +56,26 @@ import SwiftUI
   @Dependency(ProgressStore.self) var progressStore
   @Dependency(SoundPreference.self) var soundPreference
   @Dependency(SpeechClient.self) var speechClient
+  @Dependency(SpeechLog.self) var speechLog
   @Dependency(StrictnessPreference.self) var strictnessPreference
 
   private func saveJourney(_ journey: Journey) {
     var progress = progressStore.load()
     progress.journey = journey
     progressStore.save(progress)
+  }
+
+  private func refreshSpeechLog(_ state: inout State) {
+    let entries = speechLog.entries()
+    state.speechLogOn = speechLog.isEnabled()
+    state.speechLogLines = entries.count
+    guard !entries.isEmpty else {
+      state.speechLogFile = nil
+      return
+    }
+    let url = URL.temporaryDirectory.appending(path: "hop-tales-speech-log.csv")
+    try? SpeechLog.csv(entries).write(to: url, atomically: true, encoding: .utf8)
+    state.speechLogFile = url
   }
 
   private func save(_ state: State) {
@@ -110,6 +129,14 @@ import SwiftUI
         state.soundOn = isOn
         soundPreference.save(isOn)
 
+      case .speechLogCleared:
+        speechLog.clear()
+        refreshSpeechLog(&state)
+
+      case let .speechLogToggled(isOn):
+        speechLog.setEnabled(isOn)
+        refreshSpeechLog(&state)
+
       case let .strictnessPicked(strictness):
         state.strictness = strictness
         strictnessPreference.save(strictness)
@@ -127,6 +154,7 @@ import SwiftUI
       state.soundOn = soundPreference.load()
       state.strictness = strictnessPreference.load()
       state.voices = speechClient.voices()
+      refreshSpeechLog(&state)
     }
   }
 }
@@ -169,6 +197,7 @@ public struct SettingsScreen: View {
         SettingsSection("Listening") { StrictnessChoices(store: store) }
         SettingsSection("Help voice") { VoiceRow(store: store) }
         SettingsSection("Sounds") { SoundRow(store: store) }
+        SettingsSection("Speech log") { SpeechLogRow(store: store) }
         #if DEBUG
           SettingsSection("Debug") {
             Button("Reset onboarding", systemImage: "arrow.counterclockwise") {
@@ -351,28 +380,5 @@ struct VoiceRow: View {
       .buttonStyle(.ink(.secondary))
       .accessibilityLabel("Hear the help voice")
     }
-  }
-}
-
-struct SoundRow: View {
-  let store: StoreOf<Settings>
-
-  var body: some View {
-    Toggle(
-      isOn: Binding(get: { store.soundOn }, set: { store.send(.soundToggled($0)) })
-    ) {
-      VStack(alignment: .leading, spacing: 4) {
-        Text("Sound effects")
-          .font(Typography.display(20))
-          .foregroundStyle(Palette.ink)
-        Text("The chime when a sentence is finished.")
-          .font(Typography.ui(15))
-          .foregroundStyle(Palette.muted)
-      }
-    }
-    .tint(Palette.teal)
-    .padding(.horizontal, 20)
-    .padding(.vertical, 16)
-    .settingsField()
   }
 }
