@@ -74,7 +74,7 @@ struct StepPage: View {
 
 struct NameField: View {
   let name: String
-  let change: (String) -> Void
+  let change: @MainActor (String) -> Void
   @FocusState private var focused: Bool
 
   var body: some View {
