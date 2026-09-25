@@ -5,6 +5,10 @@ options:
   deploymentTarget:
     iOS: "27.0"
   groupSortPosition: top
+  fileTypes:
+    icon:
+      file: true
+      buildPhase: resources
   minimumXcodeGenVersion: "2.44.0"
 
 settings:
@@ -12,11 +16,13 @@ settings:
     ENABLE_USER_SCRIPT_SANDBOXING: NO
     SWIFT_VERSION: "6.0"
     SWIFT_STRICT_CONCURRENCY: complete
+    DEVELOPMENT_TEAM: 8J5E74LNJY
+    VERSIONING_SYSTEM: apple-generic
   configs:
     Debug:
       OTHER_SWIFT_FLAGS: "$(inherited) -enable-actor-data-race-checks"
-    DEVELOPMENT_TEAM: 8J5E74LNJY
-    VERSIONING_SYSTEM: apple-generic
+    Release:
+      OTHER_SWIFT_FLAGS: "$(inherited) -enable-actor-data-race-checks"
 
 packages:
   HopTalesPackage:
