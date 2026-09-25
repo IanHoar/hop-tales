@@ -8,7 +8,7 @@ This is a plan, not built yet. It builds on the collage storybook (`docs/DESIGN-
 - **Steps fill the path.** Every word read is a step along the path to the next friend. **Big words** (harder words from a level or two up, marked on the path) are worth 5 steps.
 - **The big story.** When the path is full, the next friend waits at The end with a **big story** from their level. Reading it well unlocks that friend and moves the child up a level.
 - **Treats and wardrobes.** Treats picked up along the path fill that friend's basket, and each full basket unlocks the next item in that friend's own wardrobe (8 items each; Hare has 12).
-- **The next friend's trail.** The hardest stories at a level are also sprinkled with the *next* friend's treat: Hare's carrots for a Bramble reader, Puddle's water lilies for a Hare reader. Collect 20 and the next friend comes, a third way up alongside the big story and sustained reading (§3a).
+- **The next friend's trail.** The hardest stories at a level are also sprinkled with the *next* friend's treat: Hare's carrots for a Bramble reader, Puddle's water lilies for a Hare reader. Collect 6 and the next friend comes, a third way up alongside the big story and sustained reading (§3a).
 
 **Where things are:**
 
@@ -114,11 +114,11 @@ A third way up, made for a child who loves collecting.
 
 - **What:** the next friend's treat. For a Bramble reader it's Hare's carrots; for a Hare reader, Puddle's water lilies; and so on up to Sprig's clover for a Nipper reader. Sprig is the top, so level 7 has no trail.
 - **Where:** only on the **hardest stories of the current level**, the stories tagged `"stretch": true` in `stories.json`. Tag about the top third of each level's stories by difficulty (longer sentences and more big words), with at least two stretch stories per level.
-- **How many:** about **3 per stretch story**, placed like ordinary treats (where the friend lands, picked up on hop frame 6). They fly to the next friend's grey sticker rather than to the basket chip.
-- **The goal:** **20** of them, kept in the level table so it can be tuned. That's about seven stretch-story reads, so re-reading the hard stories counts, and re-reads keep sprinkling.
-- **When the goal is reached:** at the next The end, the next friend arrives with the same new-friend moment as passing the big story ("You found 20 carrots! Hare is your new friend"), and the level rises.
+- **How many:** a stretch story's one treat (§4) is the next friend's treat instead of the current friend's. It flies to the next friend's grey sticker rather than to the basket chip.
+- **The goal:** **6** of them (decided; it was 20 before treats became one per story), kept in the level table so it can be tuned. That's six stretch-story reads, and re-reading a hard story counts.
+- **When the goal is reached:** at the next The end, the next friend arrives with the same new-friend moment as passing the big story ("You found all the carrots! Hare is your new friend"), and the level rises.
 - **Where the count shows:**
-  - The tally sheet shows it next to the path meter: "Carrots for Hare · 14 of 20", with the carrot sticker.
+  - The tally sheet shows it next to the path meter: "Carrots for Hare · 4 of 6", with the carrot sticker.
   - The journey map shows it by the next friend's grey stop.
   - Home's level chip alternates between steps and the trail count.
 - **Rules:**
@@ -129,19 +129,14 @@ A third way up, made for a child who loves collecting.
 
 ## 4. Treats and baskets (the fun layer)
 
-- **Placement:** every friend has a treat (strawberries, carrots, water lilies, buttons, wool, shells, clover).
-  - About one every three words, placed where the friend will land: ground x = next word x − 128 pt on the #121 layout.
-  - Rotated −24°, 44 pt tall.
-- **Pickup** on frame 6 of the hop:
-  - The treat springs up and flies to the **basket chip** top-right (x 270, y 56 on the 390 reference).
-  - The chip counts up and fades out after 1.2 s.
-  - It's the only reading UI this adds (`PhonePickup`, `PhonePickupAfter`).
-- **Golden treat:**
-  - A sentence finished without help ends with a golden treat that counts as 3.
-  - It has its own slots in the collection book.
-  - Only the golden carrot is painted so far.
+Decided: treats are sparse, **one per story, near the end**, to keep children reading to the last sentence.
+
+- **Placement:** each story has one treat, on the middle word of its last sentence, placed where the friend will land (ground x = next word x − 128 pt on the #121 layout). It's 44 pt tall, rotated −24°, on the ground just in front of the words. Big stories have none.
+- **Whose treat:** the story's friend's treat (strawberries, carrots, water lilies, buttons, wool, shells, clover). On a stretch story at the child's level it's the next friend's treat instead (§3a).
+- **Pickup** on frame 6 of the hop: the treat springs up and flies to the **basket chip** top-right, which shows +1 and fades after 1.2 s. It's the only reading UI this adds (`PhonePickup`, `PhonePickupAfter`).
+- **Golden treat:** the story's treat counts as golden (worth 3) when the story is read with help on no more than 1 word in 10. Only the golden carrot is painted; other friends' treats get a gold wash until theirs are.
 - **Baskets:**
-  - Each friend has their own basket, filled by that friend's treats. Their basket n needs `10 + 5n` treats.
+  - Each friend has their own basket, filled by that friend's treats. Basket n needs **3 + n** treats (4, 5, 6 …), about one wardrobe item every four or five stories.
   - Each full basket is a present (`PhoneLevelUp`, now "A full basket!"): paper confetti, a wrapped present to tap, the item pops out, and **Try it on** puts it on the current friend.
   - Baskets never affect reading levels. Only the next friend's trail treats do (§3a).
 

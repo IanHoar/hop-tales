@@ -29,6 +29,7 @@ import World
 
     public var authorization: SpeechClient.Authorization?
     public var bigWords: Set<WordRef> = []
+    public var treat: StoryTreat?
     public var completed: Completed?
     public var completionCount = 0
     public var isActive = true
@@ -44,9 +45,10 @@ import World
     public var usedHelp = false
     public var wordIndex = 0
 
-    public init(story: Story, bigWords: Set<WordRef> = []) {
+    public init(story: Story, bigWords: Set<WordRef> = [], treat: StoryTreat? = nil) {
       self.story = story
       self.bigWords = bigWords
+      self.treat = treat
     }
 
     public var currentWord: Word? {
@@ -67,14 +69,6 @@ import World
 
     public var mood: Mood {
       story.mood(atSentence: min(sentenceIndex, story.sentences.count - 1))
-    }
-
-    public var tally: JourneyMoment? {
-      journeyMoments.first { !$0.isCallout }
-    }
-
-    public var callout: JourneyMoment? {
-      journeyMoments.first(where: \.isCallout)
     }
 
     public var wordsCompleted: Int {
@@ -123,18 +117,6 @@ import World
     )
     progressStore.save(progress)
     savedStars = state.stars
-  }
-
-  private func finish(_ state: inout State) {
-    var progress = progressStore.load()
-    let result = StoryResult(
-      storyID: state.story.id,
-      wordsRead: wordsRead.count,
-      bigWordsRead: wordsRead.intersection(state.bigWords).count,
-      helpedWords: wordsHelped.intersection(wordsRead).count
-    )
-    state.journeyMoments = progress.journey.record(result)
-    progressStore.save(progress)
   }
 
   public var body: some Feature {
@@ -282,6 +264,34 @@ import World
       }
     }
   }
+}
+
+extension Reading {
+  func finish(_ state: inout State) {
+    var progress = progressStore.load()
+    let helped = wordsHelped.intersection(wordsRead).count
+    let helpRate = wordsRead.isEmpty ? 0 : Double(helped) / Double(wordsRead.count)
+    let collected = state.treat.flatMap { treat in
+      wordsRead.contains(treat.word)
+        ? CollectedTreat(
+          friend: treat.friend,
+          isTrail: treat.isTrail,
+          isGolden: !treat.isTrail && helpRate <= Levels.goldenHelpRate
+        )
+        : nil
+    }
+    let result = StoryResult(
+      storyID: state.story.id,
+      wordsRead: wordsRead.count,
+      bigWordsRead: wordsRead.intersection(state.bigWords).count,
+      helpedWords: helped,
+      treat: collected
+    )
+    state.journeyMoments = progress.journey.record(result)
+    if let collected { state.journeyMoments += progress.collect(collected) }
+    progressStore.save(progress)
+  }
+
 }
 
 public struct ReadingScreen: View {

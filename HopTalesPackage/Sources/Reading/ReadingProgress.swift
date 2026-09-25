@@ -1,6 +1,24 @@
 import Content
 
 extension Reading.State {
+  public var tally: JourneyMoment? {
+    journeyMoments.first {
+      if case .tally = $0 { return true }
+      return false
+    }
+  }
+
+  public var collectedTreat: (treat: CollectedTreat, trail: Int)? {
+    for moment in journeyMoments {
+      if case let .treat(treat, trail) = moment { return (treat, trail) }
+    }
+    return nil
+  }
+
+  public var callout: JourneyMoment? {
+    journeyMoments.first(where: \.isCallout)
+  }
+
   mutating func advance(by count: Int) {
     guard let sentence else { return }
     let read = min(count, sentence.words.count - wordIndex)

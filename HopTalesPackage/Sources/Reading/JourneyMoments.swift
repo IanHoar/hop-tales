@@ -7,7 +7,7 @@ extension JourneyMoment {
   var waitingFriend: Friend? {
     switch self {
     case let .bigStoryReady(friend), let .notYet(friend): friend
-    case .tally, .newFriend: nil
+    case .tally, .newFriend, .treat, .basketFull: nil
     }
   }
 }
@@ -18,10 +18,20 @@ struct TallyCard: View {
   let goal: Double
   let bigWords: Int
   let next: Friend
+  var treat: CollectedTreat?
+  var trail = 0
   let geometry: ReadingGeometry
 
   var body: some View {
     VStack(spacing: geometry.path(10)) {
+      if let treat {
+        HStack(spacing: geometry.path(6)) {
+          TreatSticker(friend: treat.friend, isGolden: treat.isGolden, height: geometry.path(26))
+          Text(treatLine(treat))
+            .font(Typography.display(geometry.path(17)))
+            .foregroundStyle(Paper.ink)
+        }
+      }
       if bigWords > 0 {
         HStack(spacing: geometry.path(6)) {
           Sticker("collect-star", height: geometry.path(22))
@@ -57,6 +67,35 @@ struct TallyCard: View {
     .accessibilityLabel(
       "\(Int(steps.rounded())) steps. \(Int(total)) of \(Int(goal)) on the path to \(next.name)."
     )
+  }
+}
+
+extension TallyCard {
+  func treatLine(_ treat: CollectedTreat) -> String {
+    if treat.isTrail {
+      let treats = treat.friend.treat.many.capitalized
+      return "\(treats) for \(treat.friend.name) · \(trail) of \(Levels.trailGoal)"
+    }
+    return treat.isGolden
+      ? "A golden \(treat.friend.treat.one)! That counts \(treat.worth)."
+      : "You found a \(treat.friend.treat.one)!"
+  }
+}
+
+struct TreatSticker: View {
+  static let gold = Color(hex: 0xF3C64A)
+
+  let friend: Friend
+  var isGolden = false
+  let height: CGFloat
+
+  var body: some View {
+    if isGolden, friend == .hare {
+      Sticker("collect-carrot-gold", height: height)
+    } else {
+      Sticker("collect-\(friend.treat.art)", height: height)
+        .colorMultiply(isGolden ? Self.gold : .white)
+    }
   }
 }
 
@@ -146,7 +185,13 @@ struct CalloutCard: View {
         }
         FriendSticker(friend, height: geometry.path(78))
       }
-    case .tally:
+    case let .basketFull(friend, _):
+      HStack(alignment: .bottom, spacing: geometry.path(8)) {
+        FriendSticker(friend, height: geometry.path(70))
+        Sticker("collect-basket", height: geometry.path(72))
+        Sticker("collect-\(friend.treat.art)", height: geometry.path(34))
+      }
+    case .tally, .treat:
       EmptyView()
     }
   }
@@ -156,7 +201,8 @@ struct CalloutCard: View {
     case let .bigStoryReady(friend): "\(friend.name) has a bigger story!"
     case let .notYet(friend): "\(friend.name) will wait for you at \(friend.place)."
     case let .newFriend(friend, _): "Reading level \(friend.level)!"
-    case .tally: ""
+    case .basketFull: "A full basket!"
+    case .tally, .treat: ""
     }
   }
 
@@ -169,7 +215,10 @@ struct CalloutCard: View {
     case let .newFriend(friend, via):
       "\(friend.name) is your new friend. \(friend.name) gave you \(friend.gift)."
         + (via == .trail ? " You found all the \(friend.treat.many)!" : "")
-    case .tally:
+    case let .basketFull(friend, number):
+      "You filled \(friend.name)'s basket of \(friend.treat.many). "
+        + (number == 1 ? "That's the first one!" : "That's basket number \(number)!")
+    case .tally, .treat:
       ""
     }
   }
@@ -179,7 +228,8 @@ struct CalloutCard: View {
     case .bigStoryReady: "Try the big story"
     case .notYet: "OK"
     case let .newFriend(friend, _): "Go to \(friend.place)"
-    case .tally: ""
+    case .basketFull: "Lovely!"
+    case .tally, .treat: ""
     }
   }
 
@@ -187,7 +237,7 @@ struct CalloutCard: View {
     switch moment {
     case .bigStoryReady: "Not yet"
     case .newFriend: "Later"
-    case .notYet, .tally: nil
+    case .notYet, .tally, .treat, .basketFull: nil
     }
   }
 }

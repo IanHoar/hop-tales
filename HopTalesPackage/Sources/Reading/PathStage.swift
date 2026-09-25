@@ -12,6 +12,9 @@ struct PathStage: View {
   @State private var camera: MeadowCamera?
   @State private var motion = HareMotion()
   @State private var bigHop = false
+  @State private var pickup: StoryTreat?
+  @State private var pickupLanded = false
+  @State private var showsBasket = false
 
   private var position: HopTarget {
     HopTarget(sentence: store.sentenceIndex, word: store.wordIndex)
@@ -45,6 +48,7 @@ struct PathStage: View {
           )
         }
       }
+      pickupLayer
       if case let .story(stars) = store.completed {
         StoryFinished(title: store.story.title, stars: stars, geometry: geometry) {
           store.send(.readAgainTapped)
@@ -58,6 +62,62 @@ struct PathStage: View {
     .animation(Motion.recognised, value: store.completed)
     .onChange(of: position) { old, new in advance(from: old, to: new, on: path) }
     .onChange(of: geometry) { self.camera = nil }
+  }
+
+  private func pickUp(_ treat: StoryTreat) {
+    pickup = treat
+    pickupLanded = false
+    Task { @MainActor in
+      try? await Task.sleep(for: .seconds(WordPath.pickupDelay))
+      withAnimation(.spring(duration: 0.6, bounce: 0.25)) { pickupLanded = true }
+      withAnimation(.easeOut(duration: 0.2).delay(0.5)) { showsBasket = true }
+      try? await Task.sleep(for: .seconds(0.6 + WordPath.basketHold))
+      withAnimation(.easeIn(duration: 0.4)) {
+        showsBasket = false
+        pickup = nil
+      }
+    }
+  }
+
+  @ViewBuilder
+  private var pickupLayer: some View {
+    let chip = CGPoint(x: geometry.size.width - geometry.path(92), y: geometry.y(96))
+    ZStack {
+      if let pickup, !isStill {
+        let start = CGPoint(
+          x: geometry.path(WordPath.hareX + 12),
+          y: geometry.pathCentre + geometry.path(WordPath.hareFeetBelowPath + 4)
+        )
+        TreatSticker(friend: pickup.friend, height: geometry.path(44))
+          .rotationEffect(.degrees(pickupLanded ? 0 : -24))
+          .scaleEffect(pickupLanded ? 0.6 : 1)
+          .opacity(pickupLanded ? 0 : 1)
+          .position(pickupLanded ? chip : start)
+      }
+      if showsBasket, let treat = store.treat {
+        HStack(spacing: geometry.path(6)) {
+          if treat.isTrail {
+            FriendSticker(treat.friend, height: geometry.path(28), isSilhouette: true)
+              .opacity(0.6)
+          } else {
+            Sticker("collect-basket", height: geometry.path(28))
+          }
+          TreatSticker(friend: treat.friend, height: geometry.path(22))
+          Text("+1")
+            .font(Typography.display(geometry.path(16)))
+            .foregroundStyle(Paper.ink)
+        }
+        .padding(.horizontal, geometry.path(12))
+        .frame(height: geometry.path(42))
+        .paperChip(Capsule(), rim: geometry.path(3))
+        .position(chip)
+        .transition(.scale(scale: 0.8).combined(with: .opacity))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("You found a \(treat.friend.treat.one).")
+      }
+    }
+    .frame(width: geometry.size.width, height: geometry.size.height)
+    .allowsHitTesting(false)
   }
 
   @ViewBuilder
@@ -74,6 +134,7 @@ struct PathStage: View {
       } else if case let .tally(steps, total, goal, bigWords, next) = store.tally {
         TallyCard(
           steps: steps, total: total, goal: goal, bigWords: bigWords, next: next,
+          treat: store.collectedTreat?.treat, trail: store.collectedTreat?.trail ?? 0,
           geometry: geometry
         )
         .transition(.opacity)
@@ -116,6 +177,7 @@ struct PathStage: View {
       lift: lift,
       title: store.story.title,
       bigWords: store.bigWords,
+      treat: store.treat,
       waiting: store.callout?.waitingFriend,
       tint: Color(uiColor: store.mood.landTint),
       isSpeaking: store.isSpeaking,
@@ -134,6 +196,9 @@ struct PathStage: View {
     }
     let now = MeadowCamera.now
     bigHop = store.bigWords.contains(WordRef(sentence: old.sentence, word: old.word))
+    if let treat = store.treat, treat.word == WordRef(sentence: old.sentence, word: old.word) {
+      pickUp(treat)
+    }
     motion.jump(at: now, distance: 0, carried: new.sentence != old.sentence)
     let rate = motion.hop?.rate ?? 1
     let current = camera ?? MeadowCamera(at: path.camera(at: old))
@@ -149,6 +214,7 @@ struct PathScene: View {
   let lift: CGFloat
   let title: String
   let bigWords: Set<WordRef>
+  let treat: StoryTreat?
   let waiting: Friend?
   let tint: Color
   let isSpeaking: Bool
@@ -176,6 +242,7 @@ struct PathScene: View {
         )
         .position(x: stop.centre - cameraX, y: path.wordY)
       }
+      treatOnPath
       if let waiting {
         FriendSticker(waiting, height: path.hareHeight(hopping: false) * 0.78)
           .position(
@@ -189,6 +256,27 @@ struct PathScene: View {
       currentWordTarget
     }
     .frame(width: geometry.size.width, height: geometry.size.height)
+  }
+
+  @ViewBuilder
+  private var treatOnPath: some View {
+    if let treat, let next = treatStop(treat) {
+      TreatSticker(friend: treat.friend, height: geometry.path(44))
+        .rotationEffect(.degrees(-24))
+        .position(
+          x: next.centre - cameraX - geometry.path(WordPath.treatBeforeWord),
+          y: path.hareFeetY + geometry.path(4)
+        )
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+  }
+
+  private func treatStop(_ treat: StoryTreat) -> WordPath.Stop? {
+    guard (position.sentence, position.word) <= (treat.word.sentence, treat.word.word) else {
+      return nil
+    }
+    return path.stop(at: HopTarget(sentence: treat.word.sentence, word: treat.word.word + 1))
   }
 
   private var visibleStops: [WordPath.Stop] {
@@ -262,115 +350,5 @@ struct PathScene: View {
         .accessibilityAddTraits(.startsMediaSession)
         .accessibilityAction { tap() }
     }
-  }
-}
-
-struct PathWord: View {
-  @Environment(\.freezesMotion) private var freezesMotion
-  @Environment(\.accessibilityReduceMotion) private var reduceMotion
-  @State private var popped = false
-  @State private var floated = false
-  let text: String
-  let state: PathWordState
-  let size: CGFloat
-  let overhang: CGFloat
-  var isBig = false
-  var isPulsing = false
-
-  var body: some View {
-    Text(text)
-      .font(Typography.word(size))
-      .foregroundStyle(state.ink)
-      .lineLimit(1)
-      .fixedSize()
-      .background {
-        PathWash()
-          .padding(.horizontal, -overhang)
-          .opacity(state == .read ? 1 : 0)
-          .animation(.easeOut(duration: 0.35).delay(0.25), value: state == .read)
-      }
-      .overlay(alignment: .bottom) {
-        if isBig { underline }
-      }
-      .overlay(alignment: .top) {
-        if isBig { star }
-      }
-      .scaleEffect(scale)
-      .animation(.easeInOut(duration: 0.3), value: state)
-      .animation(.easeInOut(duration: 0.28).repeatCount(3, autoreverses: true), value: isPulsing)
-      .rotation3DEffect(
-        .degrees(freezesMotion ? 0 : 24),
-        axis: (x: 1, y: 0, z: 0),
-        anchor: UnitPoint(x: 0.5, y: 0.6),
-        perspective: 0.5
-      )
-      .blendMode(.multiply)
-      .allowsHitTesting(false)
-      .accessibilityHidden(true)
-      .onChange(of: state) { _, state in
-        guard isBig, state == .read, !reduceMotion else { return }
-        withAnimation(.easeOut(duration: 0.3)) { popped = true }
-        withAnimation(.easeOut(duration: 0.9).delay(0.1)) { floated = true }
-      }
-  }
-
-  private var underline: some View {
-    let solid = state == .read && reduceMotion
-    return Capsule()
-      .stroke(
-        PathWash.gold,
-        style: StrokeStyle(
-          lineWidth: size * 0.07, lineCap: .round, dash: solid ? [] : [1, size * 0.16]
-        )
-      )
-      .frame(height: size * 0.07)
-      .padding(.horizontal, size * 0.05)
-      .offset(y: -size * 0.12)
-  }
-
-  @ViewBuilder
-  private var star: some View {
-    let read = state == .read
-    ZStack {
-      if !read || popped {
-        Sticker("collect-star", height: size * 0.42)
-          .scaleEffect(popped ? 0 : read ? 1.4 : 1)
-          .opacity(popped ? 0 : 1)
-      }
-      if popped {
-        Text("+5")
-          .font(Typography.display(size * 0.4))
-          .foregroundStyle(Paper.ink)
-          .offset(y: floated ? -size * 0.9 : -size * 0.2)
-          .opacity(floated ? 0 : 1)
-      }
-    }
-    .offset(y: -size * 0.5)
-  }
-
-  private var scale: CGFloat {
-    let big = isBig ? WordPath.bigWordScale : 1
-    guard state == .current else { return WordPath.sideScale * big }
-    return (isPulsing ? 1.08 : 1) * big
-  }
-}
-
-struct PathWash: View {
-  static let gold = Color(hex: 0xF7D774)
-
-  var body: some View {
-    Rectangle()
-      .fill(
-        EllipticalGradient(
-          stops: [
-            .init(color: Self.gold.opacity(0.95), location: 0),
-            .init(color: Self.gold.opacity(0.7), location: 0.52),
-            .init(color: Self.gold.opacity(0), location: 0.72)
-          ],
-          center: .center,
-          startRadiusFraction: 0,
-          endRadiusFraction: 0.5 * 2.squareRoot()
-        )
-      )
   }
 }

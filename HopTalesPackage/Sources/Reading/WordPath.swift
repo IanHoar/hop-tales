@@ -23,6 +23,9 @@ struct WordPath: Equatable {
   static let pan: TimeInterval = 0.62
   static let bigWordLift: CGFloat = 1.4
   static let bigWordScale: CGFloat = 1.08
+  static let treatBeforeWord: CGFloat = 128
+  static let pickupDelay: TimeInterval = 6 / HareMotion.fps
+  static let basketHold: TimeInterval = 1.2
 
   struct Stop: Equatable {
     var target: HopTarget
