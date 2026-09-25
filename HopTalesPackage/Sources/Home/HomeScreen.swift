@@ -212,7 +212,10 @@ public struct HomeScreen: View {
       }
       if let item = store.progress.newestItem(for: store.progress.journey.activeFriend) {
         StickerButton(title: "Wardrobe") {
-          Sticker("wear-\(store.progress.journey.activeFriend.rawValue)-\(item.id)", height: 44)
+          Sticker(
+            "wear-\(store.progress.journey.activeFriend.rawValue)-\(item.id)",
+            fitting: CGSize(width: 52, height: 44)
+          )
         } action: {
           store.send(.wardrobeTapped)
         }

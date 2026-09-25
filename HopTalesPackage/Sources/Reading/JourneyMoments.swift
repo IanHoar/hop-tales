@@ -273,7 +273,10 @@ struct PresentReveal: View {
           Sticker("collect-present-open", height: geometry.path(96))
             .offset(x: -geometry.path(40))
           if let item {
-            Sticker("wear-\(friend.rawValue)-\(item.id)", height: geometry.path(78))
+            Sticker(
+              "wear-\(friend.rawValue)-\(item.id)",
+              fitting: CGSize(width: geometry.path(96), height: geometry.path(78))
+            )
               .offset(x: geometry.path(56), y: -geometry.path(24))
               .transition(.scale(scale: 0.2, anchor: .bottomLeading).combined(with: .opacity))
           }
