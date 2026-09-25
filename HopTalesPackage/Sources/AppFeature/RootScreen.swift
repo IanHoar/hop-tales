@@ -38,18 +38,29 @@ import SwiftUI
   }
 
   @Dependency(ProfileStore.self) var profileStore
+  @Dependency(ProgressStore.self) var progressStore
+
+  private func startJourney(with friend: Friend) {
+    var progress = progressStore.load()
+    guard progress.journey.level < friend.level else { return }
+    progress.journey = Journey(starting: friend)
+    progressStore.save(progress)
+  }
 
   public var body: some Feature {
     Features {
       Update { state, action in
         switch action {
         case let .home(.storyTapped(story)):
-          state.path.append(.reading(Reading.State(story: story)))
+          let journey = progressStore.load().journey
+          let reading = Reading.State(story: story, bigWords: journey.bigWords(in: story))
+          state.path.append(.reading(reading))
         case .home(.grownUpsTapped):
           state.settings = Settings.State()
         case .settings(.doneTapped):
           state.settings = nil
           if let profile = profileStore.load() { state.home.apply(profile) }
+          state.home.apply(progressStore.load())
         case .home(.playOnTVTapped):
           break
         case .intro(.finished):
@@ -58,6 +69,8 @@ import SwiftUI
           break
         case let .onboarding(.finished(profile)):
           profileStore.save(profile)
+          startJourney(with: profile.startingFriend)
+          state.home.apply(progressStore.load())
           state.home.apply(profile)
           state.onboarding = nil
         case .onboarding:
@@ -70,6 +83,7 @@ import SwiftUI
           state.onboarding = Onboarding.State()
         case .path(_, .reading(.backToStoriesTapped)):
           state.path.removeLast()
+          state.home.apply(progressStore.load())
         case .path, .settings:
           break
         }
@@ -89,7 +103,9 @@ import SwiftUI
     }
     .onMount { state in
       if let profile = profileStore.load() {
+        startJourney(with: profile.startingFriend)
         state.home.apply(profile)
+        state.home.apply(progressStore.load())
         return
       }
       let resumed = profileStore.loadDraft().map(Onboarding.State.init(resuming:))
@@ -98,7 +114,9 @@ import SwiftUI
         return
       }
       profileStore.save(resumed.profile)
+      startJourney(with: resumed.profile.startingFriend)
       state.home.apply(resumed.profile)
+      state.home.apply(progressStore.load())
     }
     .forEach(\.path, dismissStyle: .stack) {
       Path.body

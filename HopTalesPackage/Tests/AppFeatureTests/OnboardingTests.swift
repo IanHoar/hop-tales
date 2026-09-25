@@ -33,7 +33,6 @@ struct OnboardingTests {
       Root().dependency(ProfileStore(load: { profile }, save: { _ in }))
     } changes: {
       $0.home.childName = "Maya"
-      $0.home.startingStoryID = StoryLibrary.all[1].id
     }
     #expect(store.state.onboarding == nil)
   }
@@ -99,14 +98,13 @@ struct OnboardingTests {
     store.send(.onboarding(.finished(profile))) {
       $0.onboarding = nil
       $0.home.childName = "Maya"
-      $0.home.startingStoryID = StoryLibrary.all[1].id
     }
     #expect(saved.value == profile)
   }
 
   @Test func theStartingStoryIsOfferedFirstUntilOneIsUnderway() {
     var home = Home.State()
-    home.startingStoryID = StoryLibrary.all[1].id
+    home.apply(Content.Progress(journey: Journey(starting: .hare)))
     #expect(home.keepGoing?.story.id == StoryLibrary.all[1].id)
   }
 
@@ -170,7 +168,6 @@ struct OnboardingTests {
       )
     } changes: {
       $0.home.childName = "Maya"
-      $0.home.startingStoryID = StoryLibrary.all[1].id
     }
     #expect(store.state.onboarding == nil)
     #expect(saved.value?.accent == .american)

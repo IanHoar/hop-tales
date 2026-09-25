@@ -10,13 +10,17 @@ import World
 
   public struct State {
     public var childName: String?
-    public var startingStoryID = StoryLibrary.all[0].id
     var progress = Content.Progress()
-    var stories = StoryLibrary.shelf(upTo: Friend.starters.count)
     var hour: Int?
 
     public init(childName: String? = nil) {
       self.childName = childName
+    }
+
+    var stories: [Story] {
+      let level = progress.journey.activeFriend.level
+      return StoryLibrary.stories(at: level)
+        + (1..<level).reversed().flatMap(StoryLibrary.stories(at:))
     }
 
     var standings: [StoryStanding] {
@@ -25,11 +29,14 @@ import World
 
     public mutating func apply(_ profile: Profile) {
       childName = profile.childName.isEmpty ? nil : profile.childName
-      startingStoryID = profile.startingStoryID
+    }
+
+    public mutating func apply(_ progress: Content.Progress) {
+      self.progress = progress
     }
 
     var keepGoing: StoryStanding? {
-      standings.keepGoing(startingAt: startingStoryID)
+      standings.keepGoing(startingAt: progress.journey.activeFriend.startingStoryID)
     }
 
     var greeting: String {
