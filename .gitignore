@@ -40,3 +40,5 @@ Design/collage/world/*-day.png
 # Original generated sheets for the friends; the cut assets are committed instead.
 Design/friends/raw/
 Design/friends/tools/nb/
+
+__pycache__/
