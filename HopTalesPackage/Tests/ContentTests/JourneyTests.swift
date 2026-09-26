@@ -49,16 +49,16 @@ struct JourneyTests {
     let moments = journey.record(StoryResult(storyID: "bob-bug", wordsRead: 10, helpedWords: 5))
     #expect(journey.isPathFull)
     #expect(moments.last == .bigStoryReady(.hare))
-    #expect(journey.bigStory?.id == "dash-big-story")
+    #expect(journey.bigStory?.id == "skip-big-story")
     #expect(journey.steps == journey.goal)
   }
 
   @Test func readingTheBigStoryWellMeetsTheNextFriend() {
     var journey = Journey(starting: .bunny)
     journey.steps = journey.goal
-    let words = Self.words("dash-big-story")
+    let words = Self.words("skip-big-story")
     let moments = journey.record(
-      StoryResult(storyID: "dash-big-story", wordsRead: words, helpedWords: 2)
+      StoryResult(storyID: "skip-big-story", wordsRead: words, helpedWords: 2)
     )
     #expect(moments == [.newFriend(.hare, via: .bigStory)])
     #expect(journey.level == 2)
@@ -70,9 +70,9 @@ struct JourneyTests {
   @Test func aBigStoryWithTooMuchHelpIsNotYetAndNothingIsLost() {
     var journey = Journey(starting: .bunny)
     journey.steps = journey.goal
-    let words = Self.words("dash-big-story")
+    let words = Self.words("skip-big-story")
     let moments = journey.record(
-      StoryResult(storyID: "dash-big-story", wordsRead: words, helpedWords: words / 2)
+      StoryResult(storyID: "skip-big-story", wordsRead: words, helpedWords: words / 2)
     )
     #expect(moments == [.notYet(.hare)])
     #expect(journey.level == 1)

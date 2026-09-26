@@ -16,8 +16,8 @@ struct ReadingTests {
     await store.receive(\.authorizationResolved) {
       $0.authorization = .authorized
     }
-    await store.send(.speechResult(tokens: ["dash"], isFinal: false))
-    await store.send(.speechResult(tokens: ["dash"], isFinal: false)) {
+    await store.send(.speechResult(tokens: ["bob"], isFinal: false))
+    await store.send(.speechResult(tokens: ["bob"], isFinal: false)) {
       $0.recognised = Reading.State.Recognised(
         count: 1,
         sentenceIndex: 0,
@@ -75,8 +75,8 @@ struct ReadingTests {
       $0.isSpeaking = true
       $0.usedHelp = true
     }
-    await store.send(.speechResult(tokens: ["dash"], isFinal: true))
-    await store.send(.speechResult(tokens: ["dash"], isFinal: true))
+    await store.send(.speechResult(tokens: ["bob"], isFinal: true))
+    await store.send(.speechResult(tokens: ["bob"], isFinal: true))
     store.send(.speechFinished) {
       $0.isSpeaking = false
     }
@@ -147,7 +147,7 @@ struct ReadingTests {
       }
       return AsyncStream { continuation in
         switch session {
-        case 1: continuation.yield(.final(["dash"]))
+        case 1: continuation.yield(.final(["bob"]))
         case 2: continuation.yield(.final(["sat"]))
         default: break
         }

@@ -14,7 +14,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Dash",
+            "text": "Bob",
             "homophones": [],
             "big": false
           },
@@ -156,7 +156,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Dash",
+            "text": "Bob",
             "homophones": [],
             "big": false
           },
@@ -189,7 +189,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Dash",
+            "text": "Bob",
             "homophones": [],
             "big": false
           },
@@ -279,7 +279,7 @@
         "newWord": "pond",
         "words": [
           {
-            "text": "Dash",
+            "text": "Skip",
             "homophones": [],
             "big": false
           },
@@ -446,7 +446,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Dash",
+            "text": "Skip",
             "homophones": [],
             "big": false
           },
@@ -615,7 +615,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Dash",
+            "text": "Oggy",
             "homophones": [],
             "big": false
           },
@@ -740,7 +740,7 @@
             "big": false
           },
           {
-            "text": "Dash",
+            "text": "Oggy",
             "homophones": [],
             "big": false
           },
@@ -814,7 +814,7 @@
         "newWord": "lane",
         "words": [
           {
-            "text": "Dash",
+            "text": "Oggy",
             "homophones": [],
             "big": false
           },
@@ -1001,7 +1001,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Dash",
+            "text": "Oggy",
             "homophones": [],
             "big": false
           },
@@ -1688,8 +1688,8 @@
     ]
   },
   {
-    "id": "dash-and-frog",
-    "title": "Dash and the Frog",
+    "id": "skip-and-frog",
+    "title": "Skip and the Frog",
     "level": 2,
     "stretch": false,
     "isBigStory": false,
@@ -1702,7 +1702,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Dash",
+            "text": "Skip",
             "homophones": [],
             "big": false
           },
@@ -1918,7 +1918,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Dash",
+            "text": "Skip",
             "homophones": [],
             "big": false
           },
@@ -1967,7 +1967,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Dash",
+            "text": "Skip",
             "homophones": [],
             "big": false
           },
@@ -2185,7 +2185,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Dash",
+            "text": "Skip",
             "homophones": [],
             "big": false
           },
@@ -2235,7 +2235,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Dash",
+            "text": "Skip",
             "homophones": [],
             "big": false
           },
@@ -2353,7 +2353,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Dash",
+            "text": "Skip",
             "homophones": [],
             "big": false
           },
@@ -2485,8 +2485,8 @@
     ]
   },
   {
-    "id": "dash-big-story",
-    "title": "Dash and the Log",
+    "id": "skip-big-story",
+    "title": "Skip and the Log",
     "level": 2,
     "stretch": false,
     "isBigStory": true,
@@ -2499,7 +2499,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Dash",
+            "text": "Skip",
             "homophones": [],
             "big": false
           },
@@ -2623,7 +2623,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Dash",
+            "text": "Skip",
             "homophones": [],
             "big": false
           },
@@ -2705,7 +2705,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Dash",
+            "text": "Skip",
             "homophones": [],
             "big": false
           },
@@ -11005,7 +11005,7 @@
             "big": false
           },
           {
-            "text": "Dash",
+            "text": "Skip",
             "homophones": [],
             "big": false
           },

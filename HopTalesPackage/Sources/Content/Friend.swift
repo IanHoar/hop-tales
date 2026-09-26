@@ -14,7 +14,7 @@ public enum Friend: String, Codable, CaseIterable, Hashable, Sendable {
   public var name: String {
     switch self {
     case .bunny: "Bob"
-    case .hare: "Dash"
+    case .hare: "Skip"
     case .frog: "Oggy"
     case .crow: "Button"
     case .cat: "Marmalade"

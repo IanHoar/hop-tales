@@ -73,6 +73,15 @@ struct LevelContentTests {
     #expect(shelf.allSatisfy { $0.level <= 3 && !$0.isBigStory })
   }
 
+  @Test func aStoryOnlyNamesItsOwnLevelsFriend() {
+    let names = Set(Friend.allCases.map(\.name))
+    for story in StoryLibrary.all where !(story.isBigStory && story.level == Levels.top) {
+      for word in story.sentences.flatMap(\.words) where names.contains(word.text) {
+        #expect(word.text == story.friend.name, "\(story.id) names \(word.text)")
+      }
+    }
+  }
+
   @Test func eachStoryBelongsToItsLevelsFriend() {
     #expect(StoryLibrary["oggy-kite"]?.friend == .frog)
     #expect(StoryLibrary["bartholomew-big-story"]?.friend == .grasshopper)

@@ -35,7 +35,7 @@ struct RootTests {
     let story = StoryLibrary.all[0]
     let big = Journey().bigWords(in: story)
     let treat = Journey().treat(in: story)
-    let friend = Journey().activeFriend
+    let friend = story.friend
     store.send(.home(.storyTapped(story))) {
       $0.path = [.reading(Reading.State.DebugSnapshot(
         bigWords: big, friend: friend, treat: treat, story: story
@@ -64,7 +64,7 @@ struct RootTests {
     let story = StoryLibrary.all[1]
     let big = Journey().bigWords(in: story)
     let treat = Journey().treat(in: story)
-    let friend = Journey().activeFriend
+    let friend = story.friend
     store.send(.home(.storyTapped(story))) {
       $0.path = [.reading(Reading.State.DebugSnapshot(
         bigWords: big, friend: friend, treat: treat, story: story

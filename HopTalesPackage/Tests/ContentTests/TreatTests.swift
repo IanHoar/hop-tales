@@ -21,7 +21,7 @@ struct TreatTests {
   }
 
   @Test func bigStoriesHaveNoTreat() {
-    #expect(Journey(starting: .bunny).treat(in: StoryLibrary["dash-big-story"]!) == nil)
+    #expect(Journey(starting: .bunny).treat(in: StoryLibrary["skip-big-story"]!) == nil)
   }
 
   @Test func basketsNeedThreePlusTheirNumber() {
