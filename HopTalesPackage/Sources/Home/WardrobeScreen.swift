@@ -163,7 +163,10 @@ public struct WardrobeScreen: View {
           store.send(.itemTapped(item))
         } label: {
           ZStack {
-            Sticker("wear-\(store.friend.rawValue)-\(item.id)", height: Self.tile * 0.62)
+            Sticker(
+              "wear-\(store.friend.rawValue)-\(item.id)",
+              fitting: CGSize(width: Self.tile * 0.78, height: Self.tile * 0.62)
+            )
               .saturation(unlocked ? 1 : 0)
               .opacity(unlocked ? 1 : 0.35)
             if !unlocked {
@@ -206,6 +209,7 @@ public struct WardrobeScreen: View {
 #if DEBUG
 struct WardrobePreview: View {
   var friend = Friend.bunny
+  var slot: Slot?
 
   var body: some View {
     WardrobeScreen(store: store)
@@ -224,7 +228,9 @@ struct WardrobePreview: View {
     return withDependencies {
       $0[ProgressStore.self] = ProgressStore(load: { saved }, save: { _ in })
     } operation: {
-      Store(initialState: Wardrobe.State(friend: friend)) { Wardrobe() }
+      var state = Wardrobe.State(friend: friend)
+      if let slot { state.slot = slot }
+      return Store(initialState: state) { Wardrobe() }
     }
   }
 }

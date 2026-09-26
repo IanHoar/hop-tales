@@ -243,11 +243,16 @@ public struct FriendSticker: View {
 
 public struct Sticker: View {
   let name: String
-  let height: CGFloat
+  let box: CGSize
 
   public init(_ name: String, height: CGFloat) {
     self.name = name
-    self.height = height
+    box = CGSize(width: .infinity, height: height)
+  }
+
+  public init(_ name: String, fitting box: CGSize) {
+    self.name = name
+    self.box = box
   }
 
   public static func postcard(_ friend: Friend) -> String {
@@ -256,9 +261,12 @@ public struct Sticker: View {
 
   public var body: some View {
     if let image = MeadowArt.image(name) {
+      let scale = min(
+        box.width / max(image.size.width, 1), box.height / max(image.size.height, 1)
+      )
       Image(uiImage: image)
         .resizable()
-        .frame(width: height * image.size.width / max(image.size.height, 1), height: height)
+        .frame(width: image.size.width * scale, height: image.size.height * scale)
         .accessibilityHidden(true)
     }
   }
