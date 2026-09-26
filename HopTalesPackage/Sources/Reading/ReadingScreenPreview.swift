@@ -4,7 +4,8 @@ import SwiftUI
 
 #if DEBUG
 struct ReadingScreenPreview: View {
-  enum Moment {
+  enum Moment: Equatable {
+    case at(sentence: Int, word: Int)
     case start
     case midPage
     case nearTheEnd
@@ -28,6 +29,9 @@ struct ReadingScreenPreview: View {
   private var state: Reading.State {
     var state = Reading.State(story: story, friend: friend)
     switch moment {
+    case let .at(sentence, word):
+      state.sentenceIndex = sentence
+      state.wordIndex = word
     case .start:
       break
     case .midPage:

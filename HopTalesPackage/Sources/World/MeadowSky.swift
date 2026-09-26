@@ -12,6 +12,7 @@ final class MeadowSky: SKNode {
   private let overlay = SKSpriteNode(color: UIColor(rgb: 0x4E5A6E), size: .zero)
   private let flash = SKSpriteNode(color: .white, size: .zero)
   private let rain = RainNode()
+  private let snow = SnowNode()
   private var layout = MeadowLayout(size: .zero)
   private var mood = Mood()
   private var untilFlash: TimeInterval = 6
@@ -36,7 +37,7 @@ final class MeadowSky: SKNode {
     fatalError("init(coder:) is not supported")
   }
 
-  var weatherNodes: [SKNode] { [overlay, rain, flash] }
+  var weatherNodes: [SKNode] { [overlay, rain, snow, flash] }
 
   var starAlpha: CGFloat { stars.alpha }
   var rainIsFalling: Bool { rain.isFalling }
@@ -78,6 +79,7 @@ final class MeadowSky: SKNode {
     }
     back.texture = gradient(mood.sky)
     rain.layout(size)
+    snow.layout(size)
     let sunSize = sun.texture?.size() ?? .zero
     sun.size = CGSize(
       width: layout.sunWidth,
@@ -143,6 +145,7 @@ final class MeadowSky: SKNode {
     fade(stormClouds, to: weather.stormClouds * sky.clouds, duration)
     fade(overlay, to: weather.overlay, duration)
     rain.isFalling = weather.rain
+    snow.isFalling = weather.snow
   }
 
   private func fade(_ node: SKNode, to alpha: CGFloat, _ duration: TimeInterval) {
@@ -213,6 +216,53 @@ final class RainNode: SKNode {
     for emitter in emitters {
       emitter.position = CGPoint(x: size.width * 0.6, y: size.height + 20)
       emitter.particlePositionRange = CGVector(dx: size.width * 1.6, dy: 0)
+    }
+  }
+}
+
+final class SnowNode: SKNode {
+  private let emitters = [SKEmitterNode(), SKEmitterNode()]
+
+  var isFalling = false {
+    didSet {
+      for (index, emitter) in emitters.enumerated() {
+        emitter.particleBirthRate = isFalling ? (index == 0 ? 14 : 22) : 0
+      }
+    }
+  }
+
+  override init() {
+    super.init()
+    let renderer = UIGraphicsImageRenderer(size: CGSize(width: 10, height: 10))
+    let flake = SKTexture(image: renderer.image { context in
+      UIColor(white: 1, alpha: 0.9).setFill()
+      context.cgContext.fillEllipse(in: CGRect(x: 1, y: 1, width: 8, height: 8))
+    })
+    for (index, emitter) in emitters.enumerated() {
+      emitter.particleTexture = flake
+      emitter.particleBirthRate = 0
+      emitter.particleLifetime = 9
+      emitter.particleSpeed = index == 0 ? 70 : 45
+      emitter.particleSpeedRange = 20
+      emitter.particleAlpha = index == 0 ? 0.9 : 0.6
+      emitter.particleScale = index == 0 ? 0.9 : 0.5
+      emitter.particleScaleRange = 0.3
+      emitter.emissionAngle = -.pi / 2
+      emitter.emissionAngleRange = 0.5
+      emitter.xAcceleration = -6
+      addChild(emitter)
+    }
+  }
+
+  @available(*, unavailable)
+  required init?(coder aDecoder: NSCoder) {
+    fatalError("init(coder:) is not supported")
+  }
+
+  func layout(_ size: CGSize) {
+    for emitter in emitters {
+      emitter.position = CGPoint(x: size.width * 0.5, y: size.height + 12)
+      emitter.particlePositionRange = CGVector(dx: size.width * 1.4, dy: 0)
     }
   }
 }

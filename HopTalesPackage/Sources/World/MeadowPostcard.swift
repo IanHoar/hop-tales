@@ -47,6 +47,7 @@ public enum MeadowPostcard {
         context.fill(CGRect(origin: .zero, size: size), blendMode: .normal)
       }
       if weather.rain { drawRain(size) }
+      if weather.snow { drawSnow(size) }
     }
     cache[key] = image
     return image
@@ -153,5 +154,16 @@ public enum MeadowPostcard {
       path.addLine(to: CGPoint(x: x + 6, y: y + 22))
     }
     path.stroke()
+  }
+
+  private static func drawSnow(_ size: CGSize) {
+    var random = SeededRandom(seed: 11)
+    UIColor(white: 1, alpha: 0.8).setFill()
+    for _ in 0..<Int(size.width * size.height / 5200) {
+      let x = CGFloat.random(in: 0...size.width, using: &random)
+      let y = CGFloat.random(in: 0...size.height, using: &random)
+      let radius = CGFloat.random(in: 1.5...4, using: &random)
+      UIBezierPath(ovalIn: CGRect(x: x, y: y, width: radius * 2, height: radius * 2)).fill()
+    }
   }
 }

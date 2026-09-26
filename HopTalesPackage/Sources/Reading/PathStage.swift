@@ -17,6 +17,7 @@ struct PathStage: View {
   @State private var showsBasket = false
   @State private var clock = HopClock()
   @State private var paths = PathCache()
+  @State private var cues: [PropKey: PropCue] = [:]
 
   private var position: HopTarget {
     HopTarget(sentence: store.sentenceIndex, word: store.wordIndex)
@@ -30,23 +31,24 @@ struct PathStage: View {
     ZStack {
       backdrop(camera)
       if freezesMotion {
-        scene(path, cameraX: camera.to, pose: .resting, lift: 0)
+        scene(path, cameraX: camera.to, pose: .resting, lift: 0, now: nil)
       } else if reduceMotion {
         ZStack {
-          scene(path, cameraX: camera.to, pose: .resting, lift: 0)
+          scene(path, cameraX: camera.to, pose: .resting, lift: 0, now: nil)
             .id(position)
             .transition(.opacity)
         }
         .animation(MeadowBackdrop.stillCrossfade, value: position)
       } else {
-        TimelineView(.animation) { _ in
+        TimelineView(.animation) { context in
           let now = clock.time(at: MeadowCamera.now)
           scene(
             path,
             cameraX: camera.x(at: now),
             pose: motion.pose(at: now, reduceMotion: false),
             lift: motion.arc(at: now) * path.apex(carried: motion.hop?.carried ?? false)
-              * (bigHop ? WordPath.bigWordLift : 1)
+              * (bigHop ? WordPath.bigWordLift : 1),
+            now: context.date
           )
         }
       }
@@ -62,7 +64,11 @@ struct PathStage: View {
     }
     .frame(width: geometry.size.width, height: geometry.size.height)
     .animation(Motion.recognised, value: store.completed)
-    .onChange(of: position) { old, new in advance(from: old, to: new, on: path) }
+    .onChange(of: position) { old, new in
+      advance(from: old, to: new, on: path)
+      cue(from: old, to: new)
+    }
+    .onAppear { cue(from: position, to: position) }
     .onChange(of: geometry) { self.camera = nil }
   }
 
@@ -171,7 +177,8 @@ struct PathStage: View {
     _ path: WordPath,
     cameraX: CGFloat,
     pose: HareMotion.Pose,
-    lift: CGFloat
+    lift: CGFloat,
+    now: Date?
   ) -> some View {
     PathScene(
       path: path,
@@ -186,11 +193,19 @@ struct PathStage: View {
       treat: store.treat,
       waiting: store.callout?.waitingFriend,
       tint: Color(uiColor: store.mood.landTint),
+      sentences: store.story.sentences,
+      cues: cues,
+      now: now,
       isSpeaking: store.isSpeaking,
       label: store.wordCardLabel
     ) {
       store.send(.currentWordTapped)
     }
+  }
+
+  private func cue(from old: HopTarget, to new: HopTarget) {
+    let backward = (new.sentence, new.word) < (old.sentence, old.word)
+    cues = PropTiming.cues(backward ? [:] : cues, story: store.story, at: new, now: .now)
   }
 
   private func advance(from old: HopTarget, to new: HopTarget, on path: WordPath) {
@@ -226,6 +241,9 @@ struct PathScene: View {
   let treat: StoryTreat?
   let waiting: Friend?
   let tint: Color
+  let sentences: [Sentence]
+  let cues: [PropKey: PropCue]
+  let now: Date?
   let isSpeaking: Bool
   let label: String
   let tap: () -> Void
@@ -240,6 +258,10 @@ struct PathScene: View {
       sign(at: path.endSign) {
         signText("The end", size: 21)
       }
+      StoryPropLayer(
+        path: path, sentences: sentences, position: position, cameraX: cameraX, cues: cues,
+        now: now, tint: tint, world: friend
+      )
       ForEach(visibleStops, id: \.target) { stop in
         PathWord(
           text: stop.text,

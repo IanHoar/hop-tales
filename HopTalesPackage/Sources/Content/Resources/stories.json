@@ -74,6 +74,12 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "butterfly",
+            "count": 1
+          }
         ]
       },
       {
@@ -137,7 +143,14 @@
             "trailing": "."
           }
         ],
-        "weather": "clouds"
+        "weather": "clouds",
+        "events": [
+          {
+            "prop": "bug",
+            "count": 1,
+            "after": 1
+          }
+        ]
       },
       {
         "newWord": null,
@@ -200,6 +213,12 @@
             "homophones": [],
             "big": false,
             "trailing": "!"
+          }
+        ],
+        "events": [
+          {
+            "prop": "bee",
+            "count": 1
           }
         ]
       }
@@ -286,7 +305,13 @@
             "trailing": "."
           }
         ],
-        "sky": "golden"
+        "sky": "golden",
+        "events": [
+          {
+            "prop": "dragonfly",
+            "count": 1
+          }
+        ]
       },
       {
         "newWord": null,
@@ -361,6 +386,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "thrush",
+            "count": 1,
+            "after": 1
+          }
         ]
       },
       {
@@ -401,6 +433,12 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "butterfly",
+            "count": 1
           }
         ]
       },
@@ -623,6 +661,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "log",
+            "count": 1,
+            "after": 7
+          }
         ]
       },
       {
@@ -799,6 +844,12 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "hedgehog",
+            "count": 1
+          }
         ]
       },
       {
@@ -932,6 +983,18 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "owl",
+            "count": 1,
+            "after": 2
+          },
+          {
+            "prop": "pine",
+            "count": 1,
+            "after": 6
+          }
         ]
       },
       {
@@ -1023,6 +1086,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "log",
+            "count": 1,
+            "after": 4
+          }
         ]
       },
       {
@@ -1055,6 +1125,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "bug",
+            "count": 1,
+            "after": 2
           }
         ]
       },
@@ -1177,6 +1254,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "puddle",
+            "count": 1,
+            "after": 4
+          }
         ]
       }
     ]
@@ -1256,6 +1340,12 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "butterfly",
+            "count": 1
+          }
         ]
       },
       {
@@ -1288,6 +1378,13 @@
             ],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "hen",
+            "count": 1,
+            "after": 2
           }
         ]
       },
@@ -1374,6 +1471,13 @@
             "big": false,
             "trailing": "!"
           }
+        ],
+        "events": [
+          {
+            "prop": "hen",
+            "count": 1,
+            "after": 1
+          }
         ]
       }
     ]
@@ -1419,6 +1523,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "puddle",
+            "count": 1,
+            "after": 4
           }
         ]
       },
@@ -1512,7 +1623,8 @@
             "big": false,
             "trailing": "."
           }
-        ]
+        ],
+        "weather": "clouds"
       },
       {
         "newWord": null,
@@ -1537,6 +1649,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "mum",
+            "count": 1,
+            "after": 0
           }
         ]
       },
@@ -1616,6 +1735,12 @@
             "big": true,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "bee",
+            "count": 1
+          }
         ]
       },
       {
@@ -1656,6 +1781,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "frog",
+            "count": 1,
+            "after": 2
           }
         ]
       },
@@ -1735,6 +1867,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "splash",
+            "count": 1,
+            "after": 6
           }
         ]
       },
@@ -1865,6 +2004,12 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "worm",
+            "count": 1
+          }
         ]
       },
       {
@@ -1983,6 +2128,12 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "butterfly",
+            "count": 1
+          }
         ]
       },
       {
@@ -2021,6 +2172,12 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "bee",
+            "count": 1
           }
         ]
       },
@@ -2108,6 +2265,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "thrush",
+            "count": 1,
+            "after": 3
+          }
         ]
       },
       {
@@ -2146,7 +2310,8 @@
             "big": false,
             "trailing": "."
           }
-        ]
+        ],
+        "sky": "dusk"
       },
       {
         "newWord": null,
@@ -2269,6 +2434,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "moth",
+            "count": 1,
+            "after": 1
+          }
         ]
       },
       {
@@ -2360,6 +2532,12 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "dragonfly",
+            "count": 1
+          }
         ]
       },
       {
@@ -2431,6 +2609,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "log",
+            "count": 1,
+            "after": 3
           }
         ]
       },
@@ -2506,6 +2691,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "splash",
+            "count": 1,
+            "after": 2
           }
         ]
       },
@@ -2605,6 +2797,12 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "dragonfly",
+            "count": 1
+          }
         ]
       },
       {
@@ -2647,6 +2845,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "kite",
+            "count": 1,
+            "after": 2
           }
         ]
       },
@@ -2830,6 +3035,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "kite",
+            "count": 1,
+            "after": 4
+          }
         ]
       }
     ]
@@ -2940,6 +3152,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "stone",
+            "count": 1,
+            "after": 7
+          }
         ]
       },
       {
@@ -3030,6 +3249,12 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "dragonfly",
+            "count": 1
+          }
         ]
       },
       {
@@ -3077,6 +3302,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "lilypad",
+            "count": 1,
+            "after": 7
           }
         ]
       },
@@ -3172,6 +3404,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "frog",
+            "count": 3,
+            "after": 1
           }
         ]
       },
@@ -3307,6 +3546,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "frog",
+            "count": 3,
+            "after": 2
+          }
         ]
       },
       {
@@ -3396,6 +3642,12 @@
             "big": false,
             "trailing": "!"
           }
+        ],
+        "events": [
+          {
+            "prop": "dragonfly",
+            "count": 1
+          }
         ]
       }
     ]
@@ -3456,6 +3708,12 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "bee",
+            "count": 1
           }
         ]
       },
@@ -3553,6 +3811,12 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "worm",
+            "count": 1
+          }
         ]
       },
       {
@@ -3649,6 +3913,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "nest",
+            "count": 1,
+            "after": 6
           }
         ]
       },
@@ -3766,6 +4037,12 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "hen",
+            "count": 1
           }
         ]
       },
@@ -3919,6 +4196,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "farmer",
+            "count": 1,
+            "after": 1
           }
         ]
       },
@@ -4081,6 +4365,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "scarecrow",
+            "count": 1,
+            "after": 2
+          }
         ]
       },
       {
@@ -4176,6 +4467,12 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "bee",
+            "count": 1
           }
         ]
       },
@@ -4318,6 +4615,12 @@
             "big": true,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "butterfly",
+            "count": 1
+          }
         ]
       }
     ]
@@ -4385,6 +4688,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "child",
+            "count": 1,
+            "after": 1
+          }
         ]
       },
       {
@@ -4435,6 +4745,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "boat",
+            "count": 1,
+            "after": 2
           }
         ]
       },
@@ -4638,6 +4955,13 @@
             "big": true,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "child",
+            "count": 1,
+            "after": 1
+          }
         ]
       }
     ]
@@ -4694,6 +5018,12 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "firefly",
+            "count": 1
+          }
         ]
       },
       {
@@ -4749,7 +5079,8 @@
             "big": false,
             "trailing": "."
           }
-        ]
+        ],
+        "sky": "night"
       },
       {
         "newWord": null,
@@ -4796,6 +5127,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "hamster",
+            "count": 1,
+            "after": 2
           }
         ]
       },
@@ -4886,6 +5224,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "hamster",
+            "count": 1,
+            "after": 3
           }
         ]
       },
@@ -5005,6 +5350,12 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "butterfly",
+            "count": 1
+          }
         ]
       },
       {
@@ -5057,7 +5408,8 @@
             "big": false,
             "trailing": "."
           }
-        ]
+        ],
+        "weather": "clouds"
       },
       {
         "newWord": null,
@@ -5107,6 +5459,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "sunflower",
+            "count": 1,
+            "after": 1
           }
         ]
       },
@@ -5345,6 +5704,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "wool",
+            "count": 1,
+            "after": 8
+          }
         ]
       },
       {
@@ -5402,6 +5768,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "wool",
+            "count": 1,
+            "after": 8
+          }
         ]
       },
       {
@@ -5457,6 +5830,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "roses",
+            "count": 1,
+            "after": 9
           }
         ]
       },
@@ -5745,6 +6125,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "lantern",
+            "count": 1,
+            "after": 2
+          }
         ]
       },
       {
@@ -5867,6 +6254,13 @@
             "leading": "\u201c",
             "trailing": "\u201d."
           }
+        ],
+        "events": [
+          {
+            "prop": "child",
+            "count": 2,
+            "after": 2
+          }
         ]
       },
       {
@@ -5922,6 +6316,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "bubbles",
+            "count": 1,
+            "after": 6
           }
         ]
       },
@@ -6095,6 +6496,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "puddle",
+            "count": 1,
+            "after": 6
+          }
         ]
       },
       {
@@ -6197,6 +6605,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "grandma",
+            "count": 1,
+            "after": 0
+          }
         ]
       },
       {
@@ -6252,6 +6667,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "wool",
+            "count": 1,
+            "after": 5
           }
         ]
       },
@@ -6487,6 +6909,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "kitten",
+            "count": 1,
+            "after": 5
+          }
         ]
       },
       {
@@ -6604,6 +7033,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "kitten",
+            "count": 1,
+            "after": 1
+          }
         ]
       },
       {
@@ -6660,6 +7096,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "cat",
+            "count": 1,
+            "after": 1
           }
         ]
       }
@@ -6738,6 +7181,12 @@
             ],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "gull",
+            "count": 1
           }
         ]
       },
@@ -6853,6 +7302,13 @@
             "homophones": [],
             "big": false,
             "trailing": "!"
+          }
+        ],
+        "events": [
+          {
+            "prop": "shell",
+            "count": 1,
+            "after": 5
           }
         ]
       },
@@ -6970,6 +7426,12 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "starfish",
+            "count": 1
           }
         ]
       },
@@ -7113,6 +7575,12 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "gull",
+            "count": 1
+          }
         ]
       },
       {
@@ -7231,6 +7699,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "seaweed",
+            "count": 1,
+            "after": 3
+          }
         ]
       },
       {
@@ -7286,6 +7761,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "fish",
+            "count": 2,
+            "after": 1
           }
         ]
       },
@@ -7552,6 +8034,13 @@
             "big": true,
             "trailing": "?"
           }
+        ],
+        "events": [
+          {
+            "prop": "lighthouse",
+            "count": 1,
+            "after": 9
+          }
         ]
       },
       {
@@ -7737,6 +8226,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "seal",
+            "count": 2,
+            "after": 8
+          }
         ]
       },
       {
@@ -7805,7 +8301,8 @@
             "big": false,
             "trailing": "."
           }
-        ]
+        ],
+        "sky": "dusk"
       }
     ]
   },
@@ -8001,6 +8498,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "seaweed",
+            "count": 1,
+            "after": 6
+          }
         ]
       },
       {
@@ -8190,7 +8694,13 @@
             "trailing": "."
           }
         ],
-        "weather": "clear"
+        "weather": "clear",
+        "events": [
+          {
+            "prop": "gull",
+            "count": 1
+          }
+        ]
       }
     ]
   },
@@ -8266,6 +8776,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "bottle",
+            "count": 1,
+            "after": 6
           }
         ]
       },
@@ -8387,6 +8904,12 @@
             "homophones": [],
             "big": false,
             "trailing": "!"
+          }
+        ],
+        "events": [
+          {
+            "prop": "gull",
+            "count": 1
           }
         ]
       },
@@ -8511,6 +9034,12 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "starfish",
+            "count": 1
           }
         ]
       },
@@ -8730,7 +9259,8 @@
             "big": false,
             "trailing": "."
           }
-        ]
+        ],
+        "sky": "golden"
       },
       {
         "newWord": null,
@@ -8794,7 +9324,8 @@
             "big": false,
             "trailing": "."
           }
-        ]
+        ],
+        "sky": "day"
       },
       {
         "newWord": null,
@@ -8865,6 +9396,12 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "butterfly",
+            "count": 1
+          }
         ]
       },
       {
@@ -8925,6 +9462,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "ladybird",
+            "count": 2,
+            "after": 1
           }
         ]
       },
@@ -9120,6 +9664,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "cricket",
+            "count": 3,
+            "after": 1
+          }
         ]
       },
       {
@@ -9244,6 +9795,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "bee",
+            "count": 1,
+            "after": 3
+          }
         ]
       },
       {
@@ -9320,6 +9878,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "firefly",
+            "count": 3,
+            "after": 1
           }
         ]
       },
@@ -9398,7 +9963,8 @@
             "big": false,
             "trailing": "."
           }
-        ]
+        ],
+        "sky": "night"
       }
     ]
   },
@@ -9487,6 +10053,13 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "oak",
+            "count": 1,
+            "after": 7
+          }
         ]
       },
       {
@@ -9552,6 +10125,12 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "snail",
+            "count": 1
           }
         ]
       },
@@ -9682,6 +10261,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "twig",
+            "count": 1,
+            "after": 11
           }
         ]
       },
@@ -9903,7 +10489,14 @@
             "trailing": "."
           }
         ],
-        "weather": "rain"
+        "weather": "rain",
+        "events": [
+          {
+            "prop": "rainbow",
+            "count": 1,
+            "after": 6
+          }
+        ]
       },
       {
         "newWord": null,
@@ -10032,6 +10625,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "puddle",
+            "count": 1,
+            "after": 5
           }
         ]
       },
@@ -10221,6 +10821,12 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "events": [
+          {
+            "prop": "butterfly",
+            "count": 1
+          }
         ]
       }
     ]
@@ -10365,6 +10971,13 @@
             "homophones": [],
             "big": false,
             "trailing": "."
+          }
+        ],
+        "events": [
+          {
+            "prop": "beetle",
+            "count": 2,
+            "after": 1
           }
         ]
       },
@@ -10563,6 +11176,14 @@
             "big": false,
             "trailing": "."
           }
+        ],
+        "sky": "night",
+        "events": [
+          {
+            "prop": "mushroom",
+            "count": 1,
+            "after": 8
+          }
         ]
       },
       {
@@ -10641,6 +11262,12 @@
             "homophones": [],
             "big": false,
             "trailing": "!"
+          }
+        ],
+        "events": [
+          {
+            "prop": "firefly",
+            "count": 3
           }
         ]
       }
