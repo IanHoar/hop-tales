@@ -5,6 +5,10 @@ import DesignSystem
 import SwiftUI
 import World
 
+extension EnvironmentValues {
+  @Entry public var arrivesFromOnboarding = false
+}
+
 @Feature public struct Home {
   public init() {}
 
@@ -84,6 +88,9 @@ public struct HomeScreen: View {
   @Environment(\.colorScheme) private var colorScheme
   @State private var sheetTop: CGFloat = 0
   @State private var scrolled: CGFloat = 0
+  @State private var arrived = false
+  @Environment(\.arrivesFromOnboarding) private var arrivesFromOnboarding
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   public init(store: StoreOf<Home>) {
     self.store = store
@@ -141,6 +148,8 @@ public struct HomeScreen: View {
             Color.clear
               .frame(height: sheetTop)
             sheet(bottomInset: proxy.safeAreaInsets.bottom)
+              .offset(y: shown ? 0 : 160)
+              .animation(.spring(duration: 0.7, bounce: 0.12), value: shown)
           }
           .frame(maxWidth: Self.columnWidth)
           .frame(maxWidth: .infinity)
@@ -149,6 +158,9 @@ public struct HomeScreen: View {
             VStack(spacing: 0) {
               topBar
                 .padding(.top, 8)
+                .offset(y: shown ? 0 : -40)
+                .opacity(shown ? 1 : 0)
+                .animation(.spring(duration: 0.55, bounce: 0.35).delay(0.45), value: shown)
               Spacer(minLength: 0)
                 .frame(height: max(0, screen * Self.sheetTop - proxy.safeAreaInsets.top - 330))
               friendOnThePath(standsAside: proxy.size.width > Self.wideLayout)
@@ -168,7 +180,10 @@ public struct HomeScreen: View {
       }
     }
     .navigationBarHidden(true)
+    .onAppear { arrived = true }
   }
+
+  private var shown: Bool { arrived || !arrivesFromOnboarding || reduceMotion }
 
   private var topBar: some View {
     HStack(alignment: .top) {
@@ -205,6 +220,9 @@ public struct HomeScreen: View {
       height: Self.friendHeight
     )
     .shadow(color: Paper.shadow, radius: 6, y: 4)
+    .scaleEffect(shown ? 1 : 0.4, anchor: .bottom)
+    .opacity(shown ? 1 : 0)
+    .animation(.spring(duration: 0.5, bounce: 0.45).delay(0.25), value: shown)
   }
 
   private func friendOnThePath(standsAside: Bool) -> some View {
@@ -215,6 +233,8 @@ public struct HomeScreen: View {
         .accessibilityHidden(standsAside)
       LevelChip(journey: journey) { store.send(.journeyTapped) }
         .padding(.horizontal, 28)
+        .opacity(shown ? 1 : 0)
+        .animation(.easeOut(duration: 0.4).delay(0.35), value: shown)
     }
     .padding(.bottom, 18)
   }

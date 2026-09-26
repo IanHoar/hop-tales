@@ -199,6 +199,7 @@ public struct RootScreen: View {
   }
 
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @State private var onboarded = false
 
   public var body: some View {
     ZStack {
@@ -227,11 +228,14 @@ public struct RootScreen: View {
       if let onboarding = store.scope(\.onboarding) {
         OnboardingScreen(store: onboarding)
           .transition(.opacity)
+          .onAppear { onboarded = true }
       } else {
         stories
+          .environment(\.arrivesFromOnboarding, onboarded)
+          .transition(.opacity)
       }
     }
-    .animation(.easeInOut(duration: 0.3), value: store.onboarding == nil)
+    .animation(.easeInOut(duration: 0.45), value: store.onboarding == nil)
   }
 
   private var stories: some View {
