@@ -299,6 +299,11 @@ struct FriendChoices: View {
       .buttonStyle(.plain)
       .accessibilityAddTraits(friend == store.journey.activeFriend ? .isSelected : [])
     }
+    Text(Phonics.standard)
+      .font(Typography.ui(13))
+      .foregroundStyle(Paper.muted)
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .padding(.horizontal, 4)
   }
 }
 
