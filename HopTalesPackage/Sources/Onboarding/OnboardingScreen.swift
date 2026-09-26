@@ -70,6 +70,10 @@ import World
 
     public var step: Step { path.last ?? .cloud }
 
+    public var steps: [Step] { restored == nil ? Step.allCases : [.cloud, .listening] }
+
+    public var stepNumber: Int { (steps.firstIndex(of: step) ?? 0) + 1 }
+
     public var needsMicrophone: Bool { step == .listening && authorization == nil }
 
     public var primaryTitle: String {
@@ -286,7 +290,7 @@ struct OnboardingSheet: View {
 
   private var header: some View {
     ZStack {
-      ProgressPills(current: store.step.rawValue - 1, count: Onboarding.Step.allCases.count)
+      ProgressPills(current: store.stepNumber - 1, count: store.steps.count)
       if store.step != Onboarding.Step.allCases.first {
         Button {
           store.send(.backTapped)

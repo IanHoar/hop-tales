@@ -44,7 +44,7 @@ struct StepPage: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 14) {
-      Text("Step \(store.step.rawValue) of \(Onboarding.Step.allCases.count)")
+      Text("Step \(store.stepNumber) of \(store.steps.count)")
         .font(Typography.caps(13))
         .tracking(1)
         .textCase(.uppercase)

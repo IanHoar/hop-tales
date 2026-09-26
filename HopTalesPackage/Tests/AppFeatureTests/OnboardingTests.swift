@@ -100,6 +100,8 @@ struct OnboardingTests {
       $0.path = [.listening]
     }
     #expect(enabled.value == true)
+    #expect(store.state.stepNumber == 2)
+    #expect(store.state.steps.count == 2)
     store.send(.primaryTapped)
     await store.receive(\.authorizationResolved) { $0.authorization = .authorized }
     #expect(store.state.primaryTitle == "Start reading")
