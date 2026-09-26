@@ -10,6 +10,12 @@ struct HopTalesApp: App {
     Root()
   }
 
+  init() {
+    UIWindow.appearance().backgroundColor = UIColor(
+      red: 0x1E / 255, green: 0x2A / 255, blue: 0x4E / 255, alpha: 1
+    )
+  }
+
   var body: some Scene {
     WindowGroup {
       RootScreen(store: Self.store)

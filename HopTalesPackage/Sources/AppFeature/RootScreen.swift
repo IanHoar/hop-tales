@@ -211,6 +211,9 @@ public struct RootScreen: View {
           .zIndex(1)
       }
     }
+    .background {
+      if store.intro != nil { Color(hex: 0x1E2A4E).ignoresSafeArea() }
+    }
     .animation(handover, value: store.intro == nil)
     .preferredColorScheme(store.theme.colorScheme)
   }
