@@ -20,21 +20,38 @@ public struct Profile: Codable, Hashable, Sendable {
     public var locale: Locale { Locale(identifier: rawValue) }
   }
 
+  public enum Theme: String, Codable, CaseIterable, Hashable, Sendable {
+    case device
+    case light
+    case dark
+
+    public var name: String {
+      switch self {
+      case .device: "Match device"
+      case .light: "Light"
+      case .dark: "Dark"
+      }
+    }
+  }
+
   public var childName: String
   public var startingFriend: Friend
   public var accent: Accent
   public var voiceID: String?
+  public var theme: Theme
 
   public init(
     childName: String = "",
     startingFriend: Friend = .bunny,
     accent: Accent = .canadian,
-    voiceID: String? = nil
+    voiceID: String? = nil,
+    theme: Theme = .device
   ) {
     self.childName = childName
     self.startingFriend = startingFriend
     self.accent = accent
     self.voiceID = voiceID
+    self.theme = theme
   }
 
   public var startingStoryID: String { startingFriend.startingStoryID }
@@ -45,6 +62,7 @@ public struct Profile: Codable, Hashable, Sendable {
     case startingStoryID
     case accent
     case voiceID
+    case theme
   }
 
   public init(from decoder: any Decoder) throws {
@@ -52,6 +70,7 @@ public struct Profile: Codable, Hashable, Sendable {
     childName = try container.decode(String.self, forKey: .childName)
     accent = try container.decode(Accent.self, forKey: .accent)
     voiceID = try container.decodeIfPresent(String.self, forKey: .voiceID)
+    theme = try container.decodeIfPresent(Theme.self, forKey: .theme) ?? .device
     if let friend = try container.decodeIfPresent(Friend.self, forKey: .startingFriend) {
       startingFriend = friend
     } else {
@@ -66,6 +85,7 @@ public struct Profile: Codable, Hashable, Sendable {
     try container.encode(startingFriend, forKey: .startingFriend)
     try container.encode(accent, forKey: .accent)
     try container.encodeIfPresent(voiceID, forKey: .voiceID)
+    try container.encode(theme, forKey: .theme)
   }
 }
 

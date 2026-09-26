@@ -25,6 +25,7 @@ import SwiftUI
     public var wardrobe: Wardrobe.State?
     public var friends: Friends.State?
     public var book: Book.State?
+    public var theme = Profile.Theme.device
     public init() {}
 
     public var storyOnScreen: Story? {
@@ -107,6 +108,8 @@ import SwiftUI
           state.settings = nil
           if let profile = profileStore.load() { state.home.apply(profile) }
           state.home.apply(progressStore.load())
+        case let .settings(.themePicked(theme)):
+          state.theme = theme
         case .home(.playOnTVTapped):
           break
         case .intro(.finished):
@@ -166,6 +169,7 @@ import SwiftUI
     }
     .onMount { state in
       if let profile = profileStore.load() {
+        state.theme = profile.theme
         startJourney(with: profile.startingFriend)
         state.home.apply(profile)
         state.home.apply(progressStore.load())
@@ -208,6 +212,7 @@ public struct RootScreen: View {
       }
     }
     .animation(handover, value: store.intro == nil)
+    .preferredColorScheme(store.theme.colorScheme)
   }
 
   private var handover: Animation {
@@ -274,5 +279,15 @@ extension Reading.State {
       treat: journey.treat(in: story)
     )
     look = progress.outfit(for: journey.activeFriend).first?.id
+  }
+}
+
+extension Profile.Theme {
+  var colorScheme: ColorScheme? {
+    switch self {
+    case .device: nil
+    case .light: .light
+    case .dark: .dark
+    }
   }
 }

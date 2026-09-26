@@ -49,6 +49,7 @@ import SwiftUI
     case speechLogCleared
     case speechLogToggled(Bool)
     case strictnessPicked(WordMatcher.Strictness)
+    case themePicked(Profile.Theme)
     case voicePicked(String?)
   }
 
@@ -137,6 +138,10 @@ import SwiftUI
         speechLog.setEnabled(isOn)
         refreshSpeechLog(&state)
 
+      case let .themePicked(theme):
+        state.profile.theme = theme
+        save(state)
+
       case let .strictnessPicked(strictness):
         state.strictness = strictness
         strictnessPreference.save(strictness)
@@ -194,6 +199,7 @@ public struct SettingsScreen: View {
         SettingsSection("Reader") { NameField(store: store) }
         SettingsSection("Reading with") { FriendChoices(store: store) }
         SettingsSection("Accent") { AccentChoices(store: store) }
+        SettingsSection("Theme") { ThemeChoices(store: store) }
         SettingsSection("Listening") { StrictnessChoices(store: store) }
         SettingsSection("Help voice") { VoiceRow(store: store) }
         SettingsSection("Sounds") { SoundRow(store: store) }
@@ -309,34 +315,6 @@ struct FriendChoices: View {
         isSelected: friend == store.journey.activeFriend
       ) {
         store.send(.friendPicked(friend))
-      }
-    }
-  }
-}
-
-struct AccentChoices: View {
-  let store: StoreOf<Settings>
-
-  var body: some View {
-    ForEach(Profile.Accent.allCases, id: \.self) { accent in
-      Choice(title: accent.name, isSelected: accent == store.profile.accent) {
-        store.send(.accentPicked(accent))
-      }
-    }
-  }
-}
-
-struct StrictnessChoices: View {
-  let store: StoreOf<Settings>
-
-  var body: some View {
-    ForEach(WordMatcher.Strictness.allCases, id: \.self) { strictness in
-      Choice(
-        title: strictness.title,
-        detail: strictness.detail,
-        isSelected: strictness == store.strictness
-      ) {
-        store.send(.strictnessPicked(strictness))
       }
     }
   }
