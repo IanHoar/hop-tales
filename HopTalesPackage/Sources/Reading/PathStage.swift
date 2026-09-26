@@ -243,6 +243,8 @@ struct PathScene: View {
       ForEach(visibleStops, id: \.target) { stop in
         PathWord(
           text: stop.text,
+          leading: stop.leading,
+          trailing: stop.trailing,
           state: WordPath.state(of: stop.target, at: position),
           size: path.wordSize,
           overhang: geometry.path(14),

@@ -31,6 +31,8 @@ struct WordPath: Equatable {
   struct Stop: Equatable {
     var target: HopTarget
     var text: String
+    var leading = ""
+    var trailing = ""
     var centre: CGFloat
     var width: CGFloat
   }
@@ -56,6 +58,8 @@ struct WordPath: Equatable {
           Stop(
             target: HopTarget(sentence: sentence, word: index),
             text: word.text,
+            leading: word.leading,
+            trailing: word.trailing,
             centre: centre,
             width: width
           )
