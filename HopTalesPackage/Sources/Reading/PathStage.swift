@@ -195,6 +195,7 @@ struct PathStage: View {
       lift: lift,
       title: store.story.title,
       bigWords: store.bigWords,
+      soundButtons: store.soundButtons,
       treat: store.treat,
       waiting: store.callout?.waitingFriend,
       tint: Color(uiColor: store.mood.landTint),
@@ -254,6 +255,7 @@ struct PathScene: View {
   let lift: CGFloat
   let title: String
   let bigWords: Set<WordRef>
+  let soundButtons: Bool
   let treat: StoryTreat?
   let waiting: Friend?
   let tint: Color
@@ -290,6 +292,7 @@ struct PathScene: View {
           overhang: geometry.path(14),
           isBig: bigWords.contains(WordRef(sentence: stop.target.sentence, word: stop.target.word)),
           isPulsing: isSpeaking && stop.target == position,
+          soundButtons: soundButtons,
           chalk: path.style.chalk
         )
         .position(x: stop.centre - cameraX, y: path.wordY)

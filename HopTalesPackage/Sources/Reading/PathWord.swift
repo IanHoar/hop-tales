@@ -15,6 +15,7 @@ struct PathWord: View {
   let overhang: CGFloat
   var isBig = false
   var isPulsing = false
+  var soundButtons = false
   var chalk = false
 
   var body: some View {
@@ -39,6 +40,14 @@ struct PathWord: View {
       }
       .overlay(alignment: .bottom) {
         if isBig { underline }
+      }
+      .overlay(alignment: .bottomLeading) {
+        if soundButtons {
+          SoundMarksView(
+            word: text, size: size, color: (chalk ? state.chalk : state.ink).opacity(0.8)
+          )
+            .alignmentGuide(.bottom) { $0[.top] }
+        }
       }
       .overlay(alignment: .top) {
         if isBig { star }

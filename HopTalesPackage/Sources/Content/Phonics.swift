@@ -23,7 +23,7 @@ public struct Phonics: Sendable {
     var levels: [Level]
   }
 
-  private struct Token {
+  struct Token {
     var grapheme: String
     var level: Int
     var isVowel: Bool
@@ -56,7 +56,7 @@ public struct Phonics: Sendable {
   private let rules: Rules
   private let graphemes: [String: Int]
   private let ends: [String: Int]
-  private let heart: [String: Int]
+  let heart: [String: Int]
   private let byLength: [String]
   private let endsByLength: [String]
 
@@ -95,7 +95,7 @@ public struct Phonics: Sendable {
     return max(rules.endings, base)
   }
 
-  private func endingBases(_ word: String) -> [String]? {
+  func endingBases(_ word: String) -> [String]? {
     for suffix in ["ing", "ed"] where word.hasSuffix(suffix) {
       let base = String(word.dropLast(suffix.count))
       guard base.contains(where: Self.vowels.contains), !base.hasSuffix("e") else { continue }
@@ -138,15 +138,16 @@ public struct Phonics: Sendable {
     return nil
   }
 
-  private func segmented(_ word: String) -> Int? {
+  func tokens(_ word: String) -> [(token: Token, start: Int)]? {
     let letters = Array(word)
     let split = split(word)
-    var tokens: [Token] = []
+    var tokens: [(token: Token, start: Int)] = []
     var position = 0
     while position < letters.count {
       if position == split {
         let grapheme = "\(letters[position])_e"
-        tokens.append(Token(grapheme: grapheme, level: rules.splitDigraphs, isVowel: true))
+        let token = Token(grapheme: grapheme, level: rules.splitDigraphs, isVowel: true)
+        tokens.append((token, position))
         position += 1
         continue
       }
@@ -158,13 +159,19 @@ public struct Phonics: Sendable {
       guard var token = endToken(rest, at: position, in: letters, split: split)
         ?? graphemeToken(rest, at: position, split: split)
       else { return nil }
-      if token.grapheme == "y", position > 0, tokens.last?.isVowel == false {
+      if token.grapheme == "y", position > 0, tokens.last?.token.isVowel == false {
         token = Token(grapheme: "y", level: rules.vowelY, isVowel: true)
       }
-      tokens.append(token)
+      tokens.append((token, position))
       position += token.grapheme.count
     }
-    guard var level = tokens.map(\.level).max() else { return nil }
+    return tokens
+  }
+
+  private func segmented(_ word: String) -> Int? {
+    guard let tokens = tokens(word)?.map(\.token), var level = tokens.map(\.level).max() else {
+      return nil
+    }
     var pairs = Array(zip(tokens, tokens.dropFirst()))
     if !pairs.isEmpty, word.hasSuffix("s"), tokens.last?.grapheme == "s" {
       pairs.removeLast()

@@ -39,19 +39,22 @@ public struct Profile: Codable, Hashable, Sendable {
   public var accent: Accent
   public var voiceID: String?
   public var theme: Theme
+  public var soundButtons: Bool
 
   public init(
     childName: String = "",
     startingFriend: Friend = .bunny,
     accent: Accent = .canadian,
     voiceID: String? = nil,
-    theme: Theme = .device
+    theme: Theme = .device,
+    soundButtons: Bool = false
   ) {
     self.childName = childName
     self.startingFriend = startingFriend
     self.accent = accent
     self.voiceID = voiceID
     self.theme = theme
+    self.soundButtons = soundButtons
   }
 
   public var startingStoryID: String { startingFriend.startingStoryID }
@@ -63,6 +66,7 @@ public struct Profile: Codable, Hashable, Sendable {
     case accent
     case voiceID
     case theme
+    case soundButtons
   }
 
   public init(from decoder: any Decoder) throws {
@@ -71,6 +75,7 @@ public struct Profile: Codable, Hashable, Sendable {
     accent = try container.decode(Accent.self, forKey: .accent)
     voiceID = try container.decodeIfPresent(String.self, forKey: .voiceID)
     theme = try container.decodeIfPresent(Theme.self, forKey: .theme) ?? .device
+    soundButtons = try container.decodeIfPresent(Bool.self, forKey: .soundButtons) ?? false
     if let friend = try container.decodeIfPresent(Friend.self, forKey: .startingFriend) {
       startingFriend = friend
     } else {
@@ -86,6 +91,7 @@ public struct Profile: Codable, Hashable, Sendable {
     try container.encode(accent, forKey: .accent)
     try container.encodeIfPresent(voiceID, forKey: .voiceID)
     try container.encode(theme, forKey: .theme)
+    try container.encode(soundButtons, forKey: .soundButtons)
   }
 }
 
@@ -94,6 +100,7 @@ public struct ProfileDraft: Codable, Hashable, Sendable {
   public var startingFriend: Friend?
   public var accent: Profile.Accent?
   public var voiceID: String?
+  public var soundButtons: Bool?
   public var step: Int
 
   public init(
@@ -101,12 +108,14 @@ public struct ProfileDraft: Codable, Hashable, Sendable {
     startingFriend: Friend? = nil,
     accent: Profile.Accent? = nil,
     voiceID: String? = nil,
+    soundButtons: Bool? = nil,
     step: Int
   ) {
     self.childName = childName
     self.startingFriend = startingFriend
     self.accent = accent
     self.voiceID = voiceID
+    self.soundButtons = soundButtons
     self.step = step
   }
 }

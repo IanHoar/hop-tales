@@ -41,6 +41,7 @@ import World
     public var listeningEpoch = 0
     public var isSpeaking = false
     public var recognised: Recognised?
+    public var soundButtons = false
     public var sentenceIndex = 0
     public var stars = 0
     public var story: Story
@@ -111,21 +112,6 @@ import World
   @Dependency(SpeechClient.self) var speechClient
   @Dependency(StrictnessPreference.self) var strictnessPreference
   @Dependency(SpeechLog.self) var speechLog
-
-  private func persist(_ state: State) {
-    var progress = progressStore.load()
-    progress.stars += state.stars - savedStars
-    progress.completedSentences[state.story.id] = max(
-      progress.completedSentences[state.story.id] ?? 0,
-      state.sentenceIndex
-    )
-    progress.wordsRead[state.story.id] = max(
-      progress.wordsRead[state.story.id] ?? 0,
-      state.wordsCompleted
-    )
-    progressStore.save(progress)
-    savedStars = state.stars
-  }
 
   public var body: some Feature {
     Update { state, action in
@@ -240,6 +226,7 @@ import World
       guard state.isActive else { return }
       state.strictness = strictnessPreference.load()
       profile = profileStore.load() ?? Profile()
+      state.soundButtons = profile.soundButtons
       let locale = profile.accent.locale
       let completed = state.completionCount > 0 && chimedSentence != state.sentenceIndex
       if completed { chimedSentence = state.sentenceIndex }
@@ -288,6 +275,21 @@ import World
 }
 
 extension Reading {
+  func persist(_ state: State) {
+    var progress = progressStore.load()
+    progress.stars += state.stars - savedStars
+    progress.completedSentences[state.story.id] = max(
+      progress.completedSentences[state.story.id] ?? 0,
+      state.sentenceIndex
+    )
+    progress.wordsRead[state.story.id] = max(
+      progress.wordsRead[state.story.id] ?? 0,
+      state.wordsCompleted
+    )
+    progressStore.save(progress)
+    savedStars = state.stars
+  }
+
   func log(
     _ tokens: [String], isFinal: Bool, outcome: SpeechLogEntry.Outcome, in state: State
   ) {

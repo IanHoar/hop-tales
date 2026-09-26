@@ -53,4 +53,27 @@ struct PhonicsTests {
       }
     }
   }
+
+  @Test func soundButtonsMarkEachSound() throws {
+    let cat = try #require(phonics.soundMarks(for: "cat"))
+    #expect(cat.map(\.kind) == [.button, .button, .button])
+    let ship = try #require(phonics.soundMarks(for: "ship"))
+    #expect(ship == [
+      SoundMark(start: 0, end: 2, kind: .bar),
+      SoundMark(start: 2, end: 3, kind: .button),
+      SoundMark(start: 3, end: 4, kind: .button)
+    ])
+    let lake = try #require(phonics.soundMarks(for: "Lake"))
+    #expect(lake.contains(SoundMark(start: 1, end: 4, kind: .split)))
+    let jumped = try #require(phonics.soundMarks(for: "jumped"))
+    #expect(jumped.last == SoundMark(start: 4, end: 6, kind: .bar))
+    let night = try #require(phonics.soundMarks(for: "night"))
+    #expect(night.contains(SoundMark(start: 1, end: 4, kind: .bar)))
+  }
+
+  @Test func heartWordsAndNamesHaveNoSoundButtons() {
+    #expect(phonics.soundMarks(for: "the") == nil)
+    #expect(phonics.soundMarks(for: "Bob") == nil)
+    #expect(phonics.soundMarks(for: "said") == nil)
+  }
 }

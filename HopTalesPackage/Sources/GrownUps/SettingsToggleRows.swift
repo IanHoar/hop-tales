@@ -1,6 +1,7 @@
 import ComposableArchitecture2
 import DesignSystem
 import SwiftUI
+import World
 
 struct SpeechLogRow: View {
   let store: StoreOf<Settings>
@@ -109,5 +110,34 @@ struct TestingButtons: View {
       }
     }
     .buttonStyle(.paperChip)
+  }
+}
+
+struct SoundButtonsRow: View {
+  let store: StoreOf<Settings>
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 14) {
+      Toggle(
+        isOn: Binding(
+          get: { store.profile.soundButtons }, set: { store.send(.soundButtonsToggled($0)) }
+        )
+      ) {
+        VStack(alignment: .leading, spacing: 4) {
+          Text("Dots and dashes under words")
+            .font(Typography.display(20))
+            .foregroundStyle(Paper.ink)
+          Text("A dot for each sound, a dash for letters that make one sound together.")
+            .font(Typography.ui(15))
+            .foregroundStyle(Paper.muted)
+        }
+      }
+      .tint(Paper.sageDeep)
+      SoundMarksExamples(size: 26)
+        .padding(.vertical, 4)
+    }
+    .padding(.horizontal, 16)
+    .padding(.vertical, 14)
+    .settingsField()
   }
 }

@@ -54,7 +54,10 @@ struct OnboardingTests {
     store.send(.friendPicked(.frog)) {
       $0.startingFriend = .frog
     }
-    store.send(.primaryTapped) { $0.path = [.listening, .friend, .accent] }
+    store.send(.primaryTapped) { $0.path = [.listening, .friend, .soundButtons] }
+    store.send(.primaryTapped)
+    store.send(.soundButtonsPicked(true)) { $0.soundButtons = true }
+    store.send(.primaryTapped) { $0.path = [.listening, .friend, .soundButtons, .accent] }
     store.send(.primaryTapped)
     store.send(.accentPicked(.british)) { $0.accent = .british }
     #expect(store.state.primaryTitle == "Start reading")
@@ -71,6 +74,7 @@ struct OnboardingTests {
     #expect(state.canContinue(from: .name))
     #expect(!state.canContinue(from: .listening))
     #expect(!state.canContinue(from: .friend))
+    #expect(!state.canContinue(from: .soundButtons))
     #expect(!state.canContinue(from: .accent))
   }
 
@@ -160,6 +164,7 @@ struct OnboardingTests {
       childName: "Maya",
       startingFriend: .hare,
       accent: .american,
+      soundButtons: true,
       step: Onboarding.Step.accent.rawValue
     )
     let saved = LockIsolated<Profile?>(nil)
@@ -172,6 +177,7 @@ struct OnboardingTests {
     }
     #expect(store.state.onboarding == nil)
     #expect(saved.value?.accent == .american)
+    #expect(saved.value?.soundButtons == true)
   }
 
   @Test func resettingOnboardingForgetsTheProfile() {
