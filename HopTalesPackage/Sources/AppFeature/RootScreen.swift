@@ -277,11 +277,11 @@ extension Reading.State {
     let journey = progress.journey
     self.init(
       story: story,
-      friend: journey.activeFriend,
+      friend: story.friend,
       bigWords: journey.bigWords(in: story),
       treat: journey.treat(in: story)
     )
-    look = progress.outfit(for: journey.activeFriend).first?.id
+    look = progress.outfit(for: story.friend).first?.id
   }
 }
 

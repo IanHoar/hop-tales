@@ -230,7 +230,7 @@ struct BookPreview: View {
     basket.total = 64
     basket.golden = 3
     let saved = Content.Progress(
-      completedSentences: ["golden-hour": 6, "dash-and-frog": 6],
+      completedSentences: ["golden-hour": 6, "skip-and-frog": 6],
       journey: Journey(starting: .hare),
       baskets: [.hare: basket]
     )
