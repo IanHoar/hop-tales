@@ -245,6 +245,18 @@ public final class IntroScene: SKScene {
     wantsToPlay = true
   }
 
+  public var onFirstFrame: (() -> Void)?
+  private var framesDrawn = 0
+
+  override public func didFinishUpdate() {
+    super.didFinishUpdate()
+    guard let onFirstFrame else { return }
+    framesDrawn += 1
+    guard framesDrawn >= 2 else { return }
+    self.onFirstFrame = nil
+    onFirstFrame()
+  }
+
   override public func update(_ currentTime: TimeInterval) {
     guard wantsToPlay, !isPlaying, size.width > 0 else { return }
     isPlaying = true
