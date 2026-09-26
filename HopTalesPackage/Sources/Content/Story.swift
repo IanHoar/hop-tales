@@ -28,11 +28,47 @@ public struct Word: Codable, Hashable, Sendable {
   public var homophones: [String]
   public var text: String
   public var big: Bool
+  public var leading: String
+  public var trailing: String
 
-  public init(text: String, homophones: [String] = [], big: Bool = false) {
+  public init(
+    text: String,
+    homophones: [String] = [],
+    big: Bool = false,
+    leading: String = "",
+    trailing: String = ""
+  ) {
     self.homophones = homophones
     self.text = text
     self.big = big
+    self.leading = leading
+    self.trailing = trailing
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case homophones
+    case text
+    case big
+    case leading
+    case trailing
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    homophones = try container.decode([String].self, forKey: .homophones)
+    text = try container.decode(String.self, forKey: .text)
+    big = try container.decode(Bool.self, forKey: .big)
+    leading = try container.decodeIfPresent(String.self, forKey: .leading) ?? ""
+    trailing = try container.decodeIfPresent(String.self, forKey: .trailing) ?? ""
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(homophones, forKey: .homophones)
+    try container.encode(text, forKey: .text)
+    try container.encode(big, forKey: .big)
+    if !leading.isEmpty { try container.encode(leading, forKey: .leading) }
+    if !trailing.isEmpty { try container.encode(trailing, forKey: .trailing) }
   }
 }
 

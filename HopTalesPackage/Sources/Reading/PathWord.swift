@@ -8,6 +8,8 @@ struct PathWord: View {
   @State private var popped = false
   @State private var floated = false
   let text: String
+  var leading = ""
+  var trailing = ""
   let state: PathWordState
   let size: CGFloat
   let overhang: CGFloat
@@ -26,6 +28,14 @@ struct PathWord: View {
           .padding(.horizontal, -overhang)
           .opacity(state == .read ? 1 : 0)
           .animation(.easeOut(duration: 0.35).delay(0.25), value: state == .read)
+      }
+      .overlay(alignment: .leading) {
+        punctuation(leading)
+          .alignmentGuide(.leading) { $0[.trailing] }
+      }
+      .overlay(alignment: .trailing) {
+        punctuation(trailing)
+          .alignmentGuide(.trailing) { $0[.leading] }
       }
       .overlay(alignment: .bottom) {
         if isBig { underline }
@@ -50,6 +60,14 @@ struct PathWord: View {
         withAnimation(.easeOut(duration: 0.3)) { popped = true }
         withAnimation(.easeOut(duration: 0.9).delay(0.1)) { floated = true }
       }
+  }
+
+  private func punctuation(_ marks: String) -> some View {
+    Text(marks)
+      .font(Typography.word(size))
+      .foregroundStyle((chalk ? state.chalk : state.ink).opacity(0.7))
+      .fixedSize()
+      .accessibilityHidden(true)
   }
 
   private var underline: some View {

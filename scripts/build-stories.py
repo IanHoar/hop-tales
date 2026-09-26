@@ -75,9 +75,13 @@ def parse_sentence(line, line_number):
             else:
                 fail(line_number, f"unknown mood tag '{tag}'")
         line = line[tags.end():]
-    if not line.endswith("."):
-        fail(line_number, "a sentence ends with a full stop")
-    for token in line[:-1].split():
+    tokens = line.split()
+    if not tokens or not re.search(r"[.!?][”’\"]*$", tokens[-1]):
+        fail(line_number, "a sentence ends with a full stop, a question mark or an exclamation mark")
+    for token in tokens:
+        lead = re.match(r"^[“‘\"(]*", token).group(0)
+        trail = re.search(r"[,.!?;:”’\")]*$", token).group(0)
+        token = token[len(lead):len(token) - len(trail)]
         new = token.startswith("^")
         token = token.lstrip("^")
         big = token.startswith("*") and token.endswith("*")
@@ -86,9 +90,12 @@ def parse_sentence(line, line_number):
             fail(line_number, f"'{token}' isn't a plain word")
         if new:
             sentence["newWord"] = text
-        sentence["words"].append(
-            {"text": text, "homophones": HOMOPHONES.get(text.lower(), []), "big": big}
-        )
+        word = {"text": text, "homophones": HOMOPHONES.get(text.lower(), []), "big": big}
+        if lead:
+            word["leading"] = lead
+        if trail:
+            word["trailing"] = trail
+        sentence["words"].append(word)
     return sentence
 
 
