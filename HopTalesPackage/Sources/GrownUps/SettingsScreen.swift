@@ -204,22 +204,20 @@ public struct SettingsScreen: View {
         SettingsSection("Help voice") { VoiceRow(store: store) }
         SettingsSection("Sounds") { SoundRow(store: store) }
         SettingsSection("Speech log") { SpeechLogRow(store: store) }
-        #if DEBUG
-          SettingsSection("Debug") {
-            Button("Reset onboarding", systemImage: "arrow.counterclockwise") {
-              store.send(.resetOnboardingTapped)
-            }
-            .buttonStyle(.ink(.tertiary))
-            Button("Reset reading journey", systemImage: "arrow.uturn.backward") {
-              store.send(.debugResetJourneyTapped)
-            }
-            .buttonStyle(.ink(.tertiary))
-            Button("Unlock everything", systemImage: "lock.open") {
-              store.send(.debugUnlockEverythingTapped)
-            }
-            .buttonStyle(.ink(.tertiary))
+        SettingsSection("Testing") {
+          Button("Reset onboarding", systemImage: "arrow.counterclockwise") {
+            store.send(.resetOnboardingTapped)
           }
-        #endif
+          .buttonStyle(.ink(.tertiary))
+          Button("Reset reading journey", systemImage: "arrow.uturn.backward") {
+            store.send(.debugResetJourneyTapped)
+          }
+          .buttonStyle(.ink(.tertiary))
+          Button("Unlock everything", systemImage: "lock.open") {
+            store.send(.debugUnlockEverythingTapped)
+          }
+          .buttonStyle(.ink(.tertiary))
+        }
       }
       .padding(.horizontal, 24)
       .padding(.top, 24)
