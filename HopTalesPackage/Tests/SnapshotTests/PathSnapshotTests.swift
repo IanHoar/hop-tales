@@ -10,7 +10,7 @@ import Testing
 struct PathSnapshotTests {
   @Test(arguments: [
     ReadingScreenPreview.Moment.start, .midPage, .nearTheEnd, .end, .bigStoryReady, .newFriend,
-    .basketFull
+    .basketFull, .triedItOn
   ])
   func theWordsLieOnThePath(moment: ReadingScreenPreview.Moment) {
     expectSnapshot(

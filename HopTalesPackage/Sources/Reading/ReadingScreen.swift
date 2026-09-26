@@ -36,6 +36,7 @@ import World
     public var completionCount = 0
     public var isActive = true
     public var journeyMoments: [JourneyMoment] = []
+    public var hasTriedItOn = false
     public var isConfirmingStop = false
     public var listeningEpoch = 0
     public var isSpeaking = false
@@ -159,10 +160,14 @@ import World
       case .keepReadingTapped:
         state.isConfirmingStop = false
 
-      case .continueTapped, .tryItOnTapped:
+      case .continueTapped:
         break
 
+      case .tryItOnTapped:
+        state.hasTriedItOn = true
+
       case .momentDismissed:
+        state.hasTriedItOn = false
         guard let index = state.journeyMoments.firstIndex(where: \.isCallout) else { break }
         state.journeyMoments.remove(at: index)
 

@@ -49,6 +49,20 @@ struct ReadingTests {
     #expect(state.stars == words + 5)
   }
 
+  @Test func afterTryingItOnTheBasketCardOnlyOffersDone() async {
+    var state = Reading.State(story: StoryLibrary.all[0])
+    state.isActive = false
+    state.journeyMoments = [.basketFull(.bunny, number: 1)]
+    let store = TestStore(initialState: state) { Reading() }
+
+    store.send(.tryItOnTapped(.bunny)) { $0.hasTriedItOn = true }
+    store.send(.momentDismissed) {
+      $0.hasTriedItOn = false
+      $0.journeyMoments = []
+    }
+    await store.dismount()
+  }
+
   @Test func theAppDoesNotHearItselfSpeak() async {
     let store = TestStore(initialState: Reading.State(story: StoryLibrary.all[0])) {
       Reading()

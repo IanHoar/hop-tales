@@ -120,12 +120,13 @@ struct PathRibbon: View {
 struct CalloutCard: View {
   let moment: JourneyMoment
   let geometry: ReadingGeometry
+  var isDone = false
   let primary: () -> Void
   let dismiss: () -> Void
   @State private var opened = false
 
   private var waitsForOpening: Bool {
-    if case .basketFull = moment { return !opened }
+    if case .basketFull = moment { return !opened && !isDone }
     return false
   }
 
@@ -147,7 +148,7 @@ struct CalloutCard: View {
           Text("Tap the present to open it")
             .font(Typography.ui(geometry.path(14), weight: .semibold))
             .foregroundStyle(Paper.muted)
-        } else if let secondary {
+        } else if let secondary, !isDone {
           Button(secondary, action: dismiss)
             .font(Typography.display(geometry.path(16)))
             .foregroundStyle(Paper.ink)
@@ -156,7 +157,7 @@ struct CalloutCard: View {
             .paperChip(Capsule(), rim: geometry.path(3))
             .buttonStyle(.plain)
         }
-        let leads = moment.story != nil || moment.unlockedItem != nil
+        let leads = !isDone && (moment.story != nil || moment.unlockedItem != nil)
         if !waitsForOpening {
           primaryButton(action: leads ? primary : dismiss)
         }
@@ -203,7 +204,12 @@ struct CalloutCard: View {
         FriendSticker(friend, height: geometry.path(78))
       }
     case let .basketFull(friend, _):
-      PresentReveal(friend: friend, item: moment.unlockedItem, geometry: geometry, opened: $opened)
+      PresentReveal(
+        friend: friend,
+        item: moment.unlockedItem,
+        geometry: geometry,
+        opened: Binding(get: { opened || isDone }, set: { opened = $0 })
+      )
     case .tally, .treat:
       EmptyView()
     }
@@ -229,7 +235,7 @@ struct CalloutCard: View {
       "\(friend.name) is your new friend. \(friend.name) gave you \(friend.gift)."
         + (via == .trail ? " You found all the \(friend.treat.many)!" : "")
     case let .basketFull(friend, _):
-      opened
+      opened || isDone
         ? "It's " + (moment.unlockedItem.map { "a \($0.name.lowercased())" } ?? "a present")
           + " for \(friend.name)!"
         : "You filled \(friend.name)'s basket of \(friend.treat.many). There's a present inside!"
@@ -239,7 +245,8 @@ struct CalloutCard: View {
   }
 
   private var primaryTitle: String {
-    switch moment {
+    if isDone { return "Done" }
+    return switch moment {
     case .bigStoryReady: "Try the big story"
     case .notYet: "OK"
     case let .newFriend(friend, _): "Go to \(friend.place)"

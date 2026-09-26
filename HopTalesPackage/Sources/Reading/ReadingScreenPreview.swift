@@ -12,6 +12,7 @@ struct ReadingScreenPreview: View {
     case bigStoryReady
     case newFriend
     case basketFull
+    case triedItOn
   }
 
   var story = StoryLibrary.all[0]
@@ -38,7 +39,7 @@ struct ReadingScreenPreview: View {
       state.treat = StoryTreat(
         word: WordRef(sentence: story.sentences.count - 1, word: 1), friend: .hare, isTrail: false
       )
-    case .end, .bigStoryReady, .newFriend, .basketFull:
+    case .end, .bigStoryReady, .newFriend, .basketFull, .triedItOn:
       state.sentenceIndex = story.sentences.count
       state.stars = 42
       state.completed = .story(stars: 42)
@@ -48,7 +49,10 @@ struct ReadingScreenPreview: View {
       ]
       if moment == .bigStoryReady { state.journeyMoments.append(.bigStoryReady(.frog)) }
       if moment == .newFriend { state.journeyMoments.append(.newFriend(.frog, via: .bigStory)) }
-      if moment == .basketFull { state.journeyMoments.append(.basketFull(.hare, number: 1)) }
+      if moment == .basketFull || moment == .triedItOn {
+        state.journeyMoments.append(.basketFull(.hare, number: 1))
+      }
+      state.hasTriedItOn = moment == .triedItOn
     }
     return state
   }
