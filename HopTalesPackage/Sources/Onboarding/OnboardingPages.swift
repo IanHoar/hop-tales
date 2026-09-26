@@ -217,6 +217,10 @@ struct LaterFriends: View {
         .font(Typography.ui(13, weight: .medium))
         .foregroundStyle(Paper.muted)
         .multilineTextAlignment(.center)
+      Text(Phonics.standard)
+        .font(Typography.ui(12))
+        .foregroundStyle(Paper.muted)
+        .multilineTextAlignment(.center)
     }
     .frame(maxWidth: .infinity)
     .accessibilityElement(children: .combine)

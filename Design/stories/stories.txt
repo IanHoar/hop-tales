@@ -8,40 +8,44 @@
 # show on the path and never reach the matcher. [sky] or [weather] at the start changes the mood
 # from that sentence on. *word* is a big word, from a level or two up. ^word is the sentence's new
 # word. Keep words free of apostrophes and hyphens: the matcher compares plain words.
+#
+# Levels follow the UFLI Foundations phonics sequence. Content/Resources/phonics.json lists the
+# sounds and heart words each level adds, and the build refuses a word a reader at that level
+# can't decode yet. A big word may reach two levels up. Every sentence fits its level's length.
 
 == meadow-walk | The Meadow Walk | level 1 | day clear
-The hare sat in the sun.
-He had a red ^scarf.
-He ran up the hill.
-[clouds] A bee sat on a bud.
-The hare hid in the long *grass*.
-Then he ran on and on!
+Dash sat in the sun.
+He can ^hop a lot.
+He ran up and up.
+[clouds] A bug sat on him.
+Dash hid in the *grass*.
+Dash ran on and on!
 
 == golden-hour | Golden Hour | level 2 | day clouds
-The sun is low and warm.
-[golden] The hare hops past the old ^oak.
-He stops to smell the *flowers*.
-A ^robin sings on the fence.
-The fields glow in the gold light.
-The hare hops on down the path.
+The sun is big and red.
+[golden] Dash hops past the ^pond.
+He stops to sniff the *herbs*.
+A ^thrush sings on a stump.
+The long grass is soft and pink.
+Dash hops on up the path.
 
 == storm-on-the-hill | Storm on the Hill | level 3 | day clouds
-Dark *clouds* roll over the hill.
-[storm] The wind shakes the tall grass.
-[rain] Big ^drops of rain start to fall.
-The hare waits under the oak tree.
-[clouds] Soon the storm *drifts* away.
-[clear] The sun comes out and the hare hops on.
+Big black *clouds* drift up the hill.
+[storm] The wind shakes the long grass.
+[rain] Big wet ^drops splash on the grass.
+Dash hides in a hole in a log.
+[clouds] At last, the *storm* is gone.
+[clear] The sun is back, and Dash hops on.
 
 == moonlight-hop | Moonlight Hop | level 3 | golden clear
-[dusk] The sky turns pink as the sun sets.
-The hare hops along the ^quiet path.
-[night] One by one the stars come out.
-The ^moon rises over the meadow.
-An owl calls *softly* from the trees.
-The *sleepy* hare curls up for the night.
+[dusk] The sun sets on the hills.
+Dash hops home up the ^lane.
+[night] One by one, the *stars* shine.
+The *moon* is up, and it is white.
+A big *owl* sits on a pine.
+Dash is *tired*, and he naps at home.
 
-# Level 1 · Bob · short vowels, three-letter words · 3 to 5 words
+# Level 1 · Bob · single letters, short vowels, no blends · 3 to 5 words
 
 == bob-bug | Bob and the Bug | level 1 | day clear
 Bob sat on a log.
@@ -49,169 +53,169 @@ A red bug ran up.
 The bug had six legs.
 It sat on his *nose*.
 Bob did not *jump*.
-The bug hid in moss.
+The bug hid in mud.
 
 == big-nap | The Big Nap | level 1 | golden clear | stretch
 Bob had a big nap.
 He sat in the sun.
 A fat hen got in.
-It sat on his *tail*.
-Bob let out a *yelp*!
-Then the hen ran off.
+It sat on his *back*.
+“Yip!” said Bob.
+The hen ran and ran!
 
 == mud-and-jam | Mud and Jam | level 1 | day clouds | stretch
 Bob dug in the mud.
 Mud got on his leg.
-[rain] Then the *rain* fell.
+[rain] Bob got so wet!
 He ran to the den.
 Mum had jam buns.
 Bob had a *snack*.
 
-# Level 2 · Dash · blends and digraphs · 5 to 7 words
+# Level 2 · Dash · sh ch th ck ng nk, ll ss ff, blends · 5 to 7 words
 
 == dash-and-frog | Dash and the Frog | level 2 | day clear
-Dash hops up the *grassy* hill.
-A green frog sits on a stump.
+Dash hops up to the *hilltop*.
+A fat frog sits on a stump.
 “Can you swim?” asks the frog.
 Then the frog jumps into the pond.
-Splash goes the cold water!
-Dash laughs and shakes his *whiskers*.
+Splash! That is a big splash!
+Dash grins and flicks his *whiskers*.
 
 == crunchy-carrot | The Crunchy Carrot | level 2 | day clouds | stretch
-Dash digs in the soft black soil.
-He finds a thick *orange* carrot.
-It is the best carrot yet.
-He brings it back to his nest.
-Crunch, crunch goes the fresh carrot!
-Dash is *stuffed* and has a *snooze*.
+Dash digs in the soft black mud.
+He gets a big fat *carrot*.
+It is the best one yet.
+He brings it back to his den.
+Crunch, crunch, crunch! It is fresh.
+Dash is full, so he naps.
 
 == chat-on-the-hill | Chat on the Hill | level 2 | golden clear | stretch
 Dash and the thrush sit still.
-They chat as the sun slips down.
-The thrush sings a *sweet* *little* song.
-Dash thumps his feet to the song.
+They chat as the sun sets.
+The thrush sings a *splendid* song.
+Dash thumps and claps to the song.
 A moth flaps past in the dusk.
-Then they rush home to bed.
+Then they rush back to bed.
 
-== dash-big-story | Dash and the Brook | level 2 | day clear | big
-Dash hops to the brook.
-The brook is fast and wide.
-He spots a log across it.
-Dash steps on the log with care.
-Drip, drop, splash goes the brook below!
-Dash jumps off on the far bank.
+== dash-big-story | Dash and the Log | level 2 | day clear | big
+Dash hops up to the pond.
+The pond is wet and big.
+He spots a log on top.
+Dash steps on the log.
+Drip, drop, splash! It rocks a bit.
+Dash jumps and lands on the bank.
 
-# Level 3 · Oggy · long vowels, magic e · 6 to 8 words
+# Level 3 · Oggy · magic e, soft c and g · 6 to 8 words
 
 == oggy-kite | Oggy and the Kite | level 3 | day clear | stretch
 Oggy the frog sits by the lake.
-A red kite *floats* high in the sky.
-The wind takes the kite over the reeds.
-It lands on a lily pad near Oggy.
-Oggy hops out and grabs the *string*.
+A red kite *floats* up and up.
+The wind takes the kite past the lake.
+It lands on a pad next to Oggy.
+Oggy hops up and grabs the *ribbon*.
 He waves as the kite rises up again.
 
 == home-by-the-lake | A Home by the Lake | level 3 | golden clouds | stretch
 Oggy wants a home by the lake.
-He tries a hole under a *smooth* stone.
-It is too cold and much too damp.
-He tries a *hollow* reed, but it bends.
-At last he finds a wide lily pad.
-Oggy makes his home and *yawns* with joy.
+He hops in a hole by a stone.
+The hole is damp and much *colder*.
+He tests a *hollow* stem, but it bends.
+At last, he spots a wide, flat pad.
+Oggy makes it his home and *yawns*.
 
 == oggy-big-story | The Lily Pad Race | level 3 | day clear | big
-The frogs line up on the lily pads.
-They will race across the whole lake.
-Oggy takes a deep breath and waits.
-Then the frogs leap from pad to pad.
+The frogs line up on the pads.
+They race to the end of the lake.
+Oggy puffs up and is still.
+Then the frogs jump from pad to pad.
 Oggy slips, but he gets up and hops.
-He is not first, but he smiles.
+He is last, but he still smiles!
 
-# Level 4 · Button · vowel teams, two beats · 7 to 9 words
+# Level 4 · Button · -s -ed -ing, two beats, ar or er ir ur · 7 to 9 words
 
 == button-finds-a-button | Button Finds a Button | level 4 | day clear
-Button the crow flies over the yellow field.
-He sees *something* shine down in the mud.
-He swoops down and grabs it with his beak.
-It is a round blue button from a coat.
-Button keeps it safe in his *hidden* nest.
-Now he has seven buttons in a neat row!
+Button, the black bird, zips over the corn.
+He spots *something* shining in the mud.
+He dives and picks it up in his bill.
+It is a small, red button from a jacket.
+Button hides it in his *secret* nest.
+Button has seven buttons lined up in his nest!
 
 == rain-on-the-field | Rain on the Field | level 4 | day clouds
-Gray clouds *gather* over the field of corn.
-[rain] Soon the rain comes down in cool drops.
-Button tucks his head under his black wing.
-The farmer runs to the barn with a pail.
-[clouds] After the rain, the air smells sweet and clean.
-[clear] Button shakes his *feathers* and flies up again.
+Dark *clouds* gather over the corn and the barn.
+[rain] Then big, cold drops start falling on the farm.
+Button tucks his neck under his black wing.
+The farmer runs to the barn with a bucket.
+[clouds] After the storm, the farm smells fresh and wet.
+[clear] Button shakes his *feathers* and lifts off again.
 
 == scarecrow-coat | The Scarecrow Coat | level 4 | golden clear | stretch
-The old scarecrow stands alone in the garden.
-His coat has a hole and a missing button.
-Button feels sorry for his *lonely* friend.
-He brings a shiny button from his nest.
-He pokes it into the coat with his beak.
-The scarecrow looks proud, and Button *chuckles* happily.
+The old *scarecrow* stands alone in the garden.
+His jacket has a hole and a missing button.
+Button is sad for his *lonely* friend.
+He brings a red button from his nest.
+He pokes it into the jacket with his bill.
+The *scarecrow* is smart, and Button *chuckles*.
 
 == paper-boat | The Paper Boat | level 4 | day clouds | stretch
-A child makes a paper boat by the stream.
-The boat floats away down the *rushing* water.
-Button sees it spin around a muddy rock.
-He flaps down and lifts the boat with care.
-He carries it back and sets it down.
-The child cheers, and Button bows in the *sunshine*.
+A child makes a paper *boat* by the pond.
+The paper ship drifts off on the rushing water.
+Button spots it spinning next to a big rock.
+He flaps his wings and lifts the ship up.
+He brings it back to the child.
+The child *cheers* and hugs Button in the *sunshine*.
 
-== button-big-story | The Harvest Moon | level 4 | dusk clear | big
-The harvest moon rises over the golden field.
-Button counts the stars as the night grows cool.
-A little mouse is lost in the corn.
-Button calls to the mouse from a post.
-He shows the mouse the way to its burrow.
-Then Button flies home to his nest of buttons.
+== button-big-story | The Lost Hamster | level 4 | dusk clear | big
+The sun sets over the golden farm.
+Button sits on a post, singing to the stars.
+A lost hamster is sobbing in the corn.
+Button calls to the hamster from his post.
+He helps the hamster find its den.
+Then Button zips home to his nest of buttons.
 
-# Level 5 · Marmalade · -ing, -ed and compound words · 8 to 10 words
+# Level 5 · Marmalade · vowel teams: ai ay ee ea oa ow oo ou oi · 8 to 10 words
 
 == marmalade-sunflower | The Tallest Sunflower | level 5 | day clear
 Marmalade the cat was napping under the garden bench.
-She yawned and *stretched* and looked up at the sky.
+She yawned, *stretched* and looked up at the clouds.
 A sunflower was reaching higher than the cottage roof.
 Marmalade wanted to see the sunflower from the top.
-She climbed the fence and jumped onto the *windowsill*.
-From there she smiled at the tallest sunflower in town.
+She hopped up the fence and jumped onto the *windowsill*.
+From there, she smiled at the tallest sunflower in town.
 
 == wool-in-the-wind | Wool in the Wind | level 5 | day clouds
 Marmalade was playing with a ball of green wool.
-The wind picked up and the wool started rolling away.
+The wind picked up, and the wool started rolling away.
 It bounced along the path and *tangled* around the roses.
 Marmalade followed the trail of wool through the garden.
 She found the ball resting beside the old *watering* can.
 She carried it home and curled up for a rest.
 
 == garden-party | The Garden Party | level 5 | golden clear | stretch
-The children were planning a party in the cottage garden.
+The children were planning a picnic in the cottage garden.
 They hung *lanterns* and baked cupcakes with pink icing.
-Marmalade watched everything from the top of the wall.
-When the guests arrived, she jumped down to say “hello”.
-Everyone laughed as she chased the bubbles across the grass.
-It was the most *wonderful* party the garden had seen.
+Marmalade sat high on the wall to see it all.
+When the friends arrived, she jumped down to say “hello”.
+The children laughed as she chased *bubbles* across the grass.
+It was the best picnic the garden had ever seen!
 
 == rainy-afternoon | A Rainy Afternoon | level 5 | day clouds | stretch
 [rain] Raindrops were tapping on the window of the cottage.
-Marmalade stayed indoors and watched the puddles growing bigger.
-She listened to the kettle *whistling* in the kitchen.
-Grandma was knitting a scarf beside the crackling fire.
-Marmalade pounced on the dangling wool and rolled it away.
-Grandma chuckled, and they spent the *afternoon* playing together.
+Marmalade stayed indoors and saw the *puddles* getting bigger.
+She heard the *kettle* sing out from the cooker.
+Grandma was making a scarf beside the hot fire.
+Marmalade pounced on the green wool and rolled it away.
+Grandma laughed, and they spent the *afternoon* playing together.
 
 == marmalade-big-story | The Lost Kitten | level 5 | golden clouds | big
-One morning, Marmalade heard a tiny “meow” from the hedge.
+One morning, Marmalade heard a soft “meow” from the bushes.
 She searched between the flowerpots and behind the shed.
 At last, she discovered a kitten hiding under a bucket.
 The kitten was shivering and wanted to find its mother.
 Marmalade walked beside it all the way down the lane.
 Its mother was waiting, and they purred at the gate.
 
-# Level 6 · Barnacle · longer words, tricky spellings · 9 to 12 words
+# Level 6 · Barnacle · kn wr mb tch dge, -le, y as a vowel · 9 to 12 words
 
 == barnacle-shells | Barnacle and the Shells | level 6 | day clear
 Barnacle the crab lives in a rock pool beside the sea.
@@ -238,7 +242,7 @@ On the island he met a family of seals sunbathing together.
 They told him stories about the ocean until the sun went down.
 
 == barnacle-storm | The Night of the Storm | level 6 | dusk clouds | stretch
-[storm] The sky turned dark and the wind began to howl.
+[storm] The sky turned dark, and the wind began to howl.
 *Enormous* waves crashed against the rocks and sprayed white foam.
 Barnacle held on tightly to the seaweed in his rock pool.
 *Although* he was frightened, he remembered the storm would pass.
@@ -253,7 +257,7 @@ The message was a drawing of a smiling crab waving hello.
 Someone far across the ocean had sent it just for him.
 Barnacle kept the drawing and dreamed about his faraway friend.
 
-# Level 7 · Bartholomew · big words, longer sentences · 10 to 14 words
+# Level 7 · Bartholomew · -tion -sion -ture -ous, longer words · 10 to 14 words
 
 == bartholomew-tall-grass | Bartholomew in the Tall Grass | level 7 | day clear
 Bartholomew the grasshopper lives where the grass grows taller than a house.
