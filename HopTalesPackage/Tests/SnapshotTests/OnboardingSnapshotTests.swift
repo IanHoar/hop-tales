@@ -29,11 +29,6 @@ struct OnboardingSnapshotTests {
   }
 
   @Test(arguments: [ColorScheme.light, .dark])
-  func pickingAnAccent(scheme: ColorScheme) {
-    expectSnapshot(of: OnboardingPreview(.accent), scheme: scheme)
-  }
-
-  @Test(arguments: [ColorScheme.light, .dark])
   func theSheetIsCentredOnAnIPad(scheme: ColorScheme) {
     expectSnapshot(of: OnboardingPreview(.friend, size: Metrics.pad.reference), scheme: scheme)
   }

@@ -14,7 +14,6 @@ import World
     case listening
     case friend
     case soundButtons
-    case accent
   }
 
   public struct State {
@@ -49,13 +48,15 @@ import World
         && Step.allCases.filter { $0 != .listening }.allSatisfy(canContinue(from:))
     }
 
-    var listeningLocale: Locale { (accent ?? .canadian).locale }
+    var listeningLocale: Locale { resolvedAccent.locale }
+
+    var resolvedAccent: Profile.Accent { accent ?? Profile.Accent(region: Locale.current.region) }
 
     public var profile: Profile {
       Profile(
         childName: childName.trimmingCharacters(in: .whitespacesAndNewlines),
         startingFriend: startingFriend ?? .bunny,
-        accent: accent ?? .canadian,
+        accent: resolvedAccent,
         soundButtons: soundButtons ?? false
       )
     }
@@ -66,7 +67,7 @@ import World
 
     public var primaryTitle: String {
       if needsMicrophone { return "Allow microphone" }
-      return step == .accent ? "Start reading" : "Continue"
+      return step == Step.allCases.last ? "Start reading" : "Continue"
     }
 
     public var primaryEnabled: Bool { needsMicrophone || canContinue(from: step) }
@@ -77,13 +78,11 @@ import World
       case .listening: authorization != nil
       case .friend: startingFriend != nil
       case .soundButtons: soundButtons != nil
-      case .accent: accent != nil
       }
     }
   }
 
   public enum Action {
-    case accentPicked(Profile.Accent)
     case authorizationResolved(SpeechClient.Authorization)
     case backTapped
     case finished(Profile)
@@ -99,9 +98,6 @@ import World
   public var body: some Feature {
     Update { state, action in
       switch action {
-      case let .accentPicked(accent):
-        state.accent = accent
-
       case let .authorizationResolved(authorization):
         state.authorization = authorization
 
