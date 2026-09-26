@@ -63,7 +63,11 @@ struct StepPage: View {
   private var content: some View {
     switch store.step {
     case .name:
-      NameField(name: store.childName) { store.send(.nameChanged($0)) }
+      NameField(name: store.childName) {
+        store.send(.nameChanged($0))
+      } submit: {
+        if store.primaryEnabled { store.send(.primaryTapped) }
+      }
     case .listening:
       MicrophoneNote(authorization: store.authorization)
     case .friend:
@@ -77,6 +81,7 @@ struct StepPage: View {
 struct NameField: View {
   let name: String
   let change: @MainActor (String) -> Void
+  let submit: @MainActor () -> Void
   @FocusState private var focused: Bool
 
   var body: some View {
@@ -91,6 +96,7 @@ struct NameField: View {
         .autocorrectionDisabled()
         .submitLabel(.done)
         .focused($focused)
+        .onSubmit(submit)
         .padding(.horizontal, 16)
         .frame(height: 54)
         .background(Paper.rim.opacity(0.7), in: field)
@@ -100,7 +106,6 @@ struct NameField: View {
         .onTapGesture { focused = true }
         .accessibilityLabel("Name or nickname")
     }
-    .onAppear { focused = true }
   }
 
   private var field: RoundedRectangle { RoundedRectangle(cornerRadius: 16, style: .continuous) }
