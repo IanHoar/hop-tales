@@ -74,7 +74,7 @@ struct LevelContentTests {
   }
 
   @Test func eachStoryBelongsToItsLevelsFriend() {
-    #expect(StoryLibrary["puddle-kite"]?.friend == .frog)
-    #expect(StoryLibrary["sprig-big-story"]?.friend == .grasshopper)
+    #expect(StoryLibrary["oggy-kite"]?.friend == .frog)
+    #expect(StoryLibrary["bartholomew-big-story"]?.friend == .grasshopper)
   }
 }

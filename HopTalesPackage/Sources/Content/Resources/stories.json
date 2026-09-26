@@ -1047,8 +1047,8 @@
     ]
   },
   {
-    "id": "bramble-bug",
-    "title": "Bramble and the Bug",
+    "id": "bob-bug",
+    "title": "Bob and the Bug",
     "level": 1,
     "stretch": false,
     "isBigStory": false,
@@ -1061,7 +1061,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Bramble",
+            "text": "Bob",
             "homophones": [],
             "big": false
           },
@@ -1187,7 +1187,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Bramble",
+            "text": "Bob",
             "homophones": [],
             "big": false
           },
@@ -1259,7 +1259,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Bramble",
+            "text": "Bob",
             "homophones": [],
             "big": false
           },
@@ -1391,7 +1391,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Bramble",
+            "text": "Bob",
             "homophones": [],
             "big": false
           },
@@ -1466,7 +1466,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Bramble",
+            "text": "Bob",
             "homophones": [],
             "big": false
           },
@@ -1620,7 +1620,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Bramble",
+            "text": "Bob",
             "homophones": [],
             "big": false
           },
@@ -1645,8 +1645,8 @@
     ]
   },
   {
-    "id": "hare-and-frog",
-    "title": "Hare and the Frog",
+    "id": "dash-and-frog",
+    "title": "Dash and the Frog",
     "level": 2,
     "stretch": false,
     "isBigStory": false,
@@ -1659,10 +1659,8 @@
         "newWord": null,
         "words": [
           {
-            "text": "Hare",
-            "homophones": [
-              "hair"
-            ],
+            "text": "Dash",
+            "homophones": [],
             "big": false
           },
           {
@@ -1848,10 +1846,8 @@
         "newWord": null,
         "words": [
           {
-            "text": "Hare",
-            "homophones": [
-              "hair"
-            ],
+            "text": "Dash",
+            "homophones": [],
             "big": false
           },
           {
@@ -1899,10 +1895,8 @@
         "newWord": null,
         "words": [
           {
-            "text": "Hare",
-            "homophones": [
-              "hair"
-            ],
+            "text": "Dash",
+            "homophones": [],
             "big": false
           },
           {
@@ -2097,10 +2091,8 @@
         "newWord": null,
         "words": [
           {
-            "text": "Hare",
-            "homophones": [
-              "hair"
-            ],
+            "text": "Dash",
+            "homophones": [],
             "big": false
           },
           {
@@ -2153,10 +2145,8 @@
         "newWord": null,
         "words": [
           {
-            "text": "Hare",
-            "homophones": [
-              "hair"
-            ],
+            "text": "Dash",
+            "homophones": [],
             "big": false
           },
           {
@@ -2275,10 +2265,8 @@
         "newWord": null,
         "words": [
           {
-            "text": "Hare",
-            "homophones": [
-              "hair"
-            ],
+            "text": "Dash",
+            "homophones": [],
             "big": false
           },
           {
@@ -2402,8 +2390,8 @@
     ]
   },
   {
-    "id": "hare-big-story",
-    "title": "Hare and the Brook",
+    "id": "dash-big-story",
+    "title": "Dash and the Brook",
     "level": 2,
     "stretch": false,
     "isBigStory": true,
@@ -2416,10 +2404,8 @@
         "newWord": null,
         "words": [
           {
-            "text": "Hare",
-            "homophones": [
-              "hair"
-            ],
+            "text": "Dash",
+            "homophones": [],
             "big": false
           },
           {
@@ -2524,10 +2510,8 @@
         "newWord": null,
         "words": [
           {
-            "text": "Hare",
-            "homophones": [
-              "hair"
-            ],
+            "text": "Dash",
+            "homophones": [],
             "big": false
           },
           {
@@ -2610,10 +2594,8 @@
         "newWord": null,
         "words": [
           {
-            "text": "Hare",
-            "homophones": [
-              "hair"
-            ],
+            "text": "Dash",
+            "homophones": [],
             "big": false
           },
           {
@@ -2652,8 +2634,8 @@
     ]
   },
   {
-    "id": "puddle-kite",
-    "title": "Puddle and the Kite",
+    "id": "oggy-kite",
+    "title": "Oggy and the Kite",
     "level": 3,
     "stretch": true,
     "isBigStory": false,
@@ -2666,7 +2648,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Puddle",
+            "text": "Oggy",
             "homophones": [],
             "big": false
           },
@@ -2841,7 +2823,7 @@
             "big": false
           },
           {
-            "text": "Puddle",
+            "text": "Oggy",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -2852,7 +2834,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Puddle",
+            "text": "Oggy",
             "homophones": [],
             "big": false
           },
@@ -2952,7 +2934,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Puddle",
+            "text": "Oggy",
             "homophones": [],
             "big": false
           },
@@ -3189,7 +3171,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Puddle",
+            "text": "Oggy",
             "homophones": [],
             "big": false
           },
@@ -3234,7 +3216,7 @@
     ]
   },
   {
-    "id": "puddle-big-story",
+    "id": "oggy-big-story",
     "title": "The Lily Pad Race",
     "level": 3,
     "stretch": false,
@@ -3337,7 +3319,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Puddle",
+            "text": "Oggy",
             "homophones": [],
             "big": false
           },
@@ -3429,7 +3411,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Puddle",
+            "text": "Oggy",
             "homophones": [],
             "big": false
           },
@@ -6789,8 +6771,8 @@
     ]
   },
   {
-    "id": "nipper-shells",
-    "title": "Nipper and the Shells",
+    "id": "barnacle-shells",
+    "title": "Barnacle and the Shells",
     "level": 6,
     "stretch": false,
     "isBigStory": false,
@@ -6803,7 +6785,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Nipper",
+            "text": "Barnacle",
             "homophones": [],
             "big": false
           },
@@ -7242,7 +7224,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Nipper",
+            "text": "Barnacle",
             "homophones": [],
             "big": false
           },
@@ -7416,7 +7398,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Nipper",
+            "text": "Barnacle",
             "homophones": [],
             "big": false
           },
@@ -7567,7 +7549,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Nipper",
+            "text": "Barnacle",
             "homophones": [],
             "big": false
           },
@@ -7933,7 +7915,7 @@
     ]
   },
   {
-    "id": "nipper-storm",
+    "id": "barnacle-storm",
     "title": "The Night of the Storm",
     "level": 6,
     "stretch": true,
@@ -8063,7 +8045,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Nipper",
+            "text": "Barnacle",
             "homophones": [],
             "big": false
           },
@@ -8317,7 +8299,7 @@
     ]
   },
   {
-    "id": "nipper-big-story",
+    "id": "barnacle-big-story",
     "title": "The Message in a Bottle",
     "level": 6,
     "stretch": false,
@@ -8344,7 +8326,7 @@
             "trailing": ","
           },
           {
-            "text": "Nipper",
+            "text": "Barnacle",
             "homophones": [],
             "big": false
           },
@@ -8640,7 +8622,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Nipper",
+            "text": "Barnacle",
             "homophones": [],
             "big": false
           },
@@ -8695,8 +8677,8 @@
     ]
   },
   {
-    "id": "sprig-tall-grass",
-    "title": "Sprig in the Tall Grass",
+    "id": "bartholomew-tall-grass",
+    "title": "Bartholomew in the Tall Grass",
     "level": 7,
     "stretch": false,
     "isBigStory": false,
@@ -8709,7 +8691,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Sprig",
+            "text": "Bartholomew",
             "homophones": [],
             "big": false
           },
@@ -9054,7 +9036,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Sprig",
+            "text": "Bartholomew",
             "homophones": [],
             "big": false
           },
@@ -9111,7 +9093,7 @@
     ]
   },
   {
-    "id": "sprig-fiddle",
+    "id": "bartholomew-fiddle",
     "title": "The Evening Concert",
     "level": 7,
     "stretch": false,
@@ -9148,7 +9130,7 @@
             "trailing": ","
           },
           {
-            "text": "Sprig",
+            "text": "Bartholomew",
             "homophones": [],
             "big": false
           },
@@ -9525,7 +9507,7 @@
     ]
   },
   {
-    "id": "sprig-journey",
+    "id": "bartholomew-journey",
     "title": "The Journey to the Old Oak",
     "level": 7,
     "stretch": true,
@@ -9539,7 +9521,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Sprig",
+            "text": "Bartholomew",
             "homophones": [],
             "big": false
           },
@@ -9954,7 +9936,7 @@
     ]
   },
   {
-    "id": "sprig-rainbow",
+    "id": "bartholomew-rainbow",
     "title": "Chasing the Rainbow",
     "level": 7,
     "stretch": true,
@@ -10031,7 +10013,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Sprig",
+            "text": "Bartholomew",
             "homophones": [],
             "big": false
           },
@@ -10288,7 +10270,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Sprig",
+            "text": "Bartholomew",
             "homophones": [],
             "big": false
           },
@@ -10348,7 +10330,7 @@
     ]
   },
   {
-    "id": "sprig-big-story",
+    "id": "bartholomew-big-story",
     "title": "The Great Meadow Festival",
     "level": 7,
     "stretch": false,
@@ -10494,7 +10476,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Bramble",
+            "text": "Bob",
             "homophones": [],
             "big": false
           },
@@ -10514,10 +10496,8 @@
             "big": false
           },
           {
-            "text": "Hare",
-            "homophones": [
-              "hair"
-            ],
+            "text": "Dash",
+            "homophones": [],
             "big": false
           },
           {
@@ -10557,7 +10537,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Puddle",
+            "text": "Oggy",
             "homophones": [],
             "big": false
           },
@@ -10597,7 +10577,7 @@
             "big": false
           },
           {
-            "text": "Nipper",
+            "text": "Barnacle",
             "homophones": [],
             "big": false
           },
@@ -10639,7 +10619,7 @@
             "trailing": ","
           },
           {
-            "text": "Sprig",
+            "text": "Bartholomew",
             "homophones": [],
             "big": false
           },
