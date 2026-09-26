@@ -59,7 +59,7 @@ struct ReadingScreenPreview: View {
 }
 
 #Preview("Start") { ReadingScreenPreview() }
-#Preview("Bramble") { ReadingScreenPreview(moment: .midPage, friend: .bunny) }
+#Preview("Bob") { ReadingScreenPreview(moment: .midPage, friend: .bunny) }
 #Preview("Mid page") { ReadingScreenPreview(moment: .midPage) }
 #Preview("End") { ReadingScreenPreview(moment: .end) }
 #Preview("Big story ready") { ReadingScreenPreview(moment: .bigStoryReady) }

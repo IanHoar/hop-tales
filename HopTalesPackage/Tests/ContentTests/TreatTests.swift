@@ -4,7 +4,7 @@ import Testing
 
 struct TreatTests {
   @Test func aStoryHasOneTreatInItsLastSentence() throws {
-    let story = try #require(StoryLibrary["bramble-bug"])
+    let story = try #require(StoryLibrary["bob-bug"])
     let treat = try #require(Journey(starting: .bunny).treat(in: story))
     #expect(treat.word.sentence == story.sentences.count - 1)
     #expect(treat.friend == .bunny)
@@ -21,7 +21,7 @@ struct TreatTests {
   }
 
   @Test func bigStoriesHaveNoTreat() {
-    #expect(Journey(starting: .bunny).treat(in: StoryLibrary["hare-big-story"]!) == nil)
+    #expect(Journey(starting: .bunny).treat(in: StoryLibrary["dash-big-story"]!) == nil)
   }
 
   @Test func basketsNeedThreePlusTheirNumber() {

@@ -13,13 +13,13 @@ public enum Friend: String, Codable, CaseIterable, Hashable, Sendable {
 
   public var name: String {
     switch self {
-    case .bunny: "Bramble"
-    case .hare: "Hare"
-    case .frog: "Puddle"
+    case .bunny: "Bob"
+    case .hare: "Dash"
+    case .frog: "Oggy"
     case .crow: "Button"
     case .cat: "Marmalade"
-    case .crab: "Nipper"
-    case .grasshopper: "Sprig"
+    case .crab: "Barnacle"
+    case .grasshopper: "Bartholomew"
     }
   }
 

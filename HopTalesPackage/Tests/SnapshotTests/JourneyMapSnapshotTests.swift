@@ -8,7 +8,7 @@ import Testing
 @Suite(.snapshots(record: .missing, diffTool: .ksdiff))
 struct JourneyMapSnapshotTests {
   @Test(arguments: [ColorScheme.light, .dark])
-  func theJourneyFromBrambleToSprig(scheme: ColorScheme) {
+  func theJourneyFromBobToBartholomew(scheme: ColorScheme) {
     expectSnapshot(of: JourneyMapPreview(), scheme: scheme)
   }
 }
