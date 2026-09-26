@@ -4,11 +4,11 @@ This is a plan, not built yet. It builds on the collage storybook (`docs/DESIGN-
 
 **The idea in one paragraph:**
 
-- **Friends are reading levels.** There are seven, each a friend with its own world and stories written at that level. A child starts with Bob the rabbit at level 1, then Dash at level 2, then Oggy, Button, Marmalade, Barnacle and Bartholomew.
+- **Friends are reading levels.** There are seven, each a friend with its own world and stories written at that level. A child starts with Bob the rabbit at level 1, then Skip at level 2, then Oggy, Button, Marmalade, Barnacle and Bartholomew.
 - **Steps fill the path.** Every word read is a step along the path to the next friend. **Big words** (harder words from a level or two up, marked on the path) are worth 5 steps.
 - **The big story.** When the path is full, the next friend waits at The end with a **big story** from their level. Reading it well unlocks that friend and moves the child up a level.
-- **Treats and wardrobes.** Treats picked up along the path fill that friend's basket, and each full basket unlocks the next item in that friend's own wardrobe (8 items each; Dash has 12).
-- **The next friend's trail.** The hardest stories at a level are also sprinkled with the *next* friend's treat: Dash's carrots for a Bob reader, Oggy's water lilies for a Dash reader. Collect 6 and the next friend comes, a third way up alongside the big story and sustained reading (§3a).
+- **Treats and wardrobes.** Treats picked up along the path fill that friend's basket, and each full basket unlocks the next item in that friend's own wardrobe (8 items each; Skip has 12).
+- **The next friend's trail.** The hardest stories at a level are also sprinkled with the *next* friend's treat: Skip's carrots for a Bob reader, Oggy's water lilies for a Skip reader. Collect 6 and the next friend comes, a third way up alongside the big story and sustained reading (§3a).
 
 **Where things are:**
 
@@ -34,7 +34,7 @@ This is a plan, not built yet. It builds on the collage storybook (`docs/DESIGN-
 | Level | Friend | Focus | Example words | Sentences | Steps to the next friend |
 |---|---|---|---|---|---|
 | 1 | Bob (rabbit) | short vowels | sat, hop, red | 3–5 words | 300 |
-| 2 | Dash | digraphs and blends | ship, duck, frog | 5–7 | 400 |
+| 2 | Skip | digraphs and blends | ship, duck, frog | 5–7 | 400 |
 | 3 | Oggy (frog) | magic e | lake, kite, home | 6–8 | 500 |
 | 4 | Button (crow) | endings and ar, or, er | jumped, farm, garden | 7–9 | 600 |
 | 5 | Marmalade (cat) | vowel teams | rain, boat, moon | 8–10 | 700 |
@@ -49,12 +49,12 @@ This is a plan, not built yet. It builds on the collage storybook (`docs/DESIGN-
     - Body: "Pick the friend whose words look about right. You can change this later in settings."
   - **Three cards**, each with the friend's sticker, name, a label and example words in Young Serif:
     - **Bob** · Just starting · *sat · hop · red*
-    - **Dash** · Getting going · *frog · ship · hill*
+    - **Skip** · Getting going · *frog · ship · hill*
     - **Oggy** · Reading well · *lake · kite · home*
 
     The selected card gets a red 3 pt border.
   - **Below the cards:** silhouettes of the other four friends and "4 more friends join as your reader gets stronger".
-  - **Picking a friend** starts at their level. The easier friends are already met: picking Oggy means Bob and Dash come along.
+  - **Picking a friend** starts at their level. The easier friends are already met: picking Oggy means Bob and Skip come along.
   - **Button, Marmalade, Barnacle and Bartholomew are never offered in onboarding.** They're only reached by filling the path and passing each big story.
   - **Settings:** the grown-up setting can move a child between the levels they've reached. It can't skip them ahead past level 3.
 
@@ -112,13 +112,13 @@ This is a plan, not built yet. It builds on the collage storybook (`docs/DESIGN-
 
 A third way up, made for a child who loves collecting.
 
-- **What:** the next friend's treat. For a Bob reader it's Dash's carrots; for a Dash reader, Oggy's water lilies; and so on up to Bartholomew's clover for a Barnacle reader. Bartholomew is the top, so level 7 has no trail.
+- **What:** the next friend's treat. For a Bob reader it's Skip's carrots; for a Skip reader, Oggy's water lilies; and so on up to Bartholomew's clover for a Barnacle reader. Bartholomew is the top, so level 7 has no trail.
 - **Where:** only on the **hardest stories of the current level**, the stories tagged `"stretch": true` in `stories.json`. Tag about the top third of each level's stories by difficulty (longer sentences and more big words), with at least two stretch stories per level.
 - **How many:** a stretch story's one treat (§4) is the next friend's treat instead of the current friend's. It flies to the next friend's grey sticker rather than to the basket chip.
 - **The goal:** **6** of them (decided; it was 20 before treats became one per story), kept in the level table so it can be tuned. That's six stretch-story reads, and re-reading a hard story counts.
-- **When the goal is reached:** at the next The end, the next friend arrives with the same new-friend moment as passing the big story ("You found all the carrots! Dash is your new friend"), and the level rises.
+- **When the goal is reached:** at the next The end, the next friend arrives with the same new-friend moment as passing the big story ("You found all the carrots! Skip is your new friend"), and the level rises.
 - **Where the count shows:**
-  - The tally sheet shows it next to the path meter: "Carrots for Dash · 4 of 6", with the carrot sticker.
+  - The tally sheet shows it next to the path meter: "Carrots for Skip · 4 of 6", with the carrot sticker.
   - The journey map shows it by the next friend's grey stop.
   - Home's level chip alternates between steps and the trail count.
 - **Rules:**
@@ -142,7 +142,7 @@ Decided: treats are sparse, **one per story, near the end**, to keep children re
 
 ## 5. Wardrobes
 
-**Every friend has their own wardrobe: 8 items for each new friend and 12 for Dash.** Items are made for that friend's shape and world, and are never shared, so nothing has to fit seven different bodies.
+**Every friend has their own wardrobe: 8 items for each new friend and 12 for Skip.** Items are made for that friend's shape and world, and are never shared, so nothing has to fit seven different bodies.
 
 - **How items unlock:**
   - A friend's **first item comes with meeting them** (it's shown on the new-friend screen, e.g. "Oggy gave you a lily-pad hat").
@@ -162,7 +162,7 @@ Decided: treats are sparse, **one per story, near the end**, to keep children re
 | basket 6 | wicker backpack (back) | reed satchel (back) | patchwork waistcoat (body) | gardening apron (body) | claw mittens (claws) | ladybird cape (back) |
 | basket 7 | lilac shawl (body) | raincoat (body) | postbag (back) | knitted cardigan (body) | treasure backpack (back) | leaf poncho (body) |
 
-**Dash's 12** (`wardrobe/`), in unlock order:
+**Skip's 12** (`wardrobe/`), in unlock order:
 
 1. straw hat (on meeting)
 2. bow tie
@@ -223,7 +223,7 @@ Decided: treats are sparse, **one per story, near the end**, to keep children re
 | Key | Name (placeholder) | Level | Accessory | Treat | World | Hop fps | Lift per frame (src px) |
 |---|---|---|---|---|---|---|---|
 | `bunny` | Bob | 1 | lilac ear bow | wild strawberries | Bluebell Wood | 14 | 0 0 −30 −60 −30 0 0 0 |
-| `hare` | Dash | 2 | red knitted scarf | carrots | The Meadow | 14 | (existing) |
+| `hare` | Skip | 2 | red knitted scarf | carrots | The Meadow | 14 | (existing) |
 | `frog` | Oggy | 3 | yellow neckerchief | water lilies | Willow Pond | 12 | 0 0 −40 −90 −60 −10 0 0 |
 | `crow` | Button | 4 | blue knitted cap | shiny buttons | Harvest Field | 12 | 0 0 −20 −70 −50 0 0 0 |
 | `cat` | Marmalade | 5 | sage ribbon collar | balls of wool | Cottage Garden | 14 | 0 0 −10 −60 −40 0 0 0 |
@@ -292,7 +292,7 @@ struct Wardrobe: Codable {
 2. **Levels in the content:** tag every story's level, mark big words, write the big stories (one per level up), and add the level table to `Content`.
 3. **Journey:** step counting, big words on the path, the tally path meter, the big-story card, passing and "not yet", the new-friend moment, and the journey map.
 4. **Treats and baskets:** treats on the path, the basket chip, golden treats, each friend's basket and the basket-full present.
-5. **Wardrobes:** the anchor format, Bob's and Dash's anchors and wardrobes, the wardrobe screen, and outfits shown while reading and on home. Each later friend's anchors ship with that friend.
+5. **Wardrobes:** the anchor format, Bob's and Skip's anchors and wardrobes, the wardrobe screen, and outfits shown while reading and on home. Each later friend's anchors ship with that friend.
 6. **Bob fully:** idle, anchors, Bluebell Wood as 3 layers, and level-1 stories.
 7. **Then one friend per release in level order:** Oggy, Button, Marmalade, Barnacle, Bartholomew. Each needs a world, idle, anchors, golden treat and level stories.
 
@@ -306,7 +306,7 @@ struct Wardrobe: Codable {
    - The big story stays on the journey map to read later, and still earns its stamp in the collection book.
    - The count resets on every level up, however it happened.
 4. **Level definitions:** check the seven levels with a teacher or against his school's phonics order.
-5. **Names:** each friend's name is decodable at their level: Bob (CVC), Dash (digraph), Oggy, Button (two beats), Marmalade, Barnacle (tricky spelling) and Bartholomew (a big word).
+5. **Names:** each friend's name is decodable at their level: Bob (CVC), Skip (blend), Oggy, Button (two beats), Marmalade, Barnacle (tricky spelling) and Bartholomew (a big word).
 
 ## 11. Assets and making more
 
@@ -316,7 +316,7 @@ struct Wardrobe: Codable {
 | `sprites/` | 6 hop strips |
 | `worlds/` | 6 postcards, 3168×1344 |
 | `collectibles/` | treats, golden carrot, four-leaf clover, basket, rosette, star (the big-word marker) |
-| `wardrobe/` | Dash's 12 items |
+| `wardrobe/` | Skip's 12 items |
 | `wardrobe-suites/` | 8 items per new friend, plus two painted looks each, and `suits.json` |
 | `reference/dressed/` | target looks |
 | `reference/boards/` | renders |

@@ -219,5 +219,5 @@ struct WardrobePreview: View {
 }
 
 #Preview("Bob") { WardrobePreview() }
-#Preview("Dash") { WardrobePreview(friend: .hare) }
+#Preview("Skip") { WardrobePreview(friend: .hare) }
 #endif

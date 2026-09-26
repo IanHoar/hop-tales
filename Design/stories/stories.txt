@@ -21,36 +21,36 @@
 # two or three moments a story. Props leave when their sentence ends.
 
 == meadow-walk | The Meadow Walk | level 1 | day clear
-Dash sat in the sun.
+Bob sat in the sun.
 [butterfly] He can ^hop a lot.
 He ran up and up.
 [clouds bug@bug] A bug sat on him.
-Dash hid in the *grass*.
-[bee] Dash ran on and on!
+Bob hid in the *grass*.
+[bee] Bob ran on and on!
 
 == golden-hour | Golden Hour | level 2 | day clouds
 The sun is big and red.
-[golden dragonfly] Dash hops past the ^pond.
+[golden dragonfly] Skip hops past the ^pond.
 He stops to sniff the *herbs*.
 [thrush@thrush] A ^thrush sings on a stump.
 [butterfly] The long grass is soft and pink.
-Dash hops on up the path.
+Skip hops on up the path.
 
 == storm-on-the-hill | Storm on the Hill | level 3 | day clouds
 Big black *clouds* drift up the hill.
 [storm] The wind shakes the long grass.
 [rain] Big wet ^drops splash on the grass.
-[log@log] Dash hides in a hole in a log.
+[log@log] Oggy hides in a hole in a log.
 [clouds] At last, the *storm* is gone.
-[clear] The sun is back, and Dash hops on.
+[clear] The sun is back, and Oggy hops on.
 
 == moonlight-hop | Moonlight Hop | level 3 | golden clear
 [dusk] The sun sets on the hills.
-[hedgehog] Dash hops home up the ^lane.
+[hedgehog] Oggy hops home up the ^lane.
 [night] One by one, the *stars* shine.
 The *moon* is up, and it is white.
 [owl@owl pine@pine] A big *owl* sits on a pine.
-Dash is *tired*, and he naps at home.
+Oggy is *tired*, and he naps at home.
 
 # Level 1 · Bob · single letters, short vowels, no blends · 3 to 5 words
 
@@ -78,39 +78,39 @@ Mud got on his leg.
 [mum@Mum] Mum had jam buns.
 Bob had a *snack*.
 
-# Level 2 · Dash · sh ch th ck ng nk, ll ss ff, blends · 5 to 7 words
+# Level 2 · Skip · sh ch th ck ng nk, ll ss ff, blends · 5 to 7 words
 
-== dash-and-frog | Dash and the Frog | level 2 | day clear
-[bee] Dash hops up to the *hilltop*.
+== skip-and-frog | Skip and the Frog | level 2 | day clear
+[bee] Skip hops up to the *hilltop*.
 [frog@frog] A fat frog sits on a stump.
 “Can you swim?” asks the frog.
 [splash@pond] Then the frog jumps into the pond.
 Splash! That is a big splash!
-Dash grins and flicks his *whiskers*.
+Skip grins and flicks his *whiskers*.
 
 == crunchy-carrot | The Crunchy Carrot | level 2 | day clouds | stretch
-[worm] Dash digs in the soft black mud.
+[worm] Skip digs in the soft black mud.
 He gets a big fat *carrot*.
 It is the best one yet.
 [butterfly] He brings it back to his den.
 [bee] Crunch, crunch, crunch! It is fresh.
-Dash is full, so he naps.
+Skip is full, so he naps.
 
 == chat-on-the-hill | Chat on the Hill | level 2 | golden clear | stretch
-[thrush@thrush] Dash and the thrush sit still.
+[thrush@thrush] Skip and the thrush sit still.
 [dusk] They chat as the sun sets.
 The thrush sings a *splendid* song.
-Dash thumps and claps to the song.
+Skip thumps and claps to the song.
 [moth@moth] A moth flaps past in the dusk.
 Then they rush back to bed.
 
-== dash-big-story | Dash and the Log | level 2 | day clear | big
-[dragonfly] Dash hops up to the pond.
+== skip-big-story | Skip and the Log | level 2 | day clear | big
+[dragonfly] Skip hops up to the pond.
 The pond is wet and big.
 [log@log] He spots a log on top.
-Dash steps on the log.
+Skip steps on the log.
 [splash@splash] Drip, drop, splash! It rocks a bit.
-Dash jumps and lands on the bank.
+Skip jumps and lands on the bank.
 
 # Level 3 · Oggy · magic e, soft c and g · 6 to 8 words
 
@@ -301,7 +301,7 @@ Every time he came closer, the rainbow seemed to move further away.
 == bartholomew-big-story | The Great Meadow Festival | level 7 | golden clear | big
 Once a year, every creature in the meadow gathers for a festival.
 [beetle*2@beetles] The beetles decorate the stems with petals and shimmering spider silk.
-Bob brings strawberries and Dash arrives with a basket of carrots.
+Bob brings strawberries and Skip arrives with a basket of carrots.
 Oggy and Button organise races while Marmalade and Barnacle tell stories.
 [night mushroom@mushroom] When the moon rises, Bartholomew climbs onto a mushroom to play his fiddle.
 [firefly*3] All his friends dance together, and it is the happiest night of the year!

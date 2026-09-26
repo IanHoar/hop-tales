@@ -18,7 +18,7 @@ struct ReadingScreenPreview: View {
 
   var story = StoryLibrary.all[0]
   var moment = Moment.start
-  var friend = Friend.hare
+  var friend: Friend?
 
   var body: some View {
     NavigationStack {
@@ -27,7 +27,7 @@ struct ReadingScreenPreview: View {
   }
 
   private var state: Reading.State {
-    var state = Reading.State(story: story, friend: friend)
+    var state = Reading.State(story: story, friend: friend ?? story.friend)
     switch moment {
     case let .at(sentence, word):
       state.sentenceIndex = sentence
