@@ -9,11 +9,15 @@ collecting anything, update `HopTales/PrivacyInfo.xcprivacy` and this page in th
 
 - Speech recognition runs on the device (`requiresOnDeviceRecognition = true`). Audio never leaves the
   phone and is never stored.
-- The child's name, accent, help voice, settings and reading progress are saved only on the
-  device, in Application Support and `UserDefaults`.
-- There are no network calls, analytics, crash reporters, advertising or third-party SDKs that phone
-  home.
-- Apple's definition of "collect" is data sent off the device, so nothing here counts.
+- The child's name, accent, help voice, settings and reading progress are saved on the device, in a
+  SQLite database in Application Support and in `UserDefaults`.
+- If the grown-up opts in ("Save progress to your Apple account?" in onboarding, or iCloud in
+  Settings), the profile and progress sync to **their own private CloudKit database**. We have no
+  access to it: it's the user's iCloud, not a server of ours. Apple's definition of "collect" is data
+  sent off the device where the developer or a third party can access it, so private-database sync
+  doesn't count. Confirm this reading when filling in the label.
+- There are no analytics, crash reporters, advertising or third-party SDKs that phone home, and no
+  network traffic besides that iCloud sync.
 
 **Tracking: none.** `NSPrivacyTracking` is `false`, with no tracking domains.
 
@@ -21,7 +25,7 @@ collecting anything, update `HopTales/PrivacyInfo.xcprivacy` and this page in th
 
 | Required-reason API | Where | Reason |
 |---|---|---|
-| `UserDefaults` | `StrictnessPreference`, `SoundPreference` | `CA92.1`: the app's own settings |
+| `UserDefaults` | `StrictnessPreference`, `SoundPreference`, `CloudSync` | `CA92.1`: the app's own settings |
 | System boot time | `ContinuousClock`, for the silence timer and the recogniser's settle timer | `35F9.1`: elapsed time between events in the app |
 
 No file-timestamp or disk-space APIs are used. The dependencies ship their own manifests where they

@@ -43,3 +43,21 @@ struct StrictnessChoices: View {
     }
   }
 }
+
+extension WordMatcher.Strictness {
+  var title: String {
+    switch self {
+    case .gentle: "Gentle"
+    case .standard: "Standard"
+    }
+  }
+
+  var detail: String {
+    switch self {
+    case .gentle:
+      "Accepts close tries, dropped endings and sound-alikes. Best for new readers."
+    case .standard:
+      "Wants each word said clearly. A small slip is still fine."
+    }
+  }
+}

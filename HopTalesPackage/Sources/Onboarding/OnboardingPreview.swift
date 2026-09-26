@@ -14,7 +14,11 @@ struct OnboardingPreview: View {
   }
 
   var body: some View {
-    OnboardingScreen(store: Store(initialState: state) { Onboarding() })
+    OnboardingScreen(store: Store(initialState: state) {
+      Onboarding().dependency(
+        CloudSync(account: { .signedOut }, isEnabled: { false }, setEnabled: { _ in })
+      )
+    })
       .frame(width: size.width, height: size.height)
   }
 
@@ -28,6 +32,12 @@ struct OnboardingPreview: View {
       state.startingFriend = .bunny
       state.soundButtons = true
     }
+    if step == .cloud {
+      state.startingFriend = .bunny
+      state.soundButtons = true
+      state.cloudSync = true
+      state.cloudAccount = .signedOut
+    }
     return state
   }
 }
@@ -36,4 +46,5 @@ struct OnboardingPreview: View {
 #Preview("Microphone") { OnboardingPreview(.listening) }
 #Preview("Starting friend") { OnboardingPreview(.friend) }
 #Preview("Sound buttons") { OnboardingPreview(.soundButtons) }
+#Preview("iCloud") { OnboardingPreview(.cloud) }
 #endif

@@ -57,9 +57,46 @@ struct OnboardingTests {
     store.send(.primaryTapped) { $0.path = [.listening, .friend, .soundButtons] }
     store.send(.primaryTapped)
     store.send(.soundButtonsPicked(true)) { $0.soundButtons = true }
+    store.send(.primaryTapped) { $0.path = [.listening, .friend, .soundButtons, .cloud] }
+    await store.receive(\.cloudAccountResolved) { $0.cloudAccount = .available }
+    store.send(.primaryTapped)
+    store.send(.cloudSyncPicked(false)) { $0.cloudSync = false }
     #expect(store.state.primaryTitle == "Start reading")
     store.send(.primaryTapped)
     await store.receive(\.finished)
+  }
+
+  @Test func savingToICloudCatchesUpBeforeTheStoriesOpen() async {
+    let enabled = LockIsolated<Bool?>(nil)
+    let caughtUp = LockIsolated(false)
+    var state = Onboarding.State()
+    state.childName = "Maya"
+    state.startingFriend = .frog
+    state.soundButtons = false
+    state.path = [.listening, .friend, .soundButtons, .cloud]
+    state.authorization = .authorized
+    let store = TestStore(initialState: state) {
+      Onboarding()
+        .dependency(Self.speech)
+        .dependency(\.continuousClock, ImmediateClock())
+        .dependency(
+          CloudSync(
+            account: { .available },
+            isEnabled: { enabled.value ?? false },
+            setEnabled: { enabled.setValue($0) },
+            catchUp: { caughtUp.setValue(true) }
+          )
+        )
+    }
+    await store.receive(\.cloudAccountResolved) { $0.cloudAccount = .available }
+    await store.receive(\.authorizationResolved)
+    store.send(.cloudSyncPicked(true)) { $0.cloudSync = true }
+    store.send(.primaryTapped) { $0.isCatchingUp = true }
+    #expect(store.state.primaryTitle == "Checking iCloud…")
+    await store.receive(\.finished)
+    #expect(enabled.value == true)
+    #expect(caughtUp.value)
+    await store.dismount()
   }
 
   @Test func eachStepWaitsForAnAnswer() {
@@ -72,6 +109,7 @@ struct OnboardingTests {
     #expect(!state.canContinue(from: .listening))
     #expect(!state.canContinue(from: .friend))
     #expect(!state.canContinue(from: .soundButtons))
+    #expect(!state.canContinue(from: .cloud))
   }
 
   @Test func listeningCanBeRefusedWithoutBlockingSetUp() async {
@@ -161,7 +199,8 @@ struct OnboardingTests {
       startingFriend: .hare,
       accent: .american,
       soundButtons: true,
-      step: 5
+      cloudSync: false,
+      step: Onboarding.Step.cloud.rawValue
     )
     let saved = LockIsolated<Profile?>(nil)
     let store = TestStore(initialState: Root.State()) {

@@ -14,6 +14,7 @@ import World
     case listening
     case friend
     case soundButtons
+    case cloud
   }
 
   public struct State {
@@ -23,6 +24,9 @@ import World
     public var startingFriend: Friend?
     public var accent: Profile.Accent?
     public var soundButtons: Bool?
+    public var cloudSync: Bool?
+    public var cloudAccount: CloudSync.Account?
+    public var isCatchingUp = false
     public init() {}
 
     public init(resuming draft: ProfileDraft) {
@@ -30,6 +34,7 @@ import World
       startingFriend = draft.startingFriend
       accent = draft.accent
       soundButtons = draft.soundButtons
+      cloudSync = draft.cloudSync
       path = Step.allCases.filter { $0 != .name && $0.rawValue <= draft.step }
     }
 
@@ -39,6 +44,7 @@ import World
         startingFriend: startingFriend,
         accent: accent,
         soundButtons: soundButtons,
+        cloudSync: cloudSync,
         step: step.rawValue
       )
     }
@@ -67,10 +73,13 @@ import World
 
     public var primaryTitle: String {
       if needsMicrophone { return "Allow microphone" }
+      if isCatchingUp { return "Checking iCloud…" }
       return step == Step.allCases.last ? "Start reading" : "Continue"
     }
 
-    public var primaryEnabled: Bool { needsMicrophone || canContinue(from: step) }
+    public var primaryEnabled: Bool {
+      needsMicrophone || (canContinue(from: step) && !isCatchingUp)
+    }
 
     func canContinue(from step: Step) -> Bool {
       switch step {
@@ -78,6 +87,7 @@ import World
       case .listening: authorization != nil
       case .friend: startingFriend != nil
       case .soundButtons: soundButtons != nil
+      case .cloud: cloudSync != nil
       }
     }
   }
@@ -85,6 +95,8 @@ import World
   public enum Action {
     case authorizationResolved(SpeechClient.Authorization)
     case backTapped
+    case cloudAccountResolved(CloudSync.Account)
+    case cloudSyncPicked(Bool)
     case finished(Profile)
     case friendPicked(Friend)
     case nameChanged(String)
@@ -92,6 +104,8 @@ import World
     case soundButtonsPicked(Bool)
   }
 
+  @Dependency(\.continuousClock) var clock
+  @Dependency(CloudSync.self) var cloudSync
   @Dependency(ProfileStore.self) var profileStore
   @Dependency(SpeechClient.self) var speechClient
 
@@ -105,6 +119,12 @@ import World
         guard !state.path.isEmpty else { break }
         state.path.removeLast()
 
+      case let .cloudAccountResolved(account):
+        state.cloudAccount = account
+
+      case let .cloudSyncPicked(isOn):
+        state.cloudSync = isOn
+
       case .finished:
         break
 
@@ -117,13 +137,13 @@ import World
           }
           break
         }
-        guard state.canContinue(from: state.step) else { break }
+        guard state.primaryEnabled else { break }
         guard let next = Step(rawValue: state.step.rawValue + 1) else {
-          let profile = state.profile
-          store.addTask { try store.send(.finished(profile)) }
+          finish(&state)
           break
         }
         state.path.append(next)
+        if next == .cloud { checkCloudAccount() }
 
       case let .nameChanged(name):
         state.childName = String(name.prefix(24))
@@ -138,6 +158,7 @@ import World
       profileStore.saveDraft(state.draft)
     }
     .onMount { state in
+      if state.step == .cloud { checkCloudAccount() }
       if state.step.rawValue > Step.listening.rawValue {
         let locale = state.listeningLocale
         store.addTask {
@@ -148,6 +169,33 @@ import World
     }
   }
 
+  private func checkCloudAccount() {
+    store.addTask {
+      let account = await cloudSync.account()
+      try store.send(.cloudAccountResolved(account))
+    }
+  }
+
+  private func finish(_ state: inout State) {
+    let profile = state.profile
+    guard state.cloudSync == true else {
+      store.addTask { try store.send(.finished(profile)) }
+      return
+    }
+    state.isCatchingUp = true
+    let cloudSync = cloudSync
+    let clock = clock
+    store.addTask {
+      await cloudSync.setEnabled(true)
+      await withTaskGroup { group in
+        group.addTask { await cloudSync.catchUp() }
+        group.addTask { try? await clock.sleep(for: .seconds(10)) }
+        await group.next()
+        group.cancelAll()
+      }
+      try store.send(.finished(profile))
+    }
+  }
 }
 
 public struct OnboardingScreen: View {
