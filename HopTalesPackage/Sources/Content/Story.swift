@@ -12,6 +12,7 @@ public enum Weather: String, Codable, Hashable, Sendable, CaseIterable {
   case clouds
   case storm
   case rain
+  case snow
 }
 
 public struct Mood: Codable, Hashable, Sendable {
@@ -77,12 +78,37 @@ public struct Sentence: Codable, Hashable, Sendable {
   public var words: [Word]
   public var sky: Sky?
   public var weather: Weather?
+  public var events: [StoryEvent]
 
-  public init(words: [Word], newWord: String? = nil, sky: Sky? = nil, weather: Weather? = nil) {
+  public init(
+    words: [Word],
+    newWord: String? = nil,
+    sky: Sky? = nil,
+    weather: Weather? = nil,
+    events: [StoryEvent] = []
+  ) {
     self.newWord = newWord
     self.words = words
     self.sky = sky
     self.weather = weather
+    self.events = events
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case newWord
+    case words
+    case sky
+    case weather
+    case events
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    newWord = try container.decodeIfPresent(String.self, forKey: .newWord)
+    words = try container.decode([Word].self, forKey: .words)
+    sky = try container.decodeIfPresent(Sky.self, forKey: .sky)
+    weather = try container.decodeIfPresent(Weather.self, forKey: .weather)
+    events = try container.decodeIfPresent([StoryEvent].self, forKey: .events) ?? []
   }
 }
 

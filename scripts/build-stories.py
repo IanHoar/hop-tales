@@ -14,10 +14,13 @@ ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "Design/stories/stories.txt"
 OUTPUT = ROOT / "HopTalesPackage/Sources/Content/Resources/stories.json"
 PHONICS = ROOT / "HopTalesPackage/Sources/Content/Resources/phonics.json"
+PROPS = json.loads((ROOT / "HopTalesPackage/Sources/Content/Resources/props.json").read_text())
+PLACES = {"ground", "near", "sky"}
+EVENT = re.compile(r"([a-z]+)(?:\*([2-4]))?(?:@([A-Za-z]+))?(?::([a-z]+))?")
 
 SENTENCE_WORDS = {1: (3, 5), 2: (5, 7), 3: (6, 8), 4: (7, 9), 5: (8, 10), 6: (9, 12), 7: (10, 14)}
 SKIES = {"day", "golden", "dusk", "night"}
-WEATHERS = {"clear", "clouds", "storm", "rain"}
+WEATHERS = {"clear", "clouds", "storm", "rain", "snow"}
 
 HOMOPHONES = {
     "be": ["bee"], "bee": ["be"], "blue": ["blew"], "blew": ["blue"], "by": ["buy", "bye"],
@@ -177,7 +180,8 @@ def parse_header(line, line_number):
 
 def parse_sentence(line, line_number):
     sentence = {"newWord": None, "words": []}
-    tags = re.match(r"\[([a-z ]+)\]\s*", line)
+    events = []
+    tags = re.match(r"\[([A-Za-z0-9@*: ]+)\]\s*", line)
     if tags:
         for tag in tags.group(1).split():
             if tag in SKIES:
@@ -185,7 +189,7 @@ def parse_sentence(line, line_number):
             elif tag in WEATHERS:
                 sentence["weather"] = tag
             else:
-                fail(line_number, f"unknown mood tag '{tag}'")
+                events.append(parse_event(tag, line_number))
         line = line[tags.end():]
     tokens = line.split()
     if not tokens or not re.search(r"[.!?][”’\"]*$", tokens[-1]):
@@ -208,7 +212,33 @@ def parse_sentence(line, line_number):
         if trail:
             word["trailing"] = trail
         sentence["words"].append(word)
+    plain = [word["text"].lower() for word in sentence["words"]]
+    for event in events:
+        after = event.pop("word")
+        if after is None:
+            if event["prop"] in plain:
+                fail(line_number, f"'{event['prop']}' is in the sentence: show it after it's read, "
+                     f"with {event['prop']}@{event['prop']}")
+        elif after.lower() in plain:
+            event["after"] = plain.index(after.lower())
+        else:
+            fail(line_number, f"'{after}' in [{event['prop']}@{after}] isn't a word in the sentence")
+    if events:
+        sentence["events"] = events
     return sentence
+
+
+def parse_event(tag, line_number):
+    match = EVENT.fullmatch(tag)
+    if not match or match.group(1) not in PROPS:
+        fail(line_number, f"unknown tag '{tag}': a sky, a weather or a prop from props.json")
+    prop, count, word, place = match.groups()
+    if place and place not in PLACES:
+        fail(line_number, f"unknown place '{place}' in '{tag}'")
+    event = {"prop": prop, "count": int(count or 1), "word": word}
+    if place:
+        event["place"] = place
+    return event
 
 
 def main():
@@ -246,6 +276,13 @@ def main():
                     at = f"level {decodes}" if decodes else "no level"
                     kind = "big word" if word["big"] else "word"
                     problems.append(f"{story['id']} (level {level}): {kind} '{word['text']}' decodes at {at}")
+    art = ROOT / "HopTalesPackage/Sources/World/Resources"
+    for name, prop in PROPS.items():
+        frames = ["1", "2"] if prop["motion"] in {"walk", "swim", "fly", "perch", "swoop"} else [None]
+        for frame in frames:
+            file = art / (f"cast-{name}-{frame}.webp" if frame else f"cast-{name}.webp")
+            if not file.exists():
+                problems.append(f"props.json: '{name}' has no art at {file.relative_to(ROOT)}")
     if problems:
         sys.exit("\n".join(problems))
 
