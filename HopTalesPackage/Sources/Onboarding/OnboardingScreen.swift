@@ -170,6 +170,7 @@ public struct OnboardingScreen: View {
       .frame(maxWidth: .infinity)
       .ignoresSafeArea(.container, edges: .bottom)
     }
+    .ignoresSafeArea(.keyboard)
   }
 
   private var meadowMood: Mood {
