@@ -34,6 +34,24 @@ struct WordMatcherTests {
     )
   }
 
+  @Test func aDoubledFinalLetterIsForgivenWhenGentle() {
+    #expect(WordMatcher.match(tokens: ["bob", "sapp"], current: sat, next: nil)?.target == .current)
+  }
+
+  @Test(arguments: ["oh", "awn"])
+  func onIsHeardWithoutItsN(token: String) {
+    let on = Word(text: "on")
+    #expect(WordMatcher.match(tokens: [token], current: on, next: nil)?.target == .current)
+    #expect(
+      WordMatcher.match(tokens: [token], current: on, next: nil, strictness: .standard) == nil
+    )
+  }
+
+  @Test func aSaidAsUhIsHeardEvenWhenTheRecogniserWritesOh() {
+    let word = Word(text: "a")
+    #expect(WordMatcher.match(tokens: ["oh"], current: word, next: nil)?.target == .current)
+  }
+
   @Test(arguments: ["set", "sit", "said", "sed"])
   func aShortWordWithAnotherVowelIsHeardWhenGentle(token: String) {
     #expect(WordMatcher.match(tokens: [token], current: sat, next: nil)?.target == .current)
