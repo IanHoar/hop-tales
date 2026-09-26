@@ -24,6 +24,11 @@ struct OnboardingSnapshotTests {
   }
 
   @Test(arguments: [ColorScheme.light, .dark])
+  func choosingSoundButtons(scheme: ColorScheme) {
+    expectSnapshot(of: OnboardingPreview(.soundButtons), scheme: scheme)
+  }
+
+  @Test(arguments: [ColorScheme.light, .dark])
   func pickingAnAccent(scheme: ColorScheme) {
     expectSnapshot(of: OnboardingPreview(.accent), scheme: scheme)
   }
