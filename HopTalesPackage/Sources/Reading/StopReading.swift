@@ -1,48 +1,56 @@
+import Content
 import DesignSystem
 import SwiftUI
+import World
 
 struct StopReading: View {
+  let friend: Friend
+  let outfit: [WardrobeItem]
   let keepReading: () -> Void
   let stop: () -> Void
 
   var body: some View {
     ZStack {
-      Palette.duskRoot.opacity(0.55)
+      Paper.night.opacity(0.45)
         .ignoresSafeArea()
         .onTapGesture(perform: keepReading)
         .accessibilityHidden(true)
-      VStack(spacing: 18) {
-        Text("Stop reading?")
-          .font(Typography.display(30))
-          .foregroundStyle(Palette.ink)
-          .accessibilityAddTraits(.isHeader)
-        Text("You can come back to this story any time.")
-          .font(Typography.ui(16))
-          .foregroundStyle(Palette.muted)
+      VStack(spacing: 14) {
+        DressedFriend(friend, wearing: outfit, height: 110)
+          .shadow(color: Paper.shadow, radius: 4, y: 3)
+        PaperLabel(seed: 23) {
+          Text("Stop reading?")
+            .font(Typography.display(26))
+            .foregroundStyle(Paper.ink)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 8)
+        }
+        .rotationEffect(.degrees(-2))
+        .accessibilityAddTraits(.isHeader)
+        Text("\(friend.name) will wait here. You can come back to this story any time.")
+          .font(Typography.ui(16, weight: .medium))
+          .foregroundStyle(Paper.ink.opacity(0.85))
           .multilineTextAlignment(.center)
+          .fixedSize(horizontal: false, vertical: true)
         Button(action: keepReading) {
           Label("Keep reading", systemImage: "book.fill")
-            .frame(maxWidth: .infinity)
         }
-        .buttonStyle(.ink(.primary))
+        .buttonStyle(.paper)
         .padding(.top, 4)
         Button(action: stop) {
-          Label("Stop", systemImage: "house.fill")
-            .frame(maxWidth: .infinity)
+          Label("Back to stories", systemImage: "house.fill")
         }
-        .buttonStyle(.ink(.secondary))
+        .buttonStyle(.paperChip)
       }
-      .padding(28)
-      .frame(maxWidth: 330)
-      .bevel(
-        Palette.parchment,
-        lip: Palette.parchmentLip,
-        shape: RoundedRectangle(cornerRadius: 32, style: .continuous),
-        border: 4,
-        drop: 6,
-        lipHeight: 9
-      )
-      .shadow(color: Color(hex: 0x0C0A1E, opacity: 0.32), radius: 17, x: 0, y: 22)
+      .padding(24)
+      .frame(maxWidth: 340)
+      .background {
+        Deckle(seed: 31, jitter: 3, step: 12)
+          .fill(Paper.paper)
+          .shadow(color: Paper.shadow, radius: 12, y: 8)
+      }
+      .rotationEffect(.degrees(-1))
+      .padding(.horizontal, 24)
     }
     .accessibilityElement(children: .contain)
   }
@@ -53,7 +61,7 @@ struct StopReadingPreview: View {
   var body: some View {
     ZStack {
       Color(hex: 0x8FCB6B)
-      StopReading {} stop: {}
+      StopReading(friend: .bunny, outfit: []) {} stop: {}
     }
     .frame(width: Metrics.phone.reference.width, height: Metrics.phone.reference.height)
   }
