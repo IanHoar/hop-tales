@@ -12,8 +12,9 @@ iPhone first, iPad landscape, and an Apple TV over AirPlay as a passive second s
 - **Working agreements:** [`CLAUDE.md`](CLAUDE.md)
 - **Design source:** `Design/world/*.svg` (2340×844 world) and `Design/artboards/*.dc.html`.
 
-Everything runs on device. Speech recognition is on-device only, no audio is stored, and the app
-makes no network calls.
+Speech recognition is on-device only and no audio is stored or sent. Progress is kept in SQLite on
+the device and, if the grown-up opts in, synced to their own private iCloud database. There are no
+servers of ours and no third parties.
 
 ## Getting started
 

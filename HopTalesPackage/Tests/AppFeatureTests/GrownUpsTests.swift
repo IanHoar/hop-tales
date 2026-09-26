@@ -41,6 +41,34 @@ struct GrownUpsTests {
     }
   }
 
+  @Test func savingToICloudCanBeTurnedOnAndTheCopyDeleted() async {
+    let enabled = LockIsolated<[Bool]>([])
+    let deleted = LockIsolated(false)
+    let store = TestStore(initialState: Settings.State()) {
+      Settings()
+        .dependency(ProfileStore(load: { nil }, save: { _ in }))
+        .dependency(
+          CloudSync(
+            account: { .signedOut },
+            isEnabled: { false },
+            setEnabled: { isOn in enabled.withValue { $0.append(isOn) } },
+            deleteCloudCopy: { deleted.setValue(true) }
+          )
+        )
+    }
+    store.send(.cloud(.toggled(true))) { $0.cloudSync = true }
+    await store.receive(\.cloud.accountResolved) { $0.cloudAccount = .signedOut }
+    store.send(.cloud(.deleteTapped)) { $0.isConfirmingCloudDelete = true }
+    store.send(.cloud(.deleteConfirmed))
+    await store.receive(\.cloud.copyDeleted) {
+      $0.cloudNote = .deleted
+      $0.cloudSync = false
+    }
+    #expect(enabled.value == [true])
+    #expect(deleted.value)
+    await store.dismount()
+  }
+
   @Test func everySettingIsSavedAsItChanges() async {
     let profiles = LockIsolated<[Profile]>([])
     let strictness = LockIsolated<WordMatcher.Strictness?>(nil)

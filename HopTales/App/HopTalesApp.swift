@@ -10,6 +10,10 @@ struct HopTalesApp: App {
     Root()
   }
 
+  init() {
+    Root.bootstrap()
+  }
+
   var body: some Scene {
     WindowGroup {
       RootScreen(store: Self.store)

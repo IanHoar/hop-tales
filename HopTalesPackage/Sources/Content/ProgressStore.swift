@@ -1,6 +1,6 @@
 import Dependencies
 import Foundation
-import Synchronization
+import SQLiteData
 
 public struct ProgressStore: Sendable {
   public var load: @Sendable () -> Progress
@@ -16,48 +16,81 @@ public struct ProgressStore: Sendable {
 }
 
 extension ProgressStore: DependencyKey {
-  public static let fileName = "progress.json"
-
-  static let writes = DispatchQueue(label: "com.hoptales.progress-writes", qos: .utility)
-
-  public static func file(in directory: URL) -> ProgressStore {
-    let url = directory.appending(path: fileName)
-    let cached = Mutex<Progress?>(nil)
-    return ProgressStore(
-      load: {
-        cached.withLock { cached in
-          if let cached { return cached }
-          let progress = (try? Data(contentsOf: url))
-            .flatMap { try? JSONDecoder().decode(Progress.self, from: $0) } ?? Progress()
-          cached = progress
-          return progress
-        }
-      },
+  public static func database(_ database: any DatabaseWriter) -> ProgressStore {
+    ProgressStore(
+      load: { (try? database.read { try read(from: $0) }) ?? Progress() },
       save: { progress in
-        cached.withLock { $0 = progress }
-        writes.async {
-          guard let data = try? JSONEncoder().encode(progress) else { return }
-          try? FileManager.default.createDirectory(
-            at: directory,
-            withIntermediateDirectories: true
-          )
-          try? data.write(to: url, options: .atomic)
+        withErrorReporting {
+          try database.write { db in try write(progress, over: read(from: db), in: db) }
         }
       }
     )
   }
 
-  static func finishWriting() {
-    writes.sync {}
+  static func read(from db: Database) throws -> Progress {
+    let record = try ProgressRecord.find(ProgressRecord.only).fetchOne(db)
+    let stories = try StoryProgressRecord.fetchAll(db)
+    return Progress(
+      stars: record?.stars ?? 0,
+      completedSentences: counts(stories, \.completedSentences),
+      wordsRead: counts(stories, \.wordsRead),
+      journey: record?.journey ?? Journey(),
+      baskets: record?.baskets ?? [:],
+      outfits: record?.outfits ?? [:]
+    )
   }
 
-  public static let liveValue = file(in: applicationSupport)
+  private static func counts(
+    _ stories: [StoryProgressRecord],
+    _ count: KeyPath<StoryProgressRecord, Int>
+  ) -> [String: Int] {
+    Dictionary(uniqueKeysWithValues: stories.filter { $0[keyPath: count] > 0 }.map {
+      ($0.id, $0[keyPath: count])
+    })
+  }
+
+  static func write(_ progress: Progress, over existing: Progress?, in db: Database) throws {
+    let record = ProgressRecord(progress)
+    if existing.map(ProgressRecord.init) != record {
+      try ProgressRecord.upsert { record }.execute(db)
+    }
+    let rows = progress.storyRows
+    let old = existing?.storyRows ?? [:]
+    for (id, row) in rows where old[id] != row {
+      try StoryProgressRecord.upsert { row }.execute(db)
+    }
+    let removed = Set(old.keys).subtracting(rows.keys)
+    if !removed.isEmpty {
+      try StoryProgressRecord.where { $0.id.in(removed) }.delete().execute(db)
+    }
+  }
+
+  public static var liveValue: ProgressStore {
+    @Dependency(\.defaultDatabase) var database
+    return .database(database)
+  }
 
   public static let testValue = ProgressStore(load: { Progress() }, save: { _ in })
 
   public static var applicationSupport: URL {
     let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
     return (base.first ?? URL.temporaryDirectory).appending(path: "HopTales")
+  }
+}
+
+extension Progress {
+  var storyRows: [String: StoryProgressRecord] {
+    let ids = Set(completedSentences.keys).union(wordsRead.keys)
+    return Dictionary(uniqueKeysWithValues: ids.map { id in
+      (
+        id,
+        StoryProgressRecord(
+          id: id,
+          completedSentences: completedSentences[id] ?? 0,
+          wordsRead: wordsRead[id] ?? 0
+        )
+      )
+    })
   }
 }
 
