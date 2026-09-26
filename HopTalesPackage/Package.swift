@@ -12,6 +12,7 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.12.0"),
+    .package(url: "https://github.com/pointfreeco/sqlite-data", from: "1.0.0"),
     .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.17.0"),
     .package(
       url: "https://github.com/pointfreeco/TCA26",
@@ -49,6 +50,7 @@ let package = Package(
       name: "Content",
       dependencies: [
         .product(name: "Dependencies", package: "swift-dependencies"),
+        .product(name: "SQLiteData", package: "sqlite-data"),
       ],
       resources: [.process("Resources")]
     ),
@@ -141,7 +143,10 @@ let package = Package(
     ),
     .testTarget(
       name: "ContentTests",
-      dependencies: ["Content"]
+      dependencies: [
+        "Content",
+        .product(name: "SQLiteData", package: "sqlite-data"),
+      ]
     ),
     .testTarget(
       name: "WorldTests",

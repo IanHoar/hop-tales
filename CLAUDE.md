@@ -12,7 +12,12 @@ iOS read-aloud game for early readers. SwiftUI shell + SpriteKit world, on-devic
 - The words are printed on the meadow path and pan 1:1 with the near land layer, driven by one
   `MeadowCamera`. The hare stays put and hops in place while the ground slides one word.
 - Text lives in SwiftUI (Young Serif for words, Fraunces and Fredoka for UI). Do not render the reading surface in SpriteKit.
-- Speech is on-device only (`requiresOnDeviceRecognition = true`). No audio is stored. No network calls anywhere.
+- Speech is on-device only (`requiresOnDeviceRecognition = true`). No audio is stored or sent.
+- The only network traffic is Apple's iCloud sync of the child's own progress and profile, into the
+  family's private CloudKit database, and only after the grown-up opts in. No servers of ours, no
+  third parties, no analytics.
+- Progress and profile live in SQLite through SQLiteData (`Content/Database.swift`); `ProgressStore`
+  and `ProfileStore` stay the app's interface to them. Never drop or rename a synced table or column.
 - Matching is forgiving by default (`docs/HANDOFF.md §5`). Never show a failure state to the child.
 - Design source of truth is `Design/world/*.svg` (2340×844 world) and `Design/artboards/*.dc.html`. `scripts/render-assets.sh` converts them to the PDFs and PNGs in `HopTalesPackage/Sources/World/Resources`, which are committed; don't hand-edit them. The world layers rasterise at runtime through `WorldArt`.
 - Milestone 1 (reading loop on a flat background) ships before any world art is wired up.

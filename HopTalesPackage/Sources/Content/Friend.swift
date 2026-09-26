@@ -90,7 +90,7 @@ public enum Friend: String, Codable, CaseIterable, Hashable, Sendable {
   }
 
   public static func at(level: Int) -> Friend {
-    allCases[min(max(level, 1), allCases.count) - 1]
+    allCases[Swift.min(Swift.max(level, 1), allCases.count) - 1]
   }
 
   public var startingStoryID: String {

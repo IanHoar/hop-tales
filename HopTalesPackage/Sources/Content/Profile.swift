@@ -1,5 +1,6 @@
 import Dependencies
 import Foundation
+import SQLiteData
 
 public struct Profile: Codable, Hashable, Sendable {
   public enum Accent: String, Codable, CaseIterable, Hashable, Sendable {
@@ -110,6 +111,7 @@ public struct ProfileDraft: Codable, Hashable, Sendable {
   public var accent: Profile.Accent?
   public var voiceID: String?
   public var soundButtons: Bool?
+  public var cloudSync: Bool?
   public var step: Int
 
   public init(
@@ -118,6 +120,7 @@ public struct ProfileDraft: Codable, Hashable, Sendable {
     accent: Profile.Accent? = nil,
     voiceID: String? = nil,
     soundButtons: Bool? = nil,
+    cloudSync: Bool? = nil,
     step: Int
   ) {
     self.childName = childName
@@ -125,6 +128,7 @@ public struct ProfileDraft: Codable, Hashable, Sendable {
     self.accent = accent
     self.voiceID = voiceID
     self.soundButtons = soundButtons
+    self.cloudSync = cloudSync
     self.step = step
   }
 }
@@ -152,16 +156,27 @@ public struct ProfileStore: Sendable {
 }
 
 extension ProfileStore: DependencyKey {
-  public static let fileName = "profile.json"
   public static let draftFileName = "profile-draft.json"
 
-  public static func file(in directory: URL) -> ProfileStore {
-    let url = directory.appending(path: fileName)
+  public static func database(
+    _ database: any DatabaseWriter,
+    drafts directory: URL
+  ) -> ProfileStore {
     let draftURL = directory.appending(path: draftFileName)
     return ProfileStore(
-      load: { read(Profile.self, from: url) },
+      load: {
+        (try? database.read { db in
+          try ProfileRecord.find(ProfileRecord.only).fetchOne(db)?.profile
+        }).flatMap(\.self)
+      },
       save: { profile in
-        write(profile, to: url, in: directory)
+        withErrorReporting {
+          try database.write { db in
+            let record = ProfileRecord(profile)
+            guard try ProfileRecord.find(ProfileRecord.only).fetchOne(db) != record else { return }
+            try ProfileRecord.upsert { record }.execute(db)
+          }
+        }
         try? FileManager.default.removeItem(at: draftURL)
       },
       loadDraft: { read(ProfileDraft.self, from: draftURL) },
@@ -173,7 +188,11 @@ extension ProfileStore: DependencyKey {
         write(draft, to: draftURL, in: directory)
       },
       erase: {
-        try? FileManager.default.removeItem(at: url)
+        withErrorReporting {
+          try database.write { db in
+            try ProfileRecord.find(ProfileRecord.only).delete().execute(db)
+          }
+        }
         try? FileManager.default.removeItem(at: draftURL)
       }
     )
@@ -190,7 +209,10 @@ extension ProfileStore: DependencyKey {
     try? data.write(to: url, options: .atomic)
   }
 
-  public static let liveValue = file(in: ProgressStore.applicationSupport)
+  public static var liveValue: ProfileStore {
+    @Dependency(\.defaultDatabase) var database
+    return .database(database, drafts: ProgressStore.applicationSupport)
+  }
 
   public static let testValue = ProfileStore(load: { Profile() }, save: { _ in })
 

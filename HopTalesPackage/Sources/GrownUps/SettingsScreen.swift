@@ -11,8 +11,17 @@ import World
 
   public init() {}
 
+  public enum CloudNote: Equatable, Sendable {
+    case deleted
+    case deleteFailed
+  }
+
   public struct State {
     public var childName = ""
+    public var cloudAccount: CloudSync.Account?
+    public var cloudNote: CloudNote?
+    public var cloudSync = false
+    public var isConfirmingCloudDelete = false
     public var journey = Journey()
     public var profile = Profile()
     public var soundOn = true
@@ -38,6 +47,7 @@ import World
 
   public enum Action {
     case accentPicked(Profile.Accent)
+    case cloud(Cloud)
     case debugResetJourneyTapped
     case debugUnlockEverythingTapped
     case doneTapped
@@ -55,6 +65,7 @@ import World
     case voicePicked(String?)
   }
 
+  @Dependency(CloudSync.self) var cloudSync
   @Dependency(ProfileStore.self) var profileStore
   @Dependency(ProgressStore.self) var progressStore
   @Dependency(SoundPreference.self) var soundPreference
@@ -81,6 +92,35 @@ import World
     state.speechLogFile = url
   }
 
+  private func cloud(_ action: Cloud, _ state: inout State) {
+    switch action {
+    case let .accountResolved(account):
+      state.cloudAccount = account
+    case let .copyDeleted(succeeded):
+      state.cloudNote = succeeded ? .deleted : .deleteFailed
+      if succeeded { state.cloudSync = false }
+    case .deleteConfirmed:
+      store.addTask {
+        let succeeded = (try? await cloudSync.deleteCloudCopy()) != nil
+        try store.send(.cloud(.copyDeleted(succeeded)))
+      }
+    case .deleteTapped:
+      state.isConfirmingCloudDelete = true
+    case let .toggled(isOn):
+      state.cloudSync = isOn
+      state.cloudNote = nil
+      store.addTask { await cloudSync.setEnabled(isOn) }
+      if isOn { checkCloudAccount() }
+    }
+  }
+
+  private func checkCloudAccount() {
+    store.addTask {
+      let account = await cloudSync.account()
+      try store.send(.cloud(.accountResolved(account)))
+    }
+  }
+
   private func save(_ state: State) {
     var saved = state.profile
     saved.childName = state.childName.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -93,6 +133,9 @@ import World
       case let .accentPicked(accent):
         state.profile.accent = accent
         save(state)
+
+      case let .cloud(action):
+        cloud(action, &state)
 
       case .doneTapped, .nameSubmitted:
         save(state)
@@ -166,24 +209,8 @@ import World
       state.strictness = strictnessPreference.load()
       state.voices = speechClient.voices()
       refreshSpeechLog(&state)
-    }
-  }
-}
-
-extension WordMatcher.Strictness {
-  var title: String {
-    switch self {
-    case .gentle: "Gentle"
-    case .standard: "Standard"
-    }
-  }
-
-  var detail: String {
-    switch self {
-    case .gentle:
-      "Accepts close tries, dropped endings and sound-alikes. Best for new readers."
-    case .standard:
-      "Wants each word said clearly. A small slip is still fine."
+      state.cloudSync = cloudSync.isEnabled()
+      if state.cloudSync { checkCloudAccount() }
     }
   }
 }
@@ -208,6 +235,7 @@ public struct SettingsScreen: View {
           SettingsSection("Sound buttons") { SoundButtonsRow(store: store) }
           SettingsSection("Help voice") { VoiceRow(store: store) }
           SettingsSection("Sounds") { SoundRow(store: store) }
+          SettingsSection("iCloud") { CloudRow(store: store) }
           SettingsSection("Speech log") { SpeechLogRow(store: store) }
           SettingsSection("Testing") { TestingButtons(store: store) }
         }

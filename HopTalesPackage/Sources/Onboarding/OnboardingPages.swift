@@ -12,6 +12,7 @@ extension Onboarding.Step {
     case .listening: "Can Hop Tales use the microphone?"
     case .friend: "Who should your reader start with?"
     case .soundButtons: "Show dots and dashes under the sounds?"
+    case .cloud: "Use Hop Tales with iCloud?"
     }
   }
 
@@ -19,7 +20,7 @@ extension Onboarding.Step {
     switch self {
     case .name:
       "A first name, a nickname or anything familiar is perfect. We use it to say hello, and "
-        + "it never leaves this device."
+        + "it's never sent to us."
     case .listening:
       "The microphone lets Hop Tales hear your child read, so the hare can hop to the next "
         + "word. Everything is heard on this device. Nothing is recorded, and nothing is sent "
@@ -30,6 +31,10 @@ extension Onboarding.Step {
     case .soundButtons:
       "Sound buttons put a dot under each sound and a dash under letters that make one sound "
         + "together, like sh. Many schools teach blending this way. You can change this later."
+    case .cloud:
+      "Already reading with Hop Tales on another iPhone or iPad? Choose Yes to bring back "
+        + "your reader's name and progress. From then on, progress is saved to your own iCloud "
+        + "as they read. Only you can see it. We never do. You can change this later."
     }
   }
 }
@@ -39,7 +44,7 @@ struct StepPage: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 14) {
-      Text("Step \(store.step.rawValue) of \(Onboarding.Step.allCases.count)")
+      Text("Step \(store.stepNumber) of \(store.steps.count)")
         .font(Typography.caps(13))
         .tracking(1)
         .textCase(.uppercase)
@@ -74,6 +79,10 @@ struct StepPage: View {
       FriendChoices(selected: store.startingFriend) { store.send(.friendPicked($0)) }
     case .soundButtons:
       SoundButtonChoices(selected: store.soundButtons) { store.send(.soundButtonsPicked($0)) }
+    case .cloud:
+      CloudChoices(selected: store.cloudSync, account: store.cloudAccount) {
+        store.send(.cloudSyncPicked($0))
+      }
     }
   }
 }
@@ -239,6 +248,30 @@ struct SoundButtonChoices: View {
       HStack(spacing: 10) {
         PaperChoice(title: "Yes, show them", isSelected: selected == true) { pick(true) }
         PaperChoice(title: "No thanks", isSelected: selected == false) { pick(false) }
+      }
+    }
+  }
+}
+
+struct CloudChoices: View {
+  let selected: Bool?
+  let account: CloudSync.Account?
+  let pick: (Bool) -> Void
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      HStack(spacing: 10) {
+        PaperChoice(title: "Yes, use iCloud", isSelected: selected == true) { pick(true) }
+        PaperChoice(title: "Not now", isSelected: selected == false) { pick(false) }
+      }
+      if account == .signedOut {
+        Text(
+          "This device isn't signed in to iCloud. Sign in from the Settings app and progress "
+            + "will start saving."
+        )
+        .font(Typography.ui(13, weight: .medium))
+        .foregroundStyle(Paper.muted)
+        .fixedSize(horizontal: false, vertical: true)
       }
     }
   }

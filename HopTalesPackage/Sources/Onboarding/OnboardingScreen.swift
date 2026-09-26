@@ -10,7 +10,8 @@ import World
   public init() {}
 
   public enum Step: Int, CaseIterable, Hashable, Sendable {
-    case name = 1
+    case cloud = 1
+    case name
     case listening
     case friend
     case soundButtons
@@ -23,6 +24,10 @@ import World
     public var startingFriend: Friend?
     public var accent: Profile.Accent?
     public var soundButtons: Bool?
+    public var cloudSync: Bool?
+    public var cloudAccount: CloudSync.Account?
+    public var isCatchingUp = false
+    public var restored: Profile?
     public init() {}
 
     public init(resuming draft: ProfileDraft) {
@@ -30,7 +35,8 @@ import World
       startingFriend = draft.startingFriend
       accent = draft.accent
       soundButtons = draft.soundButtons
-      path = Step.allCases.filter { $0 != .name && $0.rawValue <= draft.step }
+      cloudSync = draft.cloudSync
+      path = Step.allCases.filter { $0 != .cloud && $0.rawValue <= draft.step }
     }
 
     public var draft: ProfileDraft {
@@ -39,6 +45,7 @@ import World
         startingFriend: startingFriend,
         accent: accent,
         soundButtons: soundButtons,
+        cloudSync: cloudSync,
         step: step.rawValue
       )
     }
@@ -61,16 +68,24 @@ import World
       )
     }
 
-    public var step: Step { path.last ?? .name }
+    public var step: Step { path.last ?? .cloud }
+
+    public var steps: [Step] { restored == nil ? Step.allCases : [.cloud, .listening] }
+
+    public var stepNumber: Int { (steps.firstIndex(of: step) ?? 0) + 1 }
 
     public var needsMicrophone: Bool { step == .listening && authorization == nil }
 
     public var primaryTitle: String {
       if needsMicrophone { return "Allow microphone" }
-      return step == Step.allCases.last ? "Start reading" : "Continue"
+      if isCatchingUp { return "Checking iCloud…" }
+      let isLast = step == Step.allCases.last || (restored != nil && step == .listening)
+      return isLast ? "Start reading" : "Continue"
     }
 
-    public var primaryEnabled: Bool { needsMicrophone || canContinue(from: step) }
+    public var primaryEnabled: Bool {
+      needsMicrophone || (canContinue(from: step) && !isCatchingUp)
+    }
 
     func canContinue(from step: Step) -> Bool {
       switch step {
@@ -78,6 +93,7 @@ import World
       case .listening: authorization != nil
       case .friend: startingFriend != nil
       case .soundButtons: soundButtons != nil
+      case .cloud: cloudSync != nil
       }
     }
   }
@@ -85,6 +101,9 @@ import World
   public enum Action {
     case authorizationResolved(SpeechClient.Authorization)
     case backTapped
+    case cloudAccountResolved(CloudSync.Account)
+    case cloudCaughtUp(restored: Profile?)
+    case cloudSyncPicked(Bool)
     case finished(Profile)
     case friendPicked(Friend)
     case nameChanged(String)
@@ -92,6 +111,7 @@ import World
     case soundButtonsPicked(Bool)
   }
 
+  @Dependency(CloudSync.self) var cloudSync
   @Dependency(ProfileStore.self) var profileStore
   @Dependency(SpeechClient.self) var speechClient
 
@@ -104,6 +124,19 @@ import World
       case .backTapped:
         guard !state.path.isEmpty else { break }
         state.path.removeLast()
+        if state.path.isEmpty { state.restored = nil }
+
+      case let .cloudAccountResolved(account):
+        state.cloudAccount = account
+
+      case let .cloudCaughtUp(restored):
+        state.isCatchingUp = false
+        state.restored = restored
+        state.path.append(restored == nil ? .name : .listening)
+
+      case let .cloudSyncPicked(isOn):
+        state.cloudSync = isOn
+        if isOn, state.cloudAccount == nil { checkCloudAccount() }
 
       case .finished:
         break
@@ -117,7 +150,15 @@ import World
           }
           break
         }
-        guard state.canContinue(from: state.step) else { break }
+        guard state.primaryEnabled else { break }
+        if state.step == .cloud, state.cloudSync == true {
+          restore(&state)
+          break
+        }
+        if state.step == .listening, let restored = state.restored {
+          store.addTask { try store.send(.finished(restored)) }
+          break
+        }
         guard let next = Step(rawValue: state.step.rawValue + 1) else {
           let profile = state.profile
           store.addTask { try store.send(.finished(profile)) }
@@ -148,6 +189,26 @@ import World
     }
   }
 
+  private func checkCloudAccount() {
+    store.addTask {
+      let account = await cloudSync.account()
+      try store.send(.cloudAccountResolved(account))
+    }
+  }
+
+  private func restore(_ state: inout State) {
+    state.isCatchingUp = true
+    store.addTask {
+      await cloudSync.setEnabled(true)
+      await cloudSync.catchUp()
+      let restored = profileStore.load()
+      if let restored, speechClient.isAuthorized() {
+        try store.send(.finished(restored))
+      } else {
+        try store.send(.cloudCaughtUp(restored: restored))
+      }
+    }
+  }
 }
 
 public struct OnboardingScreen: View {
@@ -229,8 +290,8 @@ struct OnboardingSheet: View {
 
   private var header: some View {
     ZStack {
-      ProgressPills(current: store.step.rawValue - 1, count: Onboarding.Step.allCases.count)
-      if store.step != .name {
+      ProgressPills(current: store.stepNumber - 1, count: store.steps.count)
+      if store.step != Onboarding.Step.allCases.first {
         Button {
           store.send(.backTapped)
         } label: {

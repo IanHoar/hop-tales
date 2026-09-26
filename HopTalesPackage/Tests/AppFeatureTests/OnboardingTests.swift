@@ -43,23 +43,94 @@ struct OnboardingTests {
     }
 
     store.send(.primaryTapped)
+    store.send(.cloudSyncPicked(false)) { $0.cloudSync = false }
+    store.send(.primaryTapped) { $0.path = [.name] }
+    store.send(.primaryTapped)
     store.send(.nameChanged("Maya")) { $0.childName = "Maya" }
-    store.send(.primaryTapped) { $0.path = [.listening] }
+    store.send(.primaryTapped) { $0.path = [.name, .listening] }
     #expect(store.state.primaryTitle == "Allow microphone")
     store.send(.primaryTapped)
     await store.receive(\.authorizationResolved) { $0.authorization = .authorized }
     #expect(store.state.primaryTitle == "Continue")
-    store.send(.primaryTapped) { $0.path = [.listening, .friend] }
+    store.send(.primaryTapped) { $0.path = [.name, .listening, .friend] }
     store.send(.primaryTapped)
     store.send(.friendPicked(.frog)) {
       $0.startingFriend = .frog
     }
-    store.send(.primaryTapped) { $0.path = [.listening, .friend, .soundButtons] }
+    store.send(.primaryTapped) { $0.path = [.name, .listening, .friend, .soundButtons] }
     store.send(.primaryTapped)
     store.send(.soundButtonsPicked(true)) { $0.soundButtons = true }
     #expect(store.state.primaryTitle == "Start reading")
     store.send(.primaryTapped)
     await store.receive(\.finished)
+  }
+
+  private func cloud(
+    restoring profile: Profile?,
+    enabled: LockIsolated<Bool?>,
+    canListen: Bool = false
+  ) -> some FeatureProtocol<Onboarding.State, Onboarding.Action> {
+    var speech = Self.speech
+    speech.isAuthorized = { canListen }
+    return Onboarding()
+      .dependency(speech)
+      .dependency(ProfileStore(load: { profile }, save: { _ in }))
+      .dependency(
+        CloudSync(
+          account: { .available },
+          isEnabled: { enabled.value ?? false },
+          setEnabled: { enabled.setValue($0) }
+        )
+      )
+  }
+
+  @Test func savingToICloudOnANewDeviceBringsTheReaderBack() async {
+    let enabled = LockIsolated<Bool?>(nil)
+    let maya = Profile(childName: "Maya", startingFriend: .frog, voiceID: "v1")
+    let store = TestStore(initialState: Onboarding.State()) {
+      cloud(restoring: maya, enabled: enabled)
+    }
+    store.send(.cloudSyncPicked(true)) { $0.cloudSync = true }
+    await store.receive(\.cloudAccountResolved) { $0.cloudAccount = .available }
+    store.send(.primaryTapped) { $0.isCatchingUp = true }
+    #expect(store.state.primaryTitle == "Checking iCloud…")
+    await store.receive(\.cloudCaughtUp) {
+      $0.isCatchingUp = false
+      $0.restored = maya
+      $0.path = [.listening]
+    }
+    #expect(enabled.value == true)
+    #expect(store.state.stepNumber == 2)
+    #expect(store.state.steps.count == 2)
+    store.send(.primaryTapped)
+    await store.receive(\.authorizationResolved) { $0.authorization = .authorized }
+    #expect(store.state.primaryTitle == "Start reading")
+    store.send(.primaryTapped)
+    await store.receive(\.finished)
+  }
+
+  @Test func aRestoredReaderWhoCanAlreadyBeHeardGoesStraightToTheStories() async {
+    let maya = Profile(childName: "Maya", startingFriend: .frog)
+    let store = TestStore(initialState: Onboarding.State()) {
+      cloud(restoring: maya, enabled: LockIsolated(nil), canListen: true)
+    }
+    store.send(.cloudSyncPicked(true)) { $0.cloudSync = true }
+    await store.receive(\.cloudAccountResolved) { $0.cloudAccount = .available }
+    store.send(.primaryTapped) { $0.isCatchingUp = true }
+    await store.receive(\.finished)
+  }
+
+  @Test func savingToICloudWithNothingSavedCarriesOnWithSetUp() async {
+    let store = TestStore(initialState: Onboarding.State()) {
+      cloud(restoring: nil, enabled: LockIsolated(nil))
+    }
+    store.send(.cloudSyncPicked(true)) { $0.cloudSync = true }
+    await store.receive(\.cloudAccountResolved) { $0.cloudAccount = .available }
+    store.send(.primaryTapped) { $0.isCatchingUp = true }
+    await store.receive(\.cloudCaughtUp) {
+      $0.isCatchingUp = false
+      $0.path = [.name]
+    }
   }
 
   @Test func eachStepWaitsForAnAnswer() {
@@ -72,19 +143,22 @@ struct OnboardingTests {
     #expect(!state.canContinue(from: .listening))
     #expect(!state.canContinue(from: .friend))
     #expect(!state.canContinue(from: .soundButtons))
+    #expect(!state.canContinue(from: .cloud))
   }
 
   @Test func listeningCanBeRefusedWithoutBlockingSetUp() async {
     var speech = Self.speech
     speech.requestAuthorization = { _ in .denied }
-    let store = TestStore(initialState: Onboarding.State()) {
+    var state = Onboarding.State()
+    state.path = [.name]
+    let store = TestStore(initialState: state) {
       Onboarding().dependency(speech)
     }
     store.send(.nameChanged("Maya")) { $0.childName = "Maya" }
-    store.send(.primaryTapped) { $0.path = [.listening] }
+    store.send(.primaryTapped) { $0.path = [.name, .listening] }
     store.send(.primaryTapped)
     await store.receive(\.authorizationResolved) { $0.authorization = .denied }
-    store.send(.primaryTapped) { $0.path = [.listening, .friend] }
+    store.send(.primaryTapped) { $0.path = [.name, .listening, .friend] }
   }
 
   @Test func finishingSavesTheProfileAndShowsTheStories() {
@@ -110,12 +184,13 @@ struct OnboardingTests {
 
   @Test func backReturnsToThePreviousQuestion() async {
     var state = Onboarding.State()
-    state.path = [.listening, .friend]
+    state.path = [.name, .listening, .friend]
     let store = TestStore(initialState: state) {
       Onboarding().dependency(Self.speech)
     }
     await store.receive(\.authorizationResolved) { $0.authorization = .authorized }
-    store.send(.backTapped) { $0.path = [.listening] }
+    store.send(.backTapped) { $0.path = [.name, .listening] }
+    store.send(.backTapped) { $0.path = [.name] }
     store.send(.backTapped) { $0.path = [] }
     store.send(.backTapped)
     await store.dismount()
@@ -144,7 +219,7 @@ struct OnboardingTests {
         .dependency(Self.speech)
     } changes: {
       $0.onboarding = Onboarding.State.DebugSnapshot(
-        path: [.listening, .friend],
+        path: [.name, .listening, .friend],
         childName: "Maya",
         startingFriend: .frog
       )
@@ -161,7 +236,8 @@ struct OnboardingTests {
       startingFriend: .hare,
       accent: .american,
       soundButtons: true,
-      step: 5
+      cloudSync: false,
+      step: Onboarding.Step.soundButtons.rawValue
     )
     let saved = LockIsolated<Profile?>(nil)
     let store = TestStore(initialState: Root.State()) {

@@ -3,26 +3,27 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		45B537E677917CBA5F048087 /* AppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 0945A41D2A100B3759214986 /* AppFeature */; };
+		87B719A7638B2E84B6A8D3B2 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3B0D48F497FF19D72FFD9007 /* PrivacyInfo.xcprivacy */; };
+		94E41230DC51F88BC78EF01C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 20D04F0705FBFA935AB8565D /* LaunchScreen.storyboard */; };
 		C8A0BA8B2BEC55B48CA13C77 /* HopTalesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9CF800C3314E8395142C5A /* HopTalesApp.swift */; };
+		CFA1E16E65A33CBE46757746 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 1C2A3E46FE051F3EEA0E4EF5 /* AppIcon.icon */; };
 		F8A3E014CCD6AB660CB50770 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FD2E8DFF04A134A98992D089 /* Assets.xcassets */; };
-		A102522ED59D8EFEDCC5EE7C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 4EBA5C324481D9E099B75F92 /* PrivacyInfo.xcprivacy */; };
-		B7C1A2D3E4F5061728394A5B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C8D2B3E4F5A6172839405B6C /* LaunchScreen.storyboard */; };
-		D9E3C4F5A6B7182930415C6D /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = E0F4D5A6B7C8293041526D7E /* AppIcon.icon */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0B56F28CE5C2714D29B178C7 /* HopTales.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HopTales.entitlements; sourceTree = "<group>"; };
+		1C2A3E46FE051F3EEA0E4EF5 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
+		20D04F0705FBFA935AB8565D /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		34CD335D57F49D53A8F3190D /* HopTales.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = HopTales.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		3CAD76F0F0762AE7160425D1 /* HopTalesPackage */ = {isa = PBXFileReference; lastKnownFileType = folder; name = HopTalesPackage; path = HopTalesPackage; sourceTree = SOURCE_ROOT; };
+		3B0D48F497FF19D72FFD9007 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		3CAD76F0F0762AE7160425D1 /* HopTalesPackage */ = {isa = PBXFileReference; lastKnownFileType = folder; path = HopTalesPackage; sourceTree = SOURCE_ROOT; };
 		4F9CF800C3314E8395142C5A /* HopTalesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HopTalesApp.swift; sourceTree = "<group>"; };
 		FD2E8DFF04A134A98992D089 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		4EBA5C324481D9E099B75F92 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		E0F4D5A6B7C8293041526D7E /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
-		C8D2B3E4F5A6172839405B6C /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,10 +67,11 @@
 			isa = PBXGroup;
 			children = (
 				28B7E5281EFB1BB44F1CB9E3 /* App */,
-				E0F4D5A6B7C8293041526D7E /* AppIcon.icon */,
+				1C2A3E46FE051F3EEA0E4EF5 /* AppIcon.icon */,
 				FD2E8DFF04A134A98992D089 /* Assets.xcassets */,
-				4EBA5C324481D9E099B75F92 /* PrivacyInfo.xcprivacy */,
-				C8D2B3E4F5A6172839405B6C /* LaunchScreen.storyboard */,
+				0B56F28CE5C2714D29B178C7 /* HopTales.entitlements */,
+				20D04F0705FBFA935AB8565D /* LaunchScreen.storyboard */,
+				3B0D48F497FF19D72FFD9007 /* PrivacyInfo.xcprivacy */,
 			);
 			path = HopTales;
 			sourceTree = "<group>";
@@ -116,7 +118,7 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					B0C310359ACC78E617DC9F3A = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = 8J5E74LNJY;
 					};
 				};
 			};
@@ -133,7 +135,6 @@
 			packageReferences = (
 				8D5DA1D07CB850259D06FB72 /* XCLocalSwiftPackageReference "HopTalesPackage" */,
 			);
-			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -147,10 +148,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CFA1E16E65A33CBE46757746 /* AppIcon.icon in Resources */,
 				F8A3E014CCD6AB660CB50770 /* Assets.xcassets in Resources */,
-				A102522ED59D8EFEDCC5EE7C /* PrivacyInfo.xcprivacy in Resources */,
-				B7C1A2D3E4F5061728394A5B /* LaunchScreen.storyboard in Resources */,
-				D9E3C4F5A6B7182930415C6D /* AppIcon.icon in Resources */,
+				94E41230DC51F88BC78EF01C /* LaunchScreen.storyboard in Resources */,
+				87B719A7638B2E84B6A8D3B2 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -247,11 +248,11 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_SWIFT_FLAGS = "$(inherited) -enable-actor-data-race-checks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				OTHER_SWIFT_FLAGS = "$(inherited) -enable-actor-data-race-checks";
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -262,6 +263,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = HopTales/HopTales.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -283,6 +285,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = HopTales/HopTales.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -350,11 +353,11 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				OTHER_SWIFT_FLAGS = "$(inherited) -enable-actor-data-race-checks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				OTHER_SWIFT_FLAGS = "$(inherited) -enable-actor-data-race-checks";
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.0;
 				VERSIONING_SYSTEM = "apple-generic";

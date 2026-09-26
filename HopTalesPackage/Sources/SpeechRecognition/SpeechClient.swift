@@ -19,17 +19,20 @@ public struct SpeechClient: Sendable {
   public var listen:
     @Sendable (_ contextualStrings: [String], _ locale: Locale) async throws -> AsyncStream<Event>
   public var requestAuthorization: @Sendable (_ locale: Locale) async -> Authorization
+  public var isAuthorized: @Sendable () -> Bool
   public var speak: @Sendable (_ word: String, _ voiceID: String?) async -> Void
   public var voices: @Sendable () -> [Voice]
 
   public init(
     listen: @escaping @Sendable ([String], Locale) async throws -> AsyncStream<Event>,
     requestAuthorization: @escaping @Sendable (Locale) async -> Authorization,
+    isAuthorized: @escaping @Sendable () -> Bool = { false },
     speak: @escaping @Sendable (String, String?) async -> Void,
     voices: @escaping @Sendable () -> [Voice] = { [] }
   ) {
     self.listen = listen
     self.requestAuthorization = requestAuthorization
+    self.isAuthorized = isAuthorized
     self.speak = speak
     self.voices = voices
   }
@@ -45,6 +48,7 @@ extension SpeechClient: DependencyKey {
       return SpeechClient(
         listen: { _, _ in AsyncStream { $0.finish() } },
         requestAuthorization: { _ in .authorized },
+        isAuthorized: { true },
         speak: { word, voice in await Speaker.shared.speak(word, voiceID: voice) },
         voices: { Speaker.voices() }
       )
@@ -55,6 +59,7 @@ extension SpeechClient: DependencyKey {
           try await recognizer.listen(contextualStrings: contextualStrings, locale: locale)
         },
         requestAuthorization: { locale in await LiveSpeechRecognizer.authorization(for: locale) },
+        isAuthorized: { LiveSpeechRecognizer.isAuthorized },
         speak: { word, voice in await Speaker.shared.speak(word, voiceID: voice) },
         voices: { Speaker.voices() }
       )

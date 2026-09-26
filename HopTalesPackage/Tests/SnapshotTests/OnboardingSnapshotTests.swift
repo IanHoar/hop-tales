@@ -29,6 +29,11 @@ struct OnboardingSnapshotTests {
   }
 
   @Test(arguments: [ColorScheme.light, .dark])
+  func savingToICloud(scheme: ColorScheme) {
+    expectSnapshot(of: OnboardingPreview(.cloud), scheme: scheme)
+  }
+
+  @Test(arguments: [ColorScheme.light, .dark])
   func theSheetIsCentredOnAnIPad(scheme: ColorScheme) {
     expectSnapshot(of: OnboardingPreview(.friend, size: Metrics.pad.reference), scheme: scheme)
   }

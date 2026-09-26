@@ -116,8 +116,10 @@ import SwiftUI
           state.intro = nil
         case .intro:
           break
-        case let .onboarding(.finished(profile)):
+        case let .onboarding(.finished(answered)):
+          let profile = profileStore.load() ?? answered
           profileStore.save(profile)
+          state.theme = profile.theme
           startJourney(with: profile.startingFriend)
           state.home.apply(progressStore.load())
           state.home.apply(profile)

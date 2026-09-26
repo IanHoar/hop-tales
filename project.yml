@@ -37,6 +37,14 @@ targets:
       - path: HopTales
         excludes:
           - Info.plist
+    entitlements:
+      path: HopTales/HopTales.entitlements
+      properties:
+        aps-environment: development
+        com.apple.developer.icloud-container-identifiers:
+          - iCloud.com.hoptales.ios
+        com.apple.developer.icloud-services:
+          - CloudKit
     dependencies:
       - package: HopTalesPackage
         product: AppFeature
