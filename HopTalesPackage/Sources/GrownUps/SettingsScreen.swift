@@ -46,6 +46,7 @@ import World
     case nameChanged(String)
     case nameSubmitted
     case resetOnboardingTapped
+    case soundButtonsToggled(Bool)
     case soundToggled(Bool)
     case speechLogCleared
     case speechLogToggled(Bool)
@@ -127,6 +128,10 @@ import World
       case let .nameChanged(name):
         state.childName = String(name.prefix(24))
 
+      case let .soundButtonsToggled(isOn):
+        state.profile.soundButtons = isOn
+        save(state)
+
       case let .soundToggled(isOn):
         state.soundOn = isOn
         soundPreference.save(isOn)
@@ -200,6 +205,7 @@ public struct SettingsScreen: View {
           SettingsSection("Accent") { AccentChoices(store: store) }
           SettingsSection("Theme") { ThemeChoices(store: store) }
           SettingsSection("Listening") { StrictnessChoices(store: store) }
+          SettingsSection("Sound buttons") { SoundButtonsRow(store: store) }
           SettingsSection("Help voice") { VoiceRow(store: store) }
           SettingsSection("Sounds") { SoundRow(store: store) }
           SettingsSection("Speech log") { SpeechLogRow(store: store) }

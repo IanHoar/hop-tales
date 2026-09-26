@@ -19,15 +19,21 @@ struct ReadingScreenPreview: View {
   var story = StoryLibrary.all[0]
   var moment = Moment.start
   var friend: Friend?
+  var soundButtons = false
 
   var body: some View {
     NavigationStack {
-      ReadingScreen(store: Store(initialState: state) { Reading() })
+      ReadingScreen(store: Store(initialState: state) {
+        Reading().dependency(ProfileStore(
+          load: { Profile(soundButtons: soundButtons) }, save: { _ in }
+        ))
+      })
     }
   }
 
   private var state: Reading.State {
     var state = Reading.State(story: story, friend: friend ?? story.friend)
+    state.soundButtons = soundButtons
     switch moment {
     case let .at(sentence, word):
       state.sentenceIndex = sentence

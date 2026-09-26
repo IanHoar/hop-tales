@@ -13,6 +13,7 @@ import World
     case name = 1
     case listening
     case friend
+    case soundButtons
     case accent
   }
 
@@ -22,12 +23,14 @@ import World
     public var authorization: SpeechClient.Authorization?
     public var startingFriend: Friend?
     public var accent: Profile.Accent?
+    public var soundButtons: Bool?
     public init() {}
 
     public init(resuming draft: ProfileDraft) {
       childName = draft.childName
       startingFriend = draft.startingFriend
       accent = draft.accent
+      soundButtons = draft.soundButtons
       path = Step.allCases.filter { $0 != .name && $0.rawValue <= draft.step }
     }
 
@@ -36,6 +39,7 @@ import World
         childName: childName,
         startingFriend: startingFriend,
         accent: accent,
+        soundButtons: soundButtons,
         step: step.rawValue
       )
     }
@@ -51,7 +55,8 @@ import World
       Profile(
         childName: childName.trimmingCharacters(in: .whitespacesAndNewlines),
         startingFriend: startingFriend ?? .bunny,
-        accent: accent ?? .canadian
+        accent: accent ?? .canadian,
+        soundButtons: soundButtons ?? false
       )
     }
 
@@ -71,6 +76,7 @@ import World
       case .name: !childName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
       case .listening: authorization != nil
       case .friend: startingFriend != nil
+      case .soundButtons: soundButtons != nil
       case .accent: accent != nil
       }
     }
@@ -84,6 +90,7 @@ import World
     case friendPicked(Friend)
     case nameChanged(String)
     case primaryTapped
+    case soundButtonsPicked(Bool)
   }
 
   @Dependency(ProfileStore.self) var profileStore
@@ -127,6 +134,9 @@ import World
 
       case let .friendPicked(friend):
         state.startingFriend = friend
+
+      case let .soundButtonsPicked(isOn):
+        state.soundButtons = isOn
 
       }
       profileStore.saveDraft(state.draft)

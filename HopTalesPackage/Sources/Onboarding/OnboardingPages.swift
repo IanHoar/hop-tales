@@ -11,6 +11,7 @@ extension Onboarding.Step {
     case .name: "What should we call you?"
     case .listening: "Can Hop Tales use the microphone?"
     case .friend: "Who should your reader start with?"
+    case .soundButtons: "Show dots and dashes under the sounds?"
     case .accent: "What's your reader's accent?"
     }
   }
@@ -27,6 +28,9 @@ extension Onboarding.Step {
     case .friend:
       "Pick the friend whose words look about right, and let your reader have a look too. "
         + "You can change this later."
+    case .soundButtons:
+      "Sound buttons put a dot under each sound and a dash under letters that make one sound "
+        + "together, like sh. Many schools teach blending this way. You can change this later."
     case .accent:
       "Hop Tales listens for this accent, so it understands your child's words the way they "
         + "say them."
@@ -72,6 +76,8 @@ struct StepPage: View {
       MicrophoneNote(authorization: store.authorization)
     case .friend:
       FriendChoices(selected: store.startingFriend) { store.send(.friendPicked($0)) }
+    case .soundButtons:
+      SoundButtonChoices(selected: store.soundButtons) { store.send(.soundButtonsPicked($0)) }
     case .accent:
       AccentGrid(selected: store.accent) { store.send(.accentPicked($0)) }
     }
@@ -235,6 +241,23 @@ struct AccentGrid: View {
     LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible())], spacing: 10) {
       ForEach(Profile.Accent.allCases, id: \.self) { accent in
         PaperChoice(title: accent.name, isSelected: accent == selected) { pick(accent) }
+      }
+    }
+  }
+}
+
+struct SoundButtonChoices: View {
+  let selected: Bool?
+  let pick: (Bool) -> Void
+
+  var body: some View {
+    VStack(spacing: 14) {
+      SoundMarksExamples()
+        .padding(.vertical, 14)
+        .paperChoice(isSelected: false)
+      HStack(spacing: 10) {
+        PaperChoice(title: "Yes, show them", isSelected: selected == true) { pick(true) }
+        PaperChoice(title: "No thanks", isSelected: selected == false) { pick(false) }
       }
     }
   }
