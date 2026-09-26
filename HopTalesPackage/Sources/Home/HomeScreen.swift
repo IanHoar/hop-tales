@@ -182,10 +182,10 @@ public struct HomeScreen: View {
   }
 
   private var friend: some View {
-    let journey = store.progress.journey
-    return DressedFriend(
-      journey.activeFriend,
-      wearing: store.progress.outfit(for: journey.activeFriend),
+    let friend = store.progress.journey.activeFriend
+    return IdleFriend(
+      friend,
+      look: store.progress.outfit(for: friend).first?.id,
       height: Self.friendHeight
     )
     .shadow(color: Paper.shadow, radius: 6, y: 4)
