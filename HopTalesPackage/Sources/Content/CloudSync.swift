@@ -63,7 +63,13 @@ extension CloudSync: DependencyKey {
     catchUp: {
       @Dependency(\.defaultSyncEngine) var syncEngine
       guard syncEngine.isRunning else { return }
-      try? await syncEngine.fetchChanges()
+      let engine = syncEngine
+      await withTaskGroup { group in
+        group.addTask { try? await engine.fetchChanges() }
+        group.addTask { try? await Task.sleep(for: .seconds(10)) }
+        await group.next()
+        group.cancelAll()
+      }
     },
     deleteCloudCopy: {
       @Dependency(\.defaultSyncEngine) var syncEngine

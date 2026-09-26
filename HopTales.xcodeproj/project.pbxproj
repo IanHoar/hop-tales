@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -17,11 +17,11 @@
 
 /* Begin PBXFileReference section */
 		0B56F28CE5C2714D29B178C7 /* HopTales.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HopTales.entitlements; sourceTree = "<group>"; };
-		1C2A3E46FE051F3EEA0E4EF5 /* AppIcon.icon */ = {isa = PBXFileReference; path = AppIcon.icon; sourceTree = "<group>"; };
+		1C2A3E46FE051F3EEA0E4EF5 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		20D04F0705FBFA935AB8565D /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		34CD335D57F49D53A8F3190D /* HopTales.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = HopTales.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		3B0D48F497FF19D72FFD9007 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		3CAD76F0F0762AE7160425D1 /* HopTalesPackage */ = {isa = PBXFileReference; lastKnownFileType = folder; name = HopTalesPackage; path = HopTalesPackage; sourceTree = SOURCE_ROOT; };
+		3B0D48F497FF19D72FFD9007 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		3CAD76F0F0762AE7160425D1 /* HopTalesPackage */ = {isa = PBXFileReference; lastKnownFileType = folder; path = HopTalesPackage; sourceTree = SOURCE_ROOT; };
 		4F9CF800C3314E8395142C5A /* HopTalesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HopTalesApp.swift; sourceTree = "<group>"; };
 		FD2E8DFF04A134A98992D089 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -135,7 +135,6 @@
 			packageReferences = (
 				8D5DA1D07CB850259D06FB72 /* XCLocalSwiftPackageReference "HopTalesPackage" */,
 			);
-			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (

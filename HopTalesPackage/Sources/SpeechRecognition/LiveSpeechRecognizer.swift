@@ -22,6 +22,11 @@ actor LiveSpeechRecognizer {
 
   static let releaseSessionAfter = Duration.seconds(3)
 
+  static var isAuthorized: Bool {
+    SFSpeechRecognizer.authorizationStatus() == .authorized
+      && AVAudioApplication.shared.recordPermission == .granted
+  }
+
   static func authorization(for locale: Locale) async -> SpeechClient.Authorization {
     guard let recognizer = SFSpeechRecognizer(locale: locale),
       recognizer.supportsOnDeviceRecognition

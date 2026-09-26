@@ -32,9 +32,9 @@ extension Onboarding.Step {
       "Sound buttons put a dot under each sound and a dash under letters that make one sound "
         + "together, like sh. Many schools teach blending this way. You can change this later."
     case .cloud:
-      "Your reader's progress is kept in your own iCloud, so it's there on a new iPhone or "
-        + "iPad and follows them between devices. Only you can see it. We never do. You can "
-        + "change this later."
+      "Already reading with Hop Tales on another iPhone or iPad? Their progress comes back. "
+        + "Otherwise it's kept in your own iCloud as they read, so it follows them to new "
+        + "devices. Only you can see it. We never do. You can change this later."
     }
   }
 }
