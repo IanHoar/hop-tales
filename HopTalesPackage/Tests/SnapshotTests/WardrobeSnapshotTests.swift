@@ -14,7 +14,7 @@ struct WardrobeSnapshotTests {
 
   @Test(arguments: [ColorScheme.light, .dark])
   func wideItemsFitTheirTiles(scheme: ColorScheme) {
-    expectSnapshot(of: WardrobePreview(friend: .frog, slot: .eyes), scheme: scheme)
+    expectSnapshot(of: WardrobePreview(friend: .frog), scheme: scheme)
   }
 
   @Test func haresWardrobe() {

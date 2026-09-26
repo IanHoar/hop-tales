@@ -12,18 +12,14 @@ import World
     public var id: Friend { friend }
     public var friend: Friend
     public var progress = Content.Progress()
-    public var slot: Slot
 
     public init(friend: Friend) {
       self.friend = friend
-      slot = WardrobeLibrary.slots(for: friend).first ?? .head
     }
 
-    var slots: [Slot] { WardrobeLibrary.slots(for: friend) }
+    var items: [WardrobeItem] { WardrobeLibrary.items(for: friend) }
 
-    var items: [WardrobeItem] {
-      WardrobeLibrary.items(for: friend).filter { $0.slot == slot }
-    }
+    var newest: WardrobeItem? { progress.newestItem(for: friend) }
 
     var outfit: [WardrobeItem] { progress.outfit(for: friend) }
 
@@ -38,7 +34,6 @@ import World
     case doneTapped
     case itemTapped(WardrobeItem)
     case justMeTapped
-    case slotPicked(Slot)
   }
 
   @Dependency(ProgressStore.self) var progressStore
@@ -51,15 +46,16 @@ import World
 
       case let .itemTapped(item):
         guard state.progress.isUnlocked(item, for: state.friend) else { break }
-        state.progress.wear(item, on: state.friend)
+        if state.isWorn(item) {
+          state.progress.takeOff(item.slot, from: state.friend)
+        } else {
+          state.progress.wear(item, on: state.friend)
+        }
         save(state)
 
       case .justMeTapped:
-        state.progress.takeOff(state.slot, from: state.friend)
+        state.progress.undress(state.friend)
         save(state)
-
-      case let .slotPicked(slot):
-        state.slot = slot
       }
     }
     .onMount { state in
@@ -96,7 +92,6 @@ public struct WardrobeScreen: View {
                 .fill(Paper.shade)
             }
             .animation(.spring(duration: 0.35, bounce: 0.3), value: store.outfit)
-          tabs
           grid
         }
         .padding(.horizontal, 20)
@@ -125,25 +120,6 @@ public struct WardrobeScreen: View {
     .padding(.vertical, 12)
   }
 
-  private var tabs: some View {
-    ScrollView(.horizontal) {
-      HStack(spacing: 8) {
-        ForEach(store.slots, id: \.self) { slot in
-          Button(slot.name) { store.send(.slotPicked(slot)) }
-            .font(Typography.ui(15, weight: .semibold))
-            .foregroundStyle(slot == store.slot ? Paper.onRed : Paper.ink)
-            .padding(.horizontal, 14)
-            .frame(height: 36)
-            .background(slot == store.slot ? Paper.red : Paper.paper, in: Capsule())
-            .overlay(Capsule().strokeBorder(Paper.rim, lineWidth: 2))
-            .buttonStyle(.plain)
-            .accessibilityAddTraits(slot == store.slot ? .isSelected : [])
-        }
-      }
-    }
-    .scrollIndicators(.hidden)
-  }
-
   private var grid: some View {
     LazyVGrid(
       columns: [GridItem(.adaptive(minimum: Self.tile, maximum: Self.tile + 20), spacing: 12)],
@@ -156,7 +132,7 @@ public struct WardrobeScreen: View {
           .font(Typography.display(15))
           .foregroundStyle(Paper.ink)
       }
-      .accessibilityLabel("Just me, no \(store.slot.name.lowercased())")
+      .accessibilityLabel("Just me, nothing on")
       ForEach(store.items) { item in
         let unlocked = store.progress.isUnlocked(item, for: store.friend)
         tile(isSelected: store.state.isWorn(item), isLocked: !unlocked) {
@@ -169,6 +145,16 @@ public struct WardrobeScreen: View {
             )
               .saturation(unlocked ? 1 : 0)
               .opacity(unlocked ? 1 : 0.35)
+            if unlocked, item == store.state.newest, !store.state.isWorn(item) {
+              Text("new")
+                .font(Typography.ui(11, weight: .semibold))
+                .foregroundStyle(Paper.onRed)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Paper.red, in: Capsule())
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                .padding(6)
+            }
             if !unlocked {
               VStack(spacing: 2) {
                 Image(systemName: "lock.fill")
@@ -209,7 +195,6 @@ public struct WardrobeScreen: View {
 #if DEBUG
 struct WardrobePreview: View {
   var friend = Friend.bunny
-  var slot: Slot?
 
   var body: some View {
     WardrobeScreen(store: store)
@@ -228,9 +213,7 @@ struct WardrobePreview: View {
     return withDependencies {
       $0[ProgressStore.self] = ProgressStore(load: { saved }, save: { _ in })
     } operation: {
-      var state = Wardrobe.State(friend: friend)
-      if let slot { state.slot = slot }
-      return Store(initialState: state) { Wardrobe() }
+      Store(initialState: Wardrobe.State(friend: friend)) { Wardrobe() }
     }
   }
 }
