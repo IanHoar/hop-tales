@@ -54,9 +54,13 @@ struct PathStage: View {
       }
       pickupLayer
       if case let .story(stars) = store.completed {
-        StoryFinished(title: store.story.title, stars: stars, geometry: geometry) {
-          store.send(.readAgainTapped)
-        }
+        StoryFinished(
+          title: store.story.title,
+          stars: stars,
+          geometry: geometry,
+          readAgain: { store.send(.readAgainTapped) },
+          done: { store.send(.backToStoriesTapped) }
+        )
         .transition(.opacity.animation(.easeOut(duration: 0.4).delay(WordPath.pan)))
         journeyPanel
           .transition(.opacity.animation(.easeOut(duration: 0.4).delay(WordPath.pan)))
