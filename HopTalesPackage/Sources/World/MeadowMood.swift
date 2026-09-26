@@ -18,6 +18,7 @@ struct WeatherStyle {
   let dim: CGFloat
   let rain: Bool
   let lightning: Bool
+  var snow = false
 
   var sun: CGFloat { overlay > 0 ? 0 : 1 }
 }
@@ -105,6 +106,11 @@ extension Weather {
     case .rain:
       WeatherStyle(
         fairClouds: 0, stormClouds: 1, overlay: 0.28, dim: 0.74, rain: true, lightning: false
+      )
+    case .snow:
+      WeatherStyle(
+        fairClouds: 0.6, stormClouds: 0.5, overlay: 0.12, dim: 0.9, rain: false, lightning: false,
+        snow: true
       )
     }
   }
