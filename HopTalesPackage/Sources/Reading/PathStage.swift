@@ -126,7 +126,7 @@ struct PathStage: View {
   private var journeyPanel: some View {
     VStack {
       if let callout = store.callout {
-        CalloutCard(moment: callout, geometry: geometry) {
+        CalloutCard(moment: callout, geometry: geometry, isDone: store.hasTriedItOn) {
           if let story = callout.story { store.send(.continueTapped(story)) }
           if case let .basketFull(friend, _) = callout { store.send(.tryItOnTapped(friend)) }
         } dismiss: {
