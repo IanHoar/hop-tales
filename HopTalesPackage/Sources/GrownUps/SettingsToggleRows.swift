@@ -111,19 +111,3 @@ struct TestingButtons: View {
     .buttonStyle(.paperChip)
   }
 }
-
-struct PaperChipButtonStyle: ButtonStyle {
-  func makeBody(configuration: Configuration) -> some View {
-    configuration.label
-      .font(Typography.ui(15, weight: .semibold))
-      .foregroundStyle(Paper.ink)
-      .padding(.horizontal, 16)
-      .frame(height: 42)
-      .paperChip(Capsule(), rim: 3)
-      .scaleEffect(configuration.isPressed ? 0.97 : 1)
-  }
-}
-
-extension ButtonStyle where Self == PaperChipButtonStyle {
-  static var paperChip: PaperChipButtonStyle { PaperChipButtonStyle() }
-}

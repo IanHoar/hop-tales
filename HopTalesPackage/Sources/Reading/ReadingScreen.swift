@@ -377,3 +377,9 @@ public struct ReadingScreen: View {
     }
   }
 }
+
+extension Reading.State {
+  public var outfit: [WardrobeItem] {
+    WardrobeLibrary.items(for: friend).filter { $0.id == look }
+  }
+}
