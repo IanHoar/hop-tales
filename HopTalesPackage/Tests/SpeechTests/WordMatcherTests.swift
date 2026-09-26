@@ -56,6 +56,23 @@ struct WordMatcherTests {
     )
   }
 
+  @Test(arguments: ["b", "bb", "be"])
+  func aWordThatSoundsLikeALetterIsHeardAsThatLetter(token: String) {
+    let bee = Word(text: "bee")
+    #expect(WordMatcher.match(tokens: [token], current: bee, next: nil)?.target == .current)
+  }
+
+  @Test(arguments: ["ea", "ear", "eara", "earaa", "a"])
+  func aOnItsOwnIsHeardThroughItsLetterName(token: String) {
+    let word = Word(text: "A")
+    #expect(WordMatcher.match(tokens: [token], current: word, next: nil)?.target == .current)
+  }
+
+  @Test func aLetterOnlyStandsForItsOwnName() {
+    let sea = Word(text: "sun")
+    #expect(WordMatcher.match(tokens: ["b"], current: sea, next: nil) == nil)
+  }
+
   @Test func homophonesAreAcceptedWhenGentle() {
     let would = Word(text: "would", homophones: ["wood"])
     #expect(WordMatcher.match(tokens: ["wood"], current: would, next: nil)?.target == .current)

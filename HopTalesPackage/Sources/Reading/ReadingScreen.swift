@@ -250,8 +250,8 @@ import World
       }
       let contextualStrings = sentence.words.map(\.text)
       let known = state.authorization
+      if celebrates { store.addTask { await sound.sentenceCompleted() } }
       store.addTask {
-        if celebrates { await sound.sentenceCompleted() }
         let authorization: SpeechClient.Authorization
         if let known {
           authorization = known
