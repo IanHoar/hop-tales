@@ -78,6 +78,9 @@ struct GrownUpsTests {
     store.send(.accentPicked(.british)) { $0.profile.accent = .british }
     #expect(profiles.value.last?.accent == .british)
 
+    store.send(.themePicked(.dark)) { $0.profile.theme = .dark }
+    #expect(profiles.value.last?.theme == .dark)
+
     await store.send(.voicePicked(voice)) {
       $0.profile.voiceID = voice
     }?.value
@@ -145,6 +148,26 @@ struct GrownUpsTests {
     store.send(.settings(.doneTapped)) {
       $0.settings = nil
       $0.home.childName = "Wren"
+    }
+  }
+
+  @Test func pickingAThemeChangesTheWholeApp() {
+    let saved = Profile(childName: "Maya", theme: .light)
+    var root = Root.State()
+    root.intro = nil
+    root.theme = .light
+    root.settings = Settings.State()
+    let store = TestStore(initialState: root) {
+      Root()
+        .dependency(ProfileStore(load: { saved }, save: { _ in }))
+    } changes: {
+      $0.home.childName = "Maya"
+      $0.settings?.childName = "Maya"
+      $0.settings?.profile = saved
+    }
+    store.send(.settings(.themePicked(.dark))) {
+      $0.theme = .dark
+      $0.settings?.profile.theme = .dark
     }
   }
 }

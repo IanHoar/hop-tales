@@ -24,10 +24,13 @@ struct FriendTests {
     #expect(profile.startingFriend == .frog)
     #expect(profile.startingStoryID == StoryLibrary.all[2].id)
     #expect(profile.accent == .british)
+    #expect(profile.theme == .device)
   }
 
   @Test func aProfileRoundTripsWithItsFriend() throws {
-    let profile = Profile(childName: "Wren", startingFriend: .hare, accent: .australian)
+    let profile = Profile(
+      childName: "Wren", startingFriend: .hare, accent: .australian, theme: .dark
+    )
     let decoded = try JSONDecoder().decode(Profile.self, from: JSONEncoder().encode(profile))
     #expect(decoded == profile)
   }

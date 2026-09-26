@@ -10,12 +10,15 @@ public struct TVScreen: View {
   }
 
   public var body: some View {
-    if store.storyOnScreen != nil,
-      let last = store.scope(\.path).last,
-      case let .reading(reading) = last.enumeration {
-      TVReadingScreen(store: reading)
-    } else {
-      TVWaitingScreen(childName: store.home.childName)
+    Group {
+      if store.storyOnScreen != nil,
+        let last = store.scope(\.path).last,
+        case let .reading(reading) = last.enumeration {
+        TVReadingScreen(store: reading)
+      } else {
+        TVWaitingScreen(childName: store.home.childName)
+      }
     }
+    .preferredColorScheme(store.theme.colorScheme)
   }
 }
