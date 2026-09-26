@@ -23,7 +23,7 @@ struct CloudRow: View {
         isOn: Binding(get: { store.cloudSync }, set: { store.send(.cloud(.toggled($0))) })
       ) {
         VStack(alignment: .leading, spacing: 4) {
-          Text("Save progress to iCloud")
+          Text("Use Hop Tales with iCloud")
             .font(Typography.display(20))
             .foregroundStyle(Paper.ink)
           Text(

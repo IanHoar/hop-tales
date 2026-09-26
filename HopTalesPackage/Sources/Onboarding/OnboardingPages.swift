@@ -12,7 +12,7 @@ extension Onboarding.Step {
     case .listening: "Can Hop Tales use the microphone?"
     case .friend: "Who should your reader start with?"
     case .soundButtons: "Show dots and dashes under the sounds?"
-    case .cloud: "Save progress to your Apple account?"
+    case .cloud: "Use Hop Tales with iCloud?"
     }
   }
 
@@ -32,9 +32,9 @@ extension Onboarding.Step {
       "Sound buttons put a dot under each sound and a dash under letters that make one sound "
         + "together, like sh. Many schools teach blending this way. You can change this later."
     case .cloud:
-      "Already reading with Hop Tales on another iPhone or iPad? Their progress comes back. "
-        + "Otherwise it's kept in your own iCloud as they read, so it follows them to new "
-        + "devices. Only you can see it. We never do. You can change this later."
+      "Already reading with Hop Tales on another iPhone or iPad? Choose Yes to bring back "
+        + "your reader's name and progress. From then on, progress is saved to your own iCloud "
+        + "as they read. Only you can see it. We never do. You can change this later."
     }
   }
 }
@@ -261,7 +261,7 @@ struct CloudChoices: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
       HStack(spacing: 10) {
-        PaperChoice(title: "Yes, save it", isSelected: selected == true) { pick(true) }
+        PaperChoice(title: "Yes, use iCloud", isSelected: selected == true) { pick(true) }
         PaperChoice(title: "Not now", isSelected: selected == false) { pick(false) }
       }
       if account == .signedOut {

@@ -11,7 +11,7 @@ collecting anything, update `HopTales/PrivacyInfo.xcprivacy` and this page in th
   phone and is never stored.
 - The child's name, accent, help voice, settings and reading progress are saved on the device, in a
   SQLite database in Application Support and in `UserDefaults`.
-- If the grown-up opts in ("Save progress to your Apple account?" in onboarding, or iCloud in
+- If the grown-up opts in ("Use Hop Tales with iCloud?" in onboarding, or iCloud in
   Settings), the profile and progress sync to **their own private CloudKit database**. We have no
   access to it: it's the user's iCloud, not a server of ours. Apple's definition of "collect" is data
   sent off the device where the developer or a third party can access it, so private-database sync
