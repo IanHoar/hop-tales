@@ -106,8 +106,9 @@ public enum WordMatcher {
 
   static func soundsLikeShortWord(_ token: String, _ text: String) -> Bool {
     let target = Array(text), heard = Array(token)
+    let opens = target.first == "y" || target.first.map { !vowels.contains($0) } == true
     guard
-      target.count == 3, !vowels.contains(target[0]), vowels.contains(target[1]),
+      target.count == 3, opens, vowels.contains(target[1]),
       !vowels.contains(target[2]), (3...4).contains(heard.count),
       let first = heard.first, let last = heard.last, first == target[0],
       last == target[2] || last == voicing[target[2]]

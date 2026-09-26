@@ -47,6 +47,12 @@ struct WordMatcherTests {
     )
   }
 
+  @Test(arguments: ["yep", "yup", "yipp"])
+  func aShortWordStartingWithYIsHeardThroughItsVowel(token: String) {
+    let yip = Word(text: "Yip")
+    #expect(WordMatcher.match(tokens: [token], current: yip, next: nil)?.target == .current)
+  }
+
   @Test func aSaidAsUhIsHeardEvenWhenTheRecogniserWritesOh() {
     let word = Word(text: "a")
     #expect(WordMatcher.match(tokens: ["oh"], current: word, next: nil)?.target == .current)
