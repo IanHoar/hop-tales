@@ -82,6 +82,8 @@ import World
 public struct HomeScreen: View {
   let store: StoreOf<Home>
   @Environment(\.colorScheme) private var colorScheme
+  @State private var sheetTop: CGFloat = 0
+  @State private var scrolled: CGFloat = 0
 
   public init(store: StoreOf<Home>) {
     self.store = store
@@ -136,16 +138,30 @@ public struct HomeScreen: View {
         }
         ScrollView {
           VStack(spacing: 0) {
-            topBar
-              .padding(.top, 8)
-            Spacer(minLength: 0)
-              .frame(height: max(0, screen * Self.sheetTop - proxy.safeAreaInsets.top - 330))
-            friendOnThePath(standsAside: proxy.size.width > Self.wideLayout)
+            Color.clear
+              .frame(height: sheetTop)
             sheet(bottomInset: proxy.safeAreaInsets.bottom)
           }
           .frame(maxWidth: Self.columnWidth)
           .frame(maxWidth: .infinity)
           .frame(minHeight: proxy.size.height, alignment: .top)
+          .background(alignment: .top) {
+            VStack(spacing: 0) {
+              topBar
+                .padding(.top, 8)
+              Spacer(minLength: 0)
+                .frame(height: max(0, screen * Self.sheetTop - proxy.safeAreaInsets.top - 330))
+              friendOnThePath(standsAside: proxy.size.width > Self.wideLayout)
+            }
+            .frame(maxWidth: Self.columnWidth)
+            .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { sheetTop = $0 }
+            .offset(y: scrolled)
+          }
+        }
+        .onScrollGeometryChange(for: CGFloat.self) { geometry in
+          geometry.contentOffset.y + geometry.contentInsets.top
+        } action: { _, offset in
+          scrolled = offset
         }
         .scrollBounceBehavior(.basedOnSize)
         .scrollIndicators(.hidden)
