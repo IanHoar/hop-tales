@@ -9,7 +9,7 @@ struct AccentChoices: View {
 
   var body: some View {
     ForEach(Profile.Accent.allCases, id: \.self) { accent in
-      Choice(title: accent.name, isSelected: accent == store.profile.accent) {
+      PaperChoice(title: accent.name, isSelected: accent == store.profile.accent) {
         store.send(.accentPicked(accent))
       }
     }
@@ -21,7 +21,7 @@ struct ThemeChoices: View {
 
   var body: some View {
     ForEach(Profile.Theme.allCases, id: \.self) { theme in
-      Choice(title: theme.name, isSelected: theme == store.profile.theme) {
+      PaperChoice(title: theme.name, isSelected: theme == store.profile.theme) {
         store.send(.themePicked(theme))
       }
     }
@@ -33,7 +33,7 @@ struct StrictnessChoices: View {
 
   var body: some View {
     ForEach(WordMatcher.Strictness.allCases, id: \.self) { strictness in
-      Choice(
+      PaperChoice(
         title: strictness.title,
         detail: strictness.detail,
         isSelected: strictness == store.strictness
