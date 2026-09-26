@@ -18,6 +18,7 @@ struct PathStage: View {
   @State private var clock = HopClock()
   @State private var paths = PathCache()
   @State private var cues: [PropKey: PropCue] = [:]
+  @State private var tip: ChallengeTipState?
 
   private var position: HopTarget {
     HopTarget(sentence: store.sentenceIndex, word: store.wordIndex)
@@ -201,9 +202,20 @@ struct PathStage: View {
       cues: cues,
       now: now,
       isSpeaking: store.isSpeaking,
-      label: store.wordCardLabel
-    ) {
-      store.send(.currentWordTapped)
+      label: store.wordCardLabel,
+      tip: tip?.target,
+      explain: { target in explain(target) },
+      tap: { store.send(.currentWordTapped) }
+    )
+  }
+
+  private func explain(_ target: HopTarget) {
+    let shown = ChallengeTipState(target: target)
+    withAnimation(.easeOut(duration: 0.2)) { tip = shown }
+    Task { @MainActor in
+      try? await Task.sleep(for: ChallengeTip.hold)
+      guard tip == shown else { return }
+      withAnimation(.easeIn(duration: 0.3)) { tip = nil }
     }
   }
 
@@ -250,6 +262,8 @@ struct PathScene: View {
   let now: Date?
   let isSpeaking: Bool
   let label: String
+  let tip: HopTarget?
+  let explain: (HopTarget) -> Void
   let tap: () -> Void
 
   private var geometry: ReadingGeometry { path.geometry }
@@ -291,7 +305,9 @@ struct PathScene: View {
           .accessibilityHidden(true)
       }
       hare
+      challengeTargets
       currentWordTarget
+      challengeTip
     }
     .frame(width: geometry.size.width, height: geometry.size.height)
   }
@@ -376,20 +392,4 @@ struct PathScene: View {
     .accessibilityHidden(true)
   }
 
-  @ViewBuilder
-  private var currentWordTarget: some View {
-    if let stop = path.stop(at: position) {
-      let minimum = geometry.path(44)
-      Color.clear
-        .frame(width: max(minimum, stop.width), height: max(minimum, path.wordHeight))
-        .contentShape(.rect)
-        .position(x: stop.centre - cameraX, y: path.wordY)
-        .onTapGesture(perform: tap)
-        .accessibilityElement()
-        .accessibilityLabel(label)
-        .accessibilityHint("Double tap to hear the word.")
-        .accessibilityAddTraits(.startsMediaSession)
-        .accessibilityAction { tap() }
-    }
-  }
 }
