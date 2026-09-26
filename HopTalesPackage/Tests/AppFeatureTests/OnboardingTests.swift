@@ -57,9 +57,6 @@ struct OnboardingTests {
     store.send(.primaryTapped) { $0.path = [.listening, .friend, .soundButtons] }
     store.send(.primaryTapped)
     store.send(.soundButtonsPicked(true)) { $0.soundButtons = true }
-    store.send(.primaryTapped) { $0.path = [.listening, .friend, .soundButtons, .accent] }
-    store.send(.primaryTapped)
-    store.send(.accentPicked(.british)) { $0.accent = .british }
     #expect(store.state.primaryTitle == "Start reading")
     store.send(.primaryTapped)
     await store.receive(\.finished)
@@ -75,7 +72,6 @@ struct OnboardingTests {
     #expect(!state.canContinue(from: .listening))
     #expect(!state.canContinue(from: .friend))
     #expect(!state.canContinue(from: .soundButtons))
-    #expect(!state.canContinue(from: .accent))
   }
 
   @Test func listeningCanBeRefusedWithoutBlockingSetUp() async {
@@ -165,7 +161,7 @@ struct OnboardingTests {
       startingFriend: .hare,
       accent: .american,
       soundButtons: true,
-      step: Onboarding.Step.accent.rawValue
+      step: 5
     )
     let saved = LockIsolated<Profile?>(nil)
     let store = TestStore(initialState: Root.State()) {

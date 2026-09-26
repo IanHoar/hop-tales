@@ -34,6 +34,15 @@ struct FriendTests {
     let decoded = try JSONDecoder().decode(Profile.self, from: JSONEncoder().encode(profile))
     #expect(decoded == profile)
   }
+
+  @Test func theAccentFollowsTheDeviceRegion() {
+    #expect(Profile.Accent(region: .canada) == .canadian)
+    #expect(Profile.Accent(region: .unitedStates) == .american)
+    #expect(Profile.Accent(region: .unitedKingdom) == .british)
+    #expect(Profile.Accent(region: .australia) == .australian)
+    #expect(Profile.Accent(region: .france) == .canadian)
+    #expect(Profile.Accent(region: nil) == .canadian)
+  }
 }
 
 struct LevelContentTests {

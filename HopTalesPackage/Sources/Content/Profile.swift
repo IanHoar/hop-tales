@@ -18,6 +18,15 @@ public struct Profile: Codable, Hashable, Sendable {
     }
 
     public var locale: Locale { Locale(identifier: rawValue) }
+
+    public init(region: Locale.Region?) {
+      switch region {
+      case .unitedStates: self = .american
+      case .unitedKingdom: self = .british
+      case .australia: self = .australian
+      default: self = .canadian
+      }
+    }
   }
 
   public enum Theme: String, Codable, CaseIterable, Hashable, Sendable {

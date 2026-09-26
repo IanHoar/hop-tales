@@ -28,10 +28,6 @@ struct OnboardingPreview: View {
       state.startingFriend = .bunny
       state.soundButtons = true
     }
-    if step == .accent {
-      state.startingFriend = .bunny
-      state.accent = .canadian
-    }
     return state
   }
 }
@@ -40,5 +36,4 @@ struct OnboardingPreview: View {
 #Preview("Microphone") { OnboardingPreview(.listening) }
 #Preview("Starting friend") { OnboardingPreview(.friend) }
 #Preview("Sound buttons") { OnboardingPreview(.soundButtons) }
-#Preview("Accent") { OnboardingPreview(.accent) }
 #endif

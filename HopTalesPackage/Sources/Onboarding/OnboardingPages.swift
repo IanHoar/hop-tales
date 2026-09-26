@@ -12,7 +12,6 @@ extension Onboarding.Step {
     case .listening: "Can Hop Tales use the microphone?"
     case .friend: "Who should your reader start with?"
     case .soundButtons: "Show dots and dashes under the sounds?"
-    case .accent: "What's your reader's accent?"
     }
   }
 
@@ -31,9 +30,6 @@ extension Onboarding.Step {
     case .soundButtons:
       "Sound buttons put a dot under each sound and a dash under letters that make one sound "
         + "together, like sh. Many schools teach blending this way. You can change this later."
-    case .accent:
-      "Hop Tales listens for this accent, so it understands your child's words the way they "
-        + "say them."
     }
   }
 }
@@ -78,8 +74,6 @@ struct StepPage: View {
       FriendChoices(selected: store.startingFriend) { store.send(.friendPicked($0)) }
     case .soundButtons:
       SoundButtonChoices(selected: store.soundButtons) { store.send(.soundButtonsPicked($0)) }
-    case .accent:
-      AccentGrid(selected: store.accent) { store.send(.accentPicked($0)) }
     }
   }
 }
@@ -230,19 +224,6 @@ struct LaterFriends: View {
     }
     .frame(maxWidth: .infinity)
     .accessibilityElement(children: .combine)
-  }
-}
-
-struct AccentGrid: View {
-  let selected: Profile.Accent?
-  let pick: (Profile.Accent) -> Void
-
-  var body: some View {
-    LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible())], spacing: 10) {
-      ForEach(Profile.Accent.allCases, id: \.self) { accent in
-        PaperChoice(title: accent.name, isSelected: accent == selected) { pick(accent) }
-      }
-    }
   }
 }
 
