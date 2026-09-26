@@ -89,11 +89,6 @@ public enum WardrobeLibrary {
       library.first { $0.id == id }
     }
   }
-
-  public static func slots(for friend: Friend) -> [Slot] {
-    let used = Set(items(for: friend).map(\.slot))
-    return Slot.allCases.filter(used.contains)
-  }
 }
 
 extension Progress {
@@ -123,6 +118,10 @@ extension Progress {
   public mutating func wear(_ item: WardrobeItem, on friend: Friend) {
     guard isUnlocked(item, for: friend) else { return }
     outfits[friend] = [item.slot: item.id]
+  }
+
+  public mutating func undress(_ friend: Friend) {
+    outfits[friend] = nil
   }
 
   public mutating func takeOff(_ slot: Slot, from friend: Friend) {
