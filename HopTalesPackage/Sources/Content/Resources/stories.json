@@ -14,15 +14,8 @@
         "newWord": null,
         "words": [
           {
-            "text": "The",
+            "text": "Dash",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "hare",
-            "homophones": [
-              "hair"
-            ],
             "big": false
           },
           {
@@ -53,7 +46,7 @@
         ]
       },
       {
-        "newWord": "scarf",
+        "newWord": "hop",
         "words": [
           {
             "text": "He",
@@ -61,7 +54,12 @@
             "big": false
           },
           {
-            "text": "had",
+            "text": "can",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "hop",
             "homophones": [],
             "big": false
           },
@@ -71,14 +69,7 @@
             "big": false
           },
           {
-            "text": "red",
-            "homophones": [
-              "read"
-            ],
-            "big": false
-          },
-          {
-            "text": "scarf",
+            "text": "lot",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -104,12 +95,12 @@
             "big": false
           },
           {
-            "text": "the",
+            "text": "and",
             "homophones": [],
             "big": false
           },
           {
-            "text": "hill",
+            "text": "up",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -125,10 +116,8 @@
             "big": false
           },
           {
-            "text": "bee",
-            "homophones": [
-              "be"
-            ],
+            "text": "bug",
+            "homophones": [],
             "big": false
           },
           {
@@ -142,12 +131,7 @@
             "big": false
           },
           {
-            "text": "a",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "bud",
+            "text": "him",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -159,15 +143,8 @@
         "newWord": null,
         "words": [
           {
-            "text": "The",
+            "text": "Dash",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "hare",
-            "homophones": [
-              "hair"
-            ],
             "big": false
           },
           {
@@ -188,11 +165,6 @@
             "big": false
           },
           {
-            "text": "long",
-            "homophones": [],
-            "big": false
-          },
-          {
             "text": "grass",
             "homophones": [],
             "big": true,
@@ -204,12 +176,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Then",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "he",
+            "text": "Dash",
             "homophones": [],
             "big": false
           },
@@ -270,7 +237,7 @@
             "big": false
           },
           {
-            "text": "low",
+            "text": "big",
             "homophones": [],
             "big": false
           },
@@ -280,26 +247,21 @@
             "big": false
           },
           {
-            "text": "warm",
-            "homophones": [],
+            "text": "red",
+            "homophones": [
+              "read"
+            ],
             "big": false,
             "trailing": "."
           }
         ]
       },
       {
-        "newWord": "oak",
+        "newWord": "pond",
         "words": [
           {
-            "text": "The",
+            "text": "Dash",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "hare",
-            "homophones": [
-              "hair"
-            ],
             "big": false
           },
           {
@@ -318,12 +280,7 @@
             "big": false
           },
           {
-            "text": "old",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "oak",
+            "text": "pond",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -353,7 +310,7 @@
             "big": false
           },
           {
-            "text": "smell",
+            "text": "sniff",
             "homophones": [],
             "big": false
           },
@@ -363,17 +320,15 @@
             "big": false
           },
           {
-            "text": "flowers",
-            "homophones": [
-              "flours"
-            ],
+            "text": "herbs",
+            "homophones": [],
             "big": true,
             "trailing": "."
           }
         ]
       },
       {
-        "newWord": "robin",
+        "newWord": "thrush",
         "words": [
           {
             "text": "A",
@@ -381,7 +336,7 @@
             "big": false
           },
           {
-            "text": "robin",
+            "text": "thrush",
             "homophones": [],
             "big": false
           },
@@ -396,12 +351,12 @@
             "big": false
           },
           {
-            "text": "the",
+            "text": "a",
             "homophones": [],
             "big": false
           },
           {
-            "text": "fence",
+            "text": "stump",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -417,34 +372,32 @@
             "big": false
           },
           {
-            "text": "fields",
+            "text": "long",
             "homophones": [],
             "big": false
           },
           {
-            "text": "glow",
+            "text": "grass",
             "homophones": [],
             "big": false
           },
           {
-            "text": "in",
-            "homophones": [
-              "inn"
-            ],
-            "big": false
-          },
-          {
-            "text": "the",
+            "text": "is",
             "homophones": [],
             "big": false
           },
           {
-            "text": "gold",
+            "text": "soft",
             "homophones": [],
             "big": false
           },
           {
-            "text": "light",
+            "text": "and",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "pink",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -455,15 +408,8 @@
         "newWord": null,
         "words": [
           {
-            "text": "The",
+            "text": "Dash",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "hare",
-            "homophones": [
-              "hair"
-            ],
             "big": false
           },
           {
@@ -477,7 +423,7 @@
             "big": false
           },
           {
-            "text": "down",
+            "text": "up",
             "homophones": [],
             "big": false
           },
@@ -511,7 +457,12 @@
         "newWord": null,
         "words": [
           {
-            "text": "Dark",
+            "text": "Big",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "black",
             "homophones": [],
             "big": false
           },
@@ -521,12 +472,12 @@
             "big": true
           },
           {
-            "text": "roll",
+            "text": "drift",
             "homophones": [],
             "big": false
           },
           {
-            "text": "over",
+            "text": "up",
             "homophones": [],
             "big": false
           },
@@ -567,7 +518,7 @@
             "big": false
           },
           {
-            "text": "tall",
+            "text": "long",
             "homophones": [],
             "big": false
           },
@@ -589,38 +540,32 @@
             "big": false
           },
           {
+            "text": "wet",
+            "homophones": [],
+            "big": false
+          },
+          {
             "text": "drops",
             "homophones": [],
             "big": false
           },
           {
-            "text": "of",
+            "text": "splash",
             "homophones": [],
             "big": false
           },
           {
-            "text": "rain",
-            "homophones": [
-              "reign",
-              "rein"
-            ],
-            "big": false
-          },
-          {
-            "text": "start",
+            "text": "on",
             "homophones": [],
             "big": false
           },
           {
-            "text": "to",
-            "homophones": [
-              "two",
-              "too"
-            ],
+            "text": "the",
+            "homophones": [],
             "big": false
           },
           {
-            "text": "fall",
+            "text": "grass",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -632,41 +577,48 @@
         "newWord": null,
         "words": [
           {
-            "text": "The",
+            "text": "Dash",
             "homophones": [],
             "big": false
           },
           {
-            "text": "hare",
+            "text": "hides",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "in",
             "homophones": [
-              "hair"
+              "inn"
             ],
             "big": false
           },
           {
-            "text": "waits",
+            "text": "a",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "hole",
             "homophones": [
-              "weights"
+              "whole"
             ],
             "big": false
           },
           {
-            "text": "under",
+            "text": "in",
+            "homophones": [
+              "inn"
+            ],
+            "big": false
+          },
+          {
+            "text": "a",
             "homophones": [],
             "big": false
           },
           {
-            "text": "the",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "oak",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "tree",
+            "text": "log",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -677,9 +629,15 @@
         "newWord": null,
         "words": [
           {
-            "text": "Soon",
+            "text": "At",
             "homophones": [],
             "big": false
+          },
+          {
+            "text": "last",
+            "homophones": [],
+            "big": false,
+            "trailing": ","
           },
           {
             "text": "the",
@@ -689,15 +647,15 @@
           {
             "text": "storm",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "drifts",
-            "homophones": [],
             "big": true
           },
           {
-            "text": "away",
+            "text": "is",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "gone",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -721,14 +679,15 @@
             "big": false
           },
           {
-            "text": "comes",
+            "text": "is",
             "homophones": [],
             "big": false
           },
           {
-            "text": "out",
+            "text": "back",
             "homophones": [],
-            "big": false
+            "big": false,
+            "trailing": ","
           },
           {
             "text": "and",
@@ -736,15 +695,8 @@
             "big": false
           },
           {
-            "text": "the",
+            "text": "Dash",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "hare",
-            "homophones": [
-              "hair"
-            ],
             "big": false
           },
           {
@@ -783,31 +735,6 @@
             "big": false
           },
           {
-            "text": "sky",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "turns",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "pink",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "as",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "the",
-            "homophones": [],
-            "big": false
-          },
-          {
             "text": "sun",
             "homophones": [
               "son"
@@ -817,34 +744,10 @@
           {
             "text": "sets",
             "homophones": [],
-            "big": false,
-            "trailing": "."
-          }
-        ],
-        "sky": "dusk"
-      },
-      {
-        "newWord": "quiet",
-        "words": [
-          {
-            "text": "The",
-            "homophones": [],
             "big": false
           },
           {
-            "text": "hare",
-            "homophones": [
-              "hair"
-            ],
-            "big": false
-          },
-          {
-            "text": "hops",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "along",
+            "text": "on",
             "homophones": [],
             "big": false
           },
@@ -854,12 +757,44 @@
             "big": false
           },
           {
-            "text": "quiet",
+            "text": "hills",
+            "homophones": [],
+            "big": false,
+            "trailing": "."
+          }
+        ],
+        "sky": "dusk"
+      },
+      {
+        "newWord": "lane",
+        "words": [
+          {
+            "text": "Dash",
             "homophones": [],
             "big": false
           },
           {
-            "text": "path",
+            "text": "hops",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "home",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "up",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "the",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "lane",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -889,7 +824,8 @@
             "homophones": [
               "won"
             ],
-            "big": false
+            "big": false,
+            "trailing": ","
           },
           {
             "text": "the",
@@ -899,15 +835,10 @@
           {
             "text": "stars",
             "homophones": [],
-            "big": false
+            "big": true
           },
           {
-            "text": "come",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "out",
+            "text": "shine",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -916,7 +847,7 @@
         "sky": "night"
       },
       {
-        "newWord": "moon",
+        "newWord": null,
         "words": [
           {
             "text": "The",
@@ -926,119 +857,125 @@
           {
             "text": "moon",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "rises",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "over",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "the",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "meadow",
-            "homophones": [],
-            "big": false,
-            "trailing": "."
-          }
-        ]
-      },
-      {
-        "newWord": null,
-        "words": [
-          {
-            "text": "An",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "owl",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "calls",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "softly",
-            "homophones": [],
             "big": true
           },
           {
-            "text": "from",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "the",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "trees",
-            "homophones": [],
-            "big": false,
-            "trailing": "."
-          }
-        ]
-      },
-      {
-        "newWord": null,
-        "words": [
-          {
-            "text": "The",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "sleepy",
-            "homophones": [],
-            "big": true
-          },
-          {
-            "text": "hare",
-            "homophones": [
-              "hair"
-            ],
-            "big": false
-          },
-          {
-            "text": "curls",
+            "text": "is",
             "homophones": [],
             "big": false
           },
           {
             "text": "up",
             "homophones": [],
-            "big": false
+            "big": false,
+            "trailing": ","
           },
           {
-            "text": "for",
-            "homophones": [
-              "four"
-            ],
-            "big": false
-          },
-          {
-            "text": "the",
+            "text": "and",
             "homophones": [],
             "big": false
           },
           {
-            "text": "night",
-            "homophones": [
-              "knight"
-            ],
+            "text": "it",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "is",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "white",
+            "homophones": [],
+            "big": false,
+            "trailing": "."
+          }
+        ]
+      },
+      {
+        "newWord": null,
+        "words": [
+          {
+            "text": "A",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "big",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "owl",
+            "homophones": [],
+            "big": true
+          },
+          {
+            "text": "sits",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "on",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "a",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "pine",
+            "homophones": [],
+            "big": false,
+            "trailing": "."
+          }
+        ]
+      },
+      {
+        "newWord": null,
+        "words": [
+          {
+            "text": "Dash",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "is",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "tired",
+            "homophones": [],
+            "big": true,
+            "trailing": ","
+          },
+          {
+            "text": "and",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "he",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "naps",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "at",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "home",
+            "homophones": [],
             "big": false,
             "trailing": "."
           }
@@ -1235,7 +1172,7 @@
             "big": false
           },
           {
-            "text": "moss",
+            "text": "mud",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -1378,10 +1315,8 @@
             "big": false
           },
           {
-            "text": "tail",
-            "homophones": [
-              "tale"
-            ],
+            "text": "back",
+            "homophones": [],
             "big": true,
             "trailing": "."
           }
@@ -1391,30 +1326,22 @@
         "newWord": null,
         "words": [
           {
+            "text": "Yip",
+            "homophones": [],
+            "big": false,
+            "leading": "\u201c",
+            "trailing": "!\u201d"
+          },
+          {
+            "text": "said",
+            "homophones": [],
+            "big": false
+          },
+          {
             "text": "Bob",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "let",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "out",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "a",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "yelp",
-            "homophones": [],
-            "big": true,
-            "trailing": "!"
+            "big": false,
+            "trailing": "."
           }
         ]
       },
@@ -1422,12 +1349,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Then",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "the",
+            "text": "The",
             "homophones": [],
             "big": false
           },
@@ -1442,10 +1364,15 @@
             "big": false
           },
           {
-            "text": "off",
+            "text": "and",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "ran",
             "homophones": [],
             "big": false,
-            "trailing": "."
+            "trailing": "!"
           }
         ]
       }
@@ -1530,28 +1457,25 @@
         "newWord": null,
         "words": [
           {
-            "text": "Then",
+            "text": "Bob",
             "homophones": [],
             "big": false
           },
           {
-            "text": "the",
+            "text": "got",
             "homophones": [],
             "big": false
           },
           {
-            "text": "rain",
-            "homophones": [
-              "reign",
-              "rein"
-            ],
-            "big": true
+            "text": "so",
+            "homophones": [],
+            "big": false
           },
           {
-            "text": "fell",
+            "text": "wet",
             "homophones": [],
             "big": false,
-            "trailing": "."
+            "trailing": "!"
           }
         ],
         "weather": "rain"
@@ -1674,19 +1598,22 @@
             "big": false
           },
           {
+            "text": "to",
+            "homophones": [
+              "two",
+              "too"
+            ],
+            "big": false
+          },
+          {
             "text": "the",
             "homophones": [],
             "big": false
           },
           {
-            "text": "grassy",
+            "text": "hilltop",
             "homophones": [],
-            "big": true
-          },
-          {
-            "text": "hill",
-            "homophones": [],
-            "big": false,
+            "big": true,
             "trailing": "."
           }
         ]
@@ -1700,7 +1627,7 @@
             "big": false
           },
           {
-            "text": "green",
+            "text": "fat",
             "homophones": [],
             "big": false
           },
@@ -1817,25 +1744,31 @@
           {
             "text": "Splash",
             "homophones": [],
-            "big": false
+            "big": false,
+            "trailing": "!"
           },
           {
-            "text": "goes",
+            "text": "That",
             "homophones": [],
             "big": false
           },
           {
-            "text": "the",
+            "text": "is",
             "homophones": [],
             "big": false
           },
           {
-            "text": "cold",
+            "text": "a",
             "homophones": [],
             "big": false
           },
           {
-            "text": "water",
+            "text": "big",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "splash",
             "homophones": [],
             "big": false,
             "trailing": "!"
@@ -1851,7 +1784,7 @@
             "big": false
           },
           {
-            "text": "laughs",
+            "text": "grins",
             "homophones": [],
             "big": false
           },
@@ -1861,7 +1794,7 @@
             "big": false
           },
           {
-            "text": "shakes",
+            "text": "flicks",
             "homophones": [],
             "big": false
           },
@@ -1927,7 +1860,7 @@
             "big": false
           },
           {
-            "text": "soil",
+            "text": "mud",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -1943,7 +1876,7 @@
             "big": false
           },
           {
-            "text": "finds",
+            "text": "gets",
             "homophones": [],
             "big": false
           },
@@ -1953,19 +1886,19 @@
             "big": false
           },
           {
-            "text": "thick",
+            "text": "big",
             "homophones": [],
             "big": false
           },
           {
-            "text": "orange",
+            "text": "fat",
             "homophones": [],
-            "big": true
+            "big": false
           },
           {
             "text": "carrot",
             "homophones": [],
-            "big": false,
+            "big": true,
             "trailing": "."
           }
         ]
@@ -1994,8 +1927,10 @@
             "big": false
           },
           {
-            "text": "carrot",
-            "homophones": [],
+            "text": "one",
+            "homophones": [
+              "won"
+            ],
             "big": false
           },
           {
@@ -2043,7 +1978,7 @@
             "big": false
           },
           {
-            "text": "nest",
+            "text": "den",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -2062,28 +1997,30 @@
           {
             "text": "crunch",
             "homophones": [],
-            "big": false
+            "big": false,
+            "trailing": ","
           },
           {
-            "text": "goes",
+            "text": "crunch",
+            "homophones": [],
+            "big": false,
+            "trailing": "!"
+          },
+          {
+            "text": "It",
             "homophones": [],
             "big": false
           },
           {
-            "text": "the",
+            "text": "is",
             "homophones": [],
             "big": false
           },
           {
             "text": "fresh",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "carrot",
-            "homophones": [],
             "big": false,
-            "trailing": "!"
+            "trailing": "."
           }
         ]
       },
@@ -2101,29 +2038,25 @@
             "big": false
           },
           {
-            "text": "stuffed",
+            "text": "full",
             "homophones": [],
-            "big": true
+            "big": false,
+            "trailing": ","
           },
           {
-            "text": "and",
+            "text": "so",
             "homophones": [],
             "big": false
           },
           {
-            "text": "has",
+            "text": "he",
             "homophones": [],
             "big": false
           },
           {
-            "text": "a",
+            "text": "naps",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "snooze",
-            "homophones": [],
-            "big": true,
+            "big": false,
             "trailing": "."
           }
         ]
@@ -2208,12 +2141,7 @@
             "big": false
           },
           {
-            "text": "slips",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "down",
+            "text": "sets",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -2244,12 +2172,7 @@
             "big": false
           },
           {
-            "text": "sweet",
-            "homophones": [],
-            "big": true
-          },
-          {
-            "text": "little",
+            "text": "splendid",
             "homophones": [],
             "big": true
           },
@@ -2275,12 +2198,12 @@
             "big": false
           },
           {
-            "text": "his",
+            "text": "and",
             "homophones": [],
             "big": false
           },
           {
-            "text": "feet",
+            "text": "claps",
             "homophones": [],
             "big": false
           },
@@ -2367,7 +2290,7 @@
             "big": false
           },
           {
-            "text": "home",
+            "text": "back",
             "homophones": [],
             "big": false
           },
@@ -2391,7 +2314,7 @@
   },
   {
     "id": "dash-big-story",
-    "title": "Dash and the Brook",
+    "title": "Dash and the Log",
     "level": 2,
     "stretch": false,
     "isBigStory": true,
@@ -2414,6 +2337,11 @@
             "big": false
           },
           {
+            "text": "up",
+            "homophones": [],
+            "big": false
+          },
+          {
             "text": "to",
             "homophones": [
               "two",
@@ -2427,7 +2355,7 @@
             "big": false
           },
           {
-            "text": "brook",
+            "text": "pond",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -2443,7 +2371,7 @@
             "big": false
           },
           {
-            "text": "brook",
+            "text": "pond",
             "homophones": [],
             "big": false
           },
@@ -2453,7 +2381,7 @@
             "big": false
           },
           {
-            "text": "fast",
+            "text": "wet",
             "homophones": [],
             "big": false
           },
@@ -2463,7 +2391,7 @@
             "big": false
           },
           {
-            "text": "wide",
+            "text": "big",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -2494,12 +2422,12 @@
             "big": false
           },
           {
-            "text": "across",
+            "text": "on",
             "homophones": [],
             "big": false
           },
           {
-            "text": "it",
+            "text": "top",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -2532,16 +2460,6 @@
           {
             "text": "log",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "with",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "care",
-            "homophones": [],
             "big": false,
             "trailing": "."
           }
@@ -2565,28 +2483,29 @@
           {
             "text": "splash",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "goes",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "the",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "brook",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "below",
-            "homophones": [],
             "big": false,
             "trailing": "!"
+          },
+          {
+            "text": "It",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "rocks",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "a",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "bit",
+            "homophones": [],
+            "big": false,
+            "trailing": "."
           }
         ]
       },
@@ -2604,7 +2523,12 @@
             "big": false
           },
           {
-            "text": "off",
+            "text": "and",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "lands",
             "homophones": [],
             "big": false
           },
@@ -2615,11 +2539,6 @@
           },
           {
             "text": "the",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "far",
             "homophones": [],
             "big": false
           },
@@ -2714,24 +2633,17 @@
             "big": true
           },
           {
-            "text": "high",
+            "text": "up",
             "homophones": [],
             "big": false
           },
           {
-            "text": "in",
-            "homophones": [
-              "inn"
-            ],
-            "big": false
-          },
-          {
-            "text": "the",
+            "text": "and",
             "homophones": [],
             "big": false
           },
           {
-            "text": "sky",
+            "text": "up",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -2767,7 +2679,7 @@
             "big": false
           },
           {
-            "text": "over",
+            "text": "past",
             "homophones": [],
             "big": false
           },
@@ -2777,7 +2689,7 @@
             "big": false
           },
           {
-            "text": "reeds",
+            "text": "lake",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -2808,18 +2720,21 @@
             "big": false
           },
           {
-            "text": "lily",
-            "homophones": [],
-            "big": false
-          },
-          {
             "text": "pad",
             "homophones": [],
             "big": false
           },
           {
-            "text": "near",
+            "text": "next",
             "homophones": [],
+            "big": false
+          },
+          {
+            "text": "to",
+            "homophones": [
+              "two",
+              "too"
+            ],
             "big": false
           },
           {
@@ -2844,7 +2759,7 @@
             "big": false
           },
           {
-            "text": "out",
+            "text": "up",
             "homophones": [],
             "big": false
           },
@@ -2864,7 +2779,7 @@
             "big": false
           },
           {
-            "text": "string",
+            "text": "ribbon",
             "homophones": [],
             "big": true,
             "trailing": "."
@@ -2983,8 +2898,15 @@
             "big": false
           },
           {
-            "text": "tries",
+            "text": "hops",
             "homophones": [],
+            "big": false
+          },
+          {
+            "text": "in",
+            "homophones": [
+              "inn"
+            ],
             "big": false
           },
           {
@@ -3000,19 +2922,17 @@
             "big": false
           },
           {
-            "text": "under",
-            "homophones": [],
+            "text": "by",
+            "homophones": [
+              "buy",
+              "bye"
+            ],
             "big": false
           },
           {
             "text": "a",
             "homophones": [],
             "big": false
-          },
-          {
-            "text": "smooth",
-            "homophones": [],
-            "big": true
           },
           {
             "text": "stone",
@@ -3026,8 +2946,15 @@
         "newWord": null,
         "words": [
           {
-            "text": "It",
+            "text": "The",
             "homophones": [],
+            "big": false
+          },
+          {
+            "text": "hole",
+            "homophones": [
+              "whole"
+            ],
             "big": false
           },
           {
@@ -3036,15 +2963,7 @@
             "big": false
           },
           {
-            "text": "too",
-            "homophones": [
-              "two",
-              "to"
-            ],
-            "big": false
-          },
-          {
-            "text": "cold",
+            "text": "damp",
             "homophones": [],
             "big": false
           },
@@ -3059,17 +2978,9 @@
             "big": false
           },
           {
-            "text": "too",
-            "homophones": [
-              "two",
-              "to"
-            ],
-            "big": false
-          },
-          {
-            "text": "damp",
+            "text": "colder",
             "homophones": [],
-            "big": false,
+            "big": true,
             "trailing": "."
           }
         ]
@@ -3083,7 +2994,7 @@
             "big": false
           },
           {
-            "text": "tries",
+            "text": "tests",
             "homophones": [],
             "big": false
           },
@@ -3098,7 +3009,7 @@
             "big": true
           },
           {
-            "text": "reed",
+            "text": "stem",
             "homophones": [],
             "big": false,
             "trailing": ","
@@ -3132,7 +3043,8 @@
           {
             "text": "last",
             "homophones": [],
-            "big": false
+            "big": false,
+            "trailing": ","
           },
           {
             "text": "he",
@@ -3140,7 +3052,7 @@
             "big": false
           },
           {
-            "text": "finds",
+            "text": "spots",
             "homophones": [],
             "big": false
           },
@@ -3152,10 +3064,11 @@
           {
             "text": "wide",
             "homophones": [],
-            "big": false
+            "big": false,
+            "trailing": ","
           },
           {
-            "text": "lily",
+            "text": "flat",
             "homophones": [],
             "big": false
           },
@@ -3181,6 +3094,11 @@
             "big": false
           },
           {
+            "text": "it",
+            "homophones": [],
+            "big": false
+          },
+          {
             "text": "his",
             "homophones": [],
             "big": false
@@ -3198,17 +3116,7 @@
           {
             "text": "yawns",
             "homophones": [],
-            "big": true
-          },
-          {
-            "text": "with",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "joy",
-            "homophones": [],
-            "big": false,
+            "big": true,
             "trailing": "."
           }
         ]
@@ -3260,11 +3168,6 @@
             "big": false
           },
           {
-            "text": "lily",
-            "homophones": [],
-            "big": false
-          },
-          {
             "text": "pads",
             "homophones": [],
             "big": false,
@@ -3281,18 +3184,16 @@
             "big": false
           },
           {
-            "text": "will",
-            "homophones": [],
-            "big": false
-          },
-          {
             "text": "race",
             "homophones": [],
             "big": false
           },
           {
-            "text": "across",
-            "homophones": [],
+            "text": "to",
+            "homophones": [
+              "two",
+              "too"
+            ],
             "big": false
           },
           {
@@ -3301,10 +3202,18 @@
             "big": false
           },
           {
-            "text": "whole",
-            "homophones": [
-              "hole"
-            ],
+            "text": "end",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "of",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "the",
+            "homophones": [],
             "big": false
           },
           {
@@ -3324,22 +3233,12 @@
             "big": false
           },
           {
-            "text": "takes",
+            "text": "puffs",
             "homophones": [],
             "big": false
           },
           {
-            "text": "a",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "deep",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "breath",
+            "text": "up",
             "homophones": [],
             "big": false
           },
@@ -3349,10 +3248,13 @@
             "big": false
           },
           {
-            "text": "waits",
-            "homophones": [
-              "weights"
-            ],
+            "text": "is",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "still",
+            "homophones": [],
             "big": false,
             "trailing": "."
           }
@@ -3377,7 +3279,7 @@
             "big": false
           },
           {
-            "text": "leap",
+            "text": "jump",
             "homophones": [],
             "big": false
           },
@@ -3468,12 +3370,7 @@
             "big": false
           },
           {
-            "text": "not",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "first",
+            "text": "last",
             "homophones": [],
             "big": false,
             "trailing": ","
@@ -3489,10 +3386,15 @@
             "big": false
           },
           {
+            "text": "still",
+            "homophones": [],
+            "big": false
+          },
+          {
             "text": "smiles",
             "homophones": [],
             "big": false,
-            "trailing": "."
+            "trailing": "!"
           }
         ]
       }
@@ -3515,7 +3417,8 @@
           {
             "text": "Button",
             "homophones": [],
-            "big": false
+            "big": false,
+            "trailing": ","
           },
           {
             "text": "the",
@@ -3523,12 +3426,18 @@
             "big": false
           },
           {
-            "text": "crow",
+            "text": "black",
             "homophones": [],
             "big": false
           },
           {
-            "text": "flies",
+            "text": "bird",
+            "homophones": [],
+            "big": false,
+            "trailing": ","
+          },
+          {
+            "text": "zips",
             "homophones": [],
             "big": false
           },
@@ -3543,12 +3452,7 @@
             "big": false
           },
           {
-            "text": "yellow",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "field",
+            "text": "corn",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -3564,7 +3468,7 @@
             "big": false
           },
           {
-            "text": "sees",
+            "text": "spots",
             "homophones": [],
             "big": false
           },
@@ -3574,12 +3478,7 @@
             "big": true
           },
           {
-            "text": "shine",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "down",
+            "text": "shining",
             "homophones": [],
             "big": false
           },
@@ -3612,12 +3511,7 @@
             "big": false
           },
           {
-            "text": "swoops",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "down",
+            "text": "dives",
             "homophones": [],
             "big": false
           },
@@ -3627,7 +3521,7 @@
             "big": false
           },
           {
-            "text": "grabs",
+            "text": "picks",
             "homophones": [],
             "big": false
           },
@@ -3637,8 +3531,15 @@
             "big": false
           },
           {
-            "text": "with",
+            "text": "up",
             "homophones": [],
+            "big": false
+          },
+          {
+            "text": "in",
+            "homophones": [
+              "inn"
+            ],
             "big": false
           },
           {
@@ -3647,7 +3548,7 @@
             "big": false
           },
           {
-            "text": "beak",
+            "text": "bill",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -3673,14 +3574,15 @@
             "big": false
           },
           {
-            "text": "round",
+            "text": "small",
             "homophones": [],
-            "big": false
+            "big": false,
+            "trailing": ","
           },
           {
-            "text": "blue",
+            "text": "red",
             "homophones": [
-              "blew"
+              "read"
             ],
             "big": false
           },
@@ -3700,7 +3602,7 @@
             "big": false
           },
           {
-            "text": "coat",
+            "text": "jacket",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -3716,17 +3618,12 @@
             "big": false
           },
           {
-            "text": "keeps",
+            "text": "hides",
             "homophones": [],
             "big": false
           },
           {
             "text": "it",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "safe",
             "homophones": [],
             "big": false
           },
@@ -3743,7 +3640,7 @@
             "big": false
           },
           {
-            "text": "hidden",
+            "text": "secret",
             "homophones": [],
             "big": true
           },
@@ -3759,12 +3656,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "Now",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "he",
+            "text": "Button",
             "homophones": [],
             "big": false
           },
@@ -3784,6 +3676,16 @@
             "big": false
           },
           {
+            "text": "lined",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "up",
+            "homophones": [],
+            "big": false
+          },
+          {
             "text": "in",
             "homophones": [
               "inn"
@@ -3791,17 +3693,12 @@
             "big": false
           },
           {
-            "text": "a",
+            "text": "his",
             "homophones": [],
             "big": false
           },
           {
-            "text": "neat",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "row",
+            "text": "nest",
             "homophones": [],
             "big": false,
             "trailing": "!"
@@ -3825,19 +3722,19 @@
         "newWord": null,
         "words": [
           {
-            "text": "Gray",
+            "text": "Dark",
             "homophones": [],
             "big": false
           },
           {
             "text": "clouds",
             "homophones": [],
-            "big": false
+            "big": true
           },
           {
             "text": "gather",
             "homophones": [],
-            "big": true
+            "big": false
           },
           {
             "text": "over",
@@ -3850,17 +3747,22 @@
             "big": false
           },
           {
-            "text": "field",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "of",
-            "homophones": [],
-            "big": false
-          },
-          {
             "text": "corn",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "and",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "the",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "barn",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -3871,7 +3773,38 @@
         "newWord": null,
         "words": [
           {
-            "text": "Soon",
+            "text": "Then",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "big",
+            "homophones": [],
+            "big": false,
+            "trailing": ","
+          },
+          {
+            "text": "cold",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "drops",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "start",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "falling",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "on",
             "homophones": [],
             "big": false
           },
@@ -3881,37 +3814,7 @@
             "big": false
           },
           {
-            "text": "rain",
-            "homophones": [
-              "reign",
-              "rein"
-            ],
-            "big": false
-          },
-          {
-            "text": "comes",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "down",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "in",
-            "homophones": [
-              "inn"
-            ],
-            "big": false
-          },
-          {
-            "text": "cool",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "drops",
+            "text": "farm",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -3938,7 +3841,7 @@
             "big": false
           },
           {
-            "text": "head",
+            "text": "neck",
             "homophones": [],
             "big": false
           },
@@ -4012,10 +3915,8 @@
             "big": false
           },
           {
-            "text": "pail",
-            "homophones": [
-              "pale"
-            ],
+            "text": "bucket",
+            "homophones": [],
             "big": false,
             "trailing": "."
           }
@@ -4035,11 +3936,8 @@
             "big": false
           },
           {
-            "text": "rain",
-            "homophones": [
-              "reign",
-              "rein"
-            ],
+            "text": "storm",
+            "homophones": [],
             "big": false,
             "trailing": ","
           },
@@ -4049,7 +3947,7 @@
             "big": false
           },
           {
-            "text": "air",
+            "text": "farm",
             "homophones": [],
             "big": false
           },
@@ -4059,7 +3957,7 @@
             "big": false
           },
           {
-            "text": "sweet",
+            "text": "fresh",
             "homophones": [],
             "big": false
           },
@@ -4069,7 +3967,7 @@
             "big": false
           },
           {
-            "text": "clean",
+            "text": "wet",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -4106,12 +4004,12 @@
             "big": false
           },
           {
-            "text": "flies",
+            "text": "lifts",
             "homophones": [],
             "big": false
           },
           {
-            "text": "up",
+            "text": "off",
             "homophones": [],
             "big": false
           },
@@ -4153,7 +4051,7 @@
           {
             "text": "scarecrow",
             "homophones": [],
-            "big": false
+            "big": true
           },
           {
             "text": "stands",
@@ -4194,7 +4092,7 @@
             "big": false
           },
           {
-            "text": "coat",
+            "text": "jacket",
             "homophones": [],
             "big": false
           },
@@ -4247,12 +4145,12 @@
             "big": false
           },
           {
-            "text": "feels",
+            "text": "is",
             "homophones": [],
             "big": false
           },
           {
-            "text": "sorry",
+            "text": "sad",
             "homophones": [],
             "big": false
           },
@@ -4300,8 +4198,10 @@
             "big": false
           },
           {
-            "text": "shiny",
-            "homophones": [],
+            "text": "red",
+            "homophones": [
+              "read"
+            ],
             "big": false
           },
           {
@@ -4356,7 +4256,7 @@
             "big": false
           },
           {
-            "text": "coat",
+            "text": "jacket",
             "homophones": [],
             "big": false
           },
@@ -4371,7 +4271,7 @@
             "big": false
           },
           {
-            "text": "beak",
+            "text": "bill",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -4389,15 +4289,15 @@
           {
             "text": "scarecrow",
             "homophones": [],
-            "big": false
+            "big": true
           },
           {
-            "text": "looks",
+            "text": "is",
             "homophones": [],
             "big": false
           },
           {
-            "text": "proud",
+            "text": "smart",
             "homophones": [],
             "big": false,
             "trailing": ","
@@ -4415,12 +4315,7 @@
           {
             "text": "chuckles",
             "homophones": [],
-            "big": true
-          },
-          {
-            "text": "happily",
-            "homophones": [],
-            "big": false,
+            "big": true,
             "trailing": "."
           }
         ]
@@ -4469,7 +4364,7 @@
           {
             "text": "boat",
             "homophones": [],
-            "big": false
+            "big": true
           },
           {
             "text": "by",
@@ -4485,7 +4380,7 @@
             "big": false
           },
           {
-            "text": "stream",
+            "text": "pond",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -4501,22 +4396,27 @@
             "big": false
           },
           {
-            "text": "boat",
+            "text": "paper",
             "homophones": [],
             "big": false
           },
           {
-            "text": "floats",
+            "text": "ship",
             "homophones": [],
             "big": false
           },
           {
-            "text": "away",
+            "text": "drifts",
             "homophones": [],
             "big": false
           },
           {
-            "text": "down",
+            "text": "off",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "on",
             "homophones": [],
             "big": false
           },
@@ -4528,7 +4428,7 @@
           {
             "text": "rushing",
             "homophones": [],
-            "big": true
+            "big": false
           },
           {
             "text": "water",
@@ -4547,7 +4447,7 @@
             "big": false
           },
           {
-            "text": "sees",
+            "text": "spots",
             "homophones": [],
             "big": false
           },
@@ -4557,13 +4457,21 @@
             "big": false
           },
           {
-            "text": "spin",
+            "text": "spinning",
             "homophones": [],
             "big": false
           },
           {
-            "text": "around",
+            "text": "next",
             "homophones": [],
+            "big": false
+          },
+          {
+            "text": "to",
+            "homophones": [
+              "two",
+              "too"
+            ],
             "big": false
           },
           {
@@ -4572,7 +4480,7 @@
             "big": false
           },
           {
-            "text": "muddy",
+            "text": "big",
             "homophones": [],
             "big": false
           },
@@ -4598,7 +4506,12 @@
             "big": false
           },
           {
-            "text": "down",
+            "text": "his",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "wings",
             "homophones": [],
             "big": false
           },
@@ -4618,17 +4531,12 @@
             "big": false
           },
           {
-            "text": "boat",
+            "text": "ship",
             "homophones": [],
             "big": false
           },
           {
-            "text": "with",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "care",
+            "text": "up",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -4644,7 +4552,7 @@
             "big": false
           },
           {
-            "text": "carries",
+            "text": "brings",
             "homophones": [],
             "big": false
           },
@@ -4659,22 +4567,20 @@
             "big": false
           },
           {
-            "text": "and",
+            "text": "to",
+            "homophones": [
+              "two",
+              "too"
+            ],
+            "big": false
+          },
+          {
+            "text": "the",
             "homophones": [],
             "big": false
           },
           {
-            "text": "sets",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "it",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "down",
+            "text": "child",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -4697,8 +4603,7 @@
           {
             "text": "cheers",
             "homophones": [],
-            "big": false,
-            "trailing": ","
+            "big": true
           },
           {
             "text": "and",
@@ -4706,15 +4611,13 @@
             "big": false
           },
           {
-            "text": "Button",
+            "text": "hugs",
             "homophones": [],
             "big": false
           },
           {
-            "text": "bows",
-            "homophones": [
-              "boughs"
-            ],
+            "text": "Button",
+            "homophones": [],
             "big": false
           },
           {
@@ -4741,7 +4644,7 @@
   },
   {
     "id": "button-big-story",
-    "title": "The Harvest Moon",
+    "title": "The Lost Hamster",
     "level": 4,
     "stretch": false,
     "isBigStory": true,
@@ -4759,17 +4662,14 @@
             "big": false
           },
           {
-            "text": "harvest",
-            "homophones": [],
+            "text": "sun",
+            "homophones": [
+              "son"
+            ],
             "big": false
           },
           {
-            "text": "moon",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "rises",
+            "text": "sets",
             "homophones": [],
             "big": false
           },
@@ -4789,7 +4689,7 @@
             "big": false
           },
           {
-            "text": "field",
+            "text": "farm",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -4805,8 +4705,37 @@
             "big": false
           },
           {
-            "text": "counts",
+            "text": "sits",
             "homophones": [],
+            "big": false
+          },
+          {
+            "text": "on",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "a",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "post",
+            "homophones": [],
+            "big": false,
+            "trailing": ","
+          },
+          {
+            "text": "singing",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "to",
+            "homophones": [
+              "two",
+              "too"
+            ],
             "big": false
           },
           {
@@ -4816,33 +4745,6 @@
           },
           {
             "text": "stars",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "as",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "the",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "night",
-            "homophones": [
-              "knight"
-            ],
-            "big": false
-          },
-          {
-            "text": "grows",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "cool",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -4858,12 +4760,12 @@
             "big": false
           },
           {
-            "text": "little",
+            "text": "lost",
             "homophones": [],
             "big": false
           },
           {
-            "text": "mouse",
+            "text": "hamster",
             "homophones": [],
             "big": false
           },
@@ -4873,7 +4775,7 @@
             "big": false
           },
           {
-            "text": "lost",
+            "text": "sobbing",
             "homophones": [],
             "big": false
           },
@@ -4924,7 +4826,7 @@
             "big": false
           },
           {
-            "text": "mouse",
+            "text": "hamster",
             "homophones": [],
             "big": false
           },
@@ -4934,7 +4836,7 @@
             "big": false
           },
           {
-            "text": "a",
+            "text": "his",
             "homophones": [],
             "big": false
           },
@@ -4955,7 +4857,7 @@
             "big": false
           },
           {
-            "text": "shows",
+            "text": "helps",
             "homophones": [],
             "big": false
           },
@@ -4965,28 +4867,13 @@
             "big": false
           },
           {
-            "text": "mouse",
+            "text": "hamster",
             "homophones": [],
             "big": false
           },
           {
-            "text": "the",
+            "text": "find",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "way",
-            "homophones": [
-              "weigh"
-            ],
-            "big": false
-          },
-          {
-            "text": "to",
-            "homophones": [
-              "two",
-              "too"
-            ],
             "big": false
           },
           {
@@ -4995,7 +4882,7 @@
             "big": false
           },
           {
-            "text": "burrow",
+            "text": "den",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -5016,7 +4903,7 @@
             "big": false
           },
           {
-            "text": "flies",
+            "text": "zips",
             "homophones": [],
             "big": false
           },
@@ -5131,12 +5018,8 @@
           {
             "text": "yawned",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "and",
-            "homophones": [],
-            "big": false
+            "big": false,
+            "trailing": ","
           },
           {
             "text": "stretched",
@@ -5169,7 +5052,7 @@
             "big": false
           },
           {
-            "text": "sky",
+            "text": "clouds",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -5292,7 +5175,12 @@
             "big": false
           },
           {
-            "text": "climbed",
+            "text": "hopped",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "up",
             "homophones": [],
             "big": false
           },
@@ -5347,7 +5235,8 @@
             "homophones": [
               "their"
             ],
-            "big": false
+            "big": false,
+            "trailing": ","
           },
           {
             "text": "she",
@@ -5479,7 +5368,8 @@
           {
             "text": "up",
             "homophones": [],
-            "big": false
+            "big": false,
+            "trailing": ","
           },
           {
             "text": "and",
@@ -5777,7 +5667,7 @@
             "big": false
           },
           {
-            "text": "party",
+            "text": "picnic",
             "homophones": [],
             "big": false
           },
@@ -5866,32 +5756,17 @@
             "big": false
           },
           {
-            "text": "watched",
+            "text": "sat",
             "homophones": [],
             "big": false
           },
           {
-            "text": "everything",
+            "text": "high",
             "homophones": [],
             "big": false
           },
           {
-            "text": "from",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "the",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "top",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "of",
+            "text": "on",
             "homophones": [],
             "big": false
           },
@@ -5902,6 +5777,31 @@
           },
           {
             "text": "wall",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "to",
+            "homophones": [
+              "two",
+              "too"
+            ],
+            "big": false
+          },
+          {
+            "text": "see",
+            "homophones": [
+              "sea"
+            ],
+            "big": false
+          },
+          {
+            "text": "it",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "all",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -5922,7 +5822,7 @@
             "big": false
           },
           {
-            "text": "guests",
+            "text": "friends",
             "homophones": [],
             "big": false
           },
@@ -5973,7 +5873,12 @@
         "newWord": null,
         "words": [
           {
-            "text": "Everyone",
+            "text": "The",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "children",
             "homophones": [],
             "big": false
           },
@@ -5998,14 +5903,9 @@
             "big": false
           },
           {
-            "text": "the",
-            "homophones": [],
-            "big": false
-          },
-          {
             "text": "bubbles",
             "homophones": [],
-            "big": false
+            "big": true
           },
           {
             "text": "across",
@@ -6044,17 +5944,12 @@
             "big": false
           },
           {
-            "text": "most",
+            "text": "best",
             "homophones": [],
             "big": false
           },
           {
-            "text": "wonderful",
-            "homophones": [],
-            "big": true
-          },
-          {
-            "text": "party",
+            "text": "picnic",
             "homophones": [],
             "big": false
           },
@@ -6074,10 +5969,15 @@
             "big": false
           },
           {
+            "text": "ever",
+            "homophones": [],
+            "big": false
+          },
+          {
             "text": "seen",
             "homophones": [],
             "big": false,
-            "trailing": "."
+            "trailing": "!"
           }
         ]
       }
@@ -6170,7 +6070,7 @@
             "big": false
           },
           {
-            "text": "watched",
+            "text": "saw",
             "homophones": [],
             "big": false
           },
@@ -6182,10 +6082,10 @@
           {
             "text": "puddles",
             "homophones": [],
-            "big": false
+            "big": true
           },
           {
-            "text": "growing",
+            "text": "getting",
             "homophones": [],
             "big": false
           },
@@ -6206,16 +6106,8 @@
             "big": false
           },
           {
-            "text": "listened",
+            "text": "heard",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "to",
-            "homophones": [
-              "two",
-              "too"
-            ],
             "big": false
           },
           {
@@ -6226,18 +6118,21 @@
           {
             "text": "kettle",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "whistling",
-            "homophones": [],
             "big": true
           },
           {
-            "text": "in",
-            "homophones": [
-              "inn"
-            ],
+            "text": "sing",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "out",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "from",
+            "homophones": [],
             "big": false
           },
           {
@@ -6246,7 +6141,7 @@
             "big": false
           },
           {
-            "text": "kitchen",
+            "text": "cooker",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -6267,7 +6162,7 @@
             "big": false
           },
           {
-            "text": "knitting",
+            "text": "making",
             "homophones": [],
             "big": false
           },
@@ -6292,7 +6187,7 @@
             "big": false
           },
           {
-            "text": "crackling",
+            "text": "hot",
             "homophones": [],
             "big": false
           },
@@ -6328,7 +6223,7 @@
             "big": false
           },
           {
-            "text": "dangling",
+            "text": "green",
             "homophones": [],
             "big": false
           },
@@ -6369,7 +6264,7 @@
             "big": false
           },
           {
-            "text": "chuckled",
+            "text": "laughed",
             "homophones": [],
             "big": false,
             "trailing": ","
@@ -6457,7 +6352,7 @@
             "big": false
           },
           {
-            "text": "tiny",
+            "text": "soft",
             "homophones": [],
             "big": false
           },
@@ -6479,7 +6374,7 @@
             "big": false
           },
           {
-            "text": "hedge",
+            "text": "bushes",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -7946,7 +7841,8 @@
           {
             "text": "dark",
             "homophones": [],
-            "big": false
+            "big": false,
+            "trailing": ","
           },
           {
             "text": "and",

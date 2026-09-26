@@ -2,8 +2,8 @@
 """Build HopTalesPackage/Sources/Content/Resources/stories.json from Design/stories/stories.txt.
 
 The text file is the source of truth; the JSON is generated and committed. The format is described
-at the top of the text file. Sentence lengths outside a level's range are reported, not refused,
-so an older story can stay as written.
+at the top of the text file. The build refuses a sentence outside its level's length, or a word a
+reader at that level can't decode yet, using the level table in phonics.json.
 """
 import json
 import re
@@ -13,6 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "Design/stories/stories.txt"
 OUTPUT = ROOT / "HopTalesPackage/Sources/Content/Resources/stories.json"
+PHONICS = ROOT / "HopTalesPackage/Sources/Content/Resources/phonics.json"
 
 SENTENCE_WORDS = {1: (3, 5), 2: (5, 7), 3: (6, 8), 4: (7, 9), 5: (8, 10), 6: (9, 12), 7: (10, 14)}
 SKIES = {"day", "golden", "dusk", "night"}
@@ -32,6 +33,117 @@ HOMOPHONES = {
     "peace": ["piece"], "piece": ["peace"], "hour": ["our"], "hours": ["ours"],
     "we": ["wee"], "ate": ["eight"], "dear": ["deer"], "cellar": ["seller"],
 }
+
+
+class Phonics:
+    """The same decoder as Content/Phonics.swift, reading the same table."""
+
+    VOWELS = set("aeiou")
+    SILENT_E_TAILS = {"", "s", "d", "r", "ly", "ful", "less", "ment", "ness", "st"}
+    END_TAILS = {"", "s", "d"}
+    CONSONANT_UNITS = {"qu", "dge", "ce", "ge", "ve"}
+
+    def __init__(self, path):
+        table = json.loads(path.read_text())
+        self.rules = table["rules"]
+        self.graphemes, self.ends, self.heart = {}, {}, {}
+        for level in table["levels"]:
+            for grapheme in level["graphemes"]:
+                self.graphemes[grapheme] = level["level"]
+            for grapheme in level["endGraphemes"]:
+                self.ends[grapheme] = level["level"]
+            for word in level["heartWords"]:
+                self.heart[word] = level["level"]
+        for name in table["names"]:
+            self.heart[name.lower()] = 1
+        self.by_length = sorted(self.graphemes, key=len, reverse=True)
+        self.ends_by_length = sorted(self.ends, key=len, reverse=True)
+
+    def level(self, word):
+        word = word.lower()
+        found = [level for level in (self.heart.get(word), self.decoded(word)) if level]
+        return min(found) if found else None
+
+    def decoded(self, word):
+        ending = self.ending(word)
+        if ending:
+            suffix, bases = ending
+            levels = [self.level(base) for base in bases]
+            levels = [level for level in levels if level]
+            return max(self.rules["endings"], min(levels)) if levels else None
+        return self.segmented(word)
+
+    def ending(self, word):
+        for suffix in ("ing", "ed"):
+            base = word[: -len(suffix)]
+            if word.endswith(suffix) and set(base) & self.VOWELS and not base.endswith("e"):
+                if base.endswith(("c", "dg", "v")):
+                    bases = [base + "e"]
+                elif self.split(base + "e") is not None:
+                    bases = [base, base + "e"]
+                else:
+                    bases = [base]
+                if len(base) > 2 and base[-1] == base[-2]:
+                    bases.append(base[:-1])
+                return suffix, bases
+        base = word[:-2]
+        if word.endswith("es") and base.endswith(("ss", "x", "z", "ch", "sh")):
+            return "es", [base]
+        return None
+
+    def split(self, word):
+        for index in range(len(word) - 2):
+            vowel, consonant = word[index], word[index + 1]
+            before = word[index - 1] if index else ""
+            opens = before not in self.VOWELS or word[index - 2 : index] == "qu"
+            if (vowel in self.VOWELS and opens and consonant not in self.VOWELS
+                    and consonant not in "rwxy" and word[index + 2] == "e"
+                    and word[index + 3 :] in self.SILENT_E_TAILS):
+                return index
+        return None
+
+    def segmented(self, word):
+        split = self.split(word)
+        tokens, position = [], 0
+        while position < len(word):
+            if position == split:
+                tokens.append((word[position] + "_e", self.rules["splitDigraphs"], True))
+                position += 1
+                continue
+            if split is not None and position == split + 2:
+                position += 1
+                continue
+            match = None
+            for grapheme in self.ends_by_length:
+                tail = word[position + len(grapheme) :]
+                follows = grapheme != "le" or word[position - 1] not in self.VOWELS
+                if position and follows and split is None and word.startswith(grapheme, position) and tail in self.END_TAILS:
+                    match = (grapheme, self.ends[grapheme], grapheme == "le")
+                    break
+            if not match:
+                for grapheme in self.by_length:
+                    end = position + len(grapheme)
+                    covers = split is not None and position <= split + 2 < end
+                    if word.startswith(grapheme, position) and not covers:
+                        vowel = bool(set(grapheme) & self.VOWELS) and grapheme not in self.CONSONANT_UNITS
+                        match = (grapheme, self.graphemes[grapheme], vowel)
+                        break
+            if not match:
+                return None
+            grapheme, level, vowel = match
+            if grapheme == "y" and position and not tokens[-1][2]:
+                match = (grapheme, self.rules["vowelY"], True)
+            tokens.append(match)
+            position += len(grapheme)
+        level = max(token[1] for token in tokens)
+        pairs = list(zip(tokens, tokens[1:]))
+        if pairs and word.endswith("s") and tokens[-1][0] == "s":
+            pairs.pop()
+        if any(not a[2] and not b[2] for a, b in pairs):
+            level = max(level, self.rules["clusters"])
+        if sum(token[2] for token in tokens) > 1:
+            level = max(level, self.rules["syllables"])
+        return level
 
 
 def fail(line_number, message):
@@ -117,13 +229,25 @@ def main():
     if duplicates:
         sys.exit(f"duplicate story ids: {sorted(duplicates)}")
 
+    phonics = Phonics(PHONICS)
+    problems = []
     for story in stories:
-        low, high = SENTENCE_WORDS[story["level"]]
+        level = story["level"]
+        low, high = SENTENCE_WORDS[level]
         for sentence in story["sentences"]:
+            words = " ".join(word["text"] for word in sentence["words"])
             count = len(sentence["words"])
             if not low <= count <= high:
-                words = " ".join(word["text"] for word in sentence["words"])
-                print(f"note: {story['id']} (level {story['level']}): {count} words: {words}")
+                problems.append(f"{story['id']} (level {level}): {count} words: {words}")
+            for word in sentence["words"]:
+                decodes = phonics.level(word["text"])
+                ceiling = min(level + 2, 7) if word["big"] else level
+                if decodes is None or decodes > ceiling:
+                    at = f"level {decodes}" if decodes else "no level"
+                    kind = "big word" if word["big"] else "word"
+                    problems.append(f"{story['id']} (level {level}): {kind} '{word['text']}' decodes at {at}")
+    if problems:
+        sys.exit("\n".join(problems))
 
     OUTPUT.write_text(json.dumps(stories, indent=2) + "\n")
     print(f"wrote {len(stories)} stories to {OUTPUT.relative_to(ROOT)}")

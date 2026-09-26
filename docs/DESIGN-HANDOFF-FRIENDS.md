@@ -33,15 +33,15 @@ This is a plan, not built yet. It builds on the collage storybook (`docs/DESIGN-
 
 | Level | Friend | Focus | Example words | Sentences | Steps to the next friend |
 |---|---|---|---|---|---|
-| 1 | Bob (rabbit) | short vowels, 3-letter words | sat, hop, red, bug | 3–5 words | 300 |
-| 2 | Dash | blends and digraphs | frog, ship, hill, chat | 5–7 | 400 |
-| 3 | Oggy (frog) | long vowels, magic e | lake, kite, home, tune | 6–8 | 500 |
-| 4 | Button (crow) | vowel teams, two beats | rain, boat, garden, paper | 7–9 | 600 |
-| 5 | Marmalade (cat) | -ing, -ed, compound words | jumping, sunflower, rested | 8–10 | 700 |
-| 6 | Barnacle (crab) | longer words, tricky spellings | because, beautiful, island | 9–12 | 800 |
-| 7 | Bartholomew (grasshopper) | big words, longer sentences | adventure, enormous, whispered | 10–14 | — (the top) |
+| 1 | Bob (rabbit) | short vowels | sat, hop, red | 3–5 words | 300 |
+| 2 | Dash | digraphs and blends | ship, duck, frog | 5–7 | 400 |
+| 3 | Oggy (frog) | magic e | lake, kite, home | 6–8 | 500 |
+| 4 | Button (crow) | endings and ar, or, er | jumped, farm, garden | 7–9 | 600 |
+| 5 | Marmalade (cat) | vowel teams | rain, boat, moon | 8–10 | 700 |
+| 6 | Barnacle (crab) | silent letters | knock, tiny, bottle | 9–12 | 800 |
+| 7 | Bartholomew (grasshopper) | longer words | station, adventure, enormous | 10–14 | — (the top) |
 
-- **These definitions are a first pass on a standard phonics order.** Check them against what his school teaches before writing stories.
+- **The levels follow the UFLI Foundations phonics sequence.** `Content/Resources/phonics.json` lists each level's sounds and heart words. `scripts/build-stories.py` and `PhonicsTests` refuse a story word that a reader at that level can't decode yet. A reading teacher still needs to review how the levels map onto it (#183).
 - **Keep the numbers in one table in `Content`:** steps per level, sentence lengths and the big-word rate, so they're easy to tune.
 - **Starting point: onboarding offers the first three friends only.** This replaces the reading-level step in `DESIGN-HANDOFF-V3.md` §4 (`PhoneOnboard`).
   - **Step 3 of 4:**

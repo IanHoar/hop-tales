@@ -26,23 +26,18 @@ public enum Friend: String, Codable, CaseIterable, Hashable, Sendable {
   public var level: Int { (Self.allCases.firstIndex(of: self) ?? 0) + 1 }
 
   public var stage: String {
-    switch self {
-    case .bunny: "Just starting"
-    case .hare: "Getting going"
-    case .frog: "Reading well"
-    case .crow, .cat, .crab, .grasshopper: "Reading level \(level)"
-    }
+    Phonics.shared.phase(at: level) ?? "Reading level \(level)"
   }
 
   public var examples: [String] {
     switch self {
     case .bunny: ["sat", "hop", "red"]
-    case .hare: ["frog", "ship", "hill"]
+    case .hare: ["ship", "duck", "frog"]
     case .frog: ["lake", "kite", "home"]
-    case .crow: ["rain", "boat", "garden"]
-    case .cat: ["jumping", "sunflower", "rested"]
-    case .crab: ["because", "beautiful", "island"]
-    case .grasshopper: ["adventure", "enormous", "whispered"]
+    case .crow: ["jumped", "farm", "garden"]
+    case .cat: ["rain", "boat", "moon"]
+    case .crab: ["knock", "tiny", "bottle"]
+    case .grasshopper: ["station", "adventure", "enormous"]
     }
   }
 
