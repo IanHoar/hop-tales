@@ -29,7 +29,7 @@ public struct DressedFriend: View {
     let aspect = sticker.map { $0.size.width / max($0.size.height, 1) } ?? 0.8
     let size = CGSize(width: height * aspect, height: height)
     return ZStack(alignment: .topLeading) {
-      FriendSticker(friend, height: height)
+      FriendSticker(bare: friend, height: height)
       ForEach(outfit) { item in
         ForEach(Array(item.parts.enumerated()), id: \.offset) { index, part in
           WornPart(

@@ -24,6 +24,7 @@ struct ProgressStoreTests {
     basket.golden = 1
     progress.baskets[.frog] = basket
     progress.outfits[.frog] = [.head: "straw-hat"]
+    progress.outfits[.bunny] = [:]
     progress.wordsRead = ["castle-road": 18, "pond": 4]
     store.save(progress)
     #expect(store.load() == progress)

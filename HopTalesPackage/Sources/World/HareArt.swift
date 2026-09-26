@@ -215,6 +215,7 @@ public struct FriendSticker: View {
   let friend: Friend
   let height: CGFloat
   var isSilhouette = false
+  var isBare = false
 
   public init(_ friend: Friend, height: CGFloat, isSilhouette: Bool = false) {
     self.friend = friend
@@ -222,8 +223,19 @@ public struct FriendSticker: View {
     self.isSilhouette = isSilhouette
   }
 
+  init(bare friend: Friend, height: CGFloat) {
+    self.init(friend, height: height)
+    isBare = true
+  }
+
+  private var art: UIImage? {
+    let base = friend == .hare ? "hare-sit" : "friend-\(friend.rawValue)"
+    guard !isBare, let item = WardrobeLibrary.starting[friend] else { return MeadowArt.image(base) }
+    return MeadowArt.image("look-\(friend.rawValue)-\(item)") ?? MeadowArt.image(base)
+  }
+
   public var body: some View {
-    if let image = MeadowArt.image(friend == .hare ? "hare-sit" : "friend-\(friend.rawValue)") {
+    if let image = art {
       let width = height * image.size.width / max(image.size.height, 1)
       Group {
         if isSilhouette {
