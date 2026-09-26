@@ -165,6 +165,7 @@ public struct OnboardingScreen: View {
           OnboardingSheet(store: store, bottomInset: insets.bottom, scrolls: true)
         }
         .frame(maxWidth: 560)
+        .liftsAboveKeyboard(keepingTopBelow: insets.top + 12)
         .padding(.top, insets.top + 12)
       }
       .frame(maxWidth: .infinity)
