@@ -23,7 +23,15 @@ public enum WordMatcher {
   }
 
   static let soundsAlike: [String: Set<String>] = [
-    "the": ["a", "uh", "duh", "da", "de", "dee", "thee", "thuh", "they", "then"]
+    "the": ["a", "uh", "duh", "da", "de", "dee", "thee", "thuh", "they", "then"],
+    "a": ["ay", "ah", "eh", "uh", "ea", "ear", "eara", "era", "hey"],
+    "bee": ["be", "bea"]
+  ]
+
+  static let letterNames: [String: Set<String>] = [
+    "a": ["a"], "b": ["bee", "be"], "c": ["see", "sea"], "d": ["dee"], "g": ["gee"],
+    "i": ["i", "eye"], "j": ["jay"], "k": ["kay"], "o": ["oh", "owe"], "p": ["pea", "pee"],
+    "q": ["queue"], "r": ["are"], "t": ["tea", "tee"], "u": ["you"], "y": ["why"]
   ]
 
   static let vowels = Set("aeiouy")
@@ -69,9 +77,17 @@ public enum WordMatcher {
     return nil
   }
 
+  static func collapsed(_ token: String) -> String {
+    var result = ""
+    for character in token where character != result.last { result.append(character) }
+    return result
+  }
+
   static func accepts(token: String, target: Word, strictness: Strictness) -> Bool {
     let text = normalize(target.text).joined()
     guard !token.isEmpty, !text.isEmpty else { return false }
+    let token = token.count > 1 && collapsed(token).count == 1 ? collapsed(token) : token
+    if letterNames[token]?.contains(text) == true { return true }
 
     if token == text { return true }
     if text.count >= 4, levenshtein(token, text) <= 1 { return true }
@@ -80,6 +96,7 @@ public enum WordMatcher {
     if token.count == text.count, token.prefix(2) == text.prefix(2) { return true }
     if target.homophones.contains(where: { $0.lowercased() == token }) { return true }
     if soundsAlike[text]?.contains(token) == true { return true }
+    if soundsAlike[text]?.contains(collapsed(token)) == true { return true }
     return soundsLikeShortWord(token, text)
   }
 
