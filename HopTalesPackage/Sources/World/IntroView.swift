@@ -1,3 +1,4 @@
+import DesignSystem
 import SpriteKit
 import SwiftUI
 
@@ -11,7 +12,8 @@ public struct IntroView: View {
   public init() {}
 
   public var body: some View {
-    SpriteView(scene: scene, preferredFramesPerSecond: 60)
+    SpriteView(scene: scene, preferredFramesPerSecond: 60, options: [.allowsTransparency])
+      .background(Color(hex: 0x1E2A4E))
       .onAppear {
         guard !reduceMotion else { return }
         scene.play()
