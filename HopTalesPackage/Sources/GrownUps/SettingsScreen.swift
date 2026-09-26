@@ -4,6 +4,7 @@ import Dependencies
 import DesignSystem
 import SpeechRecognition
 import SwiftUI
+import World
 
 @Feature public struct Settings {
   public static let sample = "Let's read together!"
@@ -190,54 +191,30 @@ public struct SettingsScreen: View {
   }
 
   public var body: some View {
-    ScrollView {
-      VStack(alignment: .leading, spacing: 30) {
-        Text("Settings")
-          .font(Typography.display(32))
-          .foregroundStyle(Palette.ink)
-          .accessibilityAddTraits(.isHeader)
-        SettingsSection("Reader") { NameField(store: store) }
-        SettingsSection("Reading with") { FriendChoices(store: store) }
-        SettingsSection("Accent") { AccentChoices(store: store) }
-        SettingsSection("Theme") { ThemeChoices(store: store) }
-        SettingsSection("Listening") { StrictnessChoices(store: store) }
-        SettingsSection("Help voice") { VoiceRow(store: store) }
-        SettingsSection("Sounds") { SoundRow(store: store) }
-        SettingsSection("Speech log") { SpeechLogRow(store: store) }
-        SettingsSection("Testing") {
-          Button("Reset onboarding", systemImage: "arrow.counterclockwise") {
-            store.send(.resetOnboardingTapped)
-          }
-          .buttonStyle(.ink(.tertiary))
-          Button("Reset reading journey", systemImage: "arrow.uturn.backward") {
-            store.send(.debugResetJourneyTapped)
-          }
-          .buttonStyle(.ink(.tertiary))
-          Button("Unlock everything", systemImage: "lock.open") {
-            store.send(.debugUnlockEverythingTapped)
-          }
-          .buttonStyle(.ink(.tertiary))
+    VStack(spacing: 0) {
+      SettingsHeader { store.send(.doneTapped) }
+      ScrollView {
+        VStack(alignment: .leading, spacing: 28) {
+          SettingsSection("Reader") { NameField(store: store) }
+          SettingsSection("Reading with") { FriendChoices(store: store) }
+          SettingsSection("Accent") { AccentChoices(store: store) }
+          SettingsSection("Theme") { ThemeChoices(store: store) }
+          SettingsSection("Listening") { StrictnessChoices(store: store) }
+          SettingsSection("Help voice") { VoiceRow(store: store) }
+          SettingsSection("Sounds") { SoundRow(store: store) }
+          SettingsSection("Speech log") { SpeechLogRow(store: store) }
+          SettingsSection("Testing") { TestingButtons(store: store) }
         }
+        .padding(.horizontal, 20)
+        .padding(.top, 8)
+        .padding(.bottom, 30)
+        .frame(maxWidth: 560)
+        .frame(maxWidth: .infinity)
       }
-      .padding(.horizontal, 24)
-      .padding(.top, 24)
-      .padding(.bottom, 16)
-      .frame(maxWidth: 560)
-      .frame(maxWidth: .infinity)
+      .scrollBounceBehavior(.basedOnSize)
+      .scrollDismissesKeyboard(.interactively)
     }
-    .scrollBounceBehavior(.basedOnSize)
-    .scrollDismissesKeyboard(.interactively)
-    .safeAreaInset(edge: .bottom) {
-      Button { store.send(.doneTapped) } label: {
-        Text("Done").frame(maxWidth: 560)
-      }
-      .buttonStyle(.ink(.primary))
-      .padding(.horizontal, 24)
-      .padding(.top, 12)
-      .padding(.bottom, 16)
-      .background(Palette.page)
-    }
-    .background(Palette.page.ignoresSafeArea())
+    .background(Paper.page.ignoresSafeArea())
   }
 }
 
@@ -253,9 +230,9 @@ struct SettingsSection<Content: View>: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
       Text(title.uppercased())
-        .font(Typography.display(15))
-        .tracking(15 * 0.12)
-        .foregroundStyle(Palette.ink)
+        .font(Typography.ui(13, weight: .semibold))
+        .tracking(13 * 0.14)
+        .foregroundStyle(Paper.muted)
         .padding(.horizontal, 4)
         .accessibilityAddTraits(.isHeader)
       content
@@ -265,13 +242,10 @@ struct SettingsSection<Content: View>: View {
 
 extension View {
   func settingsField() -> some View {
-    bevel(
-      Palette.paper,
-      lip: Palette.parchmentLip,
-      shape: RoundedRectangle(cornerRadius: 20, style: .continuous),
-      border: 3,
-      drop: 4
-    )
+    let shape = RoundedRectangle(cornerRadius: 18, style: .continuous)
+    return background(Paper.rim.opacity(0.6), in: shape)
+      .overlay(shape.strokeBorder(Paper.rim, lineWidth: 3))
+      .shadow(color: Paper.shadow.opacity(0.5), radius: 3, y: 2)
   }
 }
 
@@ -284,8 +258,8 @@ struct NameField: View {
       "Name or nickname",
       text: Binding(get: { store.childName }, set: { store.send(.nameChanged($0)) })
     )
-    .font(Typography.ui(22))
-    .foregroundStyle(Palette.ink)
+    .font(Typography.display(22))
+    .foregroundStyle(Paper.ink)
     .textContentType(.nickname)
     .autocorrectionDisabled()
     .submitLabel(.done)
@@ -294,10 +268,10 @@ struct NameField: View {
     .onChange(of: focused) { _, isFocused in
       if !isFocused { store.send(.nameSubmitted) }
     }
-    .padding(.horizontal, 20)
-    .frame(height: 60)
+    .padding(.horizontal, 16)
+    .frame(height: 56)
     .settingsField()
-    .contentShape(.rect(cornerRadius: 20))
+    .contentShape(.rect(cornerRadius: 18))
     .onTapGesture { focused = true }
   }
 }
@@ -307,13 +281,23 @@ struct FriendChoices: View {
 
   var body: some View {
     ForEach(store.readingFriends, id: \.self) { friend in
-      Choice(
-        title: friend.name,
-        detail: "\(friend.stage) · \(friend.examples.joined(separator: ", "))",
-        isSelected: friend == store.journey.activeFriend
-      ) {
-        store.send(.friendPicked(friend))
+      Button { store.send(.friendPicked(friend)) } label: {
+        HStack(spacing: 14) {
+          FriendSticker(friend, height: 52)
+            .frame(width: 56)
+          VStack(alignment: .leading, spacing: 2) {
+            Text(friend.name)
+              .font(Typography.display(19))
+              .foregroundStyle(Paper.ink)
+            Text("\(friend.stage) · \(friend.examples.joined(separator: ", "))")
+              .font(Typography.ui(14))
+              .foregroundStyle(Paper.muted)
+          }
+        }
+        .paperChoice(isSelected: friend == store.journey.activeFriend)
       }
+      .buttonStyle(.plain)
+      .accessibilityAddTraits(friend == store.journey.activeFriend ? .isSelected : [])
     }
   }
 }
@@ -336,24 +320,27 @@ struct VoiceRow: View {
       } label: {
         HStack {
           Text(store.voiceName)
-            .font(Typography.ui(20))
-            .foregroundStyle(Palette.ink)
+            .font(Typography.display(19))
+            .foregroundStyle(Paper.ink)
           Spacer(minLength: 0)
           Image(systemName: "chevron.up.chevron.down")
-            .font(.system(size: 16, weight: .bold))
-            .foregroundStyle(Palette.muted)
+            .font(.system(size: 15, weight: .bold))
+            .foregroundStyle(Paper.muted)
         }
-        .padding(.horizontal, 20)
-        .frame(height: 60)
+        .padding(.horizontal, 16)
+        .frame(height: 56)
         .settingsField()
-        .contentShape(.rect(cornerRadius: 20))
+        .contentShape(.rect(cornerRadius: 18))
       }
       .accessibilityLabel("Help voice, \(store.voiceName)")
       Button { store.send(.hearVoiceTapped) } label: {
         Image(systemName: "speaker.wave.2.fill")
-          .font(.system(size: 20, weight: .bold))
+          .font(.system(size: 18, weight: .bold))
+          .foregroundStyle(Paper.ink)
+          .frame(width: 56, height: 56)
+          .paperChip(Circle(), rim: 3)
       }
-      .buttonStyle(.ink(.secondary))
+      .buttonStyle(.plain)
       .accessibilityLabel("Hear the help voice")
     }
   }

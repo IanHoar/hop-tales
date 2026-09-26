@@ -62,6 +62,7 @@ let package = Package(
         "Content",
         "DesignSystem",
         "SpeechRecognition",
+        "World",
         .product(name: "ComposableArchitecture2", package: "TCA26"),
         .product(name: "Dependencies", package: "swift-dependencies"),
       ]
