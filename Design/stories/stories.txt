@@ -43,7 +43,7 @@ The *sleepy* hare curls up for the night.
 
 # Level 1 · Bob · short vowels, three-letter words · 3 to 5 words
 
-== bramble-bug | Bob and the Bug | level 1 | day clear
+== bob-bug | Bob and the Bug | level 1 | day clear
 Bob sat on a log.
 A red bug ran up.
 The bug had six legs.
@@ -69,7 +69,7 @@ Bob had a *snack*.
 
 # Level 2 · Dash · blends and digraphs · 5 to 7 words
 
-== hare-and-frog | Dash and the Frog | level 2 | day clear
+== dash-and-frog | Dash and the Frog | level 2 | day clear
 Dash hops up the *grassy* hill.
 A green frog sits on a stump.
 “Can you swim?” asks the frog.
@@ -93,7 +93,7 @@ Dash thumps his feet to the song.
 A moth flaps past in the dusk.
 Then they rush home to bed.
 
-== hare-big-story | Dash and the Brook | level 2 | day clear | big
+== dash-big-story | Dash and the Brook | level 2 | day clear | big
 Dash hops to the brook.
 The brook is fast and wide.
 He spots a log across it.
@@ -103,7 +103,7 @@ Dash jumps off on the far bank.
 
 # Level 3 · Oggy · long vowels, magic e · 6 to 8 words
 
-== puddle-kite | Oggy and the Kite | level 3 | day clear | stretch
+== oggy-kite | Oggy and the Kite | level 3 | day clear | stretch
 Oggy the frog sits by the lake.
 A red kite *floats* high in the sky.
 The wind takes the kite over the reeds.
@@ -119,7 +119,7 @@ He tries a *hollow* reed, but it bends.
 At last he finds a wide lily pad.
 Oggy makes his home and *yawns* with joy.
 
-== puddle-big-story | The Lily Pad Race | level 3 | day clear | big
+== oggy-big-story | The Lily Pad Race | level 3 | day clear | big
 The frogs line up on the lily pads.
 They will race across the whole lake.
 Oggy takes a deep breath and waits.
@@ -213,7 +213,7 @@ Its mother was waiting, and they purred at the gate.
 
 # Level 6 · Barnacle · longer words, tricky spellings · 9 to 12 words
 
-== nipper-shells | Barnacle and the Shells | level 6 | day clear
+== barnacle-shells | Barnacle and the Shells | level 6 | day clear
 Barnacle the crab lives in a rock pool beside the sea.
 Every morning, he searches the sand for *beautiful* shells.
 Today he found a spiral shell as pink as a sunset!
@@ -237,7 +237,7 @@ The journey was longer than he *expected*, but he kept going.
 On the island he met a family of seals sunbathing together.
 They told him stories about the ocean until the sun went down.
 
-== nipper-storm | The Night of the Storm | level 6 | dusk clouds | stretch
+== barnacle-storm | The Night of the Storm | level 6 | dusk clouds | stretch
 [storm] The sky turned dark and the wind began to howl.
 *Enormous* waves crashed against the rocks and sprayed white foam.
 Barnacle held on tightly to the seaweed in his rock pool.
@@ -245,7 +245,7 @@ Barnacle held on tightly to the seaweed in his rock pool.
 [rain] Thunder rumbled while the rain poured down for hours.
 [clear] By morning, the sea was calm and the beach was *peaceful* again.
 
-== nipper-big-story | The Message in a Bottle | level 6 | day clear | big
+== barnacle-big-story | The Message in a Bottle | level 6 | day clear | big
 One morning, Barnacle noticed a glass bottle wedged between two rocks.
 Inside the bottle there was a rolled up piece of paper.
 He pulled and twisted until the cork finally popped out!
@@ -255,7 +255,7 @@ Barnacle kept the drawing and dreamed about his faraway friend.
 
 # Level 7 · Bartholomew · big words, longer sentences · 10 to 14 words
 
-== sprig-tall-grass | Bartholomew in the Tall Grass | level 7 | day clear
+== bartholomew-tall-grass | Bartholomew in the Tall Grass | level 7 | day clear
 Bartholomew the grasshopper lives where the grass grows taller than a house.
 Every morning, he climbs to the top of a stem to watch the sunrise.
 From up there, the meadow looks like an *enormous* green ocean.
@@ -263,7 +263,7 @@ He practises his jumping until he can leap across three stems at once.
 The ladybirds cheer whenever he lands without wobbling on the clover.
 Bartholomew believes that every day brings a brand new *adventure*.
 
-== sprig-fiddle | The Evening Concert | level 7 | dusk clear
+== bartholomew-fiddle | The Evening Concert | level 7 | dusk clear
 When the sun sets, Bartholomew takes out his tiny wooden fiddle.
 The crickets gather beneath the dandelions to listen very quietly.
 He plays a gentle *melody* that drifts across the whole meadow.
@@ -271,7 +271,7 @@ Even the sleepy bumblebees stop buzzing to hear the music.
 The fireflies begin to glow as if they are dancing to the tune.
 When the concert ends, everyone *whispers* “thank you” and goes home to sleep.
 
-== sprig-journey | The Journey to the Old Oak | level 7 | golden clouds | stretch
+== bartholomew-journey | The Journey to the Old Oak | level 7 | golden clouds | stretch
 Bartholomew had heard stories about an *ancient* oak at the edge of the meadow.
 He packed his leather satchel with clover and set off before breakfast.
 The journey was *difficult* because the grass was thick and tangled.
@@ -279,7 +279,7 @@ He crossed a trickling stream by balancing carefully on a fallen twig.
 By afternoon, he finally reached the enormous tree with its twisted roots.
 Resting in its shade, he felt proud of how far he had travelled.
 
-== sprig-rainbow | Chasing the Rainbow | level 7 | day clouds | stretch
+== bartholomew-rainbow | Chasing the Rainbow | level 7 | day clouds | stretch
 [rain] After a heavy shower, a *magnificent* rainbow appeared above the meadow.
 Bartholomew was curious to discover where the colourful arch touched the ground.
 He hopped and scrambled through puddles that reflected the brightening sky.
@@ -287,7 +287,7 @@ Every time he came closer, the rainbow seemed to move further away.
 [clear] Eventually the warm sunshine returned and the colours slowly *disappeared*.
 Bartholomew laughed because the adventure had been the treasure all along.
 
-== sprig-big-story | The Great Meadow Festival | level 7 | golden clear | big
+== bartholomew-big-story | The Great Meadow Festival | level 7 | golden clear | big
 Once a year, every creature in the meadow gathers for a festival.
 The beetles decorate the stems with petals and shimmering spider silk.
 Bob brings strawberries and Dash arrives with a basket of carrots.

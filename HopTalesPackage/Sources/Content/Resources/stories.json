@@ -1047,7 +1047,7 @@
     ]
   },
   {
-    "id": "bramble-bug",
+    "id": "bob-bug",
     "title": "Bob and the Bug",
     "level": 1,
     "stretch": false,
@@ -1645,7 +1645,7 @@
     ]
   },
   {
-    "id": "hare-and-frog",
+    "id": "dash-and-frog",
     "title": "Dash and the Frog",
     "level": 2,
     "stretch": false,
@@ -2390,7 +2390,7 @@
     ]
   },
   {
-    "id": "hare-big-story",
+    "id": "dash-big-story",
     "title": "Dash and the Brook",
     "level": 2,
     "stretch": false,
@@ -2634,7 +2634,7 @@
     ]
   },
   {
-    "id": "puddle-kite",
+    "id": "oggy-kite",
     "title": "Oggy and the Kite",
     "level": 3,
     "stretch": true,
@@ -3216,7 +3216,7 @@
     ]
   },
   {
-    "id": "puddle-big-story",
+    "id": "oggy-big-story",
     "title": "The Lily Pad Race",
     "level": 3,
     "stretch": false,
@@ -6771,7 +6771,7 @@
     ]
   },
   {
-    "id": "nipper-shells",
+    "id": "barnacle-shells",
     "title": "Barnacle and the Shells",
     "level": 6,
     "stretch": false,
@@ -7915,7 +7915,7 @@
     ]
   },
   {
-    "id": "nipper-storm",
+    "id": "barnacle-storm",
     "title": "The Night of the Storm",
     "level": 6,
     "stretch": true,
@@ -8299,7 +8299,7 @@
     ]
   },
   {
-    "id": "nipper-big-story",
+    "id": "barnacle-big-story",
     "title": "The Message in a Bottle",
     "level": 6,
     "stretch": false,
@@ -8677,7 +8677,7 @@
     ]
   },
   {
-    "id": "sprig-tall-grass",
+    "id": "bartholomew-tall-grass",
     "title": "Bartholomew in the Tall Grass",
     "level": 7,
     "stretch": false,
@@ -9093,7 +9093,7 @@
     ]
   },
   {
-    "id": "sprig-fiddle",
+    "id": "bartholomew-fiddle",
     "title": "The Evening Concert",
     "level": 7,
     "stretch": false,
@@ -9507,7 +9507,7 @@
     ]
   },
   {
-    "id": "sprig-journey",
+    "id": "bartholomew-journey",
     "title": "The Journey to the Old Oak",
     "level": 7,
     "stretch": true,
@@ -9936,7 +9936,7 @@
     ]
   },
   {
-    "id": "sprig-rainbow",
+    "id": "bartholomew-rainbow",
     "title": "Chasing the Rainbow",
     "level": 7,
     "stretch": true,
@@ -10330,7 +10330,7 @@
     ]
   },
   {
-    "id": "sprig-big-story",
+    "id": "bartholomew-big-story",
     "title": "The Great Meadow Festival",
     "level": 7,
     "stretch": false,

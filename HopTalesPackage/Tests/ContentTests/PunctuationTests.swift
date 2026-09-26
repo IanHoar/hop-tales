@@ -16,7 +16,7 @@ struct PunctuationTests {
   }
 
   @Test func speechMarksHangOffTheWordsTheyWrap() throws {
-    let words = try #require(StoryLibrary["hare-and-frog"]).sentences.flatMap(\.words)
+    let words = try #require(StoryLibrary["dash-and-frog"]).sentences.flatMap(\.words)
     let can = try #require(words.first { $0.text == "Can" })
     let swim = try #require(words.first { $0.text == "swim" })
     #expect(can.leading == "“")
