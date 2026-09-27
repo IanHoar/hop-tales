@@ -102,10 +102,10 @@ public struct SpriteSheet: Equatable, Sendable {
     ),
     .cat: (
       .idle(
-        "cat-idle-frames", cell: CGSize(width: 291, height: 366), feet: CGPoint(x: 150, y: 355)
+        "cat-idle-frames", cell: CGSize(width: 321, height: 400), feet: CGPoint(x: 156, y: 389)
       ),
       .hop(
-        "cat-hop", cell: CGSize(width: 422, height: 346), feet: CGPoint(x: 182, y: 335),
+        "cat-hop", cell: CGSize(width: 450, height: 376), feet: CGPoint(x: 196, y: 365),
         standing: 305
       )
     ),
