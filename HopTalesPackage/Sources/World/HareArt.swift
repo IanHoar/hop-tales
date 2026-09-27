@@ -93,10 +93,10 @@ public struct SpriteSheet: Equatable, Sendable {
     ),
     .crow: (
       .idle(
-        "crow-idle-frames", cell: CGSize(width: 370, height: 369), feet: CGPoint(x: 227, y: 357)
+        "crow-idle-frames", cell: CGSize(width: 430, height: 409), feet: CGPoint(x: 235, y: 397)
       ),
       .hop(
-        "crow-hop", cell: CGSize(width: 338, height: 346), feet: CGPoint(x: 166, y: 336),
+        "crow-hop", cell: CGSize(width: 366, height: 376), feet: CGPoint(x: 181, y: 367),
         standing: 259
       )
     ),

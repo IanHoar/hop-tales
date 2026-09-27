@@ -264,6 +264,19 @@
  "crow": {
   "items": [
    {
+    "id": "knit-cap",
+    "name": "Blue knitted cap",
+    "slot": "head",
+    "size": [
+     200,
+     183
+    ],
+    "full": [
+     815,
+     746
+    ]
+   },
+   {
     "id": "flat-cap",
     "name": "Tweed flat cap",
     "slot": "head",

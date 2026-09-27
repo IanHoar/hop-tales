@@ -10,15 +10,16 @@ struct WardrobeTests {
     }
   }
 
-  @Test func everyFriendUnlocksFiveOfTheirWardrobeAndBobSkipAndOggyStartWithAnother() {
+  @Test func everyFriendUnlocksFiveOfTheirWardrobeAndTheFirstFourStartWithAnother() {
     #expect(WardrobeLibrary.all[.hare]?.count == 13)
     #expect(WardrobeLibrary.all[.bunny]?.count == 9)
     #expect(WardrobeLibrary.all[.frog]?.count == 9)
+    #expect(WardrobeLibrary.all[.crow]?.count == 9)
     for friend in Friend.allCases {
       let starts = WardrobeLibrary.starting[friend] != nil
       #expect(WardrobeLibrary.items(for: friend).count == (starts ? 6 : 5), "\(friend)")
       #expect(WardrobeLibrary.unlockable(for: friend).count == 5, "\(friend)")
-      if friend != .hare, friend != .bunny, friend != .frog {
+      if ![Friend.hare, .bunny, .frog, .crow].contains(friend) {
         #expect(WardrobeLibrary.all[friend]?.count == 8, "\(friend)")
       }
     }
@@ -35,21 +36,22 @@ struct WardrobeTests {
   }
 
   @Test func onlyUnlockedItemsCanBeWornAndOneItemPerSlot() throws {
-    var progress = Progress(journey: Journey(starting: .crow))
-    let items = WardrobeLibrary.items(for: .crow)
-    progress.wear(items[1], on: .crow)
-    #expect(progress.outfit(for: .crow).isEmpty)
-    progress.wear(items[0], on: .crow)
-    #expect(progress.outfit(for: .crow) == [items[0]])
-    progress.baskets[.crow, default: Basket()].filled = 1
-    progress.wear(items[1], on: .crow)
-    #expect(progress.outfit(for: .crow) == [items[1]])
-    progress.takeOff(items[1].slot, from: .crow)
-    #expect(progress.outfit(for: .crow).isEmpty)
+    var progress = Progress(journey: Journey(starting: .cat))
+    let items = WardrobeLibrary.items(for: .cat)
+    progress.wear(items[1], on: .cat)
+    #expect(progress.outfit(for: .cat).isEmpty)
+    progress.wear(items[0], on: .cat)
+    #expect(progress.outfit(for: .cat) == [items[0]])
+    progress.baskets[.cat, default: Basket()].filled = 1
+    progress.wear(items[1], on: .cat)
+    #expect(progress.outfit(for: .cat) == [items[1]])
+    progress.takeOff(items[1].slot, from: .cat)
+    #expect(progress.outfit(for: .cat).isEmpty)
   }
 
   @Test(arguments: [
-    (Friend.bunny, "bow", Slot.head), (.hare, "scarf", .neck), (.frog, "neckerchief", .neck)
+    (Friend.bunny, "bow", Slot.head), (.hare, "scarf", .neck), (.frog, "neckerchief", .neck),
+    (.crow, "knit-cap", .head)
   ])
   func startingItemsAreWornUntilSomethingElseIsChosen(
     friend: Friend, id: String, slot: Slot
@@ -62,8 +64,8 @@ struct WardrobeTests {
     let fresh = Progress()
     #expect(fresh.isUnlocked(item, for: friend))
     #expect(fresh.outfit(for: friend) == [item])
-    #expect(WardrobeLibrary.startingItem(for: .crow) == nil)
-    #expect(Progress(journey: Journey(starting: .crow)).outfit(for: .crow).isEmpty)
+    #expect(WardrobeLibrary.startingItem(for: .cat) == nil)
+    #expect(Progress(journey: Journey(starting: .cat)).outfit(for: .cat).isEmpty)
   }
 
   @Test func startingItemsLeaveTheUnlockOrderAlone() throws {
