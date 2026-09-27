@@ -74,10 +74,10 @@ public struct SpriteSheet: Equatable, Sendable {
     ),
     .frog: (
       .idle(
-        "frog-idle-frames", cell: CGSize(width: 447, height: 400), feet: CGPoint(x: 222, y: 384)
+        "frog-idle-frames", cell: CGSize(width: 467, height: 436), feet: CGPoint(x: 228, y: 420)
       ),
       .hop(
-        "frog-hop", cell: CGSize(width: 396, height: 346), feet: CGPoint(x: 206, y: 335),
+        "frog-hop", cell: CGSize(width: 424, height: 376), feet: CGPoint(x: 220, y: 365),
         standing: 242
       )
     ),
