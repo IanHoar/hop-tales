@@ -133,6 +133,19 @@
  "frog": {
   "items": [
    {
+    "id": "neckerchief",
+    "name": "Yellow neckerchief",
+    "slot": "neck",
+    "size": [
+     148,
+     200
+    ],
+    "full": [
+     566,
+     766
+    ]
+   },
+   {
     "id": "lilypad-hat",
     "name": "Lily-pad hat",
     "slot": "head",
