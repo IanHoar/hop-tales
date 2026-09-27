@@ -68,7 +68,7 @@ struct RootTests {
     let friend = story.friend
     store.send(.home(.storyTapped(story))) {
       $0.path = [.reading(Reading.State.DebugSnapshot(
-        bigWords: big, friend: friend, treat: treat, story: story
+        bigWords: big, friend: friend, look: "scarf", treat: treat, story: story
       ))]
     }
     #expect(store.state.storyOnScreen == story)
@@ -77,7 +77,8 @@ struct RootTests {
       $0.path = [
         .reading(
           Reading.State.DebugSnapshot(
-            authorization: .authorized, bigWords: big, friend: friend, treat: treat, story: story
+            authorization: .authorized, bigWords: big, friend: friend, look: "scarf", treat: treat,
+            story: story
           )
         )
       ]
