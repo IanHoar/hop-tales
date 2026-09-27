@@ -87,8 +87,8 @@ public struct SpriteSheet: Equatable, Sendable {
         size: 0.75
       ),
       .hop(
-        "crab-hop", cell: CGSize(width: 440, height: 346), feet: CGPoint(x: 211, y: 333),
-        standing: 286, size: 0.75
+        "crab-hop", cell: CGSize(width: 540, height: 456), feet: CGPoint(x: 270, y: 440),
+        standing: 262, size: 0.75
       )
     ),
     .crow: (
