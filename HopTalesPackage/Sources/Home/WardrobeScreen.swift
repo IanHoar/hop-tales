@@ -26,7 +26,7 @@ import World
     func isWorn(_ item: WardrobeItem) -> Bool { outfit.contains(item) }
 
     func basket(for item: WardrobeItem) -> Int {
-      WardrobeLibrary.items(for: friend).firstIndex(of: item) ?? 0
+      WardrobeLibrary.unlockable(for: friend).firstIndex(of: item) ?? 0
     }
   }
 

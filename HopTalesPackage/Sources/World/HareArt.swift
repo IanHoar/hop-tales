@@ -230,8 +230,8 @@ public struct FriendSticker: View {
 
   private var art: UIImage? {
     let base = friend == .hare ? "hare-sit" : "friend-\(friend.rawValue)"
-    guard !isBare, let item = WardrobeLibrary.starting[friend] else { return MeadowArt.image(base) }
-    return MeadowArt.image("look-\(friend.rawValue)-\(item)") ?? MeadowArt.image(base)
+    guard !isBare, let look = friend.startingLook else { return MeadowArt.image(base) }
+    return MeadowArt.image(look) ?? MeadowArt.image(base)
   }
 
   public var body: some View {
@@ -281,5 +281,11 @@ public struct Sticker: View {
         .frame(width: image.size.width * scale, height: image.size.height * scale)
         .accessibilityHidden(true)
     }
+  }
+}
+
+extension Friend {
+  public var startingLook: String? {
+    WardrobeLibrary.starting[self].map { "look-\(rawValue)-\($0)" }
   }
 }

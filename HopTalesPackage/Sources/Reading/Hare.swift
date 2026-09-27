@@ -74,7 +74,10 @@ struct Hare: View {
         )
         .opacity(airborne ? 0.45 : 1)
         .position(x: centre, y: 0)
-      HareSprite(pose.frame, height: Self.size(Self.height, on: geometry))
+      HareSprite(
+        HareFrame(pose.frame.sheet, pose.frame.index, look: WardrobeLibrary.starting[.hare]),
+        height: Self.size(Self.height, on: geometry)
+      )
         .scaleEffect(x: pose.scaleX, y: pose.scaleY, anchor: .center)
         .position(x: centre, y: -Self.size(pose.lift, on: geometry))
     }

@@ -57,7 +57,7 @@ public enum WardrobeLibrary {
   }()
 
   public static let wearable: [Friend: [String]] = [
-    .hare: ["straw", "bowtie", "crown", "specs", "satchel"],
+    .hare: ["scarf", "straw", "bowtie", "crown", "specs", "satchel"],
     .bunny: ["bow", "bluebell-crown", "bonnet", "heart-glasses", "daisy-chain", "basket-pack"],
     .frog: ["lilypad-hat", "goggles", "check-bowtie", "reed-satchel", "raincoat"],
     .crow: ["flat-cap", "top-hat", "aviator-goggles", "autumn-scarf", "post-satchel"],
@@ -68,7 +68,7 @@ public enum WardrobeLibrary {
     ]
   ]
 
-  public static let starting: [Friend: String] = [.bunny: "bow"]
+  public static let starting: [Friend: String] = [.bunny: "bow", .hare: "scarf"]
 
   @TaskLocal public static var painted: [Friend: Set<String>] = {
     guard
@@ -95,23 +95,30 @@ public enum WardrobeLibrary {
   public static func startingItem(for friend: Friend) -> WardrobeItem? {
     starting[friend].flatMap { id in items(for: friend).first { $0.id == id } }
   }
+
+  public static func unlockable(for friend: Friend) -> [WardrobeItem] {
+    items(for: friend).filter { $0.id != starting[friend] }
+  }
 }
 
 extension Progress {
   public func unlockedCount(for friend: Friend) -> Int {
     guard journey.met.contains(friend) else { return 0 }
-    let items = WardrobeLibrary.items(for: friend).count
+    let items = WardrobeLibrary.unlockable(for: friend).count
     return min(1 + (baskets[friend]?.filled ?? 0), items)
   }
 
   public func isUnlocked(_ item: WardrobeItem, for friend: Friend) -> Bool {
-    guard let index = WardrobeLibrary.items(for: friend).firstIndex(of: item) else { return false }
+    if item == WardrobeLibrary.startingItem(for: friend) { return true }
+    guard let index = WardrobeLibrary.unlockable(for: friend).firstIndex(of: item) else {
+      return false
+    }
     return index < unlockedCount(for: friend)
   }
 
   public func newestItem(for friend: Friend) -> WardrobeItem? {
     let count = unlockedCount(for: friend)
-    return count > 0 ? WardrobeLibrary.items(for: friend)[count - 1] : nil
+    return count > 0 ? WardrobeLibrary.unlockable(for: friend)[count - 1] : nil
   }
 
   public func outfit(for friend: Friend) -> [WardrobeItem] {
@@ -146,7 +153,7 @@ extension Progress {
 extension JourneyMoment {
   public var unlockedItem: WardrobeItem? {
     guard case let .basketFull(friend, number) = self else { return nil }
-    let items = WardrobeLibrary.items(for: friend)
+    let items = WardrobeLibrary.unlockable(for: friend)
     return number < items.count ? items[number] : nil
   }
 }

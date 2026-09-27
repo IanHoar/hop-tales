@@ -1,3 +1,4 @@
+import Content
 import CoreImage
 import SpriteKit
 
@@ -77,7 +78,7 @@ public final class IntroScene: SKScene {
   let land = SKEffectNode()
   let layers = MeadowLayer.allCases.map { TiledLayer($0) }
   let hareFront = SKSpriteNode(texture: MeadowArt.texture("hare-front-sit"))
-  let hareSide = SKSpriteNode(texture: MeadowArt.texture("hare-sit"))
+  let hareSide = SKSpriteNode(texture: MeadowArt.texture(Friend.hare.startingLook ?? "hare-sit"))
   let hareRun = SKSpriteNode()
   let launch: SKSpriteNode?
   private let hopTextures: [SKTexture]
@@ -86,7 +87,7 @@ public final class IntroScene: SKScene {
   private var layout = IntroLayout(meadow: MeadowLayout(size: .zero))
 
   public init(size: CGSize, launchImage: UIImage? = nil) {
-    let sheet = MeadowArt.texture("hare-hop")
+    let sheet = MeadowArt.texture(Friend.hare.startingLook.map { "\($0)-hop" } ?? "hare-hop")
     let frames = IntroLayout.hopFrames
     hopTextures = (0..<frames).map { index in
       let width = 1 / CGFloat(frames)

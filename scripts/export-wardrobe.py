@@ -23,7 +23,8 @@ WORLD = ROOT / "HopTalesPackage/Sources/World/Resources"
 CONTENT = ROOT / "HopTalesPackage/Sources/Content/Resources"
 
 HARE = [
-    ("straw", "Straw hat"), ("bowtie", "Bow tie"), ("neckerchief", "Spotty neckerchief"),
+    ("scarf", "Red scarf"), ("straw", "Straw hat"), ("bowtie", "Bow tie"),
+    ("neckerchief", "Spotty neckerchief"),
     ("crown", "Flower crown"), ("satchel", "Satchel"), ("bobble", "Bobble hat"),
     ("specs", "Round glasses"), ("pirate", "Pirate hat"), ("wizard", "Wizard hat"),
     ("acorn", "Acorn cap"), ("cape", "Cape"), ("paper-crown", "Paper crown"),
