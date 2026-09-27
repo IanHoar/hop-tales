@@ -2,6 +2,19 @@
  "bunny": {
   "items": [
    {
+    "id": "bow",
+    "name": "Lilac bow",
+    "slot": "head",
+    "size": [
+     200,
+     197
+    ],
+    "full": [
+     360,
+     355
+    ]
+   },
+   {
     "id": "bluebell-crown",
     "name": "Bluebell crown",
     "slot": "head",

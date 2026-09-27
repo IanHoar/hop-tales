@@ -34,6 +34,17 @@
    }
   },
   "items": {
+   "bow": {
+    "slot": "head",
+    "x": 0.68,
+    "y": 0.24,
+    "w": 0.22,
+    "rot": -25,
+    "pivot": [
+     0.5,
+     0.5
+    ]
+   },
    "bluebell-crown": {
     "slot": "head",
     "x": 0.7,
