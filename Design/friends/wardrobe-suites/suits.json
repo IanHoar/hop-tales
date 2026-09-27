@@ -526,6 +526,19 @@
  "crab": {
   "items": [
    {
+    "id": "sailor-kerchief",
+    "name": "Sailor neckerchief",
+    "slot": "neck",
+    "size": [
+     184,
+     200
+    ],
+    "full": [
+     603,
+     657
+    ]
+   },
+   {
     "id": "sailor-cap",
     "name": "Sailor cap",
     "slot": "head",

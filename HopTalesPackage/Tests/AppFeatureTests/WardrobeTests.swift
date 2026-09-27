@@ -11,45 +11,47 @@ struct WardrobeFeatureTests {
   nonisolated private static var progress: Content.Progress {
     var basket = Basket()
     basket.filled = 4
-    return Content.Progress(journey: Journey(starting: .crab), baskets: [.crab: basket])
+    return Content.Progress(
+      journey: Journey(starting: .grasshopper), baskets: [.grasshopper: basket]
+    )
   }
 
   @Test func everyItemIsInOneGridAndTappingSwapsTheLook() async {
     let saved = LockIsolated(Self.progress)
-    let store = TestStore(initialState: Wardrobe.State(friend: .crab)) {
+    let store = TestStore(initialState: Wardrobe.State(friend: .grasshopper)) {
       Wardrobe()
         .dependency(ProgressStore(load: { saved.value }, save: { saved.setValue($0) }))
     } changes: {
       $0.progress = Self.progress
     }
-    let items = WardrobeLibrary.items(for: .crab)
+    let items = WardrobeLibrary.items(for: .grasshopper)
     #expect(store.state.items == items)
 
     store.send(.itemTapped(items[0])) {
-      $0.progress.outfits[.crab] = [items[0].slot: items[0].id]
+      $0.progress.outfits[.grasshopper] = [items[0].slot: items[0].id]
     }
     store.send(.itemTapped(items[1])) {
-      $0.progress.outfits[.crab] = [items[1].slot: items[1].id]
+      $0.progress.outfits[.grasshopper] = [items[1].slot: items[1].id]
     }
-    #expect(saved.value.outfit(for: .crab) == [items[1]])
+    #expect(saved.value.outfit(for: .grasshopper) == [items[1]])
     await store.dismount()
   }
 
   @Test func tappingTheWornItemOrJustMeTakesTheLookOff() async {
     let saved = LockIsolated(Self.progress)
-    let store = TestStore(initialState: Wardrobe.State(friend: .crab)) {
+    let store = TestStore(initialState: Wardrobe.State(friend: .grasshopper)) {
       Wardrobe()
         .dependency(ProgressStore(load: { saved.value }, save: { saved.setValue($0) }))
     } changes: {
       $0.progress = Self.progress
     }
-    let item = WardrobeLibrary.items(for: .crab)[0]
+    let item = WardrobeLibrary.items(for: .grasshopper)[0]
 
-    store.send(.itemTapped(item)) { $0.progress.outfits[.crab] = [item.slot: item.id] }
-    store.send(.itemTapped(item)) { $0.progress.outfits[.crab] = [:] }
-    store.send(.itemTapped(item)) { $0.progress.outfits[.crab] = [item.slot: item.id] }
-    store.send(.justMeTapped) { $0.progress.outfits[.crab] = [:] }
-    #expect(saved.value.outfit(for: .crab).isEmpty)
+    store.send(.itemTapped(item)) { $0.progress.outfits[.grasshopper] = [item.slot: item.id] }
+    store.send(.itemTapped(item)) { $0.progress.outfits[.grasshopper] = [:] }
+    store.send(.itemTapped(item)) { $0.progress.outfits[.grasshopper] = [item.slot: item.id] }
+    store.send(.justMeTapped) { $0.progress.outfits[.grasshopper] = [:] }
+    #expect(saved.value.outfit(for: .grasshopper).isEmpty)
     await store.dismount()
   }
 
@@ -167,6 +169,27 @@ struct WardrobeFeatureTests {
     #expect(saved.value.outfit(for: .cat) == [hat])
     store.send(.justMeTapped) { $0.progress.outfits[.cat] = [:] }
     #expect(saved.value.outfit(for: .cat).isEmpty)
+    await store.dismount()
+  }
+
+  @Test func barnacleWearsHisNeckerchiefUntilSomethingElseIsChosen() async throws {
+    let fresh = Content.Progress(journey: Journey(starting: .crab))
+    let saved = LockIsolated(fresh)
+    let store = TestStore(initialState: Wardrobe.State(friend: .crab)) {
+      Wardrobe()
+        .dependency(ProgressStore(load: { saved.value }, save: { saved.setValue($0) }))
+    } changes: {
+      $0.progress = fresh
+    }
+    let items = WardrobeLibrary.items(for: .crab)
+    let kerchief = try #require(items.first { $0.id == "sailor-kerchief" })
+    let cap = try #require(items.first { $0.id == "sailor-cap" })
+    #expect(store.state.outfit == [kerchief])
+
+    store.send(.itemTapped(cap)) { $0.progress.outfits[.crab] = [.head: cap.id] }
+    #expect(saved.value.outfit(for: .crab) == [cap])
+    store.send(.justMeTapped) { $0.progress.outfits[.crab] = [:] }
+    #expect(saved.value.outfit(for: .crab).isEmpty)
     await store.dismount()
   }
 }

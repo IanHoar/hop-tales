@@ -62,7 +62,9 @@ public enum WardrobeLibrary {
     .frog: ["neckerchief", "lilypad-hat", "goggles", "check-bowtie", "reed-satchel", "raincoat"],
     .crow: ["knit-cap", "flat-cap", "top-hat", "aviator-goggles", "autumn-scarf", "post-satchel"],
     .cat: ["sage-collar", "garden-hat", "beret", "cateye-glasses", "red-bell-collar", "cardigan"],
-    .crab: ["sailor-cap", "captain-hat", "diving-mask", "claw-mittens", "chest-pack"],
+    .crab: [
+      "sailor-kerchief", "sailor-cap", "captain-hat", "diving-mask", "life-ring", "claw-mittens"
+    ],
     .grasshopper: [
       "acorn-cap", "antenna-poms", "explorer-goggles", "clover-bowtie", "ladybird-cape"
     ]
@@ -70,7 +72,7 @@ public enum WardrobeLibrary {
 
   public static let starting: [Friend: String] = [
     .bunny: "bow", .hare: "scarf", .frog: "neckerchief", .crow: "knit-cap",
-    .cat: "sage-collar"
+    .cat: "sage-collar", .crab: "sailor-kerchief"
   ]
 
   @TaskLocal public static var painted: [Friend: Set<String>] = {
