@@ -657,6 +657,19 @@
  "grasshopper": {
   "items": [
    {
+    "id": "satchel",
+    "name": "Leather satchel",
+    "slot": "back",
+    "size": [
+     138,
+     200
+    ],
+    "full": [
+     534,
+     772
+    ]
+   },
+   {
     "id": "acorn-cap",
     "name": "Acorn cap",
     "slot": "head",

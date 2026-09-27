@@ -10,20 +10,15 @@ struct WardrobeTests {
     }
   }
 
-  @Test func everyFriendUnlocksFiveOfTheirWardrobeAndTheFirstSixStartWithAnother() {
+  @Test func everyFriendStartsWithOneItemAndUnlocksFiveMore() {
     #expect(WardrobeLibrary.all[.hare]?.count == 13)
-    #expect(WardrobeLibrary.all[.bunny]?.count == 9)
-    #expect(WardrobeLibrary.all[.frog]?.count == 9)
-    #expect(WardrobeLibrary.all[.crow]?.count == 9)
-    #expect(WardrobeLibrary.all[.cat]?.count == 9)
-    #expect(WardrobeLibrary.all[.crab]?.count == 9)
+    for friend in Friend.allCases where friend != .hare {
+      #expect(WardrobeLibrary.all[friend]?.count == 9, "\(friend)")
+    }
     for friend in Friend.allCases {
-      let starts = WardrobeLibrary.starting[friend] != nil
-      #expect(WardrobeLibrary.items(for: friend).count == (starts ? 6 : 5), "\(friend)")
+      #expect(WardrobeLibrary.starting[friend] != nil, "\(friend)")
+      #expect(WardrobeLibrary.items(for: friend).count == 6, "\(friend)")
       #expect(WardrobeLibrary.unlockable(for: friend).count == 5, "\(friend)")
-      if ![Friend.hare, .bunny, .frog, .crow, .cat, .crab].contains(friend) {
-        #expect(WardrobeLibrary.all[friend]?.count == 8, "\(friend)")
-      }
     }
   }
 
@@ -39,9 +34,10 @@ struct WardrobeTests {
 
   @Test func onlyUnlockedItemsCanBeWornAndOneItemPerSlot() throws {
     var progress = Progress(journey: Journey(starting: .grasshopper))
-    let items = WardrobeLibrary.items(for: .grasshopper)
+    let satchel = try #require(WardrobeLibrary.startingItem(for: .grasshopper))
+    let items = WardrobeLibrary.unlockable(for: .grasshopper)
     progress.wear(items[1], on: .grasshopper)
-    #expect(progress.outfit(for: .grasshopper).isEmpty)
+    #expect(progress.outfit(for: .grasshopper) == [satchel])
     progress.wear(items[0], on: .grasshopper)
     #expect(progress.outfit(for: .grasshopper) == [items[0]])
     progress.baskets[.grasshopper, default: Basket()].filled = 1
@@ -55,7 +51,8 @@ struct WardrobeTests {
     (Friend.bunny, "bow", Slot.head), (.hare, "scarf", .neck), (.frog, "neckerchief", .neck),
     (.crow, "knit-cap", .head),
     (.cat, "sage-collar", .neck),
-    (.crab, "sailor-kerchief", .neck)
+    (.crab, "sailor-kerchief", .neck),
+    (.grasshopper, "satchel", .back)
   ])
   func startingItemsAreWornUntilSomethingElseIsChosen(
     friend: Friend, id: String, slot: Slot
@@ -68,8 +65,6 @@ struct WardrobeTests {
     let fresh = Progress()
     #expect(fresh.isUnlocked(item, for: friend))
     #expect(fresh.outfit(for: friend) == [item])
-    #expect(WardrobeLibrary.startingItem(for: .grasshopper) == nil)
-    #expect(Progress(journey: Journey(starting: .grasshopper)).outfit(for: .grasshopper).isEmpty)
   }
 
   @Test func startingItemsLeaveTheUnlockOrderAlone() throws {

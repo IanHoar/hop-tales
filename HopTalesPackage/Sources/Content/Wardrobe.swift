@@ -66,13 +66,13 @@ public enum WardrobeLibrary {
       "sailor-kerchief", "sailor-cap", "captain-hat", "diving-mask", "life-ring", "claw-mittens"
     ],
     .grasshopper: [
-      "acorn-cap", "antenna-poms", "explorer-goggles", "clover-bowtie", "ladybird-cape"
+      "satchel", "acorn-cap", "antenna-poms", "explorer-goggles", "clover-bowtie", "ladybird-cape"
     ]
   ]
 
   public static let starting: [Friend: String] = [
     .bunny: "bow", .hare: "scarf", .frog: "neckerchief", .crow: "knit-cap",
-    .cat: "sage-collar", .crab: "sailor-kerchief"
+    .cat: "sage-collar", .crab: "sailor-kerchief", .grasshopper: "satchel"
   ]
 
   @TaskLocal public static var painted: [Friend: Set<String>] = {

@@ -24,8 +24,8 @@ struct WardrobeFeatureTests {
     } changes: {
       $0.progress = Self.progress
     }
-    let items = WardrobeLibrary.items(for: .grasshopper)
-    #expect(store.state.items == items)
+    #expect(store.state.items == WardrobeLibrary.items(for: .grasshopper))
+    let items = WardrobeLibrary.unlockable(for: .grasshopper)
 
     store.send(.itemTapped(items[0])) {
       $0.progress.outfits[.grasshopper] = [items[0].slot: items[0].id]
@@ -45,7 +45,7 @@ struct WardrobeFeatureTests {
     } changes: {
       $0.progress = Self.progress
     }
-    let item = WardrobeLibrary.items(for: .grasshopper)[0]
+    let item = WardrobeLibrary.unlockable(for: .grasshopper)[0]
 
     store.send(.itemTapped(item)) { $0.progress.outfits[.grasshopper] = [item.slot: item.id] }
     store.send(.itemTapped(item)) { $0.progress.outfits[.grasshopper] = [:] }
@@ -190,6 +190,27 @@ struct WardrobeFeatureTests {
     #expect(saved.value.outfit(for: .crab) == [cap])
     store.send(.justMeTapped) { $0.progress.outfits[.crab] = [:] }
     #expect(saved.value.outfit(for: .crab).isEmpty)
+    await store.dismount()
+  }
+
+  @Test func bartholomewWearsHisSatchelUntilSomethingElseIsChosen() async throws {
+    let fresh = Content.Progress(journey: Journey(starting: .grasshopper))
+    let saved = LockIsolated(fresh)
+    let store = TestStore(initialState: Wardrobe.State(friend: .grasshopper)) {
+      Wardrobe()
+        .dependency(ProgressStore(load: { saved.value }, save: { saved.setValue($0) }))
+    } changes: {
+      $0.progress = fresh
+    }
+    let items = WardrobeLibrary.items(for: .grasshopper)
+    let satchel = try #require(items.first { $0.id == "satchel" })
+    let cap = try #require(items.first { $0.id == "acorn-cap" })
+    #expect(store.state.outfit == [satchel])
+
+    store.send(.itemTapped(cap)) { $0.progress.outfits[.grasshopper] = [.head: cap.id] }
+    #expect(saved.value.outfit(for: .grasshopper) == [cap])
+    store.send(.justMeTapped) { $0.progress.outfits[.grasshopper] = [:] }
+    #expect(saved.value.outfit(for: .grasshopper).isEmpty)
     await store.dismount()
   }
 }

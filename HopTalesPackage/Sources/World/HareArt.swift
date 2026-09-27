@@ -111,12 +111,12 @@ public struct SpriteSheet: Equatable, Sendable {
     ),
     .grasshopper: (
       .idle(
-        "grasshopper-idle-frames", cell: CGSize(width: 562, height: 380),
-        feet: CGPoint(x: 245, y: 363)
+        "grasshopper-idle-frames", cell: CGSize(width: 592, height: 420),
+        feet: CGPoint(x: 255, y: 403)
       ),
       .hop(
-        "grasshopper-hop", cell: CGSize(width: 321, height: 346), feet: CGPoint(x: 137, y: 336),
-        standing: 170
+        "grasshopper-hop", cell: CGSize(width: 421, height: 406), feet: CGPoint(x: 187, y: 396),
+        standing: 166
       )
     )
   ]
