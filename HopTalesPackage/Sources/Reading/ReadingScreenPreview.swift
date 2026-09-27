@@ -33,6 +33,7 @@ struct ReadingScreenPreview: View {
 
   private var state: Reading.State {
     var state = Reading.State(story: story, friend: friend ?? story.friend)
+    state.look = Content.Progress().outfit(for: state.friend).first?.id
     state.soundButtons = soundButtons
     switch moment {
     case let .at(sentence, word):

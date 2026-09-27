@@ -207,6 +207,23 @@
   ],
   "bunny": [
     {
+      "id": "bow",
+      "name": "Lilac bow",
+      "slot": "head",
+      "parts": [
+        {
+          "x": 0.68,
+          "y": 0.24,
+          "w": 0.22,
+          "rot": -25,
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
       "id": "bluebell-crown",
       "name": "Bluebell crown",
       "slot": "head",
