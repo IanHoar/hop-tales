@@ -395,6 +395,19 @@
  "cat": {
   "items": [
    {
+    "id": "sage-collar",
+    "name": "Sage bell collar",
+    "slot": "neck",
+    "size": [
+     200,
+     149
+    ],
+    "full": [
+     773,
+     575
+    ]
+   },
+   {
     "id": "garden-hat",
     "name": "Gardening hat",
     "slot": "head",
