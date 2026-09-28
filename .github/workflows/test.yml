@@ -75,6 +75,12 @@ jobs:
       - name: Test
         run: |
           set -o pipefail
+          mkdir -p build
+          if command -v xcbeautify >/dev/null; then
+            format() { xcbeautify --renderer github-actions; }
+          else
+            format() { cat; }
+          fi
           xcodebuild test \
             -workspace HopTales.xcworkspace \
             -scheme HopTales \
@@ -83,8 +89,7 @@ jobs:
             -resultBundlePath build/HopTales.xcresult \
             -skipMacroValidation \
             | tee build/xcodebuild.log \
-            | grep -E '(error|warning):|✘|\*\* (TEST|BUILD)' || true
-          grep -q '\*\* TEST SUCCEEDED \*\*' build/xcodebuild.log
+            | format
 
       - name: Collect failed snapshots
         if: failure()
