@@ -16,6 +16,7 @@ actor LiveSpeechRecognizer {
 
   private var recognizer: SFSpeechRecognizer?
   private let engine = AVAudioEngine()
+  private let meter = NoiseMeter()
   private var request: SFSpeechAudioBufferRecognitionRequest?
   private var task: SFSpeechRecognitionTask?
   private var release: Task<Void, Never>?
@@ -101,7 +102,11 @@ actor LiveSpeechRecognizer {
     guard format.sampleRate > 0, format.channelCount > 0 else {
       throw Failure.audioSessionUnavailable
     }
-    let feed: AVAudioNodeTapBlock = { buffer, _ in request.append(buffer) }
+    let meter = meter
+    let feed: AVAudioNodeTapBlock = { buffer, _ in
+      request.append(buffer)
+      meter.feed(buffer)
+    }
     if #available(iOS 27, *) {
       try input.__installTap(onBus: 0, bufferSize: 1024, format: format, error: (), block: feed)
     } else {
@@ -114,7 +119,8 @@ actor LiveSpeechRecognizer {
   private func watchForSilence(
     yieldingTo continuation: AsyncStream<SpeechClient.Event>.Continuation
   ) -> Task<Void, Never> {
-    Task { [weak self] in
+    let meter = meter
+    return Task { [weak self] in
       var lastChange = ContinuousClock.now
       var lastTranscript = ""
       while !Task.isCancelled {
@@ -126,6 +132,7 @@ actor LiveSpeechRecognizer {
         }
         let quiet = TimeInterval((ContinuousClock.now - lastChange).components.seconds)
         continuation.yield(.silence(quiet))
+        continuation.yield(.level(meter.floor))
         if quiet >= Self.offerHelpAfter { lastChange = .now }
       }
     }

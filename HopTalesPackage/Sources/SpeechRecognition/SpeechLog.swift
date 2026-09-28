@@ -18,6 +18,7 @@ public struct SpeechLogEntry: Equatable, Sendable {
   public var heard: [String]
   public var isFinal: Bool
   public var outcome: Outcome
+  public var level: Double?
 
   public init(
     date: Date = .now,
@@ -26,7 +27,8 @@ public struct SpeechLogEntry: Equatable, Sendable {
     word: String,
     heard: [String],
     isFinal: Bool,
-    outcome: Outcome
+    outcome: Outcome,
+    level: Double? = nil
   ) {
     self.date = date
     self.story = story
@@ -35,6 +37,7 @@ public struct SpeechLogEntry: Equatable, Sendable {
     self.heard = heard
     self.isFinal = isFinal
     self.outcome = outcome
+    self.level = level
   }
 }
 
@@ -67,10 +70,12 @@ public struct SpeechLog: Sendable {
       [
         entry.date.formatted(time), entry.story, String(entry.sentence), entry.word,
         entry.heard.joined(separator: " "), entry.isFinal ? "final" : "partial",
-        entry.outcome.rawValue
+        entry.outcome.rawValue,
+        entry.level.map { String(Int($0.rounded())) } ?? ""
       ].joined(separator: ",")
     }
-    return (["time,story,sentence,word,heard,kind,outcome"] + rows).joined(separator: "\n") + "\n"
+    let header = "time,story,sentence,word,heard,kind,outcome,level"
+    return ([header] + rows).joined(separator: "\n") + "\n"
   }
 }
 

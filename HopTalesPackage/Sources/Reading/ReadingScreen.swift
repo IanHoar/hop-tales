@@ -38,6 +38,7 @@ import World
     public var journeyMoments: [JourneyMoment] = []
     public var hasTriedItOn = false
     public var isConfirmingStop = false
+    public var isNoisy = false
     public var listeningEpoch = 0
     public var isSpeaking = false
     public var recognised: Recognised?
@@ -97,6 +98,7 @@ import World
     case speechFinished
     case scenePhaseChanged(isActive: Bool)
     case speechResult(tokens: [String], isFinal: Bool)
+    case noiseLevel(Double)
   }
 
   @FeatureState var debouncer = PartialDebouncer()
@@ -105,6 +107,9 @@ import World
   @FeatureState var profile = Profile()
   @FeatureState var wordsHelped: Set<WordRef> = []
   @FeatureState var wordsRead: Set<WordRef> = []
+  @FeatureState var noiseLevel: Double?
+  @FeatureState var ticksSinceMatch = 0
+  @FeatureState var heardSinceMatch = false
   @Dependency(ProfileStore.self) var profileStore
   @Dependency(ProgressStore.self) var progressStore
   @Dependency(SoundClient.self) var sound
@@ -178,6 +183,9 @@ import World
         state.isActive = isActive
         state.listeningEpoch += 1
 
+      case let .noiseLevel(level):
+        hear(level, in: &state)
+
       case let .speechResult(tokens, isFinal):
         guard !state.isSpeaking else {
           log(tokens, isFinal: isFinal, outcome: .speaking, in: state)
@@ -198,7 +206,9 @@ import World
         case nil: eligible.isEmpty ? .waiting : .none
         }
         log(tokens, isFinal: isFinal, outcome: outcome, in: state)
+        if match == nil { missed(tokens) }
         guard let match else { break }
+        matched(&state)
         let sentenceBefore = state.sentenceIndex
         let starsBefore = state.stars
         let readIndex = state.wordIndex
@@ -265,6 +275,8 @@ import World
               guard ContinuousClock.now - heardAt >= Reading.offerHelpAfter else { break }
               heardAt = .now
               try store.send(.helpOffered)
+            case let .level(level):
+              try store.send(.noiseLevel(level))
             }
           }
           try await Task.sleep(for: Reading.relistenAfterEnd)
@@ -300,7 +312,8 @@ extension Reading {
         word: state.currentWord?.text ?? "",
         heard: tokens,
         isFinal: isFinal,
-        outcome: outcome
+        outcome: outcome,
+        level: noiseLevel
       )
     )
   }
@@ -357,6 +370,8 @@ public struct ReadingScreen: View {
         .ignoresSafeArea()
         BackChip(geometry: chrome) { store.send(.backTapped) }
           .padding(.leading, chrome.path(18) - (chrome.path(44) - chrome.path(38)) / 2)
+          .padding(.top, chrome.path(4))
+        NoiseCueSlot(isNoisy: store.isNoisy, geometry: chrome)
           .padding(.top, chrome.path(4))
         #if DEBUG
           if store.currentWord != nil {
