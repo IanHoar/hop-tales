@@ -73,10 +73,14 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: |
-            build/DerivedData
-            !build/DerivedData/Logs
+            build/DerivedData/SourcePackages
+            build/DerivedData/Build/Intermediates.noindex
+            build/DerivedData/Build/Products/Debug-iphonesimulator
             !build/DerivedData/Build/Intermediates.noindex/HopTalesPackage.build
             !build/DerivedData/Build/Intermediates.noindex/HopTales.build
+            !build/DerivedData/Build/Products/Debug-iphonesimulator/*.app
+            !build/DerivedData/Build/Products/Debug-iphonesimulator/*.xctest
+            !build/DerivedData/Build/Products/Debug-iphonesimulator/*.bundle
           key: derived-${{ hashFiles('HopTales.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
           restore-keys: derived-
 
