@@ -4,6 +4,9 @@ Two workflows: one that checks every pull request, one that puts `main` on TestF
 is 25 compute hours a month, which is the reason the PR workflow builds and tests rather than
 archives.
 
+When the free hours run out, GitHub Actions can test pull requests instead. [ci.md](ci.md) covers
+switching between the two.
+
 The repository side is done — `ci_scripts/` and a shared `HopTales` scheme are committed. What is
 left is account setup, and it has to happen in the Xcode or App Store Connect UI.
 
@@ -15,7 +18,7 @@ nothing.
 
 | Script | When | Why |
 |---|---|---|
-| `ci_post_clone.sh` | after clone, before package resolution | Trusts the package macros, authenticates the private `pointfreeco/TCA26` dependency, and prefers a prebuilt swift-syntax |
+| `ci_post_clone.sh` | after clone, before package resolution | Runs `scripts/ci-setup.sh`, shared with GitHub Actions, which trusts the package macros, authenticates the private `pointfreeco/TCA26` dependency, and prefers a prebuilt swift-syntax |
 | `ci_pre_xcodebuild.sh` | before an archive | Stamps the version and build number the release tag asked for |
 | `ci_post_xcodebuild.sh` | after an archive | Writes `TestFlight/WhatToTest.en-US.txt` from the commits since the previous release |
 
