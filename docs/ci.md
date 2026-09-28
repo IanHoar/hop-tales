@@ -61,8 +61,9 @@ resolve packages. Every branch here is pushed to this repository, so that does n
   the same Xcode that Xcode Cloud pins.
 - Runs `scripts/ci-setup.sh`, the setup it shares with Xcode Cloud's `ci_post_clone.sh`: macro
   trust, prebuilt swift-syntax, the TCA26 token, and swiftlint.
-- Creates an iPhone 18 Pro on the iOS 27.0 runtime **build 24A434**, which is the build the
-  snapshots were recorded on. If the image doesn't have that build, it downloads it first. When the
+- Tests on an iPhone 18 Pro on the iOS 27.0 runtime **build 24A434**, the build the snapshots were
+  recorded on. It uses the image's own device, which boots faster than a new one, and creates one
+  only when the image has none. If the image doesn't have that build, it downloads it first. When the
   snapshot runtime moves, change `SNAPSHOT_RUNTIME_BUILD` in the workflow alongside
   `SnapshotSupport.swift` and the Xcode Cloud destination.
 - Boots the simulator before testing, so xcodebuild never waits on a cold boot, and stops the

@@ -65,10 +65,19 @@ jobs:
             echo "::error::The snapshot runtime, iOS $SNAPSHOT_RUNTIME_BUILD, is not available."
             exit 1
           fi
-          udid=$(xcrun simctl create "HopTales CI" "iPhone 18 Pro" "$identifier")
+          udid=$(xcrun simctl list devices -j | python3 -c '
+          import json, sys
+          for device in json.load(sys.stdin)["devices"].get(sys.argv[1], []):
+              if device["name"] == "iPhone 18 Pro" and device.get("isAvailable"):
+                  print(device["udid"]); break
+          ' "$identifier")
+          if [ -z "$udid" ]; then
+            echo "No iPhone 18 Pro on this image's iOS $SNAPSHOT_RUNTIME_BUILD, creating one."
+            udid=$(xcrun simctl create "iPhone 18 Pro" "iPhone 18 Pro" "$identifier")
+          fi
           echo "udid=$udid" >> "$GITHUB_OUTPUT"
-          xcrun simctl boot "$udid"
-          xcrun simctl bootstatus "$udid"
+          echo "Booting $udid."
+          time xcrun simctl bootstatus "$udid" -b
 
       - uses: actions/cache@v4
         with:
