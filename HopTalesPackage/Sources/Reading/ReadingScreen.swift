@@ -359,8 +359,10 @@ public struct ReadingScreen: View {
           .padding(.leading, chrome.path(18) - (chrome.path(44) - chrome.path(38)) / 2)
           .padding(.top, chrome.path(4))
         #if DEBUG
-          DebugControls(store: store)
-            .position(x: outer.size.width / 2, y: chrome.path(96))
+          if store.currentWord != nil {
+            DebugControls(store: store)
+              .position(x: outer.size.width / 2, y: outer.size.height - 28)
+          }
         #endif
       }
     }
