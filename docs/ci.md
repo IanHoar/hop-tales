@@ -27,12 +27,17 @@ post:
 
 It needs `gh` signed in as a repository admin.
 
-**When to switch.** Xcode Cloud has no switch that GitHub can reach. When its hours are spent, it
-stops posting checks, and pull requests wait on `HopTales | Default` forever. That is the moment
-to run `scripts/ci-runner.sh github`. Switch back when the hours reset, or stay on GitHub Actions
-and save Xcode Cloud's hours for releases. While GitHub Actions is live, Xcode Cloud's pull request
-workflow keeps running as long as it has hours left. To stop it spending them, disable that
-workflow in App Store Connect → Xcode Cloud → Manage Workflows.
+**Xcode Cloud's pull request workflow is switched in App Store Connect.** GitHub can't reach it,
+so the script prints the step: App Store Connect → Hop Tales → Xcode Cloud → Manage Workflows →
+`Default` → Disable, or Enable to switch back. Leave the release workflow on either way. A disabled
+workflow starts no builds and spends no hours. If it's left on while GitHub Actions is live, it
+keeps testing pull requests until its hours run out.
+
+**When to switch.** GitHub Actions is the default while the repository is public, since its minutes
+are free and uncapped. Switch to Xcode Cloud if GitHub's macOS runners become unavailable or
+metered, and switch back when they return. If Xcode Cloud is live and its hours run out, it stops
+posting checks and pull requests wait on `HopTales | Default` forever. That is the moment to run
+`scripts/ci-runner.sh github`.
 
 Pull requests that are already open pick up the new runner on their next push. To test one
 straight away, add the `ci:github-actions` label. It runs the workflow whichever runner is live,

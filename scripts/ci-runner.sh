@@ -10,8 +10,8 @@
 #   1. The CI_RUNNER repository variable, which .github/workflows/test.yml reads to run or skip.
 #   2. The required status check in the "main" ruleset.
 #
-# Xcode Cloud has no switch GitHub can reach. When its hours are spent it simply stops posting,
-# which is when to switch to github. See docs/ci.md.
+# The third, turning Xcode Cloud's pull request workflow off or on, only App Store Connect can do,
+# so the script prints where. See docs/ci.md.
 set -eu
 
 repo="IanHoar/hop-tales"
@@ -70,12 +70,18 @@ case "${1:-}" in
     require "$github_check" "$github_actions_app"
     echo "GitHub Actions now tests pull requests, and \"$github_check\" is required on main."
     echo "Open pull requests pick it up on their next push, or run: gh pr edit <n> --add-label ci:github-actions"
+    echo
+    echo "Now disable Xcode Cloud's pull request workflow so it stops spending hours:"
+    echo "  App Store Connect → Hop Tales → Xcode Cloud → Manage Workflows → Default → Disable"
+    echo "Leave the release workflow on."
     ;;
   xcode-cloud)
     gh variable set CI_RUNNER --repo "$repo" --body xcode-cloud
     require "$xcode_cloud_check" "$xcode_cloud_app"
     echo "Xcode Cloud now tests pull requests, and \"$xcode_cloud_check\" is required on main."
-    echo "If its pull request workflow is disabled in App Store Connect, enable it again."
+    echo
+    echo "Now enable Xcode Cloud's pull request workflow again:"
+    echo "  App Store Connect → Hop Tales → Xcode Cloud → Manage Workflows → Default → Enable"
     ;;
   *)
     echo "usage: scripts/ci-runner.sh [github | xcode-cloud]" >&2
