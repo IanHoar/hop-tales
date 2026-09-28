@@ -175,7 +175,7 @@ public struct Journey: Codable, Hashable, Sendable {
       moments.append(.treat(treat, trail: treat.isTrail ? trail : 0))
     }
 
-    if trail >= Levels.trailGoal, let friend = levelUp() {
+    if trail >= Levels.trailGoal(at: level), let friend = levelUp() {
       moments.append(.newFriend(friend, via: .trail))
     } else if storiesReadWell >= Levels.sustainedStories, let friend = levelUp() {
       moments.append(.newFriend(friend, via: .sustainedReading))

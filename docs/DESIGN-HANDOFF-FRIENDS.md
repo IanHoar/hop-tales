@@ -33,16 +33,17 @@ This is a plan, not built yet. It builds on the collage storybook (`docs/DESIGN-
 
 | Level | Friend | Focus | Example words | Sentences | Steps to the next friend |
 |---|---|---|---|---|---|
-| 1 | Bob (rabbit) | short vowels | sat, hop, red | 3–5 words | 300 |
-| 2 | Skip | digraphs and blends | ship, duck, frog | 5–7 | 400 |
-| 3 | Oggy (frog) | magic e | lake, kite, home | 6–8 | 500 |
-| 4 | Button (crow) | endings and ar, or, er | jumped, farm, garden | 7–9 | 600 |
-| 5 | Marmalade (cat) | vowel teams | rain, boat, moon | 8–10 | 700 |
-| 6 | Barnacle (crab) | silent letters | knock, tiny, bottle | 9–12 | 800 |
+| 1 | Bob (rabbit) | short vowels | sat, hop, red | 3–5 words | 170 (3½ reads) |
+| 2 | Skip | digraphs and blends | ship, duck, frog | 5–7 | 200 (3½) |
+| 3 | Oggy (frog) | magic e | lake, kite, home | 6–8 | 250 (4) |
+| 4 | Button (crow) | endings and ar, or, er | jumped, farm, garden | 7–9 | 320 (4½) |
+| 5 | Marmalade (cat) | vowel teams | rain, boat, moon | 8–10 | 390 (5) |
+| 6 | Barnacle (crab) | silent letters | knock, tiny, bottle | 9–12 | 460 (5½) |
 | 7 | Bartholomew (grasshopper) | longer words | station, adventure, enormous | 10–14 | — (the top) |
 
 - **The levels follow the UFLI Foundations phonics sequence.** `Content/Resources/phonics.json` lists each level's sounds and heart words. `scripts/build-stories.py` and `PhonicsTests` refuse a story word that a reader at that level can't decode yet. A reading teacher still needs to review how the levels map onto it (#183).
 - **Keep the numbers in one table in `Content`:** steps per level, sentence lengths and the big-word rate, so they're easy to tune.
+- **Steps to the next friend come from the stories, not a fixed number.** `Levels.goodReadsToNextFriend` sets how many good reads each level takes (3½ at levels 1–2, then half a read more per level). A good read is the level's average story length plus the 20-step bonus, so the goal follows the content if stories are added or rewritten. The figures in the table are what today's stories give, rounded to 10.
 - **Starting point: onboarding offers the first three friends only.** This replaces the reading-level step in `DESIGN-HANDOFF-V3.md` §4 (`PhoneOnboard`).
   - **Step 3 of 4:**
     - Title: "Who should your reader start with?"
@@ -83,7 +84,7 @@ This is a plan, not built yet. It builds on the collage storybook (`docs/DESIGN-
 
 ## 3. The path, the big story and meeting a friend
 
-- **Tally** (`PhoneTally`): at The end, the paper sheet shows the story's treats, "3 big words read!" and **The path to Oggy** (the next friend's sticker in grey) with a torn-paper ribbon filling by the steps just earned ("+41 steps · 412 of 500").
+- **Tally** (`PhoneTally`): at The end, the paper sheet shows the story's treats, "3 big words read!" and **The path to Oggy** (the next friend's sticker in grey) with a torn-paper ribbon filling by the steps just earned ("+41 steps · 164 of 200").
 - **The big story** (`PhoneBigStory`):
   - When the path is full, the next friend is sitting on the path by The end sign.
   - A card shows a postcard of their world: "Oggy has a bigger story! The path is full. Read Oggy's story to go to the pond together."
@@ -115,10 +116,10 @@ A third way up, made for a child who loves collecting.
 - **What:** the next friend's treat. For a Bob reader it's Skip's carrots; for a Skip reader, Oggy's water lilies; and so on up to Bartholomew's clover for a Barnacle reader. Bartholomew is the top, so level 7 has no trail.
 - **Where:** only on the **hardest stories of the current level**, the stories tagged `"stretch": true` in `stories.json`. Tag about the top third of each level's stories by difficulty (longer sentences and more big words), with at least two stretch stories per level.
 - **How many:** a stretch story's one treat (§4) is the next friend's treat instead of the current friend's. It flies to the next friend's grey sticker rather than to the basket chip.
-- **The goal:** **6** of them (decided; it was 20 before treats became one per story), kept in the level table so it can be tuned. That's six stretch-story reads, and re-reading a hard story counts.
+- **The goal:** as many as the level's good reads to the next friend, rounded up: **4** at levels 1–3, **5** at levels 4–5 and **6** at level 6 (it was 6 at every level, and 20 before treats became one per story). Each is one stretch-story read, and re-reading a hard story counts. Only stretch stories carry the trail, so it matches the path without needing the big story.
 - **When the goal is reached:** at the next The end, the next friend arrives with the same new-friend moment as passing the big story ("You found all the carrots! Skip is your new friend"), and the level rises.
 - **Where the count shows:**
-  - The tally sheet shows it next to the path meter: "Carrots for Skip · 4 of 6", with the carrot sticker.
+  - The tally sheet shows it next to the path meter: "Carrots for Skip · 3 of 4", with the carrot sticker.
   - The journey map shows it by the next friend's grey stop.
   - Home's level chip alternates between steps and the trail count.
 - **Rules:**
@@ -301,7 +302,7 @@ struct Wardrobe: Codable {
 1. **Who picks in onboarding:** decided: the grown-up picks, with the child watching. The step stays grown-up-facing like the rest of onboarding. The friend cards are big and friendly enough to show the child, and the copy invites them to look.
 2. **The big-story bar:** is 85 % of words without help right?
 3. **Level ups:** decided: the big story is the main way up, and a level also rises on its own after sustained reading. The first-pass rule, kept in the level table so it's easy to tune:
-   - **8 stories at the current level**, each read with help on no more than 1 word in 10, since the last level up.
+   - **8 stories at the current level**, each read with help on no more than 1 word in 10, since the last level up. This stays at 8 with the shorter paths: it's still more reads than the path and the big story together at every level, so it remains the fallback for a child who reads well but keeps saying "Not yet" to the big story.
    - When that's reached, the next friend arrives at the next The end exactly as if the big story had been passed. The new-friend moment plays and the level rises, without the child having to read the big story.
    - The big story stays on the journey map to read later, and still earns its stamp in the collection book.
    - The count resets on every level up, however it happened.
