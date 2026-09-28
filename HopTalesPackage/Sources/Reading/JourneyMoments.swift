@@ -9,6 +9,7 @@ struct TallyCard: View {
   let goal: Double
   let bigWords: Int
   let next: Friend
+  var storiesLeft = 0
   var treat: CollectedTreat?
   var trail = 0
   let geometry: ReadingGeometry
@@ -43,6 +44,13 @@ struct TallyCard: View {
             .font(Typography.ui(geometry.path(13), weight: .medium))
             .foregroundStyle(Paper.muted)
             .monospacedDigit()
+          if storiesLeft > 0, total >= goal {
+            Text(storiesLeft == 1
+              ? "Read one more story to meet \(next.name)"
+              : "Read \(storiesLeft) more stories to meet \(next.name)")
+              .font(Typography.ui(geometry.path(13), weight: .semibold))
+              .foregroundStyle(Paper.ink)
+          }
         }
       }
     }
@@ -57,6 +65,7 @@ struct TallyCard: View {
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(
       "\(Int(steps.rounded())) steps. \(Int(total)) of \(Int(goal)) on the path to \(next.name)."
+        + (storiesLeft > 0 && total >= goal ? " \(storiesLeft) more stories to read first." : "")
     )
   }
 }

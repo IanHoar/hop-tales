@@ -6,6 +6,10 @@ import Testing
 struct JourneyTests {
   static func words(_ story: String) -> Int { StoryLibrary[story]?.wordCount ?? 0 }
 
+  static func everyStoryRead(_ journey: inout Journey) {
+    journey.storiesRead = Set(StoryLibrary.stories(at: journey.level).map(\.id))
+  }
+
   @Test func startingWithAFriendMeetsTheEasierOnes() {
     let journey = Journey(starting: .frog)
     #expect(journey.level == 3)
@@ -45,6 +49,7 @@ struct JourneyTests {
 
   @Test func aFullPathOffersTheBigStory() {
     var journey = Journey(starting: .bunny)
+    Self.everyStoryRead(&journey)
     journey.steps = journey.goal - 5
     let moments = journey.record(StoryResult(storyID: "bob-bug", wordsRead: 10, helpedWords: 5))
     #expect(journey.isPathFull)
@@ -55,6 +60,7 @@ struct JourneyTests {
 
   @Test func readingTheBigStoryWellMeetsTheNextFriend() {
     var journey = Journey(starting: .bunny)
+    Self.everyStoryRead(&journey)
     journey.steps = journey.goal
     let words = Self.words("skip-big-story")
     let moments = journey.record(
@@ -69,6 +75,7 @@ struct JourneyTests {
 
   @Test func aBigStoryWithTooMuchHelpIsNotYetAndNothingIsLost() {
     var journey = Journey(starting: .bunny)
+    Self.everyStoryRead(&journey)
     journey.steps = journey.goal
     let words = Self.words("skip-big-story")
     let moments = journey.record(
@@ -90,8 +97,34 @@ struct JourneyTests {
     }
   }
 
+  @Test func theNextFriendWaitsUntilEveryStoryAtTheLevelIsRead() {
+    var journey = Journey(starting: .bunny)
+    journey.steps = journey.goal
+    journey.trail = Levels.trailGoal(at: 1)
+    journey.storiesReadWell = Levels.sustainedStories
+    let stories = StoryLibrary.stories(at: 1)
+    #expect(!journey.isPathFull)
+    for story in stories.dropLast() {
+      let moments = journey.record(StoryResult(storyID: story.id, wordsRead: 5))
+      #expect(journey.level == 1)
+      #expect(moments.allSatisfy { !$0.isCallout })
+    }
+    #expect(journey.storiesLeft.map(\.id) == [stories.last?.id])
+    let moments = journey.record(StoryResult(storyID: stories[stories.count - 1].id, wordsRead: 5))
+    #expect(moments.last == .newFriend(.hare, via: .trail))
+    #expect(journey.storiesRead.isEmpty)
+  }
+
+  @Test func easierStoriesDoNotCountTowardsTheLevel() {
+    var journey = Journey(starting: .hare)
+    _ = journey.record(StoryResult(storyID: "bob-bug", wordsRead: 5))
+    #expect(journey.storiesRead.isEmpty)
+    #expect(journey.storiesLeft.count == StoryLibrary.stories(at: 2).count)
+  }
+
   @Test func eightStoriesReadWellMoveUpWithoutTheBigStory() {
     var journey = Journey(starting: .bunny)
+    Self.everyStoryRead(&journey)
     var last: [JourneyMoment] = []
     for _ in 0..<Levels.sustainedStories {
       last = journey.record(StoryResult(storyID: "big-nap", wordsRead: 1))
@@ -103,6 +136,7 @@ struct JourneyTests {
 
   @Test func aFullTrailBringsTheNextFriend() {
     var journey = Journey(starting: .hare)
+    Self.everyStoryRead(&journey)
     let trail = CollectedTreat(friend: .frog, isTrail: true, isGolden: false)
     var last: [JourneyMoment] = []
     for _ in 0..<Levels.trailGoal(at: 2) {
@@ -151,6 +185,20 @@ struct JourneyTests {
     journey.grownUpMoves(to: .bunny)
     #expect(journey.activeFriend == .bunny)
     #expect(journey.level == 3)
+  }
+
+  @Test func aSavedJourneyCountsTheStoriesAlreadyFinished() throws {
+    let journey = """
+      {"level":1,"steps":40,"met":["bunny"],"activeFriend":"bunny","bigStoryAttempts":0,
+      "trail":0,"storiesReadWell":0,"recentHelpRates":[],"cleanStreak":0}
+      """
+    let json = """
+      {"completedSentences":{"bob-bug":6,"meadow-walk":2},"stars":4,"wordsRead":{},
+      "journey":\(journey)}
+      """
+    let progress = try JSONDecoder().decode(Progress.self, from: Data(json.utf8))
+    #expect(progress.journey.steps == 40)
+    #expect(progress.journey.storiesRead == ["bob-bug"])
   }
 
   @Test func aProgressFileFromBeforeTheJourneyStartsFresh() throws {
