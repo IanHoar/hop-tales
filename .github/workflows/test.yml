@@ -72,7 +72,11 @@ jobs:
 
       - uses: actions/cache@v4
         with:
-          path: build/DerivedData
+          path: |
+            build/DerivedData
+            !build/DerivedData/Logs
+            !build/DerivedData/Build/Intermediates.noindex/HopTalesPackage.build
+            !build/DerivedData/Build/Intermediates.noindex/HopTales.build
           key: derived-${{ hashFiles('HopTales.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
           restore-keys: derived-
 

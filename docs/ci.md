@@ -68,7 +68,8 @@ resolve packages. Every branch here is pushed to this repository, so that does n
 - Boots the simulator before testing, so xcodebuild never waits on a cold boot, and stops the
   Test step after 25 minutes if it hangs.
 - Caches all of DerivedData, keyed on `Package.resolved`, so packages compile once rather than on
-  every run. The cache is saved only when that key is new, because saving 1.6 GB takes minutes.
+  every run. It leaves out the logs and the app's own modules, which checkout's fresh timestamps
+  make recompile anyway. The cache is saved only when that key is new, because saving 1.6 GB takes minutes.
   It also runs on pushes to `main`, because a cache saved there is the only one every pull request
   can read. One saved on a pull request's branch stays with that branch. Setting `IgnoreFileSystemDeviceInodeChanges` in `ci-setup.sh` is what lets Xcode trust
   a restored cache. It also skips the index store, which nothing on CI reads. A newer push cancels
