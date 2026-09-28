@@ -65,9 +65,8 @@ resolve packages. Every branch here is pushed to this repository, so that does n
   snapshots were recorded on. If the image doesn't have that build, it downloads it first. When the
   snapshot runtime moves, change `SNAPSHOT_RUNTIME_BUILD` in the workflow alongside
   `SnapshotSupport.swift` and the Xcode Cloud destination.
-- Starts booting the simulator before the cache restores, and waits for it only when the tests
-  are about to run, so its first-boot setup overlaps the download. The Test step gives up after
-  25 minutes if it hangs.
+- Boots the simulator before testing, so xcodebuild never waits on a cold boot, and stops the
+  Test step after 25 minutes if it hangs.
 - Caches all of DerivedData, keyed on `Package.resolved`, so packages compile once rather than on
   every run. The cache is saved only when that key is new, because saving 1.6 GB takes minutes.
   It also runs on pushes to `main`, because a cache saved there is the only one every pull request
