@@ -291,7 +291,7 @@ struct JourneyMapPreview: View {
 
   private var journey: Journey {
     var journey = Journey(starting: .hare)
-    journey.steps = 300
+    journey.steps = 150
     return journey
   }
 

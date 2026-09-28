@@ -223,7 +223,7 @@ struct FriendsPreview: View {
 
   private var store: StoreOf<Friends> {
     var journey = Journey(starting: .hare)
-    journey.steps = 412
+    journey.steps = 164
     var basket = Basket()
     basket.total = 64
     let saved = Content.Progress(journey: journey, baskets: [.hare: basket])

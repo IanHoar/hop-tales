@@ -80,6 +80,16 @@ struct JourneyTests {
     #expect(journey.bigStoryAttempts == 1)
   }
 
+  @Test func theNextFriendIsAFewGoodReadsAwayAndTheRoutesStayBalanced() {
+    #expect(Levels.stepsToNextFriend == [1: 170, 2: 200, 3: 250, 4: 320, 5: 390, 6: 460])
+    for level in 1..<Levels.top {
+      let reads = Double(Levels.stepsToNextFriend[level] ?? 0) / Levels.goodRead(at: level)
+      #expect((3...6).contains(reads), "level \(level)")
+      #expect(Levels.trailGoal(at: level) >= Int(reads.rounded(.down)), "level \(level)")
+      #expect(Levels.trailGoal(at: level) < Levels.sustainedStories, "level \(level)")
+    }
+  }
+
   @Test func eightStoriesReadWellMoveUpWithoutTheBigStory() {
     var journey = Journey(starting: .bunny)
     var last: [JourneyMoment] = []
@@ -91,11 +101,11 @@ struct JourneyTests {
     #expect(journey.storiesReadWell == 0)
   }
 
-  @Test func sixTrailTreatsBringTheNextFriend() {
+  @Test func aFullTrailBringsTheNextFriend() {
     var journey = Journey(starting: .hare)
     let trail = CollectedTreat(friend: .frog, isTrail: true, isGolden: false)
     var last: [JourneyMoment] = []
-    for _ in 0..<Levels.trailGoal {
+    for _ in 0..<Levels.trailGoal(at: 2) {
       last = journey.record(
         StoryResult(storyID: "crunchy-carrot", wordsRead: 5, helpedWords: 5, treat: trail)
       )
