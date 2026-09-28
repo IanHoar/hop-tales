@@ -65,7 +65,8 @@ extension TallyCard {
   func treatLine(_ treat: CollectedTreat) -> String {
     if treat.isTrail {
       let treats = treat.friend.treat.many.capitalized
-      return "\(treats) for \(treat.friend.name) · \(trail) of \(Levels.trailGoal)"
+      let goal = Levels.trailGoal(at: treat.friend.level - 1)
+      return "\(treats) for \(treat.friend.name) · \(trail) of \(goal)"
     }
     return treat.isGolden
       ? "A golden \(treat.friend.treat.one)! That counts \(treat.worth)."
