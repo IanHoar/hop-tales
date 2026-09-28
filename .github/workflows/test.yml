@@ -68,7 +68,6 @@ jobs:
           udid=$(xcrun simctl create "HopTales CI" "iPhone 18 Pro" "$identifier")
           echo "udid=$udid" >> "$GITHUB_OUTPUT"
           xcrun simctl boot "$udid"
-          xcrun simctl bootstatus "$udid"
 
       - uses: actions/cache@v4
         with:
@@ -81,6 +80,7 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p build
+          xcrun simctl bootstatus "${{ steps.simulator.outputs.udid }}"
           if command -v xcbeautify >/dev/null; then
             format() { xcbeautify --renderer github-actions; }
           else
