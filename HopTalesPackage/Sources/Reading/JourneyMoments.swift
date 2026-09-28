@@ -3,15 +3,6 @@ import DesignSystem
 import SwiftUI
 import World
 
-extension JourneyMoment {
-  var waitingFriend: Friend? {
-    switch self {
-    case let .bigStoryReady(friend), let .notYet(friend): friend
-    case .tally, .newFriend, .treat, .basketFull: nil
-    }
-  }
-}
-
 struct TallyCard: View {
   let steps: Double
   let total: Double
@@ -190,7 +181,7 @@ struct CalloutCard: View {
   private var art: some View {
     switch moment {
     case let .bigStoryReady(friend), let .notYet(friend):
-      Postcard(friend: friend, geometry: geometry)
+      FriendSticker(friend, height: geometry.path(120))
     case let .newFriend(friend, _):
       HStack(alignment: .bottom, spacing: geometry.path(6)) {
         FriendSticker(Friend.at(level: friend.level - 1), height: geometry.path(62))
@@ -297,31 +288,6 @@ struct PresentReveal: View {
     .buttonStyle(.plain)
     .disabled(opened)
     .accessibilityLabel(opened ? (item?.name ?? "A present") : "A present. Double tap to open it.")
-  }
-}
-
-struct Postcard: View {
-  let friend: Friend
-  let geometry: ReadingGeometry
-
-  var body: some View {
-    Group {
-      if friend == .hare {
-        Image(
-          uiImage: MeadowPostcard.image(mood: Mood(), size: CGSize(width: 300, height: 128))
-        )
-        .resizable()
-      } else {
-        Sticker(Sticker.postcard(friend), height: geometry.path(128))
-      }
-    }
-    .frame(width: geometry.path(300), height: geometry.path(128))
-    .clipShape(RoundedRectangle(cornerRadius: geometry.path(10), style: .continuous))
-    .overlay(
-      RoundedRectangle(cornerRadius: geometry.path(10), style: .continuous)
-        .strokeBorder(Paper.rim, lineWidth: geometry.path(4))
-    )
-    .rotationEffect(.degrees(1.5))
   }
 }
 

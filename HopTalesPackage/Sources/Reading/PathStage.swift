@@ -197,7 +197,6 @@ struct PathStage: View {
       bigWords: store.bigWords,
       soundButtons: store.soundButtons,
       treat: store.treat,
-      waiting: store.callout?.waitingFriend,
       tint: Color(uiColor: store.mood.landTint),
       sentences: store.story.sentences,
       cues: cues,
@@ -257,7 +256,6 @@ struct PathScene: View {
   let bigWords: Set<WordRef>
   let soundButtons: Bool
   let treat: StoryTreat?
-  let waiting: Friend?
   let tint: Color
   let sentences: [Sentence]
   let cues: [PropKey: PropCue]
@@ -298,15 +296,6 @@ struct PathScene: View {
         .position(x: stop.centre - cameraX, y: path.wordY)
       }
       treatOnPath
-      if let waiting {
-        FriendSticker(waiting, height: path.hareHeight(hopping: false) * 0.78)
-          .position(
-            x: path.endSign - cameraX - geometry.path(72),
-            y: path.hareFeetY - path.hareHeight(hopping: false) * 0.39
-          )
-          .allowsHitTesting(false)
-          .accessibilityHidden(true)
-      }
       hare
       challengeTargets
       currentWordTarget
