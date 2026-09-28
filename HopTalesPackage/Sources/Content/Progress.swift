@@ -41,5 +41,12 @@ public struct Progress: Codable, Hashable, Sendable {
     journey = try container.decodeIfPresent(Journey.self, forKey: .journey) ?? Journey()
     baskets = try container.decodeIfPresent([Friend: Basket].self, forKey: .baskets) ?? [:]
     outfits = try container.decodeIfPresent([Friend: [Slot: String]].self, forKey: .outfits) ?? [:]
+    if journey.storiesRead.isEmpty {
+      journey.storiesRead = Set(
+        StoryLibrary.stories(at: journey.level)
+          .filter { (completedSentences[$0.id] ?? 0) >= $0.sentences.count }
+          .map(\.id)
+      )
+    }
   }
 }

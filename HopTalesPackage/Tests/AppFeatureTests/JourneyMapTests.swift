@@ -14,6 +14,8 @@ struct JourneyMapTests {
     #expect(state.stop(for: .frog) == .next(bigStoryWaiting: false))
     #expect(state.stop(for: .crow) == .later)
     state.journey.steps = state.journey.goal
+    #expect(state.stop(for: .frog) == .next(bigStoryWaiting: false))
+    state.journey.storiesRead = Set(StoryLibrary.stories(at: 2).map(\.id))
     #expect(state.stop(for: .frog) == .next(bigStoryWaiting: true))
   }
 }

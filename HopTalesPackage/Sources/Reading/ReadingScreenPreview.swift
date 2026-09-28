@@ -55,7 +55,7 @@ struct ReadingScreenPreview: View {
       state.stars = 42
       state.completed = .story(stars: 42)
       state.journeyMoments = [
-        .tally(steps: 41, total: 164, goal: 200, bigWords: 3, next: .frog),
+        .tally(steps: 41, total: 164, goal: 200, bigWords: 3, next: .frog, storiesLeft: 0),
         .treat(CollectedTreat(friend: .hare, isTrail: false, isGolden: true), trail: 0)
       ]
       if moment == .bigStoryReady { state.journeyMoments.append(.bigStoryReady(.frog)) }
