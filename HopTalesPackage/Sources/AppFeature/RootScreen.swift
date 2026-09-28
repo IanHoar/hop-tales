@@ -206,18 +206,20 @@ public struct RootScreen: View {
   public var body: some View {
     ZStack {
       destination
-        .offset(y: store.intro == nil || reduceMotion ? 0 : 80)
-        .opacity(store.intro == nil ? 1 : 0)
+        .animation(handover) { content in
+          content
+            .offset(y: store.intro == nil || reduceMotion ? 0 : 80)
+            .opacity(store.intro == nil ? 1 : 0)
+        }
       if let intro = store.scope(\.intro) {
         IntroScreen(store: intro)
-          .transition(.opacity)
+          .transition(.opacity.animation(handover))
           .zIndex(1)
       }
     }
     .background {
       if store.intro != nil { Color(hex: 0x1E2A4E).ignoresSafeArea() }
     }
-    .animation(handover, value: store.intro == nil)
     .preferredColorScheme(store.theme.colorScheme)
   }
 
@@ -229,15 +231,14 @@ public struct RootScreen: View {
     Group {
       if let onboarding = store.scope(\.onboarding) {
         OnboardingScreen(store: onboarding)
-          .transition(.opacity)
+          .transition(.opacity.animation(.easeInOut(duration: 0.45)))
           .onAppear { onboarded = true }
       } else {
         stories
           .environment(\.arrivesFromOnboarding, onboarded)
-          .transition(.opacity)
+          .transition(.opacity.animation(.easeInOut(duration: 0.45)))
       }
     }
-    .animation(.easeInOut(duration: 0.45), value: store.onboarding == nil)
   }
 
   private var stories: some View {
