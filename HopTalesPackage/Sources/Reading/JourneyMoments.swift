@@ -183,17 +183,7 @@ struct CalloutCard: View {
     case let .bigStoryReady(friend), let .notYet(friend):
       FriendSticker(friend, height: geometry.path(120))
     case let .newFriend(friend, _):
-      HStack(alignment: .bottom, spacing: geometry.path(6)) {
-        FriendSticker(Friend.at(level: friend.level - 1), height: geometry.path(62))
-        ZStack {
-          Sticker("collect-rosette", height: geometry.path(64))
-          Text("\(friend.level)")
-            .font(Typography.display(geometry.path(20)))
-            .foregroundStyle(Paper.ink)
-            .offset(y: -geometry.path(6))
-        }
-        FriendSticker(friend, height: geometry.path(78))
-      }
+      FriendReveal(friend: friend, geometry: geometry)
     case let .basketFull(friend, _):
       PresentReveal(
         friend: friend,
@@ -295,6 +285,7 @@ struct PaperConfetti: View {
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @State private var fallen = false
   let size: CGSize
+  var delay = 0.0
 
   private static let colours: [Color] = [
     Paper.red, Paper.wash, Paper.sage, Color(hex: 0x8FB7D9), Color(hex: 0xE8A7B8)
@@ -320,7 +311,7 @@ struct PaperConfetti: View {
     .accessibilityHidden(true)
     .onAppear {
       guard !reduceMotion else { return }
-      withAnimation(.easeIn(duration: 2.2)) { fallen = true }
+      withAnimation(.easeIn(duration: 2.2).delay(delay)) { fallen = true }
     }
   }
 }
