@@ -43,7 +43,9 @@ public enum LevelUp: String, Codable, Hashable, Sendable {
 }
 
 public enum JourneyMoment: Equatable, Sendable {
-  case tally(steps: Double, total: Double, goal: Double, bigWords: Int, next: Friend)
+  case tally(
+    steps: Double, total: Double, goal: Double, bigWords: Int, next: Friend, storiesLeft: Int
+  )
   case bigStoryReady(Friend)
   case notYet(Friend)
   case newFriend(Friend, via: LevelUp)
@@ -78,6 +80,7 @@ public struct Journey: Codable, Hashable, Sendable {
   public var storiesReadWell: Int
   public var recentHelpRates: [Double]
   public var cleanStreak: Int
+  public var storiesRead: Set<Story.ID>
 
   public init(starting friend: Friend = .bunny) {
     level = friend.level
@@ -89,6 +92,7 @@ public struct Journey: Codable, Hashable, Sendable {
     storiesReadWell = 0
     recentHelpRates = []
     cleanStreak = 0
+    storiesRead = []
   }
 
   public static var everything: Journey {
@@ -109,8 +113,12 @@ public struct Journey: Codable, Hashable, Sendable {
     goal > 0 ? min(steps / goal, 1) : 1
   }
 
+  public var storiesLeft: [Story] {
+    StoryLibrary.stories(at: level).filter { !storiesRead.contains($0.id) }
+  }
+
   public var isPathFull: Bool {
-    guard nextFriend != nil else { return false }
+    guard nextFriend != nil, storiesLeft.isEmpty else { return false }
     let share = cleanStreak >= 3 ? Levels.earlyBigStoryShare : 1
     return steps >= goal * share
   }
@@ -162,10 +170,14 @@ public struct Journey: Codable, Hashable, Sendable {
     cleanStreak = result.helpedWords == 0 ? cleanStreak + 1 : 0
     guard let next = nextFriend else { return [] }
 
+    if story.level == level { storiesRead.insert(story.id) }
     let earned = stepsEarned(by: result, in: story)
     steps = min(steps + earned, goal)
     var moments: [JourneyMoment] = [
-      .tally(steps: earned, total: steps, goal: goal, bigWords: result.bigWordsRead, next: next)
+      .tally(
+        steps: earned, total: steps, goal: goal, bigWords: result.bigWordsRead, next: next,
+        storiesLeft: storiesLeft.count
+      )
     ]
 
     let readWell = result.helpRate <= Levels.sustainedHelpRate
@@ -175,14 +187,20 @@ public struct Journey: Codable, Hashable, Sendable {
       moments.append(.treat(treat, trail: treat.isTrail ? trail : 0))
     }
 
-    if trail >= Levels.trailGoal(at: level), let friend = levelUp() {
-      moments.append(.newFriend(friend, via: .trail))
-    } else if storiesReadWell >= Levels.sustainedStories, let friend = levelUp() {
-      moments.append(.newFriend(friend, via: .sustainedReading))
-    } else if isPathFull, let friend = nextFriend {
-      moments.append(.bigStoryReady(friend))
-    }
+    if let arrival = arrival() { moments.append(arrival) }
     return moments
+  }
+
+  private mutating func arrival() -> JourneyMoment? {
+    guard storiesLeft.isEmpty else { return nil }
+    if trail >= Levels.trailGoal(at: level), let friend = levelUp() {
+      return .newFriend(friend, via: .trail)
+    }
+    if storiesReadWell >= Levels.sustainedStories, let friend = levelUp() {
+      return .newFriend(friend, via: .sustainedReading)
+    }
+    if isPathFull, let friend = nextFriend { return .bigStoryReady(friend) }
+    return nil
   }
 
   private mutating func recordBigStory(_ result: StoryResult, story: Story) -> [JourneyMoment] {
@@ -205,6 +223,7 @@ public struct Journey: Codable, Hashable, Sendable {
     trail = 0
     storiesReadWell = 0
     bigStoryAttempts = 0
+    storiesRead = []
     return friend
   }
 
@@ -220,5 +239,26 @@ public struct Journey: Codable, Hashable, Sendable {
       return
     }
     activeFriend = friend
+  }
+}
+
+extension Journey {
+  enum CodingKeys: String, CodingKey {
+    case level, steps, met, activeFriend, bigStoryAttempts, trail, storiesReadWell
+    case recentHelpRates, cleanStreak, storiesRead
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    level = try container.decode(Int.self, forKey: .level)
+    steps = try container.decode(Double.self, forKey: .steps)
+    met = try container.decode(Set<Friend>.self, forKey: .met)
+    activeFriend = try container.decode(Friend.self, forKey: .activeFriend)
+    bigStoryAttempts = try container.decode(Int.self, forKey: .bigStoryAttempts)
+    trail = try container.decode(Int.self, forKey: .trail)
+    storiesReadWell = try container.decode(Int.self, forKey: .storiesReadWell)
+    recentHelpRates = try container.decode([Double].self, forKey: .recentHelpRates)
+    cleanStreak = try container.decode(Int.self, forKey: .cleanStreak)
+    storiesRead = try container.decodeIfPresent(Set<Story.ID>.self, forKey: .storiesRead) ?? []
   }
 }

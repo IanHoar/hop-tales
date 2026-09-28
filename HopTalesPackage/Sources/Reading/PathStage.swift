@@ -145,9 +145,10 @@ struct PathStage: View {
         }
         .id(String(describing: callout))
         .transition(.scale(scale: 0.9).combined(with: .opacity))
-      } else if case let .tally(steps, total, goal, bigWords, next) = store.tally {
+      } else if case let .tally(steps, total, goal, bigWords, next, storiesLeft) = store.tally {
         TallyCard(
           steps: steps, total: total, goal: goal, bigWords: bigWords, next: next,
+          storiesLeft: storiesLeft,
           treat: store.collectedTreat?.treat, trail: store.collectedTreat?.trail ?? 0,
           geometry: geometry
         )

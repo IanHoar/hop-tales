@@ -127,6 +127,7 @@ A third way up, made for a child who loves collecting.
   - Help never costs a trail treat: a word read after tapping for help still collects the treat on it.
   - The count resets on every level up, however it happened.
   - The three routes (big story, sustained reading and the trail) are equal. Whichever finishes first moves the child up, and the others reset.
+  - **Every story at the level comes first.** No route moves the child up until they have finished each of the level's stories at least once (any amount of help). Until then the big story isn't offered, and a full trail or eight good reads wait. When the path is full but stories remain, the tally says "Read 2 more stories to meet Oggy". Easier stories don't count towards it, and the list resets on every level up. A reader updating the app keeps credit for the stories at their level they had already finished.
 
 ## 4. Treats and baskets (the fun layer)
 
