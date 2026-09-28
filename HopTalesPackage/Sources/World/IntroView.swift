@@ -6,30 +6,33 @@ public struct IntroView: View {
   static let launchImage = UIImage(named: "LaunchImage", in: .main, with: nil)
 
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
-  @State private var scene = IntroScene(
-    size: CGSize(width: 390, height: 844),
-    launchImage: Self.launchImage
-  )
+  @State private var scene: IntroScene?
   @State private var hasDrawn = false
 
   public init() {}
 
   public var body: some View {
-    ZStack(alignment: .bottomLeading) {
-      Color(hex: 0x1E2A4E)
-      if !hasDrawn, let image = Self.launchImage {
-        Image(uiImage: image)
+    Color(hex: 0x1E2A4E)
+      .overlay(alignment: .bottomLeading) {
+        if !hasDrawn, let image = Self.launchImage {
+          Image(uiImage: image)
+        }
       }
-      SpriteView(scene: scene, preferredFramesPerSecond: 60, options: [.allowsTransparency])
-        .opacity(hasDrawn ? 1 : 0)
-    }
-    .onAppear {
-      scene.onFirstFrame = { hasDrawn = true }
-      guard !reduceMotion else { return }
-      scene.play()
-    }
-    .ignoresSafeArea()
-    .accessibilityHidden(true)
+      .overlay {
+        if let scene {
+          SpriteView(scene: scene, preferredFramesPerSecond: 60, options: [.allowsTransparency])
+            .opacity(hasDrawn ? 1 : 0)
+        }
+      }
+      .onGeometryChange(for: CGSize.self, of: \.size) { size in
+        guard scene == nil, size.width > 0, size.height > 0 else { return }
+        let scene = IntroScene(size: size, launchImage: Self.launchImage)
+        scene.onFirstFrame = { hasDrawn = true }
+        if !reduceMotion { scene.play() }
+        self.scene = scene
+      }
+      .ignoresSafeArea()
+      .accessibilityHidden(true)
   }
 }
 
