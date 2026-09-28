@@ -14,6 +14,7 @@ public struct SpeechClient: Sendable {
     case partial([String])
     case final([String])
     case silence(TimeInterval)
+    case level(Double)
   }
 
   public var listen:

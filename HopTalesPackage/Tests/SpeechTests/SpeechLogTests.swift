@@ -36,9 +36,15 @@ struct SpeechLogTests {
   @Test func theExportIsOneLinePerResult() {
     let csv = SpeechLog.csv([entry("the hare sat", outcome: .current)])
     #expect(csv == """
-      time,story,sentence,word,heard,kind,outcome
-      1970-01-01T00:00:00.000Z,meadow-walk,1,sat,the hare sat,partial,current
+      time,story,sentence,word,heard,kind,outcome,level
+      1970-01-01T00:00:00.000Z,meadow-walk,1,sat,the hare sat,partial,current,
 
       """)
+  }
+
+  @Test func theExportCarriesTheBackgroundLevel() {
+    var noisy = entry("sounds")
+    noisy.level = -37.6
+    #expect(SpeechLog.csv([noisy]).contains(",partial,none,-38\n"))
   }
 }

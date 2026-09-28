@@ -8,6 +8,7 @@ struct ReadingScreenPreview: View {
     case at(sentence: Int, word: Int)
     case start
     case midPage
+    case noisy
     case nearTheEnd
     case end
     case bigStoryReady
@@ -45,6 +46,10 @@ struct ReadingScreenPreview: View {
       state.wordIndex = 3
       state.stars = 3
       state.bigWords = [WordRef(sentence: 0, word: 2), WordRef(sentence: 0, word: 4)]
+    case .noisy:
+      state.wordIndex = 3
+      state.stars = 3
+      state.isNoisy = true
     case .nearTheEnd:
       state.sentenceIndex = story.sentences.count - 1
       state.treat = StoryTreat(
@@ -72,6 +77,7 @@ struct ReadingScreenPreview: View {
 #Preview("Start") { ReadingScreenPreview() }
 #Preview("Bob") { ReadingScreenPreview(moment: .midPage, friend: .bunny) }
 #Preview("Mid page") { ReadingScreenPreview(moment: .midPage) }
+#Preview("Noisy") { ReadingScreenPreview(moment: .noisy) }
 #Preview("End") { ReadingScreenPreview(moment: .end) }
 #Preview("Big story ready") { ReadingScreenPreview(moment: .bigStoryReady) }
 #Preview("New friend") { ReadingScreenPreview(moment: .newFriend) }
