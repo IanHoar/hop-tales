@@ -68,11 +68,10 @@ resolve packages. Every branch here is pushed to this repository, so that does n
   `SnapshotSupport.swift` and the Xcode Cloud destination.
 - Boots the simulator before testing, so xcodebuild never waits on a cold boot, and stops the
   Test step after 25 minutes if it hangs.
-- Caches the packages' sources and build output, keyed on `Package.resolved`, so packages compile
-  once rather than on every run. The app, its test bundles and their resource bundles stay out.
-  Checkout's fresh timestamps rebuild them on every run anyway, and the snapshot images in them
-  barely compress. `SourcePackages` has to stay in: re-fetching it would give package sources new
-  timestamps too, and every package would recompile. The cache is saved only when that key is new, because saving 1.6 GB takes minutes.
+- Caches the whole of DerivedData except its logs, keyed on `Package.resolved`, so packages compile
+  once rather than on every run. It is 1.6 GB, and a cache without the app's own products was tried
+  and was slower: the Test step took 11 minutes against under 6, so the rest of the build depends
+  on them. The cache is saved only when that key is new, because saving 1.6 GB takes minutes.
   It also runs on pushes to `main`, because a cache saved there is the only one every pull request
   can read. One saved on a pull request's branch stays with that branch. Setting `IgnoreFileSystemDeviceInodeChanges` in `ci-setup.sh` is what lets Xcode trust
   a restored cache. It also skips the index store, which nothing on CI reads. A newer push cancels
