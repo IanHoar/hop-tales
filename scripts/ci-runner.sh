@@ -69,7 +69,7 @@ case "${1:-}" in
     gh variable set CI_RUNNER --repo "$repo" --body github
     require "$github_check" "$github_actions_app"
     echo "GitHub Actions now tests pull requests, and \"$github_check\" is required on main."
-    echo "Open pull requests pick it up on their next push, or run: gh pr edit <n> --add-label ci:github-actions"
+    echo "Open pull requests pick it up on their next push."
     echo
     echo "Now disable Xcode Cloud's pull request workflow so it stops spending hours:"
     echo "  App Store Connect → Hop Tales → Xcode Cloud → Manage Workflows → Default → Disable"

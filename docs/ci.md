@@ -39,9 +39,14 @@ metered, and switch back when they return. If Xcode Cloud is live and its hours 
 posting checks and pull requests wait on `HopTales | Default` forever. That is the moment to run
 `scripts/ci-runner.sh github`.
 
-Pull requests that are already open pick up the new runner on their next push. To test one
-straight away, add the `ci:github-actions` label. It runs the workflow whichever runner is live,
-which also makes it the way to try GitHub Actions without switching.
+Pull requests that are already open pick up the new runner on their next push. To try GitHub
+Actions without switching, run the workflow by hand from the Actions tab (`gh workflow run
+test.yml --ref <branch>`), which runs whichever runner is live.
+
+The workflow runs only when a pull request is opened, reopened or pushed to, and never when it is
+labelled. Labelling a new pull request fires one event per label at the same moment. Each started
+a run and cancelled the one before, and GitHub reads the required check from the newest run, so a
+cancelled one blocked the merge even after an older run had passed.
 
 ## GitHub Actions setup
 
