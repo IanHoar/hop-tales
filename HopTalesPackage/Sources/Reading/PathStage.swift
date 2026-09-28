@@ -158,7 +158,7 @@ struct PathStage: View {
     .padding(.top, geometry.y(110))
     .frame(width: geometry.size.width, height: geometry.size.height)
     .overlay {
-      if case .newFriend = store.callout { PaperConfetti(size: geometry.size) }
+      if case .newFriend = store.callout { PaperConfetti(size: geometry.size, delay: 1.3) }
     }
     .animation(.easeInOut(duration: 0.3), value: store.journeyMoments)
   }
