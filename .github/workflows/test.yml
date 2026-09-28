@@ -9,6 +9,8 @@
 name: Test
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened, labeled]
@@ -71,10 +73,8 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: build/DerivedData
-          key: derived-${{ hashFiles('HopTales.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}-${{ github.sha }}
-          restore-keys: |
-            derived-${{ hashFiles('HopTales.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}-
-            derived-
+          key: derived-${{ hashFiles('HopTales.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+          restore-keys: derived-
 
       - name: Test
         timeout-minutes: 25
