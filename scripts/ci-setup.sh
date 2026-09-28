@@ -42,6 +42,11 @@ defaults write com.apple.dt.Xcode IDESkipMacroFingerprintValidation -bool YES
 # pull it — and compiling it from source is most of a build. Swift 6.1.1 and later can download a
 # prebuilt binary instead. If there is no prebuilt for the resolved version, this is simply ignored
 # and the build compiles it as before.
+# A restored build cache arrives with new inodes, and Xcode reads that as every file having
+# changed. This makes it compare modification times alone, so the cache is actually used.
+echo "Letting a restored build cache count as up to date."
+defaults write com.apple.dt.XCBuild IgnoreFileSystemDeviceInodeChanges -bool YES
+
 echo "Preferring prebuilt swift-syntax."
 defaults write com.apple.dt.Xcode IDEPackageEnablePrebuilts -bool YES
 

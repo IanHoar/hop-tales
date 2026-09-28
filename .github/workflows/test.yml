@@ -65,14 +65,19 @@ jobs:
           fi
           udid=$(xcrun simctl create "HopTales CI" "iPhone 18 Pro" "$identifier")
           echo "udid=$udid" >> "$GITHUB_OUTPUT"
+          xcrun simctl boot "$udid"
+          xcrun simctl bootstatus "$udid"
 
       - uses: actions/cache@v4
         with:
-          path: build/DerivedData/SourcePackages
-          key: spm-${{ hashFiles('HopTales.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
-          restore-keys: spm-
+          path: build/DerivedData
+          key: derived-${{ hashFiles('HopTales.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}-${{ github.sha }}
+          restore-keys: |
+            derived-${{ hashFiles('HopTales.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}-
+            derived-
 
       - name: Test
+        timeout-minutes: 25
         run: |
           set -o pipefail
           mkdir -p build
@@ -88,18 +93,19 @@ jobs:
             -derivedDataPath build/DerivedData \
             -resultBundlePath build/HopTales.xcresult \
             -skipMacroValidation \
+            COMPILER_INDEX_STORE_ENABLE=NO \
             | tee build/xcodebuild.log \
             | format
 
       - name: Collect failed snapshots
-        if: failure()
+        if: failure() || cancelled()
         run: |
           mkdir -p build/snapshots
           tmp="$HOME/Library/Developer/CoreSimulator/Devices/${{ steps.simulator.outputs.udid }}/data/tmp"
           [ -d "$tmp" ] && find "$tmp" -name '*.png' -exec cp {} build/snapshots/ \; || true
 
       - uses: actions/upload-artifact@v4
-        if: failure()
+        if: failure() || cancelled()
         with:
           name: test-results
           path: |

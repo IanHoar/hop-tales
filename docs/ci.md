@@ -65,7 +65,11 @@ resolve packages. Every branch here is pushed to this repository, so that does n
   snapshots were recorded on. If the image doesn't have that build, it downloads it first. When the
   snapshot runtime moves, change `SNAPSHOT_RUNTIME_BUILD` in the workflow alongside
   `SnapshotSupport.swift` and the Xcode Cloud destination.
-- Caches resolved packages against `Package.resolved`, and cancels a run when a newer push
-  supersedes it.
+- Boots the simulator before testing, so xcodebuild never waits on a cold boot, and stops the
+  Test step after 25 minutes if it hangs.
+- Caches all of DerivedData, keyed on `Package.resolved`, so packages compile once rather than on
+  every run. Setting `IgnoreFileSystemDeviceInodeChanges` in `ci-setup.sh` is what lets Xcode trust
+  a restored cache. It also skips the index store, which nothing on CI reads. A newer push cancels
+  the run it supersedes.
 - On failure, uploads the `.xcresult`, the build log and the failed snapshot images as the
   `test-results` artifact, kept for a week.
