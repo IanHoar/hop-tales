@@ -4,6 +4,7 @@ import SwiftUI
 struct MicPill: View {
   let heardToken: String?
   var hearing: String?
+  var isNoisy = false
   let geometry: ReadingGeometry
   var animatesBars = true
 
@@ -30,11 +31,16 @@ struct MicPill: View {
     .paperChip(Capsule(), rim: geometry.scaled(5), shadow: 1.3)
     .animation(Motion.recognised, value: heardToken)
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel(heardToken.map { "Heard \($0)" } ?? "Listening. Say the word out loud.")
+    .accessibilityLabel(heardToken.map { "Heard \($0)" } ?? listeningLabel)
+  }
+
+  private var listeningLabel: String {
+    isNoisy ? "\(NoiseCue.title). \(NoiseCue.detail)" : "Listening. Say the word out loud."
   }
 
   private var label: String {
     if let heardToken { return "Heard it — “\(heardToken)”!" }
+    if isNoisy { return NoiseCue.title }
     return hearing.map { "Hearing “\($0)”" } ?? "Say the word"
   }
 

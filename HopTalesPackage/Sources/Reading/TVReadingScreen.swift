@@ -36,7 +36,7 @@ public struct TVReadingScreen: View {
           StoryRibbon(title: store.story.title, geometry: ribbon)
           Spacer()
           HStack(spacing: chips.scaled(12)) {
-            MicPill(heardToken: nil, geometry: chips, animatesBars: false)
+            MicPill(heardToken: nil, isNoisy: store.isNoisy, geometry: chips, animatesBars: false)
             StarTotal(stars: store.stars, geometry: chips)
           }
         }
