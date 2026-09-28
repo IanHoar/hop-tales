@@ -148,8 +148,9 @@ public struct HomeScreen: View {
             Color.clear
               .frame(height: sheetTop)
             sheet(bottomInset: proxy.safeAreaInsets.bottom)
-              .offset(y: shown ? 0 : 160)
-              .animation(.spring(duration: 0.7, bounce: 0.12), value: shown)
+              .animation(.spring(duration: 0.7, bounce: 0.12)) { content in
+                content.offset(y: shown ? 0 : 160)
+              }
           }
           .frame(maxWidth: Self.columnWidth)
           .frame(maxWidth: .infinity)
@@ -158,9 +159,11 @@ public struct HomeScreen: View {
             VStack(spacing: 0) {
               topBar
                 .padding(.top, 8)
-                .offset(y: shown ? 0 : -40)
-                .opacity(shown ? 1 : 0)
-                .animation(.spring(duration: 0.55, bounce: 0.35).delay(0.45), value: shown)
+                .animation(.spring(duration: 0.55, bounce: 0.35).delay(0.45)) { content in
+                  content
+                    .offset(y: shown ? 0 : -40)
+                    .opacity(shown ? 1 : 0)
+                }
               Spacer(minLength: 0)
                 .frame(height: max(0, screen * Self.sheetTop - proxy.safeAreaInsets.top - 330))
               friendOnThePath(standsAside: proxy.size.width > Self.wideLayout)
@@ -220,9 +223,11 @@ public struct HomeScreen: View {
       height: Self.friendHeight
     )
     .shadow(color: Paper.shadow, radius: 6, y: 4)
-    .scaleEffect(shown ? 1 : 0.4, anchor: .bottom)
-    .opacity(shown ? 1 : 0)
-    .animation(.spring(duration: 0.5, bounce: 0.45).delay(0.25), value: shown)
+    .animation(.spring(duration: 0.5, bounce: 0.45).delay(0.25)) { content in
+      content
+        .scaleEffect(shown ? 1 : 0.4, anchor: .bottom)
+        .opacity(shown ? 1 : 0)
+    }
   }
 
   private func friendOnThePath(standsAside: Bool) -> some View {
@@ -233,8 +238,9 @@ public struct HomeScreen: View {
         .accessibilityHidden(standsAside)
       LevelChip(journey: journey) { store.send(.journeyTapped) }
         .padding(.horizontal, 28)
-        .opacity(shown ? 1 : 0)
-        .animation(.easeOut(duration: 0.4).delay(0.35), value: shown)
+        .animation(.easeOut(duration: 0.4).delay(0.35)) { content in
+          content.opacity(shown ? 1 : 0)
+        }
     }
     .padding(.bottom, 18)
   }
