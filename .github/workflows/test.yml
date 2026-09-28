@@ -1,0 +1,104 @@
+# Builds and tests pull requests on GitHub Actions — the stand-in for Xcode Cloud's pull request
+# workflow, for when its free compute hours run out. Only one runner is live at a time:
+#
+#   scripts/ci-runner.sh github        this workflow tests PRs, and its check is required
+#   scripts/ci-runner.sh xcode-cloud   this job is skipped, and Xcode Cloud's check is required
+#
+# Adding the ci:github-actions label to a pull request runs it here whichever runner is live.
+# docs/ci.md has the rest.
+name: Test
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, labeled]
+  workflow_dispatch:
+
+concurrency:
+  group: test-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  SNAPSHOT_RUNTIME_BUILD: 24A434
+  DEVELOPER_DIR: /Applications/Xcode_27.app/Contents/Developer
+
+jobs:
+  test:
+    name: Test
+    if: >-
+      vars.CI_RUNNER == 'github'
+      || github.event_name == 'workflow_dispatch'
+      || contains(github.event.pull_request.labels.*.name, 'ci:github-actions')
+    runs-on: xcode-27
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up
+        run: scripts/ci-setup.sh
+        env:
+          TCA26_TOKEN: ${{ secrets.TCA26_TOKEN }}
+
+      - name: Pick the snapshot simulator
+        id: simulator
+        run: |
+          runtime() {
+            xcrun simctl list runtimes -j | python3 -c '
+          import json, sys
+          build = sys.argv[1]
+          for r in json.load(sys.stdin)["runtimes"]:
+              if r.get("buildversion") == build and r.get("isAvailable"):
+                  print(r["identifier"]); break
+          ' "$SNAPSHOT_RUNTIME_BUILD"
+          }
+          if [ -z "$(runtime)" ]; then
+            echo "iOS $SNAPSHOT_RUNTIME_BUILD is not on this image, downloading it."
+            xcodebuild -downloadPlatform iOS -buildVersion "$SNAPSHOT_RUNTIME_BUILD"
+          fi
+          identifier=$(runtime)
+          if [ -z "$identifier" ]; then
+            echo "::error::The snapshot runtime, iOS $SNAPSHOT_RUNTIME_BUILD, is not available."
+            exit 1
+          fi
+          udid=$(xcrun simctl create "HopTales CI" "iPhone 18 Pro" "$identifier")
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v4
+        with:
+          path: build/DerivedData/SourcePackages
+          key: spm-${{ hashFiles('HopTales.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+          restore-keys: spm-
+
+      - name: Test
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -workspace HopTales.xcworkspace \
+            -scheme HopTales \
+            -destination "id=${{ steps.simulator.outputs.udid }}" \
+            -derivedDataPath build/DerivedData \
+            -resultBundlePath build/HopTales.xcresult \
+            -skipMacroValidation \
+            | tee build/xcodebuild.log \
+            | grep -E '(error|warning):|✘|\*\* (TEST|BUILD)' || true
+          grep -q '\*\* TEST SUCCEEDED \*\*' build/xcodebuild.log
+
+      - name: Collect failed snapshots
+        if: failure()
+        run: |
+          mkdir -p build/snapshots
+          tmp="$HOME/Library/Developer/CoreSimulator/Devices/${{ steps.simulator.outputs.udid }}/data/tmp"
+          [ -d "$tmp" ] && find "$tmp" -name '*.png' -exec cp {} build/snapshots/ \; || true
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-results
+          path: |
+            build/HopTales.xcresult
+            build/xcodebuild.log
+            build/snapshots
+          retention-days: 7

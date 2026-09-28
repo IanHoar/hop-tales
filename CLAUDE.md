@@ -74,6 +74,8 @@ iOS read-aloud game for early readers. SwiftUI shell + SpriteKit world, on-devic
   an un-annotated framework calling back on the wrong queue — the crash in #62 that the compiler
   could not see.
 - CI is Xcode Cloud: `ci_scripts/` runs on every build and `docs/xcode-cloud.md` is the runbook.
+  When its free hours run out, `scripts/ci-runner.sh github` hands pull requests to GitHub Actions
+  (`.github/workflows/test.yml`); `docs/ci.md` covers switching.
   Snapshot references are recorded on iPhone 18 Pro / iOS 27 — CI has to test on that simulator.
 - Deployment target is iOS 26; the app is iPhone + iPad (`TARGETED_DEVICE_FAMILY = 1,2`). APIs that
   are new in iOS 27 need an `if #available(iOS 27, *)` fallback. Build against an iOS 26 simulator
