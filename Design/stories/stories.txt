@@ -24,7 +24,7 @@
 Bob sat in the sun.
 [butterfly] He can ^hop a lot.
 He ran up and up.
-[clouds bug@bug] A bug sat on him.
+[clouds bug@bug] A bug ran by him.
 Bob hid in the *grass*.
 [bee] Bob ran on and on!
 
@@ -58,7 +58,7 @@ Oggy is *tired*, and he naps at home.
 [log@log] Bob sat on a log.
 [bug@bug] A red bug ran up.
 The bug had six legs.
-It sat on his *nose*.
+It ran *past* the log.
 Bob did not *jump*.
 [puddle@mud] The bug hid in mud.
 
@@ -66,7 +66,7 @@ Bob did not *jump*.
 Bob had a big nap.
 [butterfly] He sat in the sun.
 [hen@hen] A fat hen got in.
-It sat on his *back*.
+It ran *past* him.
 “Yip!” said Bob.
 [hen@hen] The hen ran and ran!
 
