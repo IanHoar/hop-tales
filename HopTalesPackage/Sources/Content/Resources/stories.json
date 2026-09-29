@@ -1321,6 +1321,12 @@
           {
             "prop": "butterfly",
             "count": 1
+          },
+          {
+            "prop": "nest",
+            "count": 1,
+            "thought": true,
+            "after": 4
           }
         ]
       },
