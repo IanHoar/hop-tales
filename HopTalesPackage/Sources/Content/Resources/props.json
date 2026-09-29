@@ -48,5 +48,8 @@
   "rainbow": { "motion": "fade", "place": "sky", "height": 150, "sticker": false },
   "mushroom": { "motion": "pop", "place": "ground", "height": 58 },
   "pine": { "motion": "pop", "place": "ground", "height": 300, "sticker": false },
-  "oak": { "motion": "fade", "place": "ground", "height": 620, "sticker": false }
+  "oak": { "motion": "fade", "place": "ground", "height": 620, "sticker": false },
+  "bed": { "motion": "pop", "place": "ground", "height": 58 },
+  "bucket": { "motion": "pop", "place": "near", "height": 62 },
+  "soap": { "motion": "pop", "place": "near", "height": 28 }
 }

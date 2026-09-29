@@ -1323,7 +1323,7 @@
             "count": 1
           },
           {
-            "prop": "nest",
+            "prop": "bed",
             "count": 1,
             "thought": true,
             "after": 4
@@ -1645,6 +1645,14 @@
           },
           {
             "prop": "bubbles",
+            "count": 1
+          },
+          {
+            "prop": "bucket",
+            "count": 1
+          },
+          {
+            "prop": "soap",
             "count": 1
           }
         ]

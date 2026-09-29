@@ -152,7 +152,19 @@ struct StoryPropLayer: View {
     guard let stop = path.stop(at: HopTarget(sentence: sentence, word: word)) else {
       return geometry.size.width * 0.7
     }
-    return stop.centre + geometry.path(48) - cameraX
+    let gap = Self.propGap * CGFloat(neighbours(of: event, in: sentence))
+    return stop.centre + geometry.path(48 + gap) - cameraX
+  }
+
+  static let propGap: CGFloat = 64
+
+  private func neighbours(of event: StoryEvent, in sentence: Int) -> Int {
+    let events = sentences[sentence].events
+    guard let index = events.firstIndex(of: event) else { return 0 }
+    return events.prefix(index).filter {
+      $0.after == event.after && $0.resolvedPlace == event.resolvedPlace
+        && !$0.isCompanion && !$0.isThought
+    }.count
   }
 
   private func baseline(for event: StoryEvent, height: Double) -> CGFloat {
