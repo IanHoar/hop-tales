@@ -23,6 +23,23 @@ enum MeadowArt {
     return texture
   }
 
+  private static var silhouettes: [String: UIImage] = [:]
+
+  static func silhouette(_ name: String) -> UIImage? {
+    if let cached = silhouettes[name] { return cached }
+    guard let source = image(name) else { return nil }
+    let rect = CGRect(origin: .zero, size: source.size)
+    let format = UIGraphicsImageRendererFormat.default()
+    format.scale = source.scale
+    let shape = UIGraphicsImageRenderer(size: source.size, format: format).image { context in
+      source.draw(in: rect)
+      UIColor.white.setFill()
+      context.fill(rect, blendMode: .sourceAtop)
+    }
+    silhouettes[name] = shape
+    return shape
+  }
+
   static func gradient(_ colors: [UIColor], size: CGSize) -> UIImage {
     let format = UIGraphicsImageRendererFormat.default()
     format.scale = 1
