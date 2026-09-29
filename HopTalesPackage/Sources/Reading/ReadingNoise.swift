@@ -1,3 +1,5 @@
+import Content
+
 extension Reading {
   public static let noisyAbove: Double = -42
   public static let quietBelow: Double = -50
@@ -23,5 +25,13 @@ extension Reading {
     ticksSinceMatch = 0
     heardSinceMatch = false
     state.isNoisy = false
+  }
+}
+
+extension Reading.State {
+  public var mood: Mood {
+    let last = story.sentences.count - 1
+    return sentenceIndex > last
+      ? story.finalMood : story.mood(atSentence: sentenceIndex, word: wordIndex)
   }
 }

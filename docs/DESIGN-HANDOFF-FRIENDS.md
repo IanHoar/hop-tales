@@ -33,7 +33,7 @@ This is a plan, not built yet. It builds on the collage storybook (`docs/DESIGN-
 
 | Level | Friend | Focus | Example words | Sentences | Steps to the next friend |
 |---|---|---|---|---|---|
-| 1 | Bob (rabbit) | short vowels | sat, hop, red | 3–5 words | 170 (3½ reads) |
+| 1 | Bob (rabbit) | short vowels | sat, hop, red | 3–5 words | 160 (3½ reads) |
 | 2 | Skip | digraphs and blends | ship, duck, frog | 5–7 | 200 (3½) |
 | 3 | Oggy (frog) | magic e | lake, kite, home | 6–8 | 250 (4) |
 | 4 | Button (crow) | endings and ar, or, er | jumped, farm, garden | 7–9 | 320 (4½) |
