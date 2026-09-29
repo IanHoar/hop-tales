@@ -127,13 +127,16 @@
             "big": false
           },
           {
-            "text": "sat",
+            "text": "ran",
             "homophones": [],
             "big": false
           },
           {
-            "text": "on",
-            "homophones": [],
+            "text": "by",
+            "homophones": [
+              "buy",
+              "bye"
+            ],
             "big": false
           },
           {
@@ -1175,24 +1178,24 @@
             "big": false
           },
           {
-            "text": "sat",
+            "text": "ran",
             "homophones": [],
             "big": false
           },
           {
-            "text": "on",
+            "text": "past",
+            "homophones": [],
+            "big": true
+          },
+          {
+            "text": "the",
             "homophones": [],
             "big": false
           },
           {
-            "text": "his",
+            "text": "log",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "nose",
-            "homophones": [],
-            "big": true,
+            "big": false,
             "trailing": "."
           }
         ]
@@ -1397,24 +1400,19 @@
             "big": false
           },
           {
-            "text": "sat",
+            "text": "ran",
             "homophones": [],
             "big": false
           },
           {
-            "text": "on",
+            "text": "past",
             "homophones": [],
-            "big": false
+            "big": true
           },
           {
-            "text": "his",
+            "text": "him",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "back",
-            "homophones": [],
-            "big": true,
+            "big": false,
             "trailing": "."
           }
         ]
