@@ -23,10 +23,10 @@
 == meadow-walk | The Meadow Walk | level 1 | day clear
 Bob sat in the sun.
 [butterfly] He can ^hop a lot.
-He ran up and up.
-[clouds bug@bug] A bug ran by him.
-Bob hid in the *grass*.
-[bee] Bob ran on and on!
+[bug@bug] A red bug ran up.
+“Let us run!” said Bob.
+[clouds] Bob ran up the *hill*.
+[bee] But the bug won!
 
 == golden-hour | Golden Hour | level 2 | day clouds
 The sun is big and red.
@@ -56,27 +56,27 @@ Oggy is *tired*, and he naps at home.
 
 == bob-bug | Bob and the Bug | level 1 | day clear
 [log@log] Bob sat on a log.
-[bug@bug] A red bug ran up.
-The bug had six legs.
-It ran *past* the log.
-Bob did not *jump*.
-[puddle@mud] The bug hid in mud.
+He had a jam bun.
+“*Where* is the bug?”
+[puddle@mud] In the mud? No!
+In the *grass*? No!
+[bug@jam] It hid in his jam!
 
 == big-nap | The Big Nap | level 1 | golden clear | stretch
-Bob had a big nap.
-[butterfly] He sat in the sun.
-[hen@hen] A fat hen got in.
-It ran *past* him.
-“Yip!” said Bob.
-[hen@hen] The hen ran and ran!
+“Nap *time*!” said Bob.
+[butterfly] He got in his bed.
+[hen@hen] A fat hen ran in.
+“*Cluck*, *cluck*, *cluck*!”
+“*Hush*!” said Bob. “Nap!”
+[hen@hen] The hen had a nap!
 
 == mud-and-jam | Mud and Jam | level 1 | day clouds | stretch
 [puddle@mud] Bob dug in the mud.
-Mud got on his leg.
-[rain] Bob got so wet!
-[clouds] He ran to the den.
-[mum@Mum] Mum had jam buns.
-Bob had a *snack*.
+Mud got on his legs.
+[mum@Mum] Mum had a jam bun.
+“*Wash* up, Bob!” said Mum.
+[bubbles] Bob got in the tub.
+So Bob had his bun!
 
 # Level 2 · Skip · sh ch th ck ng nk, ll ss ff, blends · 5 to 7 words
 
