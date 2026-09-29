@@ -181,13 +181,15 @@ def parse_header(line, line_number):
 def parse_sentence(line, line_number):
     sentence = {"newWord": None, "words": []}
     events = []
+    mood_word = None
     tags = re.match(r"\[([A-Za-z0-9@*: ]+)\]\s*", line)
     if tags:
         for tag in tags.group(1).split():
-            if tag in SKIES:
-                sentence["sky"] = tag
-            elif tag in WEATHERS:
-                sentence["weather"] = tag
+            name, _, after = tag.partition("@")
+            if name in SKIES or name in WEATHERS:
+                sentence["sky" if name in SKIES else "weather"] = name
+                if after:
+                    mood_word = after
             else:
                 events.append(parse_event(tag, line_number))
         line = line[tags.end():]
@@ -213,6 +215,10 @@ def parse_sentence(line, line_number):
             word["trailing"] = trail
         sentence["words"].append(word)
     plain = [word["text"].lower() for word in sentence["words"]]
+    if mood_word is not None:
+        if mood_word.lower() not in plain:
+            fail(line_number, f"'{mood_word}' in a sky or weather tag isn't a word in the sentence")
+        sentence["moodAfter"] = plain.index(mood_word.lower())
     for event in events:
         after = event.pop("word")
         if after is None:

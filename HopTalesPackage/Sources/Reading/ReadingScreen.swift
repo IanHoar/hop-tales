@@ -75,10 +75,6 @@ import World
       Double(wordsCompleted) * Story.stepPerWord
     }
 
-    public var mood: Mood {
-      story.mood(atSentence: min(sentenceIndex, story.sentences.count - 1))
-    }
-
     public var wordsCompleted: Int {
       story.sentences.prefix(sentenceIndex).reduce(0) { $0 + $1.words.count } + wordIndex
     }

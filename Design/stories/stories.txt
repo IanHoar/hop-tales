@@ -18,8 +18,9 @@
 #   [butterfly]    an ambient visitor from the sentence's start; the build refuses one the sentence names
 #   [frog*3@frogs] three of them          [kite@kite:sky] a place other than the prop's own
 #   [bug@bug:alongside]  runs beside the friend from then on, and dashes off ahead at the end
-# Sky and weather tags (day golden dusk night, clear clouds storm rain snow) are moments too. Aim for
-# two or three moments a story. Props leave when their sentence ends.
+# Sky and weather tags (day golden dusk night, clear clouds storm rain snow) are moments too, and
+# [clear@sun] waits until "sun" is read. Aim for two or three moments a story. Props leave when
+# their sentence ends.
 
 == meadow-walk | The Meadow Walk | level 1 | day clear
 Bob can hop.
@@ -55,13 +56,13 @@ Oggy is *tired*, and he naps at home.
 
 # Level 1 · Bob · single letters, short vowels, no blends · 3 to 5 words
 
-== bob-bug | Bob and the Bug | level 1 | day clear
-[log@log] Bob sits on a log.
-“*Where* is the bug?”
-[puddle@mud] In the mud? No!
-In the *grass*? No!
-Bob gets up.
-[bug@log] It is in the log!
+== bob-bug | Bob and the Bug | level 1 | day clouds
+[log@log] Bob hops by the log.
+[bug@bug:alongside] The bug is *back*!
+The bug *wants* to hop.
+[clear@sun] Hop, hop, in the sun!
+[butterfly] The bug *loves* it.
+[golden] It is fun for Bob!
 
 == big-nap | The Big Nap | level 1 | golden clear | stretch
 “Nap *time*!” said Bob.
