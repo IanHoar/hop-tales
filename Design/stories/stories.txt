@@ -84,7 +84,6 @@ The bug *wants* to hop.
 # Scene direction:
 #   Opens in warm golden evening light.
 #   1. A butterfly drifts slowly past.
-#   2. A little bed of hay sits beside the path (prop to come, #244).
 #   3. A hen struts in along the path and runs up past Bob.
 #   6. The hen runs off, and the sky dims to dusk.
 “Nap *time*!” said Bob.
