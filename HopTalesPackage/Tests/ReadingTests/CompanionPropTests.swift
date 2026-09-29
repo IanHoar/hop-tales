@@ -50,4 +50,15 @@ struct CompanionPropTests {
     #expect(abs(running.dx) < 1)
     #expect(gone.dx >= width)
   }
+
+  @Test func aPropNamedByTheLastWordArrivesAsTheNextSentenceBegins() throws {
+    let story = try #require(StoryLibrary["bob-bug"])
+    let log = PropKey(sentence: 0, index: 0)
+    #expect(story.sentences[0].events[0].prop == "log")
+    var cues = PropTiming.cues([:], story: story, at: HopTarget(sentence: 1, word: 0), now: start)
+    #expect(cues[log] != nil)
+    #expect(cues[log]?.ended == nil)
+    cues = PropTiming.cues(cues, story: story, at: HopTarget(sentence: 2, word: 0), now: start)
+    #expect(cues[log]?.ended == start)
+  }
 }

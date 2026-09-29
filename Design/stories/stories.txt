@@ -18,6 +18,7 @@
 #   [butterfly]    an ambient visitor from the sentence's start; the build refuses one the sentence names
 #   [frog*3@frogs] three of them          [kite@kite:sky] a place other than the prop's own
 #   [bug@bug:alongside]  runs beside the friend from then on, and dashes off ahead at the end
+#   [nest@bed:thought]   shows the prop in a thought bubble over the friend's head for the sentence
 # Sky and weather tags (day golden dusk night, clear clouds storm rain snow) are moments too, and
 # [clear@sun] waits until "sun" is read. Aim for two or three moments a story. Props leave when
 # their sentence ends.
@@ -84,11 +85,11 @@ The bug *wants* to hop.
 # Scene direction:
 #   Opens in warm golden evening light.
 #   1. A butterfly drifts slowly past.
-#   2. A thought bubble over Bob's head shows a little bed of hay (to come, #244).
+#   2. A thought bubble over Bob's head shows a little bed of hay (the nest stands in, #244).
 #   3. A hen struts in along the path and runs up past Bob.
 #   6. The hen runs off, and the sky dims to dusk.
 “Nap *time*!” said Bob.
-[butterfly] He hops to his bed.
+[butterfly nest@bed:thought] He hops to his bed.
 [hen@hen] A hen runs by Bob.
 “Bok, bok!” *says* the hen.
 “*Hush*!” said Bob. “Nap *time*!”
