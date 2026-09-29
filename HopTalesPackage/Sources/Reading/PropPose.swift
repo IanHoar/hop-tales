@@ -14,8 +14,9 @@ struct PropPose: Equatable {
   static func at(
     item: PropItem, elapsed: TimeInterval?, exit: Double, width: CGFloat, unit: CGFloat
   ) -> PropPose {
-    guard let elapsed else { return PropPose() }
+    guard let elapsed else { return PropPose(flip: item.companion) }
     guard elapsed >= 0 else { return PropPose(opacity: 0) }
+    if item.companion { return running(time: elapsed, exit: exit, width: width, unit: unit) }
     var pose = moving(item: item, time: elapsed, width: width, unit: unit)
     pose.opacity *= 1 - exit
     return pose
@@ -88,6 +89,19 @@ struct PropPose: Equatable {
     default:
       return PropPose(opacity: min(1, time / 1.2))
     }
+  }
+
+  static func running(
+    time: TimeInterval, exit: Double, width: CGFloat, unit: CGFloat
+  ) -> PropPose {
+    let arrive = easeOut(min(1, time / 0.9))
+    let dash = CGFloat(exit * exit)
+    return PropPose(
+      dx: -(1 - arrive) * width * 0.35 + dash * width,
+      dy: -abs(sin(time * .pi / 0.1)) * 1.5 * unit,
+      frame: Int(time / 0.1) % 2 + 1,
+      flip: true
+    )
   }
 
   private static func walk(time: TimeInterval, distance: CGFloat, unit: CGFloat) -> PropPose {

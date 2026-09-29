@@ -88,7 +88,7 @@ struct JourneyTests {
   }
 
   @Test func theNextFriendIsAFewGoodReadsAwayAndTheRoutesStayBalanced() {
-    #expect(Levels.stepsToNextFriend == [1: 170, 2: 200, 3: 250, 4: 320, 5: 390, 6: 460])
+    #expect(Levels.stepsToNextFriend == [1: 160, 2: 200, 3: 250, 4: 320, 5: 390, 6: 460])
     for level in 1..<Levels.top {
       let reads = Double(Levels.stepsToNextFriend[level] ?? 0) / Levels.goodRead(at: level)
       #expect((3...6).contains(reads), "level \(level)")

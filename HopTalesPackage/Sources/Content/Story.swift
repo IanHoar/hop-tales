@@ -78,6 +78,7 @@ public struct Sentence: Codable, Hashable, Sendable {
   public var words: [Word]
   public var sky: Sky?
   public var weather: Weather?
+  public var moodAfter: Int?
   public var events: [StoryEvent]
 
   public init(
@@ -85,12 +86,14 @@ public struct Sentence: Codable, Hashable, Sendable {
     newWord: String? = nil,
     sky: Sky? = nil,
     weather: Weather? = nil,
+    moodAfter: Int? = nil,
     events: [StoryEvent] = []
   ) {
     self.newWord = newWord
     self.words = words
     self.sky = sky
     self.weather = weather
+    self.moodAfter = moodAfter
     self.events = events
   }
 
@@ -99,6 +102,7 @@ public struct Sentence: Codable, Hashable, Sendable {
     case words
     case sky
     case weather
+    case moodAfter
     case events
   }
 
@@ -108,6 +112,7 @@ public struct Sentence: Codable, Hashable, Sendable {
     words = try container.decode([Word].self, forKey: .words)
     sky = try container.decodeIfPresent(Sky.self, forKey: .sky)
     weather = try container.decodeIfPresent(Weather.self, forKey: .weather)
+    moodAfter = try container.decodeIfPresent(Int.self, forKey: .moodAfter)
     events = try container.decodeIfPresent([StoryEvent].self, forKey: .events) ?? []
   }
 }
@@ -147,9 +152,10 @@ public struct Story: Codable, Hashable, Sendable, Identifiable {
     sentences.reduce(0) { $0 + $1.words.count }
   }
 
-  public func mood(atSentence index: Int) -> Mood {
+  public func mood(atSentence index: Int, word: Int = .max) -> Mood {
     var mood = mood
-    for sentence in sentences.prefix(max(0, index) + 1) {
+    for (position, sentence) in sentences.prefix(max(0, index) + 1).enumerated() {
+      if position == index, let after = sentence.moodAfter, word <= after { break }
       if let sky = sentence.sky { mood.sky = sky }
       if let weather = sentence.weather { mood.weather = weather }
     }

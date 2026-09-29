@@ -17,13 +17,25 @@ enum PropTiming {
   static let afterWord: TimeInterval = 0.35
   static let sentenceStart: TimeInterval = 0.9
   static let exit: TimeInterval = 0.6
+  static let dash: TimeInterval = 1.1
 
   static func cues(
     _ cues: [PropKey: PropCue], story: Story, at position: HopTarget, now: Date
   ) -> [PropKey: PropCue] {
     var cues = cues.filter { $0.key.sentence <= position.sentence }
+    let over = position.sentence >= story.sentences.count
     for key in cues.keys where key.sentence < position.sentence && cues[key]?.ended == nil {
+      let event = story.sentences[safe: key.sentence]?.events[safe: key.index]
+      guard !(event?.isCompanion ?? false) || over else { continue }
       cues[key]?.ended = now
+    }
+    if !over {
+      for (sentenceIndex, sentence) in story.sentences.enumerated().prefix(position.sentence) {
+        for (index, event) in sentence.events.enumerated() where event.isCompanion {
+          let key = PropKey(sentence: sentenceIndex, index: index)
+          if cues[key] == nil { cues[key] = PropCue(revealed: now.addingTimeInterval(afterWord)) }
+        }
+      }
     }
     guard let sentence = story.sentences[safe: position.sentence] else { return cues }
     for (index, event) in sentence.events.enumerated() where shows(event, at: position.word) {
@@ -72,14 +84,12 @@ struct StoryPropLayer: View {
         let key = PropKey(sentence: sentenceIndex, index: index)
         let cue: PropCue?
         if now == nil {
-          let showing = PropTiming.shows(event, at: position.word)
-          guard sentenceIndex == position.sentence, showing else { continue }
+          guard stillShows(event, sentence: sentenceIndex) else { continue }
           cue = nil
         } else {
           guard let found = cues[key] else { continue }
-          if let ended = found.ended, let now, now.timeIntervalSince(ended) > PropTiming.exit {
-            continue
-          }
+          let exit = event.isCompanion ? PropTiming.dash : PropTiming.exit
+          if let ended = found.ended, let now, now.timeIntervalSince(ended) > exit { continue }
           cue = found
         }
         for copy in 0..<max(1, event.count) {
@@ -92,15 +102,30 @@ struct StoryPropLayer: View {
               copy: copy,
               copies: max(1, event.count),
               seed: sentenceIndex * 7 + index * 3 + copy,
-              anchor: anchor(sentence: sentenceIndex, event: event),
-              baseline: baseline(for: event.resolvedPlace, height: prop.height(in: world)),
-              cue: cue
+              anchor: event.isCompanion
+                ? path.hareX + geometry.path(Self.companionLead)
+                : anchor(sentence: sentenceIndex, event: event),
+              baseline: event.isCompanion
+                ? path.hareFeetY + geometry.path(Self.companionDrop)
+                : baseline(for: event.resolvedPlace, height: prop.height(in: world)),
+              cue: cue,
+              companion: event.isCompanion
             )
           )
         }
       }
     }
     return items
+  }
+
+  static let companionLead: CGFloat = 70
+  static let companionDrop: CGFloat = 28
+
+  private func stillShows(_ event: StoryEvent, sentence: Int) -> Bool {
+    if event.isCompanion, sentence < position.sentence {
+      return position.sentence < sentences.count
+    }
+    return sentence == position.sentence && PropTiming.shows(event, at: position.word)
   }
 
   private func anchor(sentence: Int, event: StoryEvent) -> CGFloat {
@@ -132,6 +157,7 @@ struct PropItem {
   let anchor: CGFloat
   let baseline: CGFloat
   let cue: PropCue?
+  var companion = false
 }
 
 struct PropFigure: View {
@@ -167,7 +193,8 @@ struct PropFigure: View {
 
   private var exit: Double {
     guard let now, let ended = item.cue?.ended else { return 0 }
-    return min(1, max(0, now.timeIntervalSince(ended) / PropTiming.exit))
+    let duration = item.companion ? PropTiming.dash : PropTiming.exit
+    return min(1, max(0, now.timeIntervalSince(ended) / duration))
   }
 
   private func art(frame: Int) -> String {

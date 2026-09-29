@@ -11,13 +11,19 @@ public struct StoryEvent: Codable, Hashable, Sendable {
   public var count: Int
   public var after: Int?
   public var place: Place?
+  public var companion: Bool?
 
-  public init(prop: String, count: Int = 1, after: Int? = nil, place: Place? = nil) {
+  public init(
+    prop: String, count: Int = 1, after: Int? = nil, place: Place? = nil, companion: Bool? = nil
+  ) {
     self.prop = prop
     self.count = count
     self.after = after
     self.place = place
+    self.companion = companion
   }
+
+  public var isCompanion: Bool { companion ?? false }
 
   public var resolvedPlace: Place {
     place ?? StoryProp.named(prop)?.place ?? .ground

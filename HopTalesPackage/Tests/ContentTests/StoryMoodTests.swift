@@ -32,4 +32,14 @@ struct StoryMoodTests {
     #expect(StoryLibrary["storm-on-the-hill"]?.mood(atSentence: 2).weather == .rain)
     #expect(StoryLibrary["golden-hour"]?.finalMood.sky == .golden)
   }
+
+  @Test func theSunComesOutOnceSunIsRead() throws {
+    let story = try #require(StoryLibrary["bob-bug"])
+    let line = try #require(story.sentences.firstIndex { $0.moodAfter != nil })
+    let sun = try #require(story.sentences[line].moodAfter)
+    #expect(story.sentences[line].words[sun].text == "sun")
+    #expect(story.mood(atSentence: line, word: sun).weather == .clouds)
+    #expect(story.mood(atSentence: line, word: sun + 1).weather == .clear)
+    #expect(story.mood(atSentence: line + 1).weather == .clear)
+  }
 }

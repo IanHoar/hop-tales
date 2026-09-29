@@ -148,7 +148,7 @@ struct ReadingTests {
       return AsyncStream { continuation in
         switch session {
         case 1: continuation.yield(.final(["bob"]))
-        case 2: continuation.yield(.final(["sat"]))
+        case 2: continuation.yield(.final(["can"]))
         default: break
         }
         continuation.finish()
