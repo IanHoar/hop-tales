@@ -91,6 +91,16 @@ struct PropPose: Equatable {
     }
   }
 
+  static func thinking(time: TimeInterval?, exit: Double, unit: CGFloat) -> PropPose {
+    guard let time else { return PropPose() }
+    guard time >= 0 else { return PropPose(opacity: 0) }
+    return PropPose(
+      dy: sin(time * 1.4) * 2 * unit - CGFloat(exit) * 18 * unit,
+      scale: popScale(time),
+      opacity: 1 - exit
+    )
+  }
+
   static func running(
     time: TimeInterval, exit: Double, width: CGFloat, unit: CGFloat
   ) -> PropPose {

@@ -15,7 +15,7 @@ SOURCE = ROOT / "Design/stories/stories.txt"
 OUTPUT = ROOT / "HopTalesPackage/Sources/Content/Resources/stories.json"
 PHONICS = ROOT / "HopTalesPackage/Sources/Content/Resources/phonics.json"
 PROPS = json.loads((ROOT / "HopTalesPackage/Sources/Content/Resources/props.json").read_text())
-PLACES = {"ground", "near", "sky", "alongside"}
+PLACES = {"ground", "near", "sky", "alongside", "thought"}
 EVENT = re.compile(r"([a-z]+)(?:\*([2-4]))?(?:@([A-Za-z]+))?(?::([a-z]+))?")
 
 SENTENCE_WORDS = {1: (3, 5), 2: (5, 7), 3: (6, 8), 4: (7, 9), 5: (8, 10), 6: (9, 12), 7: (10, 14)}
@@ -244,6 +244,8 @@ def parse_event(tag, line_number):
     event = {"prop": prop, "count": int(count or 1), "word": word}
     if place == "alongside":
         event["companion"] = True
+    elif place == "thought":
+        event["thought"] = True
     elif place:
         event["place"] = place
     return event
