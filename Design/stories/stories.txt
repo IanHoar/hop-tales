@@ -66,19 +66,19 @@ The bug *wants* to hop.
 
 == big-nap | The Big Nap | level 1 | golden clear | stretch
 “Nap *time*!” said Bob.
-[butterfly] He gets in his bed.
-[hen@hen] A fat hen runs in.
-“*Cluck*, *cluck*, *cluck*!”
-“*Hush*!” said Bob. “Nap!”
-[hen@hen] The hen has a nap!
+[butterfly] He hops to his bed.
+[hen@hen] A hen runs by Bob.
+“Bok, bok!” *says* the hen.
+“*Hush*!” said Bob. “Nap *time*!”
+[dusk] The hen runs. Bob naps!
 
-== mud-and-jam | Bob and the Mud | level 1 | day clouds | stretch
-[puddle@mud] Bob digs in the mud.
-Mud gets on his legs.
-[mum@Mum] “*Wash* up, Bob!” said Mum.
-[bubbles] Bob gets in the tub.
-*Scrub*, *scrub*, *scrub*!
-No mud on Bob!
+== mud-and-jam | Bob and the Mud | level 1 | day rain | stretch
+*Drip*, *drip*, *drop*!
+Lots and lots of mud!
+[puddle@mud] Bob hops in the mud.
+Oh no, Bob!
+[mum bubbles] “*Time* for a *bath*, Bob!”
+[clear] No mud on Bob!
 
 # Level 2 · Skip · sh ch th ck ng nk, ll ss ff, blends · 5 to 7 words
 
