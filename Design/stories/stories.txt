@@ -23,7 +23,8 @@
 # their sentence ends.
 #
 # A "# Scene direction:" comment under a story's header is its approved stage direction from the
-# Story Desk: what should happen on screen, line by line, including what the tags can't express yet.
+# Story Desk: what the scene does, line by line, including what the tags can't express yet. It
+# covers props, the sky and weather, and companions, never the friend's own poses or gestures.
 
 == meadow-walk | The Meadow Walk | level 1 | day clear
 # Scene direction:
@@ -68,10 +69,9 @@ Oggy is *tired*, and he naps at home.
 # Scene direction:
 #   Opens under a cloudy sky.
 #   1. Bob hops past a log lying beside the path.
-#   2. The red bug from The Meadow Walk pops out from behind the log and runs beside Bob from here on.
-#   3. The bug bounces on the spot, eager to go.
+#   2. The red bug from The Meadow Walk comes out and runs beside Bob from here on.
 #   4. They hop along together. On "sun" the clouds part and the sun comes out.
-#   5. The bug skips happily in the sunshine. A butterfly drifts through.
+#   5. A butterfly drifts through the sunshine.
 #   6. The light turns golden, and at The end the bug dashes off ahead.
 [log@log] Bob hops by the log.
 [bug@bug:alongside] The bug is *back*!
@@ -83,12 +83,10 @@ The bug *wants* to hop.
 == big-nap | The Big Nap | level 1 | golden clear | stretch
 # Scene direction:
 #   Opens in warm golden evening light.
-#   1. Bob stops on the path. A butterfly drifts slowly past.
-#   2. Bob hops to a little bed of hay beside the path (prop to come, #244).
+#   1. A butterfly drifts slowly past.
+#   2. A little bed of hay sits beside the path (prop to come, #244).
 #   3. A hen struts in along the path and runs up past Bob.
-#   4. The hen flaps and bounces beside the bed, clucking.
-#   5. Bob sits up and waves a paw: hush! The hen freezes mid-cluck.
-#   6. The hen runs off. The sky dims to dusk and Bob curls up asleep.
+#   6. The hen runs off, and the sky dims to dusk.
 “Nap *time*!” said Bob.
 [butterfly] He hops to his bed.
 [hen@hen] A hen runs by Bob.
@@ -99,12 +97,10 @@ The bug *wants* to hop.
 == mud-and-jam | Bob and the Mud | level 1 | day rain | stretch
 # Scene direction:
 #   Opens in the rain.
-#   1-2. Rain falls and the path turns to mud.
-#   3. Bob hops through a big mud puddle.
-#   4. Bob stands spattered with mud.
-#   5. Mum calls bath time. A bucket and a bar of soap stand in front of the path, and Bob runs
-#      behind them (props to come, #244; bubbles for now).
-#   6. The sun comes out after the bath, and Bob is clean.
+#   3. A big mud puddle lies on the path as Bob hops through the mud.
+#   5. Mum comes in, with bubbles. A bucket and a bar of soap stand in front of the path, and Bob
+#      runs behind them (props to come, #244).
+#   6. The sun comes out after the bath.
 *Drip*, *drip*, *drop*!
 Lots and lots of mud!
 [puddle@mud] Bob hops in the mud.
