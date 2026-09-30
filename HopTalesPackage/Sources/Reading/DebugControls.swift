@@ -13,10 +13,19 @@ extension Reading.Action {
   }
 }
 
+extension EnvironmentValues {
+  @Entry var hidesDebugControls = false
+}
+
 struct DebugControls: View {
   let store: StoreOf<Reading>
+  @Environment(\.hidesDebugControls) private var hidden
 
   var body: some View {
+    if !hidden { controls }
+  }
+
+  private var controls: some View {
     HStack(spacing: 8) {
       button("Read “\(store.currentWord?.text ?? "—")”") {
         readCurrentWord()
