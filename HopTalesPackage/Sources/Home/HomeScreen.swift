@@ -103,13 +103,6 @@ public struct HomeScreen: View {
   static let columnWidth: CGFloat = 560
   static let wideLayout: CGFloat = 760
   static let tornEdge: CGFloat = 6
-  static func ground(_ style: WorldStyle) -> LinearGradient {
-    LinearGradient(
-      colors: [Color(hex: style.ground), Color(hex: 0xD9D6A6), Color(hex: 0xEDE6C8)],
-      startPoint: .top,
-      endPoint: .bottom
-    )
-  }
 
   public var body: some View {
     GeometryReader { proxy in
@@ -128,12 +121,14 @@ public struct HomeScreen: View {
           camera: MeadowCamera(at: 900), mood: mood, framing: framing,
           world: store.progress.journey.activeFriend
         )
-        Self.ground(WorldStyle.of(store.progress.journey.activeFriend))
-          .colorMultiply(Color(uiColor: mood.landTint))
-          .frame(height: max(0, screen - groundTop))
-          .frame(maxHeight: .infinity, alignment: .bottom)
-          .ignoresSafeArea()
-          .accessibilityHidden(true)
+        HomeGround(
+          world: store.progress.journey.activeFriend,
+          mood: mood,
+          tileWidth: land.tileSize(of: .near).width
+        )
+        .frame(height: max(0, screen - groundTop))
+        .frame(maxHeight: .infinity, alignment: .bottom)
+        .ignoresSafeArea()
         if proxy.size.width > Self.wideLayout {
           friend
             .position(
