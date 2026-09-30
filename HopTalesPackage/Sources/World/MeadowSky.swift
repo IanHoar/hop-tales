@@ -53,11 +53,53 @@ final class MeadowSky: SKNode {
     }
   }
 
-  private func cloud(_ name: String, slot: Int, of count: Int) -> SKSpriteNode {
-    let node = SKSpriteNode(texture: MeadowArt.texture(name))
+  private func cloud(_ name: String, slot: Int, of count: Int) -> SKNode {
+    let node = SKNode()
     node.name = name
     node.userData = ["slot": CGFloat(slot) / CGFloat(count), "speed": CGFloat(6 + 3 * slot)]
+    let backing = SKSpriteNode(
+      texture: MeadowArt.silhouette(name).map(SKTexture.init(image:)) ?? SKTexture()
+    )
+    backing.name = "backing"
+    backing.colorBlendFactor = 1
+    let art = SKSpriteNode(texture: MeadowArt.texture(name))
+    art.name = "art"
+    [backing, art].forEach(node.addChild)
     return node
+  }
+
+  private var clouds: [SKNode] { fairClouds.children + stormClouds.children }
+
+  private func part(_ name: String, of cloud: SKNode) -> SKSpriteNode? {
+    cloud.childNode(withName: name) as? SKSpriteNode
+  }
+
+  private func fadeClouds(
+    _ group: SKNode, presence: CGFloat, clouds: CGFloat, _ duration: TimeInterval
+  ) {
+    for cloud in group.children {
+      if let art = part("art", of: cloud) {
+        fade(art, to: presence * clouds, duration)
+      }
+      if let backing = part("backing", of: cloud) {
+        fade(backing, to: presence > 0 ? 1 : 0, duration)
+      }
+    }
+  }
+
+  private func colourBackings(_ sky: SkyStyle, _ duration: TimeInterval) {
+    let height = max(layout.size.height, 1)
+    for cloud in clouds {
+      guard let backing = part("backing", of: cloud) else { continue }
+      let colour = sky.color(at: (height - cloud.position.y) / height)
+      backing.removeAction(forKey: "colour")
+      if duration > 0 {
+        let tint = SKAction.colorize(with: colour, colorBlendFactor: 1, duration: duration)
+        backing.run(tint, withKey: "colour")
+      } else {
+        backing.color = colour
+      }
+    }
   }
 
   private func placeStars() {
@@ -89,16 +131,19 @@ final class MeadowSky: SKNode {
     moon.position = CGPoint(x: layout.moonCentre.x, y: size.height - layout.moonCentre.y)
     placeSun()
     placeStars()
-    for case let cloud as SKSpriteNode in fairClouds.children + stormClouds.children {
-      let texture = cloud.texture?.size() ?? .zero
+    for cloud in clouds {
+      guard let art = part("art", of: cloud) else { continue }
+      let texture = art.texture?.size() ?? .zero
       let scale = 0.5 * layout.k
-      cloud.size = CGSize(width: texture.width * scale, height: texture.height * scale)
+      art.size = CGSize(width: texture.width * scale, height: texture.height * scale)
+      part("backing", of: cloud)?.size = art.size
       let slot = cloud.userData?["slot"] as? CGFloat ?? 0
       cloud.position = CGPoint(
-        x: slot * (size.width + cloud.size.width),
+        x: slot * (size.width + art.size.width),
         y: size.height - (70 + 130 * slot) * layout.k
       )
     }
+    colourBackings(mood.sky.style, 0)
   }
 
   private func placeSun() {
@@ -141,8 +186,9 @@ final class MeadowSky: SKNode {
       ),
       duration: duration
     ))
-    fade(fairClouds, to: weather.fairClouds * sky.clouds, duration)
-    fade(stormClouds, to: weather.stormClouds * sky.clouds, duration)
+    fadeClouds(fairClouds, presence: weather.fairClouds, clouds: sky.clouds, duration)
+    fadeClouds(stormClouds, presence: weather.stormClouds, clouds: sky.clouds, duration)
+    colourBackings(sky, duration)
     fade(overlay, to: weather.overlay, duration)
     rain.isFalling = weather.rain
     snow.isFalling = weather.snow
@@ -160,11 +206,12 @@ final class MeadowSky: SKNode {
   func update(_ elapsed: TimeInterval) {
     guard drifts else { return }
     let width = layout.size.width
-    for case let cloud as SKSpriteNode in fairClouds.children + stormClouds.children {
+    for cloud in clouds {
       let speed = cloud.userData?["speed"] as? CGFloat ?? 6
+      let half = (part("art", of: cloud)?.size.width ?? 0) / 2
       cloud.position.x -= speed * layout.k * CGFloat(elapsed)
-      if cloud.position.x < -cloud.size.width / 2 {
-        cloud.position.x = width + cloud.size.width / 2
+      if cloud.position.x < -half {
+        cloud.position.x = width + half
       }
     }
     guard mood.weather.style.lightning else { return }

@@ -83,12 +83,24 @@ public enum MeadowPostcard {
       guard alpha > 0 else { continue }
       let width = (MeadowArt.image(cloud.name)?.size.width ?? 500) * 0.5 * layout.k
       let centre = CGPoint(x: cloud.spot.x * size.width, y: cloud.spot.y * layout.k)
+      if let shape = MeadowArt.silhouette(cloud.name) {
+        let backing = UIGraphicsImageRenderer(size: shape.size).image { context in
+          shape.draw(at: .zero)
+          sky.color(at: centre.y / max(size.height, 1)).setFill()
+          context.fill(CGRect(origin: .zero, size: shape.size), blendMode: .sourceAtop)
+        }
+        draw(backing, centre: centre, width: width, alpha: 1)
+      }
       draw(cloud.name, centre: centre, width: width, alpha: alpha)
     }
   }
 
   private static func draw(_ name: String, centre: CGPoint, width: CGFloat, alpha: CGFloat) {
     guard let image = MeadowArt.image(name) else { return }
+    draw(image, centre: centre, width: width, alpha: alpha)
+  }
+
+  private static func draw(_ image: UIImage, centre: CGPoint, width: CGFloat, alpha: CGFloat) {
     let height = width * image.size.height / max(image.size.width, 1)
     image.draw(
       in: CGRect(x: centre.x - width / 2, y: centre.y - height / 2, width: width, height: height),

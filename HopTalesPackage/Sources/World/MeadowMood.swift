@@ -116,6 +116,28 @@ extension Weather {
   }
 }
 
+extension SkyStyle {
+  func color(at fraction: CGFloat) -> UIColor {
+    guard gradient.count == 3 else { return gradient.first ?? .white }
+    let fraction = min(max(fraction, 0), 1)
+    let (from, to, mix) = fraction < 0.55
+      ? (gradient[0], gradient[1], fraction / 0.55)
+      : (gradient[1], gradient[2], (fraction - 0.55) / 0.45)
+    let start = from.rgb
+    let end = to.rgb
+    let channel = { (index: Int) in start[index] + (end[index] - start[index]) * mix }
+    return UIColor(red: channel(0), green: channel(1), blue: channel(2), alpha: 1)
+  }
+}
+
+extension UIColor {
+  fileprivate var rgb: [CGFloat] {
+    var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+    getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+    return [red, green, blue]
+  }
+}
+
 extension Mood {
   func tint(for layer: MeadowLayer) -> UIColor {
     (sky.style.tints[layer] ?? .white).dimmed(weather.style.dim)
