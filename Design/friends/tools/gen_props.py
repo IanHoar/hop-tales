@@ -104,6 +104,11 @@ STILLS = {
         ("bottle", "a green glass bottle with a cork and a rolled paper message inside, lying on its side"),
         ("mushroom", "a large red toadstool with white spots"),
     ]),
+    "still-bath": ("3:2", "1K", [
+        ("bed", "a small cosy bed of golden hay, a soft round heap with a few loose straws, big enough for a rabbit"),
+        ("bucket", "an old tin bucket full of warm soapy water, with white suds foaming over the rim"),
+        ("soap", "a bar of pale pink soap with a few soap bubbles on it"),
+    ]),
     "still-tall": ("16:9", "2K", [
         ("scarecrow", "a friendly old scarecrow in a patched blue jacket and straw hat on a wooden post"),
         ("sunflower", "one very tall sunflower with a big golden head and leaves"),
@@ -211,7 +216,7 @@ PICKS = {
     "thrush": [(0, True), (1, False)], "owl": [(0, True), (1, False)],
     "grandma": [(0, True), (1, True)],
 }
-SKIPS = {"still-tall": [4, 6, 7], "still-things": [7], "still-small": [4]}
+SKIPS = {"still-tall": [4, 6, 7], "still-things": [7], "still-small": [4], "still-bath": [3, 4]}
 
 
 def rows_of(pieces):
