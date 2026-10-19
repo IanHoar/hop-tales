@@ -53,7 +53,7 @@ public final class IntroScene: SKScene {
     backgroundColor = UIColor(rgb: 0x1E2A4E)
     build()
     relayout()
-    preloadLaunch()
+    preloadTextures()
   }
 
   @available(*, unavailable)
@@ -210,21 +210,21 @@ public final class IntroScene: SKScene {
 
   public var onFirstFrame: (() -> Void)?
   private var framesDrawn = 0
-  private var launchLoaded = false
+  private var texturesLoaded = false
 
-  private func preloadLaunch() {
-    guard let texture = launch?.texture else {
-      launchLoaded = true
-      return
+  private func preloadTextures() {
+    var textures = hopTextures
+    enumerateChildNodes(withName: "//*") { node, _ in
+      if let texture = (node as? SKSpriteNode)?.texture { textures.append(texture) }
     }
-    texture.preload { [weak self] in
-      Task { @MainActor in self?.launchLoaded = true }
+    SKTexture.preload(textures) { [weak self] in
+      Task { @MainActor in self?.texturesLoaded = true }
     }
   }
 
   override public func didFinishUpdate() {
     super.didFinishUpdate()
-    guard let onFirstFrame, launchLoaded else { return }
+    guard let onFirstFrame, texturesLoaded else { return }
     framesDrawn += 1
     guard framesDrawn >= 3 else { return }
     self.onFirstFrame = nil

@@ -8,6 +8,7 @@ public struct IntroView: View {
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @State private var scene: IntroScene?
   @State private var hasDrawn = false
+  @State private var screen = CGSize.zero
 
   public init() {}
 
@@ -15,13 +16,10 @@ public struct IntroView: View {
     Color(hex: 0x1E2A4E)
       .overlay(alignment: .bottomLeading) {
         if !hasDrawn, let image = Self.launchImage {
-          GeometryReader { proxy in
-            let size = IntroLayout.launchSize(image.size, filling: proxy.size)
-            Image(uiImage: image)
-              .resizable()
-              .frame(width: size.width, height: size.height)
-              .frame(maxHeight: .infinity, alignment: .bottom)
-          }
+          let size = IntroLayout.launchSize(image.size, filling: screen)
+          Image(uiImage: image)
+            .resizable()
+            .frame(width: size.width, height: size.height)
         }
       }
       .overlay {
@@ -31,6 +29,7 @@ public struct IntroView: View {
         }
       }
       .onGeometryChange(for: CGSize.self, of: \.size) { size in
+        screen = size
         guard scene == nil, size.width > 0, size.height > 0 else { return }
         let scene = IntroScene(size: size, launchImage: Self.launchImage)
         scene.onFirstFrame = { hasDrawn = true }
