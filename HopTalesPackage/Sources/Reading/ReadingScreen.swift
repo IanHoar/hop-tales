@@ -385,16 +385,15 @@ public struct ReadingScreen: View {
     }
     .toolbar(.hidden, for: .navigationBar)
     .modifier(ReadingPanels(store: store))
-    .task(id: store.completionCount) {
-      guard store.completionCount > 0, case .sentence = store.completed else { return }
-      Haptics.sentenceCompleted()
+    .sensoryFeedback(.success, trigger: store.completionCount) { _, count in
+      guard count > 0, case .sentence = store.completed else { return false }
+      return true
     }
     .onChange(of: scenePhase) { _, phase in
       store.send(.scenePhaseChanged(isActive: phase != .background))
     }
-    .task(id: store.recognised) {
-      guard store.recognised != nil else { return }
-      Haptics.wordRecognised()
+    .sensoryFeedback(.impact(flexibility: .soft), trigger: store.recognised) { _, word in
+      word != nil
     }
   }
 }
