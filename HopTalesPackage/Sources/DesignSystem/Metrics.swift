@@ -31,6 +31,27 @@ public struct Metrics: Equatable, Sendable {
     words: WordSizes(current: 54, recognised: 40, side: 31, gap: 12)
   )
 
+  public static let duo = Metrics(
+    reference: CGSize(width: 466, height: 678),
+    topBarY: 39,
+    sidePadding: 20,
+    card: Card(
+      origin: CGPoint(x: 14, y: 376),
+      size: CGSize(width: 438, height: 150)
+    ),
+    words: WordSizes(current: 46, recognised: 34, side: 26, gap: 10),
+    pathScale: 0.82,
+    pathCentre: 514
+  )
+
+  public static let squatAspect: CGFloat = 0.6
+
+  public static func forScreen(_ size: CGSize, regular: Bool) -> Metrics {
+    if regular { return .pad }
+    guard size.height > 0, size.width / size.height > squatAspect else { return .phone }
+    return .duo
+  }
+
   public static let pad = Metrics(
     reference: CGSize(width: 1194, height: 834),
     topBarY: 32,

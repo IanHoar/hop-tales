@@ -352,12 +352,18 @@ public struct ReadingScreen: View {
     self.store = store
   }
 
-  private var metrics: Metrics {
-    horizontalSizeClass == .regular && verticalSizeClass == .regular ? .pad : .phone
+  private func metrics(for size: CGSize) -> Metrics {
+    Metrics.forScreen(
+      size, regular: horizontalSizeClass == .regular && verticalSizeClass == .regular
+    )
   }
 
   public var body: some View {
     GeometryReader { outer in
+      let metrics = metrics(for: CGSize(
+        width: outer.size.width + outer.safeAreaInsets.leading + outer.safeAreaInsets.trailing,
+        height: outer.size.height + outer.safeAreaInsets.top + outer.safeAreaInsets.bottom
+      ))
       let chrome = ReadingGeometry(metrics: metrics, size: outer.size)
       ZStack(alignment: .topLeading) {
         GeometryReader { proxy in
