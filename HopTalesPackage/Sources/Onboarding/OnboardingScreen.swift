@@ -214,6 +214,7 @@ import World
 public struct OnboardingScreen: View {
   let store: StoreOf<Onboarding>
   @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.simulatedFold) private var simulatedFold
 
   public init(store: StoreOf<Onboarding>) {
     self.store = store
@@ -223,17 +224,23 @@ public struct OnboardingScreen: View {
     GeometryReader { proxy in
       let insets = proxy.safeAreaInsets
       let screen = proxy.size.height + insets.top + insets.bottom
+      let area = CGSize(width: proxy.size.width, height: proxy.size.height + insets.bottom)
+      let room = proxy.fold(or: simulatedFold)?.room(in: area)
+      let top = max(insets.top, room?.minY ?? 0) + 12
       ZStack(alignment: .bottom) {
         MeadowBackdrop(progress: 700, mood: meadowMood)
         ViewThatFits(in: .vertical) {
           OnboardingSheet(store: store, bottomInset: insets.bottom, scrolls: false)
-            .frame(minHeight: screen * 0.61, alignment: .top)
+            .frame(minHeight: room.map { $0.maxY - top } ?? screen * 0.61, alignment: .top)
             .fixedSize(horizontal: false, vertical: true)
           OnboardingSheet(store: store, bottomInset: insets.bottom, scrolls: true)
         }
         .frame(maxWidth: 560)
+        .frame(maxWidth: .infinity)
         .liftsAboveKeyboard(keepingTopBelow: insets.top + 12)
-        .padding(.top, insets.top + 12)
+        .padding(.top, top)
+        .padding(.leading, room?.minX ?? 0)
+        .padding(.trailing, room.map { proxy.size.width - $0.maxX } ?? 0)
       }
       .frame(maxWidth: .infinity)
       .ignoresSafeArea(.container, edges: .bottom)

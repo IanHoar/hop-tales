@@ -88,4 +88,22 @@ struct DuoSnapshotTests {
   func onboarding(fold: Fold, scheme: ColorScheme) {
     shoot(OnboardingPreview(.friend, size: fold.content), fold, scheme, named: "onboarding")
   }
+
+  nonisolated static let halfOpen: [(String, CGRect)] = [
+    ("laptop", CGRect(x: 0, y: 433, width: 669, height: 40)),
+    ("book", CGRect(x: 314, y: 0, width: 40, height: 907))
+  ]
+
+  @Test(arguments: halfOpen)
+  func onboardingHalfOpen(posture: String, fold: CGRect) {
+    for step in [Onboarding.Step.cloud, .friend] {
+      shoot(
+        OnboardingPreview(step, size: Fold.open.content)
+          .environment(\.simulatedFold, DesignSystem.Fold(fold)),
+        .open,
+        .light,
+        named: "onboarding-\(step)-\(posture)"
+      )
+    }
+  }
 }
