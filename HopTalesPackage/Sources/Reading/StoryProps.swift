@@ -23,7 +23,6 @@ enum PropTiming {
     _ cues: [PropKey: PropCue], story: Story, at position: HopTarget, now: Date
   ) -> [PropKey: PropCue] {
     var cues = cues.filter { $0.key.sentence <= position.sentence }
-    let over = position.sentence >= story.sentences.count
     for key in cues.keys where key.sentence < position.sentence && cues[key]?.ended == nil {
       guard !lingers(key, in: story, at: position) else { continue }
       cues[key]?.ended = now

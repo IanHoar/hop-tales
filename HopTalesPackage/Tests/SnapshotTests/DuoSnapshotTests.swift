@@ -15,7 +15,7 @@ struct DuoSnapshotTests {
     case folded
     case open
 
-    var config: ViewImageConfig {
+    @MainActor var config: ViewImageConfig {
       switch self {
       case .folded:
         ViewImageConfig(
@@ -32,7 +32,7 @@ struct DuoSnapshotTests {
       }
     }
 
-    static var traits: UITraitCollection {
+    @MainActor static var traits: UITraitCollection {
       UITraitCollection {
         $0.userInterfaceIdiom = .phone
         $0.horizontalSizeClass = .compact
@@ -40,7 +40,7 @@ struct DuoSnapshotTests {
       }
     }
 
-    var content: CGSize {
+    @MainActor var content: CGSize {
       let config = config
       let size = config.size ?? .zero
       return CGSize(
