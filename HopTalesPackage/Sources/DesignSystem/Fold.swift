@@ -21,6 +21,15 @@ public struct Fold: Equatable, Sendable {
   }
 }
 
+extension Fold {
+  public func stage(in size: CGSize) -> CGRect {
+    if runsAcross {
+      return CGRect(x: 0, y: 0, width: size.width, height: max(0, frame.minY))
+    }
+    return CGRect(x: 0, y: 0, width: max(0, frame.minX), height: size.height)
+  }
+}
+
 extension EnvironmentValues {
   @Entry public var simulatedFold: Fold?
 }

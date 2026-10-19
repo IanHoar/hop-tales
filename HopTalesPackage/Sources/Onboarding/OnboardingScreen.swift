@@ -225,13 +225,18 @@ public struct OnboardingScreen: View {
       let insets = proxy.safeAreaInsets
       let screen = proxy.size.height + insets.top + insets.bottom
       let area = CGSize(width: proxy.size.width, height: proxy.size.height + insets.bottom)
-      let room = proxy.fold(or: simulatedFold)?.room(in: area)
+      let fold = proxy.fold(or: simulatedFold)
+      let room = fold?.room(in: area)
       let top = max(insets.top, room?.minY ?? 0) + 12
+      let fill = min(room.map { $0.maxY - top } ?? .infinity, screen * 0.61)
       ZStack(alignment: .bottom) {
         MeadowBackdrop(progress: 700, mood: meadowMood)
+        if let fold, !fold.runsAcross {
+          hare(on: fold.stage(in: area))
+        }
         ViewThatFits(in: .vertical) {
           OnboardingSheet(store: store, bottomInset: insets.bottom, scrolls: false)
-            .frame(minHeight: room.map { $0.maxY - top } ?? screen * 0.61, alignment: .top)
+            .frame(minHeight: fill, alignment: .top)
             .fixedSize(horizontal: false, vertical: true)
           OnboardingSheet(store: store, bottomInset: insets.bottom, scrolls: true)
         }
@@ -246,6 +251,15 @@ public struct OnboardingScreen: View {
       .ignoresSafeArea(.container, edges: .bottom)
     }
     .ignoresSafeArea(.keyboard)
+  }
+
+  private func hare(on stage: CGRect) -> some View {
+    let height = min(160, stage.width * 0.5)
+    return IdleFriend(.hare, look: nil, height: height)
+      .shadow(color: Paper.shadow, radius: 6, y: 4)
+      .position(x: stage.midX, y: stage.maxY * 0.86 - height / 2)
+      .frame(width: stage.maxX, height: stage.maxY)
+      .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
   }
 
   private var meadowMood: Mood {
