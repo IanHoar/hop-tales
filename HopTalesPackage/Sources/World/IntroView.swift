@@ -15,7 +15,13 @@ public struct IntroView: View {
     Color(hex: 0x1E2A4E)
       .overlay(alignment: .bottomLeading) {
         if !hasDrawn, let image = Self.launchImage {
-          Image(uiImage: image)
+          GeometryReader { proxy in
+            let size = IntroLayout.launchSize(image.size, filling: proxy.size)
+            Image(uiImage: image)
+              .resizable()
+              .frame(width: size.width, height: size.height)
+              .frame(maxHeight: .infinity, alignment: .bottom)
+          }
         }
       }
       .overlay {

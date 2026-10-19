@@ -10,20 +10,23 @@
         <scene sceneID="LaunchScene">
             <objects>
                 <viewController id="Launch" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="LaunchView">
+                    <view key="view" clipsSubviews="YES" contentMode="scaleToFill" id="LaunchView">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="bottomLeft" image="LaunchImage" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchArt">
-                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" image="LaunchImage" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchArt">
+                                <rect key="frame" x="0.0" y="-104" width="440" height="956"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="LaunchArt" secondAttribute="height" multiplier="440:956" id="LaunchAspect"/>
+                                    <constraint firstAttribute="width" priority="750" constant="440" id="LaunchNatural"/>
+                                </constraints>
                             </imageView>
                         </subviews>
                         <color key="backgroundColor" name="LaunchBackground"/>
                         <constraints>
-                            <constraint firstItem="LaunchArt" firstAttribute="top" secondItem="LaunchView" secondAttribute="top" id="LaunchTop"/>
                             <constraint firstItem="LaunchArt" firstAttribute="bottom" secondItem="LaunchView" secondAttribute="bottom" id="LaunchBottom"/>
                             <constraint firstItem="LaunchArt" firstAttribute="leading" secondItem="LaunchView" secondAttribute="leading" id="LaunchLeading"/>
-                            <constraint firstItem="LaunchArt" firstAttribute="trailing" secondItem="LaunchView" secondAttribute="trailing" id="LaunchTrailing"/>
+                            <constraint firstItem="LaunchArt" firstAttribute="width" relation="greaterThanOrEqual" secondItem="LaunchView" secondAttribute="width" id="LaunchFillsWidth"/>
                         </constraints>
                     </view>
                 </viewController>

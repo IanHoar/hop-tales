@@ -16,54 +16,6 @@ public enum IntroTimeline {
   public static let launchFade: TimeInterval = 1
 }
 
-struct IntroSpot {
-  let x: CGFloat
-  let top: CGFloat
-  let width: CGFloat
-
-  init(_ x: CGFloat, _ top: CGFloat, _ width: CGFloat) {
-    self.x = x
-    self.top = top
-    self.width = width
-  }
-}
-
-struct IntroLayout {
-  static let starSpots = [
-    IntroSpot(0.10, 0.11, 16), IntroSpot(0.28, 0.21, 11), IntroSpot(0.77, 0.08, 14),
-    IntroSpot(0.64, 0.18, 10), IntroSpot(0.88, 0.27, 12), IntroSpot(0.18, 0.35, 9),
-    IntroSpot(0.47, 0.06, 10), IntroSpot(0.55, 0.30, 8)
-  ]
-  static let offsets: [MeadowLayer: CGFloat] = [.far: 900, .mid: 1400, .near: 600]
-  static let night = [UIColor(rgb: 0x1E2A4E), UIColor(rgb: 0x3B4776), UIColor(rgb: 0x6E6D92)]
-  static let dawn = [UIColor(rgb: 0x8FA6CF), UIColor(rgb: 0xE7B6A2), UIColor(rgb: 0xF6D6A6)]
-  static let day = [UIColor(rgb: 0xBCDCEE), UIColor(rgb: 0xDCEBEF), UIColor(rgb: 0xEEF2E6)]
-  static let dimLand = UIColor(white: 0.42, alpha: 1)
-  static let nightSaturation: CGFloat = 0.55
-  static let hopFrames = 8
-  static let hopFrame = CGSize(width: 363, height: 346)
-  static let hopUpright: CGFloat = 322
-  static let hopFeet: CGFloat = 334
-
-  let meadow: MeadowLayout
-
-  var k: CGFloat { meadow.k }
-  var size: CGSize { meadow.size }
-  var landDrop: CGFloat { 26 * k }
-  var hareFrontHeight: CGFloat { 132 * k }
-  var hareSideHeight: CGFloat { 138 * k }
-  var hareRunHeight: CGFloat { hareSideHeight * Self.hopFrame.height / Self.hopUpright }
-  var hareRunFeet: CGFloat {
-    hareRunHeight * (Self.hopFrame.height - Self.hopFeet) / Self.hopFrame.height
-  }
-
-  func progress(of layer: MeadowLayer) -> Double {
-    Double((Self.offsets[layer] ?? 0) * meadow.scale / layer.speed)
-  }
-
-  func y(_ top: CGFloat) -> CGFloat { size.height - top }
-}
-
 public final class IntroScene: SKScene {
   let night = SKSpriteNode()
   let dawn = SKSpriteNode()
@@ -101,6 +53,7 @@ public final class IntroScene: SKScene {
     backgroundColor = UIColor(rgb: 0x1E2A4E)
     build()
     relayout()
+    preloadLaunch()
   }
 
   @available(*, unavailable)
@@ -153,19 +106,28 @@ public final class IntroScene: SKScene {
   }
 
   private func relayout() {
-    layout = IntroLayout(meadow: MeadowLayout(size: size))
+    let zoom = launchZoom
+    layout = IntroLayout(
+      meadow: zoom > 1 ? MeadowLayout(size: size, k: zoom) : MeadowLayout(size: size)
+    )
     guard !isPlaying else { return }
     placeSky()
     placeLand()
     placeHares()
     if let launch, let image = launch.texture?.size() {
-      launch.size = image
+      launch.size = IntroLayout.launchSize(image, filling: size)
       launch.position = .zero
     }
   }
 
+  private var launchZoom: CGFloat {
+    guard let image = launch?.texture?.size(), image.width > 0 else { return 1 }
+    return IntroLayout.launchSize(image, filling: size).width / image.width
+  }
+
   private var launchFrame: CGSize {
-    launch?.texture?.size() ?? layout.size
+    guard let image = launch?.texture?.size() else { return layout.size }
+    return IntroLayout.launchSize(image, filling: size)
   }
 
   private func placeSky() {
@@ -248,12 +210,23 @@ public final class IntroScene: SKScene {
 
   public var onFirstFrame: (() -> Void)?
   private var framesDrawn = 0
+  private var launchLoaded = false
+
+  private func preloadLaunch() {
+    guard let texture = launch?.texture else {
+      launchLoaded = true
+      return
+    }
+    texture.preload { [weak self] in
+      Task { @MainActor in self?.launchLoaded = true }
+    }
+  }
 
   override public func didFinishUpdate() {
     super.didFinishUpdate()
-    guard let onFirstFrame else { return }
+    guard let onFirstFrame, launchLoaded else { return }
     framesDrawn += 1
-    guard framesDrawn >= 2 else { return }
+    guard framesDrawn >= 3 else { return }
     self.onFirstFrame = nil
     onFirstFrame()
   }
