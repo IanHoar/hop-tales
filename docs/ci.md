@@ -72,8 +72,10 @@ resolve packages. Every branch here is pushed to this repository, so that does n
   posts no check at all, so while Xcode Cloud is the live runner its required check blocks
   Android-only pull requests. Leave the PR workflow's start condition on every change while it is
   required, and filter only the release workflow.
-- Runs on the `xcode-27` image, with Xcode 27.0 (27A266a) pinned through `DEVELOPER_DIR`, which is
-  the same Xcode that Xcode Cloud pins.
+- Runs on the `xcode-27` image, with Xcode 27.1 (27A9275) pinned through `DEVELOPER_DIR`, which is
+  the same Xcode that Xcode Cloud pins. 27.1 is the first SDK with the iPhone Duo's
+  `reservedRegions(kind:)`, so 27.0 can't build the app. The image installs it as
+  `Xcode_27.1_Release_Candidate.app`, though the build is the release one.
 - Runs `scripts/ci-setup.sh`, the setup it shares with Xcode Cloud's `ci_post_clone.sh`: macro
   trust, prebuilt swift-syntax, the TCA26 token, and swiftlint.
 - Tests on an iPhone 18 Pro on the iOS 27.0 runtime **build 24A434**, the build the snapshots were
