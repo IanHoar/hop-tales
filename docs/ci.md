@@ -62,6 +62,16 @@ resolve packages. Every branch here is pushed to this repository, so that does n
 
 ## What the workflow does
 
+- Starts on every pull request and push to `main`, and a quick Linux job checks which files
+  changed. The macOS job runs only when `ios/`, `scripts/ci-setup.sh` or the workflow itself
+  changed; otherwise it is skipped, and a skipped job counts as passing for the required `Test`.
+  A `paths:` filter on the trigger would skip the whole workflow instead, and then the required
+  check never reports and the pull request can't merge. `.github/workflows/android.yml` does the
+  same for `android/` and the shared resources, under the check name `Android`.
+- Xcode Cloud has no equivalent. Its start conditions can ignore `android/`, but a build it skips
+  posts no check at all, so while Xcode Cloud is the live runner its required check blocks
+  Android-only pull requests. Leave the PR workflow's start condition on every change while it is
+  required, and filter only the release workflow.
 - Runs on the `xcode-27` image, with Xcode 27.1 (27A9275) pinned through `DEVELOPER_DIR`, which is
   the same Xcode that Xcode Cloud pins. The iPhone Duo's fold API is new in the iOS 27.1 SDK, so
   27.0 can't build the app. `XCODE_BUILD` is part of the cache key, so moving Xcode starts a fresh

@@ -11,9 +11,9 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-ART = ROOT / "HopTalesPackage/Sources/World/Resources"
-OUT = ROOT / "HopTalesPackage/Sources/Content/Resources/looks.json"
-WARDROBE = ROOT / "HopTalesPackage/Sources/Content/Resources/wardrobe.json"
+ART = ROOT / "ios/HopTalesPackage/Sources/World/Resources"
+OUT = ROOT / "ios/HopTalesPackage/Sources/Content/Resources/looks.json"
+WARDROBE = ROOT / "ios/HopTalesPackage/Sources/Content/Resources/wardrobe.json"
 
 names = {path.stem for path in ART.glob("look-*.webp")}
 looks = {}

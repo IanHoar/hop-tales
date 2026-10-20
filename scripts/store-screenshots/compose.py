@@ -11,8 +11,8 @@ import os, sys
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 RAW = f'{ROOT}/build/store-screenshots/raw'
 OUT = f'{ROOT}/build/store-screenshots/out'
-FONTS = f'{ROOT}/HopTalesPackage/Sources/DesignSystem/Resources/Fonts'
-ART = f'{ROOT}/HopTalesPackage/Sources/World/Resources'
+FONTS = f'{ROOT}/ios/HopTalesPackage/Sources/DesignSystem/Resources/Fonts'
+ART = f'{ROOT}/ios/HopTalesPackage/Sources/World/Resources'
 CREAM = (255, 246, 226)
 
 PANELS = [

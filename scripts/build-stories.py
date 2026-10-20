@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build HopTalesPackage/Sources/Content/Resources/stories.json from Design/stories/stories.txt.
+"""Build ios/HopTalesPackage/Sources/Content/Resources/stories.json from Design/stories/stories.txt.
 
 The text file is the source of truth; the JSON is generated and committed. The format is described
 at the top of the text file. The build refuses a sentence outside its level's length, or a word a
@@ -12,9 +12,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "Design/stories/stories.txt"
-OUTPUT = ROOT / "HopTalesPackage/Sources/Content/Resources/stories.json"
-PHONICS = ROOT / "HopTalesPackage/Sources/Content/Resources/phonics.json"
-PROPS = json.loads((ROOT / "HopTalesPackage/Sources/Content/Resources/props.json").read_text())
+OUTPUT = ROOT / "ios/HopTalesPackage/Sources/Content/Resources/stories.json"
+PHONICS = ROOT / "ios/HopTalesPackage/Sources/Content/Resources/phonics.json"
+PROPS = json.loads((ROOT / "ios/HopTalesPackage/Sources/Content/Resources/props.json").read_text())
 PLACES = {"ground", "near", "sky", "alongside", "thought"}
 EVENT = re.compile(r"([a-z]+)(?:\*([2-4]))?(?:@([A-Za-z]+))?(?::([a-z]+))?")
 
@@ -286,7 +286,7 @@ def main():
                     at = f"level {decodes}" if decodes else "no level"
                     kind = "big word" if word["big"] else "word"
                     problems.append(f"{story['id']} (level {level}): {kind} '{word['text']}' decodes at {at}")
-    art = ROOT / "HopTalesPackage/Sources/World/Resources"
+    art = ROOT / "ios/HopTalesPackage/Sources/World/Resources"
     for name, prop in PROPS.items():
         frames = ["1", "2"] if prop["motion"] in {"walk", "swim", "fly", "perch", "swoop"} else [None]
         for frame in frames:
