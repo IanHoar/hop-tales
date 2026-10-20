@@ -245,7 +245,7 @@ struct SoundButtonChoices: View {
       SoundMarksExamples()
         .padding(.vertical, 14)
         .paperChoice(isSelected: false)
-      HStack(spacing: 10) {
+      ChoicePair {
         PaperChoice(title: "Yes, show them", isSelected: selected == true) { pick(true) }
         PaperChoice(title: "No thanks", isSelected: selected == false) { pick(false) }
       }
@@ -260,7 +260,7 @@ struct CloudChoices: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
-      HStack(spacing: 10) {
+      ChoicePair {
         PaperChoice(title: "Yes, use iCloud", isSelected: selected == true) { pick(true) }
         PaperChoice(title: "Not now", isSelected: selected == false) { pick(false) }
       }
@@ -273,6 +273,17 @@ struct CloudChoices: View {
         .foregroundStyle(Paper.muted)
         .fixedSize(horizontal: false, vertical: true)
       }
+    }
+  }
+}
+
+struct ChoicePair<Content: View>: View {
+  @ViewBuilder let content: Content
+
+  var body: some View {
+    ViewThatFits(in: .horizontal) {
+      HStack(spacing: 10) { content }
+      VStack(spacing: 10) { content }
     }
   }
 }

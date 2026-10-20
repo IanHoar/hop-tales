@@ -86,6 +86,12 @@ public struct MeadowLayout: Equatable, Sendable {
     }
   }
 
+  public init(size: CGSize, k: CGFloat) {
+    self.size = size
+    framing = .wide
+    scale = Self.baseScale * k
+  }
+
   public var k: CGFloat { scale / Self.baseScale }
 
   public func scale(of layer: MeadowLayer) -> CGFloat {

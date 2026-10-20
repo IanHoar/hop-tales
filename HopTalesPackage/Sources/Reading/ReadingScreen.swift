@@ -352,12 +352,18 @@ public struct ReadingScreen: View {
     self.store = store
   }
 
-  private var metrics: Metrics {
-    horizontalSizeClass == .regular && verticalSizeClass == .regular ? .pad : .phone
+  private func metrics(for size: CGSize) -> Metrics {
+    Metrics.forScreen(
+      size, regular: horizontalSizeClass == .regular && verticalSizeClass == .regular
+    )
   }
 
   public var body: some View {
     GeometryReader { outer in
+      let metrics = metrics(for: CGSize(
+        width: outer.size.width + outer.safeAreaInsets.leading + outer.safeAreaInsets.trailing,
+        height: outer.size.height + outer.safeAreaInsets.top + outer.safeAreaInsets.bottom
+      ))
       let chrome = ReadingGeometry(metrics: metrics, size: outer.size)
       ZStack(alignment: .topLeading) {
         GeometryReader { proxy in
@@ -379,16 +385,15 @@ public struct ReadingScreen: View {
     }
     .toolbar(.hidden, for: .navigationBar)
     .modifier(ReadingPanels(store: store))
-    .task(id: store.completionCount) {
-      guard store.completionCount > 0, case .sentence = store.completed else { return }
-      Haptics.sentenceCompleted()
+    .sensoryFeedback(.success, trigger: store.completionCount) { _, count in
+      guard count > 0, case .sentence = store.completed else { return false }
+      return true
     }
     .onChange(of: scenePhase) { _, phase in
       store.send(.scenePhaseChanged(isActive: phase != .background))
     }
-    .task(id: store.recognised) {
-      guard store.recognised != nil else { return }
-      Haptics.wordRecognised()
+    .sensoryFeedback(.impact(flexibility: .soft), trigger: store.recognised) { _, word in
+      word != nil
     }
   }
 }
