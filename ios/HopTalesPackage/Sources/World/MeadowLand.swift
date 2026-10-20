@@ -69,6 +69,10 @@ final class TiledLayer: SKNode {
     }
   }
 
+  func shade(_ shader: SKShader?) {
+    for tile in tiles { tile.shader = shader }
+  }
+
   func tint(_ color: UIColor, duration: TimeInterval) {
     for tile in tiles {
       tile.removeAction(forKey: "tint")
