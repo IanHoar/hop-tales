@@ -1,16 +1,11 @@
-# Builds the Android app and runs its JVM tests. Linux runners only, and only when a pull request
-# touches android/ or the content and art it reads from the iOS package.
+# Builds the Android app and runs its JVM tests, on Linux. The workflow starts on every pull
+# request so "Android" can be a required check; the build itself is skipped, which reports
+# success, unless the pull request touches android/ or the content and art it reads from ios/.
 name: Android
 
 on:
   pull_request:
     branches: [main]
-    paths:
-      - 'android/**'
-      - 'ios/HopTalesPackage/Sources/Content/Resources/**'
-      - 'ios/HopTalesPackage/Sources/World/Resources/**'
-      - 'ios/HopTalesPackage/Sources/DesignSystem/Resources/**'
-      - '.github/workflows/android.yml'
   workflow_dispatch:
 
 concurrency:
@@ -21,8 +16,30 @@ permissions:
   contents: read
 
 jobs:
+  changes:
+    name: Changes
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      android: ${{ github.event_name != 'pull_request' || steps.filter.outputs.android == 'true' }}
+    steps:
+      - uses: dorny/paths-filter@v3
+        id: filter
+        if: github.event_name == 'pull_request'
+        with:
+          filters: |
+            android:
+              - 'android/**'
+              - 'ios/HopTalesPackage/Sources/Content/Resources/**'
+              - 'ios/HopTalesPackage/Sources/World/Resources/**'
+              - 'ios/HopTalesPackage/Sources/DesignSystem/Resources/**'
+              - '.github/workflows/android.yml'
+
   build:
     name: Android
+    needs: changes
+    if: needs.changes.outputs.android == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
