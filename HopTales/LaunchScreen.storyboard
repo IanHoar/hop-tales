@@ -21,21 +21,44 @@
                                     <constraint firstAttribute="width" priority="750" constant="440" id="LaunchNatural"/>
                                 </constraints>
                             </imageView>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" image="LaunchImageOpen" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchOpen">
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" name="LaunchBackground"/>
                         <constraints>
                             <constraint firstItem="LaunchArt" firstAttribute="bottom" secondItem="LaunchView" secondAttribute="bottom" id="LaunchBottom"/>
                             <constraint firstItem="LaunchArt" firstAttribute="leading" secondItem="LaunchView" secondAttribute="leading" id="LaunchLeading"/>
                             <constraint firstItem="LaunchArt" firstAttribute="width" relation="greaterThanOrEqual" secondItem="LaunchView" secondAttribute="width" id="LaunchFillsWidth"/>
+                            <constraint firstItem="LaunchOpen" firstAttribute="top" secondItem="LaunchView" secondAttribute="top" id="OpenTop"/>
+                            <constraint firstItem="LaunchOpen" firstAttribute="bottom" secondItem="LaunchView" secondAttribute="bottom" id="OpenBottom"/>
+                            <constraint firstItem="LaunchOpen" firstAttribute="leading" secondItem="LaunchView" secondAttribute="leading" id="OpenLeading"/>
+                            <constraint firstItem="LaunchOpen" firstAttribute="trailing" secondItem="LaunchView" secondAttribute="trailing" id="OpenTrailing"/>
                         </constraints>
+                        <variation key="default">
+                            <mask key="subviews">
+                                <exclude reference="LaunchOpen"/>
+                            </mask>
+                            <mask key="constraints">
+                                <exclude reference="OpenTop"/>
+                                <exclude reference="OpenBottom"/>
+                                <exclude reference="OpenLeading"/>
+                                <exclude reference="OpenTrailing"/>
+                            </mask>
+                        </variation>
                         <variation key="widthClass=regular">
                             <mask key="subviews">
                                 <exclude reference="LaunchArt"/>
+                                <include reference="LaunchOpen"/>
                             </mask>
                             <mask key="constraints">
                                 <exclude reference="LaunchBottom"/>
                                 <exclude reference="LaunchLeading"/>
                                 <exclude reference="LaunchFillsWidth"/>
+                                <include reference="OpenTop"/>
+                                <include reference="OpenBottom"/>
+                                <include reference="OpenLeading"/>
+                                <include reference="OpenTrailing"/>
                             </mask>
                         </variation>
                     </view>
@@ -47,6 +70,7 @@
     </scenes>
     <resources>
         <image name="LaunchImage" width="440" height="956"/>
+        <image name="LaunchImageOpen" width="669" height="951"/>
         <namedColor name="LaunchBackground">
             <color red="0.1176" green="0.1647" blue="0.3059" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>

@@ -33,12 +33,13 @@ public final class IntroScene: SKScene {
   let hareSide = SKSpriteNode(texture: MeadowArt.texture(Friend.hare.startingLook ?? "hare-sit"))
   let hareRun = SKSpriteNode()
   let launch: SKSpriteNode?
+  let stretchesLaunch: Bool
   private let hopTextures: [SKTexture]
   public private(set) var isPlaying = false
   private var wantsToPlay = false
   private var layout = IntroLayout(meadow: MeadowLayout(size: .zero))
 
-  public init(size: CGSize, launchImage: UIImage? = nil) {
+  public init(size: CGSize, launchImage: UIImage? = nil, stretchesLaunch: Bool = false) {
     let sheet = MeadowArt.texture(Friend.hare.startingLook.map { "\($0)-hop" } ?? "hare-hop")
     let frames = IntroLayout.hopFrames
     hopTextures = (0..<frames).map { index in
@@ -47,6 +48,7 @@ public final class IntroScene: SKScene {
       return SKTexture(rect: rect, in: sheet)
     }
     launch = launchImage.map { SKSpriteNode(texture: SKTexture(image: $0)) }
+    self.stretchesLaunch = stretchesLaunch
     super.init(size: size)
     anchorPoint = .zero
     scaleMode = .resizeFill
@@ -114,19 +116,19 @@ public final class IntroScene: SKScene {
     placeSky()
     placeLand()
     placeHares()
-    if let launch, let image = launch.texture?.size() {
-      launch.size = IntroLayout.launchSize(image, filling: size)
-      launch.position = .zero
+    if launch != nil {
+      launch?.size = launchFrame
+      launch?.position = .zero
     }
   }
 
   private var launchZoom: CGFloat {
-    guard let image = launch?.texture?.size(), image.width > 0 else { return 1 }
+    guard !stretchesLaunch, let image = launch?.texture?.size(), image.width > 0 else { return 1 }
     return IntroLayout.launchSize(image, filling: size).width / image.width
   }
 
   private var launchFrame: CGSize {
-    guard let image = launch?.texture?.size() else { return layout.size }
+    guard !stretchesLaunch, let image = launch?.texture?.size() else { return size }
     return IntroLayout.launchSize(image, filling: size)
   }
 

@@ -5,6 +5,7 @@ import SwiftUI
 public struct IntroView: View {
   static let launchImage = UIImage(named: "LaunchImage", in: .main, with: nil)
   static let wideLaunchImage = UIImage(named: "LaunchImageWide", in: .main, with: nil)
+  static let openLaunchImage = UIImage(named: "LaunchImageOpen", in: .main, with: nil)
 
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -18,7 +19,8 @@ public struct IntroView: View {
     Color(hex: 0x1E2A4E)
       .overlay(alignment: .bottomLeading) {
         if !hasDrawn, let image = launchImage {
-          let size = IntroLayout.launchSize(image.size, filling: screen)
+          let size = stretchesLaunch
+            ? screen : IntroLayout.launchSize(image.size, filling: screen)
           Image(uiImage: image)
             .resizable()
             .frame(width: size.width, height: size.height)
@@ -37,7 +39,9 @@ public struct IntroView: View {
       .onGeometryChange(for: CGSize.self, of: \.size) { size in
         screen = size
         guard scene == nil, size.width > 0, size.height > 0 else { return }
-        let scene = IntroScene(size: size, launchImage: launchImage)
+        let scene = IntroScene(
+          size: size, launchImage: launchImage, stretchesLaunch: stretchesLaunch
+        )
         scene.onFirstFrame = { hasDrawn = true }
         if !reduceMotion { scene.play() }
         self.scene = scene
@@ -46,8 +50,13 @@ public struct IntroView: View {
       .accessibilityHidden(true)
   }
 
+  private var stretchesLaunch: Bool {
+    horizontalSizeClass == .regular && Self.openLaunchImage != nil
+  }
+
   private var launchImage: UIImage? {
-    horizontalSizeClass == .regular ? Self.wideLaunchImage : Self.launchImage
+    guard horizontalSizeClass == .regular else { return Self.launchImage }
+    return Self.openLaunchImage ?? Self.wideLaunchImage
   }
 }
 
