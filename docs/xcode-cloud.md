@@ -14,8 +14,10 @@ The app lives in `ios/` since the repository became a monorepo. Xcode Cloud look
 beside the workspace it builds, so the scripts moved with it, and each workflow has to point at
 `ios/HopTales.xcworkspace`. A workflow created before the move still names the old root path and
 fails to find the project until it is edited in Xcode (Integrate → Manage Workflows → the workflow
-→ General) and saved. Set each workflow's start conditions to skip changes that only touch
-`android/`, so Android work does not spend the free hours.
+→ General) and saved. Give the release workflow a start condition that skips changes only under
+`android/`, so Android merges don't spend the free hours. Leave the pull request workflow running
+on every change while its check is required: a build it skips posts no check, and the pull request
+can't merge (see [ci.md](ci.md)).
 
 ## What the scripts do
 
@@ -95,8 +97,7 @@ package resolution fail with something cryptic.
 
 - **Start Condition:** Pull Request Changes, target branch `main`.
 - **Actions:** Build, then Test.
-- **Environment: Xcode 27.1 (27A9275), not "Latest Release".** 27.0 can't build the app: its SDK
-  has no `reservedRegions(kind:)`, which the iPhone Duo support needs. Pin the exact version on both
+- **Environment: Xcode 27.1 (27A9275), not "Latest Release".** Pin the exact version on both
   workflows, so a new Xcode or simulator runtime on Xcode Cloud never changes the renderer behind
   our backs.
 - **Test destination: iPhone 18 Pro, iOS 27.0 (build 24A434) — pin it, never "Latest".** The snapshot references in

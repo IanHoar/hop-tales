@@ -25,7 +25,8 @@ permissions:
 
 env:
   SNAPSHOT_RUNTIME_BUILD: 24A434
-  DEVELOPER_DIR: /Applications/Xcode_27.1_Release_Candidate.app/Contents/Developer
+  XCODE_BUILD: 27A9275
+  DEVELOPER_DIR: /Applications/Xcode_27.1.app/Contents/Developer
 
 jobs:
   # A required check that never reports blocks the merge, so the workflow always starts and this
@@ -112,8 +113,8 @@ jobs:
           path: |
             build/DerivedData
             !build/DerivedData/Logs
-          key: derived-${{ steps.packages.outputs.hash }}
-          restore-keys: derived-
+          key: derived-${{ env.XCODE_BUILD }}-${{ steps.packages.outputs.hash }}
+          restore-keys: derived-${{ env.XCODE_BUILD }}-
 
       - name: Test
         timeout-minutes: 25

@@ -73,9 +73,9 @@ resolve packages. Every branch here is pushed to this repository, so that does n
   Android-only pull requests. Leave the PR workflow's start condition on every change while it is
   required, and filter only the release workflow.
 - Runs on the `xcode-27` image, with Xcode 27.1 (27A9275) pinned through `DEVELOPER_DIR`, which is
-  the same Xcode that Xcode Cloud pins. 27.1 is the first SDK with the iPhone Duo's
-  `reservedRegions(kind:)`, so 27.0 can't build the app. The image installs it as
-  `Xcode_27.1_Release_Candidate.app`, though the build is the release one.
+  the same Xcode that Xcode Cloud pins. The iPhone Duo's fold API is new in the iOS 27.1 SDK, so
+  27.0 can't build the app. `XCODE_BUILD` is part of the cache key, so moving Xcode starts a fresh
+  cache rather than restoring another Xcode's build products.
 - Runs `scripts/ci-setup.sh`, the setup it shares with Xcode Cloud's `ci_post_clone.sh`: macro
   trust, prebuilt swift-syntax, the TCA26 token, and swiftlint.
 - Tests on an iPhone 18 Pro on the iOS 27.0 runtime **build 24A434**, the build the snapshots were
