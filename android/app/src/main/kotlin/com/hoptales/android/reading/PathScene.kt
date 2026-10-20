@@ -16,6 +16,7 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import com.hoptales.android.world.HareSheets
+import com.hoptales.android.world.IdleMotion
 import com.hoptales.android.world.MeadowLayer
 import com.hoptales.android.world.MeadowLayout
 import com.hoptales.android.world.SpriteSheet
@@ -173,9 +174,10 @@ fun DrawScope.drawHare(art: HareArt, geometry: PathGeometry, nowNanos: Long, hop
     } else {
         sheet = art.sheets.idle
         image = art.idle ?: return
-        frame = ((nowNanos / 1e9f) * IDLE_FPS).toInt() % sheet.frames
+        frame = IdleMotion.frame(nowNanos / 1e9).coerceIn(0, sheet.frames - 1)
         height = geometry.path(PathGeometry.SITTING_HEIGHT)
     }
+    val (breathX, breathY) = if (hopping) 1f to 1f else IdleMotion.breathing(nowNanos / 1e9)
     val scale = height / sheet.cellHeight
     val apex = geometry.path(if (hop?.carried == true) PathGeometry.SENTENCE_APEX else PathGeometry.WORD_APEX)
     val lift = if (hopping) sin(PI * (elapsed / hopDuration)).toFloat() * apex else 0f
@@ -185,10 +187,10 @@ fun DrawScope.drawHare(art: HareArt, geometry: PathGeometry, nowNanos: Long, hop
         image = image,
         srcOffset = IntOffset(frame * sheet.cellWidth, 0),
         srcSize = IntSize(sheet.cellWidth, sheet.cellHeight),
-        dstOffset = IntOffset((feetX - sheet.feetX * scale).roundToInt(), (feetY - sheet.feetY * scale).roundToInt()),
-        dstSize = IntSize((sheet.cellWidth * scale).roundToInt(), (sheet.cellHeight * scale).roundToInt()),
+        dstOffset = IntOffset((feetX - sheet.feetX * scale * breathX).roundToInt(), (feetY - sheet.feetY * scale * breathY).roundToInt()),
+        dstSize = IntSize((sheet.cellWidth * scale * breathX).roundToInt(), (sheet.cellHeight * scale * breathY).roundToInt()),
         filterQuality = FilterQuality.Medium,
     )
 }
 
-private const val IDLE_FPS = 8f
+const val IDLE_FPS = 20f

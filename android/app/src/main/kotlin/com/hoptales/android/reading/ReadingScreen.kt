@@ -72,6 +72,7 @@ import com.hoptales.android.world.HareSheets
 import com.hoptales.android.world.MeadowLayer
 import com.hoptales.content.Story
 import com.hoptales.reading.ReadingState
+import kotlinx.coroutines.delay
 
 @Composable
 fun ReadingScreen(story: Story, onDone: () -> Unit) {
@@ -168,8 +169,14 @@ private fun PathStage(state: ReadingState, onWordTapped: () -> Unit) {
         var hop by remember { mutableStateOf<Hop?>(null) }
         var now by remember { mutableLongStateOf(0L) }
 
-        LaunchedEffect(Unit) {
-            while (true) withFrameNanos { now = it }
+        LaunchedEffect(reduceMotion, hop) {
+            if (reduceMotion) return@LaunchedEffect
+            while (true) {
+                val time = withFrameNanos { it }
+                now = time
+                val hopping = hop?.let { time - it.startNanos < HOP_NANOS } ?: false
+                if (!hopping) delay(IDLE_FRAME_MILLIS)
+            }
         }
         LaunchedEffect(state.recognised) {
             val recognised = state.recognised ?: return@LaunchedEffect
@@ -187,7 +194,7 @@ private fun PathStage(state: ReadingState, onWordTapped: () -> Unit) {
         Canvas(
             Modifier
                 .fillMaxSize()
-                .pointerInputTaps(path, camera.value, state, onWordTapped)
+                .pointerInputTaps(path, camera, state, onWordTapped)
                 .semantics {
                     contentDescription = state.wordCardLabel
                     if (currentStop != null) {
@@ -202,15 +209,25 @@ private fun PathStage(state: ReadingState, onWordTapped: () -> Unit) {
             drawSky(state.mood.sky)
             drawMeadow(layers, geometry.meadow, cameraX, state.mood.sky)
             drawWords(path, cameraX, state.sentenceIndex, state.wordIndex)
+        }
+        Canvas(Modifier.fillMaxSize()) {
             drawHare(hare, geometry, if (reduceMotion) 0L else now, if (reduceMotion) null else hop)
         }
     }
 }
 
-private fun Modifier.pointerInputTaps(path: WordPath, cameraX: Float, state: ReadingState, onWordTapped: () -> Unit) =
-    pointerInput(path, cameraX, state.sentenceIndex, state.wordIndex) {
+private const val HOP_NANOS = (HareSheets.HOP_FRAMES / HareSheets.FPS * 1e9f).toLong()
+private const val IDLE_FRAME_MILLIS = (1_000f / IDLE_FPS).toLong()
+
+private fun Modifier.pointerInputTaps(
+    path: WordPath,
+    camera: Animatable<Float, *>,
+    state: ReadingState,
+    onWordTapped: () -> Unit,
+) =
+    pointerInput(path, state.sentenceIndex, state.wordIndex) {
         detectTapGestures { offset ->
-            if (path.hit(offset, cameraX, state.sentenceIndex, state.wordIndex)) onWordTapped()
+            if (path.hit(offset, camera.value, state.sentenceIndex, state.wordIndex)) onWordTapped()
         }
     }
 
