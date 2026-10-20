@@ -37,6 +37,20 @@ at the root are shared. Paths below under `HopTales…` and `project.yml` are in
 - `scripts/render-assets.sh` — SVG → @2x/@3x PNG into the asset catalog. Run it manually; it needs
   `rsvg-convert` (`brew install librsvg`).
 
+## Android
+
+- `android/` is a Gradle project: `app` (Compose) plus pure-Kotlin `core/content`, `core/speech`
+  and `core/reading`. `android/README.md` has the commands and the layout.
+- The Kotlin `core` modules are ports of the Swift logic, and their tests are ports of the Swift
+  tests. A change to matching, stars or the story model lands in both languages in the same pull
+  request; `WordMatcherTest` mirrors `WordMatcherTests` case for case.
+- Content, art and fonts are not copied: `app/build.gradle.kts` reads them from
+  `ios/HopTalesPackage/Sources/*/Resources`. Don't duplicate them under `android/`.
+- Recognition uses `SpeechRecognizer.createOnDeviceSpeechRecognizer` only — never the network
+  recogniser — so `minSdk` is 31.
+- Build with `./gradlew test` and `./gradlew :app:installDebug` from `android/`. The emulator has an
+  on-device recogniser, but test the real loop on a device.
+
 ## Architecture
 
 - State is ComposableArchitecture2 ("TCA26", private `pointfreeco/TCA26`, pinned to `main`).

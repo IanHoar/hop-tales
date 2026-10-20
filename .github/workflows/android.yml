@@ -1,0 +1,39 @@
+# Builds the Android app and runs its JVM tests. Linux runners only, and only when a pull request
+# touches android/ or the content and art it reads from the iOS package.
+name: Android
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'android/**'
+      - 'ios/HopTalesPackage/Sources/Content/Resources/**'
+      - 'ios/HopTalesPackage/Sources/World/Resources/**'
+      - 'ios/HopTalesPackage/Sources/DesignSystem/Resources/**'
+      - '.github/workflows/android.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: android-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Android
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: android
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v5
+      - name: Test and build
+        run: ./gradlew test :app:assembleDebug
