@@ -29,9 +29,36 @@ env:
   DEVELOPER_DIR: /Applications/Xcode_27.1.app/Contents/Developer
 
 jobs:
+  # A required check that never reports blocks the merge, so the workflow always starts and this
+  # cheap Linux job decides whether the macOS job is needed. A job skipped by its `if` reports
+  # success, so a pull request that only touches android/ still satisfies the required "Test".
+  changes:
+    name: Changes
+    if: vars.CI_RUNNER == 'github' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      ios: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.ios == 'true' }}
+    steps:
+      - uses: actions/checkout@v5
+        if: github.event_name == 'push'
+        with:
+          sparse-checkout: .github
+      - uses: dorny/paths-filter@v3
+        id: filter
+        if: github.event_name != 'workflow_dispatch'
+        with:
+          filters: |
+            ios:
+              - 'ios/**'
+              - 'scripts/ci-setup.sh'
+              - '.github/workflows/test.yml'
+
   test:
     name: Test
-    if: vars.CI_RUNNER == 'github' || github.event_name == 'workflow_dispatch'
+    needs: changes
+    if: needs.changes.outputs.ios == 'true'
     runs-on: xcode-27
     timeout-minutes: 45
     steps:
@@ -79,7 +106,7 @@ jobs:
 
       - name: Name the build cache
         id: packages
-        run: echo "hash=$(shasum -a 256 HopTales.xcworkspace/xcshareddata/swiftpm/Package.resolved | cut -c1-64)" >> "$GITHUB_OUTPUT"
+        run: echo "hash=$(shasum -a 256 ios/HopTales.xcworkspace/xcshareddata/swiftpm/Package.resolved | cut -c1-64)" >> "$GITHUB_OUTPUT"
 
       - uses: actions/cache@v4
         with:
@@ -100,7 +127,7 @@ jobs:
             format() { cat; }
           fi
           xcodebuild test \
-            -workspace HopTales.xcworkspace \
+            -workspace ios/HopTales.xcworkspace \
             -scheme HopTales \
             -destination "id=${{ steps.simulator.outputs.udid }}" \
             -derivedDataPath build/DerivedData \

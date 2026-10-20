@@ -5,8 +5,8 @@ Reads the item stickers, Design/friends/wardrobe-suites/suits.json (names, slots
 for the six new friends), Hare's order below, and Design/friends/wardrobe-anchors.json (where each
 item sits on its friend's sit sticker). Writes:
 
-- HopTalesPackage/Sources/World/Resources/wear-<friend>-<item>.webp, 360 px on the long side
-- HopTalesPackage/Sources/Content/Resources/wardrobe.json, every friend's items in unlock order
+- ios/HopTalesPackage/Sources/World/Resources/wear-<friend>-<item>.webp, 360 px on the long side
+- ios/HopTalesPackage/Sources/Content/Resources/wardrobe.json, every friend's items in unlock order
 
 Both are generated and committed; re-run this after the anchors are tuned. Needs cwebp.
 """
@@ -19,8 +19,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 FRIENDS = ROOT / "Design/friends"
-WORLD = ROOT / "HopTalesPackage/Sources/World/Resources"
-CONTENT = ROOT / "HopTalesPackage/Sources/Content/Resources"
+WORLD = ROOT / "ios/HopTalesPackage/Sources/World/Resources"
+CONTENT = ROOT / "ios/HopTalesPackage/Sources/Content/Resources"
 
 HARE = [
     ("scarf", "Red scarf"), ("straw", "Straw hat"), ("bowtie", "Bow tie"),

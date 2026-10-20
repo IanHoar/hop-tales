@@ -16,7 +16,7 @@ if ! command -v cwebp >/dev/null; then
   exit 1
 fi
 
-world="HopTalesPackage/Sources/World/Resources"
+world="ios/HopTalesPackage/Sources/World/Resources"
 scratch=$(mktemp -d)
 trap 'rm -rf "$scratch"' EXIT
 

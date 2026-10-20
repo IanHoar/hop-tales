@@ -5,7 +5,7 @@
 ```sh
 brew install swiftlint   # the hooks and the build both use it
 ./scripts/setup-git.sh   # commit template + hooks, once per clone
-open HopTales.xcworkspace # not the .xcodeproj
+open ios/HopTales.xcworkspace # not the .xcodeproj
 ```
 
 ## Style
@@ -59,13 +59,14 @@ A `commit-msg` hook rejects anything else, and tells you which rule you broke. `
 | `refactor` | neither fixes a defect nor adds a capability |
 | `perf` | makes it faster or lighter |
 | `test` | tests and snapshot references only |
-| `build` | `project.yml`, `Package.swift`, signing, dependencies |
-| `ci` | `ci_scripts`, Xcode Cloud, anything about how builds run |
+| `build` | `project.yml`, `Package.swift`, Gradle files, signing, dependencies |
+| `ci` | `ios/ci_scripts`, Xcode Cloud, GitHub Actions, anything about how builds run |
 | `chore` | everything else with no product effect |
 | `revert` | undoes an earlier commit |
 
 Scopes are optional and name an area, not a file: `reading`, `speech`, `world`, `home`, `content`,
-`design`, `app`, `project`, `ci`, `deps`. Omit the scope when a change genuinely spans the app.
+`design`, `app`, `project`, `ci`, `deps`, and `android` for work that only touches `android/`. Omit
+the scope when a change genuinely spans the app.
 
 ### Body
 
@@ -97,8 +98,10 @@ go in the commit messages, not the description.
 
 ## Before you open one
 
-- `xcodegen generate` if you added files or targets, and commit the regenerated `.xcodeproj`.
-- All tests green through the `HopTales` scheme.
+- `xcodegen generate` in `ios/` if you added files or targets, and commit the regenerated
+  `.xcodeproj`.
+- All tests green through the `HopTales` scheme, and `./gradlew check` in `android/` if you touched
+  it or the shared content in `ios/HopTalesPackage/Sources/*/Resources`.
 - Re-record snapshot references if the UI legitimately changed, and say so in the commit.
 - `docs/HANDOFF.md` is the spec. If the code has to differ from it, amend the spec in the same pull
   request and list the change under "Spec changes" — a spec that quietly disagrees with the app is

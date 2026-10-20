@@ -18,7 +18,7 @@ Apple scales the 6.9″ and 13″ sets down for smaller devices, so no other siz
 when `STORE_SCREENSHOTS=1`, so it stays out of CI and the normal test run:
 
 ```sh
-TEST_RUNNER_STORE_SCREENSHOTS=1 xcodebuild -workspace HopTales.xcworkspace -scheme HopTales \
+TEST_RUNNER_STORE_SCREENSHOTS=1 xcodebuild -workspace ios/HopTales.xcworkspace -scheme HopTales \
   -destination 'platform=iOS Simulator,name=iPhone 18 Pro' -skipMacroValidation \
   -only-testing:SnapshotTests/StoreScreenshotTests test
 ```
