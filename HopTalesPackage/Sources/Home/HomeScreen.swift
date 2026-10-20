@@ -91,6 +91,7 @@ public struct HomeScreen: View {
   @State private var arrived = false
   @Environment(\.arrivesFromOnboarding) private var arrivesFromOnboarding
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @Environment(\.simulatedFold) private var simulatedFold
 
   public init(store: StoreOf<Home>) {
     self.store = store
@@ -116,6 +117,10 @@ public struct HomeScreen: View {
         size: CGSize(width: proxy.size.width, height: screen), framing: framing
       )
       let groundTop = land.top(of: .near) + land.tileSize(of: .near).height - Self.tornEdge
+      let fold = proxy.fold(or: simulatedFold).flatMap { $0.runsAcross ? nil : $0 }
+      let room = fold?.room(in: proxy.size)
+      let standsAside = fold != nil || proxy.size.width > Self.wideLayout
+      let column = min(Self.columnWidth, (room?.width ?? .infinity) - 32)
       ZStack(alignment: .top) {
         MeadowBackdrop(
           camera: MeadowCamera(at: 900), mood: mood, framing: framing,
@@ -129,10 +134,10 @@ public struct HomeScreen: View {
         .frame(height: max(0, screen - groundTop))
         .frame(maxHeight: .infinity, alignment: .bottom)
         .ignoresSafeArea()
-        if proxy.size.width > Self.wideLayout {
+        if standsAside {
           friend
             .position(
-              x: (proxy.size.width - Self.columnWidth) / 4,
+              x: fold?.stage(in: proxy.size).midX ?? (proxy.size.width - Self.columnWidth) / 4,
               y: screen * Self.sheetTop - Self.feetAboveSheet - Self.friendHeight / 2
             )
             .frame(width: proxy.size.width, height: screen)
@@ -147,7 +152,7 @@ public struct HomeScreen: View {
                 content.offset(y: shown ? 0 : 160)
               }
           }
-          .frame(maxWidth: Self.columnWidth)
+          .frame(maxWidth: column)
           .frame(maxWidth: .infinity)
           .frame(minHeight: proxy.size.height, alignment: .top)
           .background(alignment: .top) {
@@ -161,12 +166,13 @@ public struct HomeScreen: View {
                 }
               Spacer(minLength: 0)
                 .frame(height: max(0, screen * Self.sheetTop - proxy.safeAreaInsets.top - 330))
-              friendOnThePath(standsAside: proxy.size.width > Self.wideLayout)
+              friendOnThePath(standsAside: standsAside)
             }
-            .frame(maxWidth: Self.columnWidth)
+            .frame(maxWidth: column)
             .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { sheetTop = $0 }
             .offset(y: scrolled)
           }
+          .padding(.leading, room?.minX ?? 0)
         }
         .onScrollGeometryChange(for: CGFloat.self) { geometry in
           geometry.contentOffset.y + geometry.contentInsets.top

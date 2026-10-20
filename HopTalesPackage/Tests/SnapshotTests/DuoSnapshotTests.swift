@@ -125,4 +125,16 @@ struct DuoSnapshotTests {
       )
     }
   }
+
+  @Test(arguments: [ColorScheme.light, .dark])
+  func homeHalfOpen(scheme: ColorScheme) {
+    let book = Self.postures[1]
+    shoot(
+      HomePreview(.midway, size: book.fold.content)
+        .environment(\.simulatedFold, DesignSystem.Fold(book.crease)),
+      book.fold,
+      scheme,
+      named: "home-book"
+    )
+  }
 }
