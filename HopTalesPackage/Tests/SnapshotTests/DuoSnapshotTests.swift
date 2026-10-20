@@ -14,6 +14,7 @@ struct DuoSnapshotTests {
   enum Fold: String, CaseIterable {
     case folded
     case open
+    case openPortrait
 
     @MainActor var config: ViewImageConfig {
       switch self {
@@ -21,21 +22,31 @@ struct DuoSnapshotTests {
         ViewImageConfig(
           safeArea: UIEdgeInsets(top: 0, left: 0, bottom: 34, right: 84),
           size: CGSize(width: 466, height: 678),
-          traits: Self.traits
+          traits: Self.traits(.compact)
         )
       case .open:
         ViewImageConfig(
+          safeArea: UIEdgeInsets(top: 0, left: 0, bottom: 20, right: 84),
+          size: CGSize(width: 951, height: 669),
+          traits: Self.traits(.regular)
+        )
+      case .openPortrait:
+        ViewImageConfig(
           safeArea: UIEdgeInsets(top: 24, left: 0, bottom: 20, right: 0),
           size: CGSize(width: 669, height: 951),
-          traits: Self.traits
+          traits: Self.traits(.regular)
         )
       }
     }
 
-    @MainActor static var traits: UITraitCollection {
+    var horizontalSizeClass: UserInterfaceSizeClass {
+      self == .folded ? .compact : .regular
+    }
+
+    @MainActor static func traits(_ width: UIUserInterfaceSizeClass) -> UITraitCollection {
       UITraitCollection {
         $0.userInterfaceIdiom = .phone
-        $0.horizontalSizeClass = .compact
+        $0.horizontalSizeClass = width
         $0.verticalSizeClass = .regular
       }
     }
@@ -50,9 +61,9 @@ struct DuoSnapshotTests {
     }
   }
 
-  nonisolated static let cases: [(Fold, ColorScheme)] = [
-    (.folded, .light), (.folded, .dark), (.open, .light), (.open, .dark)
-  ]
+  nonisolated static let cases: [(Fold, ColorScheme)] = Fold.allCases.flatMap { fold in
+    [(fold, ColorScheme.light), (fold, .dark)]
+  }
 
   func shoot(
     _ view: some View,
@@ -66,7 +77,7 @@ struct DuoSnapshotTests {
       of: view
         .environment(\.freezesMotion, true)
         .environment(\.colorScheme, scheme)
-        .environment(\.horizontalSizeClass, .compact)
+        .environment(\.horizontalSizeClass, fold.horizontalSizeClass)
         .environment(\.verticalSizeClass, .regular),
       as: .image(layout: .device(config: config)),
       named: "\(name)-\(fold.rawValue)-\(scheme)",
@@ -89,20 +100,28 @@ struct DuoSnapshotTests {
     shoot(OnboardingPreview(.friend, size: fold.content), fold, scheme, named: "onboarding")
   }
 
-  nonisolated static let halfOpen: [(String, CGRect)] = [
-    ("laptop", CGRect(x: 0, y: 433, width: 669, height: 40)),
-    ("book", CGRect(x: 314, y: 0, width: 40, height: 907))
+  struct Posture: Sendable {
+    let name: String
+    let fold: Fold
+    let crease: CGRect
+  }
+
+  nonisolated static let postures = [
+    Posture(
+      name: "laptop", fold: .openPortrait, crease: CGRect(x: 0, y: 433, width: 669, height: 40)
+    ),
+    Posture(name: "book", fold: .open, crease: CGRect(x: 455, y: 0, width: 40, height: 649))
   ]
 
-  @Test(arguments: halfOpen)
-  func onboardingHalfOpen(posture: String, fold: CGRect) {
+  @Test(arguments: postures)
+  func onboardingHalfOpen(posture: Posture) {
     for step in [Onboarding.Step.cloud, .friend] {
       shoot(
-        OnboardingPreview(step, size: Fold.open.content)
-          .environment(\.simulatedFold, DesignSystem.Fold(fold)),
-        .open,
+        OnboardingPreview(step, size: posture.fold.content)
+          .environment(\.simulatedFold, DesignSystem.Fold(posture.crease)),
+        posture.fold,
         .light,
-        named: "onboarding-\(step)-\(posture)"
+        named: "onboarding-\(step)-\(posture.name)"
       )
     }
   }

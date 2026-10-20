@@ -4,8 +4,10 @@ import SwiftUI
 
 public struct IntroView: View {
   static let launchImage = UIImage(named: "LaunchImage", in: .main, with: nil)
+  static let wideLaunchImage = UIImage(named: "LaunchImageWide", in: .main, with: nil)
 
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
   @State private var scene: IntroScene?
   @State private var hasDrawn = false
   @State private var screen = CGSize.zero
@@ -15,7 +17,7 @@ public struct IntroView: View {
   public var body: some View {
     Color(hex: 0x1E2A4E)
       .overlay(alignment: .bottomLeading) {
-        if !hasDrawn, let image = Self.launchImage {
+        if !hasDrawn, let image = launchImage {
           let size = IntroLayout.launchSize(image.size, filling: screen)
           Image(uiImage: image)
             .resizable()
@@ -31,13 +33,17 @@ public struct IntroView: View {
       .onGeometryChange(for: CGSize.self, of: \.size) { size in
         screen = size
         guard scene == nil, size.width > 0, size.height > 0 else { return }
-        let scene = IntroScene(size: size, launchImage: Self.launchImage)
+        let scene = IntroScene(size: size, launchImage: launchImage)
         scene.onFirstFrame = { hasDrawn = true }
         if !reduceMotion { scene.play() }
         self.scene = scene
       }
       .ignoresSafeArea()
       .accessibilityHidden(true)
+  }
+
+  private var launchImage: UIImage? {
+    horizontalSizeClass == .regular ? Self.wideLaunchImage : Self.launchImage
   }
 }
 

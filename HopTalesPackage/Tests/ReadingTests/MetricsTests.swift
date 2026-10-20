@@ -12,12 +12,16 @@ struct MetricsTests {
     #expect(Metrics.forScreen(size, regular: false) == .phone)
   }
 
-  @Test(arguments: [CGSize(width: 466, height: 678), CGSize(width: 669, height: 951)])
-  func theDuoFoldedOrOpenGetsItsOwnLayout(size: CGSize) {
-    #expect(Metrics.forScreen(size, regular: false) == .duo)
+  @Test func theFoldedDuoGetsItsOwnLayout() {
+    #expect(Metrics.forScreen(CGSize(width: 466, height: 678), regular: false) == .duo)
   }
 
-  @Test func aRegularScreenUsesThePadLayout() {
-    #expect(Metrics.forScreen(CGSize(width: 1032, height: 1376), regular: true) == .pad)
+  @Test(arguments: [
+    CGSize(width: 1032, height: 1376),
+    CGSize(width: 951, height: 669),
+    CGSize(width: 669, height: 951)
+  ])
+  func aRegularScreenUsesThePadLayout(size: CGSize) {
+    #expect(Metrics.forScreen(size, regular: true) == .pad)
   }
 }
