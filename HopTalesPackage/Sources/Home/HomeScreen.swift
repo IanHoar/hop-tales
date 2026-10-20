@@ -99,6 +99,7 @@ public struct HomeScreen: View {
 
   static let sheetTop: CGFloat = 0.51
   static let lowHorizon: CGFloat = 0.8
+  static let topClearance: CGFloat = 20
   static let feetAboveSheet: CGFloat = 100
   static let landScale: CGFloat = 0.6
   static let friendHeight: CGFloat = 170
@@ -161,7 +162,7 @@ public struct HomeScreen: View {
           .background(alignment: .top) {
             VStack(spacing: 0) {
               topBar
-                .padding(.top, 8)
+                .padding(.top, max(8, Self.topClearance - proxy.safeAreaInsets.top))
                 .animation(.spring(duration: 0.55, bounce: 0.35).delay(0.45)) { content in
                   content
                     .offset(y: shown ? 0 : -40)
