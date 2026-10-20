@@ -98,6 +98,7 @@ public struct HomeScreen: View {
   }
 
   static let sheetTop: CGFloat = 0.51
+  static let lowHorizon: CGFloat = 0.8
   static let feetAboveSheet: CGFloat = 100
   static let landScale: CGFloat = 0.6
   static let friendHeight: CGFloat = 170
@@ -109,18 +110,20 @@ public struct HomeScreen: View {
     GeometryReader { proxy in
       let screen = proxy.size.height + proxy.safeAreaInsets.top + proxy.safeAreaInsets.bottom
       let mood = Mood(sky: colorScheme == .dark ? .night : .day)
+      let fold = proxy.fold(or: simulatedFold).flatMap { $0.runsAcross ? nil : $0 }
+      let room = fold?.room(in: proxy.size)
+      let standsAside = fold != nil || proxy.size.width > Self.wideLayout
+      let column = min(Self.columnWidth, (room?.width ?? .infinity) - 32)
+      let landscape = proxy.size.width > proxy.size.height
+      let horizon = standsAside && landscape ? Self.lowHorizon : Self.sheetTop
       let framing = MeadowFraming.path(
         scale: Self.landScale * min(max(proxy.size.width / 390, 1), 1.3),
-        centre: screen * Self.sheetTop - Self.feetAboveSheet - 20
+        centre: screen * horizon - Self.feetAboveSheet - 20
       )
       let land = MeadowLayout(
         size: CGSize(width: proxy.size.width, height: screen), framing: framing
       )
       let groundTop = land.top(of: .near) + land.tileSize(of: .near).height - Self.tornEdge
-      let fold = proxy.fold(or: simulatedFold).flatMap { $0.runsAcross ? nil : $0 }
-      let room = fold?.room(in: proxy.size)
-      let standsAside = fold != nil || proxy.size.width > Self.wideLayout
-      let column = min(Self.columnWidth, (room?.width ?? .infinity) - 32)
       ZStack(alignment: .top) {
         MeadowBackdrop(
           camera: MeadowCamera(at: 900), mood: mood, framing: framing,
@@ -138,7 +141,7 @@ public struct HomeScreen: View {
           friend
             .position(
               x: fold?.stage(in: proxy.size).midX ?? (proxy.size.width - Self.columnWidth) / 4,
-              y: screen * Self.sheetTop - Self.feetAboveSheet - Self.friendHeight / 2
+              y: screen * horizon - Self.feetAboveSheet - Self.friendHeight / 2
             )
             .frame(width: proxy.size.width, height: screen)
             .ignoresSafeArea()
@@ -348,53 +351,5 @@ struct StickerButton<Art: View>: View {
     }
     .buttonStyle(.plain)
     .accessibilityLabel(title)
-  }
-}
-
-struct LevelChip: View {
-  let journey: Journey
-  let action: () -> Void
-
-  var body: some View {
-    Button(action: action) {
-      HStack(spacing: 12) {
-        Rosette(level: journey.level)
-          .frame(width: 40)
-        VStack(alignment: .leading, spacing: 5) {
-          Text(title)
-            .font(Typography.display(16))
-            .foregroundStyle(Paper.ink)
-            .lineLimit(1)
-            .minimumScaleFactor(0.75)
-          if journey.nextFriend != nil {
-            GeometryReader { proxy in
-              ZStack(alignment: .leading) {
-                Capsule().fill(Paper.muted.opacity(0.22))
-                Capsule()
-                  .fill(Paper.wash)
-                  .frame(width: proxy.size.width * journey.fill)
-              }
-            }
-            .frame(height: 8)
-          }
-        }
-        Image(systemName: "map")
-          .font(.system(size: 17, weight: .semibold))
-          .foregroundStyle(Paper.ink)
-      }
-      .padding(.horizontal, 14)
-      .padding(.vertical, 10)
-      .paperChip(RoundedRectangle(cornerRadius: 18, style: .continuous), rim: 3)
-    }
-    .buttonStyle(.plain)
-    .accessibilityLabel(title)
-    .accessibilityHint("Opens your journey.")
-  }
-
-  private var title: String {
-    guard let next = journey.nextFriend else {
-      return "Level \(journey.level) · \(journey.activeFriend.name)"
-    }
-    return "Level \(journey.level) · \(Int(journey.steps)) of \(Int(journey.goal)) to \(next.name)"
   }
 }
