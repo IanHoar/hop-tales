@@ -2,13 +2,8 @@
   "images" : [
     {
       "filename" : "launch-iphone@3x.png",
-      "idiom" : "iphone",
+      "idiom" : "universal",
       "scale" : "3x"
-    },
-    {
-      "filename" : "launch-ipad@2x.png",
-      "idiom" : "ipad",
-      "scale" : "2x"
     }
   ],
   "info" : {
