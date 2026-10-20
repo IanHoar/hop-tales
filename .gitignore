@@ -42,3 +42,7 @@ Design/friends/raw/
 Design/friends/tools/nb/
 
 __pycache__/
+
+# Apple skills exported by `xcrun agent skills export`; regenerate locally
+xcode-skills/
+.claude/skills/
