@@ -28,6 +28,10 @@ public struct IntroView: View {
         if let scene {
           SpriteView(scene: scene, preferredFramesPerSecond: 60, options: [.allowsTransparency])
             .opacity(hasDrawn ? 1 : 0)
+            .animation(
+              launchImage == nil ? .easeOut(duration: IntroTimeline.launchFade) : nil,
+              value: hasDrawn
+            )
         }
       }
       .onGeometryChange(for: CGSize.self, of: \.size) { size in

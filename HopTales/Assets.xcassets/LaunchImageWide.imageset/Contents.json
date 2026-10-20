@@ -2,7 +2,7 @@
   "images" : [
     {
       "filename" : "launch-wide@2x.png",
-      "idiom" : "universal",
+      "idiom" : "ipad",
       "scale" : "2x"
     }
   ],

@@ -21,44 +21,21 @@
                                     <constraint firstAttribute="width" priority="750" constant="440" id="LaunchNatural"/>
                                 </constraints>
                             </imageView>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="bottomLeft" image="LaunchImageWide" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchWide">
-                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
-                            </imageView>
                         </subviews>
                         <color key="backgroundColor" name="LaunchBackground"/>
                         <constraints>
                             <constraint firstItem="LaunchArt" firstAttribute="bottom" secondItem="LaunchView" secondAttribute="bottom" id="LaunchBottom"/>
                             <constraint firstItem="LaunchArt" firstAttribute="leading" secondItem="LaunchView" secondAttribute="leading" id="LaunchLeading"/>
                             <constraint firstItem="LaunchArt" firstAttribute="width" relation="greaterThanOrEqual" secondItem="LaunchView" secondAttribute="width" id="LaunchFillsWidth"/>
-                            <constraint firstItem="LaunchWide" firstAttribute="top" secondItem="LaunchView" secondAttribute="top" id="WideTop"/>
-                            <constraint firstItem="LaunchWide" firstAttribute="bottom" secondItem="LaunchView" secondAttribute="bottom" id="WideBottom"/>
-                            <constraint firstItem="LaunchWide" firstAttribute="leading" secondItem="LaunchView" secondAttribute="leading" id="WideLeading"/>
-                            <constraint firstItem="LaunchWide" firstAttribute="trailing" secondItem="LaunchView" secondAttribute="trailing" id="WideTrailing"/>
                         </constraints>
-                        <variation key="default">
-                            <mask key="subviews">
-                                <exclude reference="LaunchWide"/>
-                            </mask>
-                            <mask key="constraints">
-                                <exclude reference="WideTop"/>
-                                <exclude reference="WideBottom"/>
-                                <exclude reference="WideLeading"/>
-                                <exclude reference="WideTrailing"/>
-                            </mask>
-                        </variation>
                         <variation key="widthClass=regular">
                             <mask key="subviews">
                                 <exclude reference="LaunchArt"/>
-                                <include reference="LaunchWide"/>
                             </mask>
                             <mask key="constraints">
                                 <exclude reference="LaunchBottom"/>
                                 <exclude reference="LaunchLeading"/>
                                 <exclude reference="LaunchFillsWidth"/>
-                                <include reference="WideTop"/>
-                                <include reference="WideBottom"/>
-                                <include reference="WideLeading"/>
-                                <include reference="WideTrailing"/>
                             </mask>
                         </variation>
                     </view>
@@ -70,7 +47,6 @@
     </scenes>
     <resources>
         <image name="LaunchImage" width="440" height="956"/>
-        <image name="LaunchImageWide" width="1376" height="1032"/>
         <namedColor name="LaunchBackground">
             <color red="0.1176" green="0.1647" blue="0.3059" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
