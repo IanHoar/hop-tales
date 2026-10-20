@@ -88,7 +88,7 @@ package resolution fail with something cryptic.
 
 - **Start Condition:** Pull Request Changes, target branch `main`.
 - **Actions:** Build, then Test.
-- **Environment: Xcode 27.0 (27A266a), not "Latest Release".** Pin the exact version on both
+- **Environment: Xcode 27.1 (27A9275), not "Latest Release".** Pin the exact version on both
   workflows, so a new Xcode or simulator runtime on Xcode Cloud never changes the renderer behind
   our backs.
 - **Test destination: iPhone 18 Pro, iOS 27.0 (build 24A434) — pin it, never "Latest".** The snapshot references in
