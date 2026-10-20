@@ -15,10 +15,10 @@ xcuserdata/
 *.dSYM
 
 ## Xcode workspace / project local state
-*.xcworkspace/xcuserdata/
-*.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
-*.xcodeproj/xcuserdata/
-*.xcodeproj/project.xcworkspace/
+**/*.xcworkspace/xcuserdata/
+**/*.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+**/*.xcodeproj/xcuserdata/
+**/*.xcodeproj/project.xcworkspace/
 
 ## Swift Package Manager
 .build/

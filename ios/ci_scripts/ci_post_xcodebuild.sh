@@ -8,7 +8,7 @@ if [ "${CI_XCODEBUILD_ACTION:-}" != "archive" ]; then
 fi
 
 repo=${CI_PRIMARY_REPOSITORY_PATH:-.}
-notes_dir="$repo/TestFlight"
+notes_dir="$repo/ios/TestFlight"
 mkdir -p "$notes_dir"
 
 tag=${CI_TAG:-$(git -C "$repo" describe --exact-match --tags HEAD 2>/dev/null || true)}

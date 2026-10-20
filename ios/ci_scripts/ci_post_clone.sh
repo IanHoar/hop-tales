@@ -22,4 +22,4 @@ if [ -z "${CI_XCODEBUILD_ACTION:-}" ]; then
   exit 0
 fi
 
-"$(dirname "$0")/../scripts/ci-setup.sh"
+"$(dirname "$0")/../../scripts/ci-setup.sh"

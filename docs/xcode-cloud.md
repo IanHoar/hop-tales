@@ -7,12 +7,19 @@ archives.
 When the free hours run out, GitHub Actions can test pull requests instead. [ci.md](ci.md) covers
 switching between the two.
 
-The repository side is done — `ci_scripts/` and a shared `HopTales` scheme are committed. What is
-left is account setup, and it has to happen in the Xcode or App Store Connect UI.
+The repository side is done — `ios/ci_scripts/` and a shared `HopTales` scheme are committed. What
+is left is account setup, and it has to happen in the Xcode or App Store Connect UI.
+
+The app lives in `ios/` since the repository became a monorepo. Xcode Cloud looks for `ci_scripts/`
+beside the workspace it builds, so the scripts moved with it, and each workflow has to point at
+`ios/HopTales.xcworkspace`. A workflow created before the move still names the old root path and
+fails to find the project until it is edited in Xcode (Integrate → Manage Workflows → the workflow
+→ General) and saved. Set each workflow's start conditions to skip changes that only touch
+`android/`, so Android work does not spend the free hours.
 
 ## What the scripts do
 
-Xcode Cloud runs anything it finds in `ci_scripts/` at the matching point in the build. All three
+Xcode Cloud runs anything it finds in `ios/ci_scripts/` at the matching point in the build. All three
 exit immediately when `CI_XCODEBUILD_ACTION` is unset, so running them on your own machine does
 nothing.
 
@@ -20,7 +27,7 @@ nothing.
 |---|---|---|
 | `ci_post_clone.sh` | after clone, before package resolution | Runs `scripts/ci-setup.sh`, shared with GitHub Actions, which trusts the package macros, authenticates the private `pointfreeco/TCA26` dependency, and prefers a prebuilt swift-syntax |
 | `ci_pre_xcodebuild.sh` | before an archive | Stamps the version and build number the release tag asked for |
-| `ci_post_xcodebuild.sh` | after an archive | Writes `TestFlight/WhatToTest.en-US.txt` from the commits since the previous release |
+| `ci_post_xcodebuild.sh` | after an archive | Writes `ios/TestFlight/WhatToTest.en-US.txt` from the commits since the previous release |
 
 ## Setup
 
@@ -92,7 +99,7 @@ package resolution fail with something cryptic.
   workflows, so a new Xcode or simulator runtime on Xcode Cloud never changes the renderer behind
   our backs.
 - **Test destination: iPhone 18 Pro, iOS 27.0 (build 24A434) — pin it, never "Latest".** The snapshot references in
-  `HopTalesPackage/Tests/SnapshotTests/__Snapshots__` were recorded on that exact simulator. A
+  `ios/HopTalesPackage/Tests/SnapshotTests/__Snapshots__` were recorded on that exact simulator. A
   different device or runtime (27.1 included) resamples images and renders text fractionally
   differently, and the snapshot tests fail on noise rather than on a real change. `SnapshotSupport`
   checks the runtime and fails with a message naming both versions if they differ, and
@@ -189,7 +196,7 @@ the plan.
 - **Macro trust.** Command-line builds need `-skipMacroValidation`; Xcode Cloud offers no way to
   pass it, so `ci_post_clone.sh` sets `IDESkipMacroFingerprintValidation` instead. If a build fails
   with "Macro … must be enabled before it can be used", that script did not run — check it is
-  executable and at the repository root under `ci_scripts/`.
+  executable and in `ios/ci_scripts/`, beside the workspace.
 - **The token is a dependency on a private beta.** When TCA26 becomes public, delete the secret and
   the `git config` block in `ci_post_clone.sh`.
 - **Snapshot tests are device-specific.** See the pinning note above, and re-record them when the

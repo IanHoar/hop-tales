@@ -14,7 +14,7 @@ if [ "${CI_XCODEBUILD_ACTION:-}" != "archive" ]; then
   exit 0
 fi
 
-cd "${CI_PRIMARY_REPOSITORY_PATH:?CI_PRIMARY_REPOSITORY_PATH is not set}"
+cd "${CI_PRIMARY_REPOSITORY_PATH:?CI_PRIMARY_REPOSITORY_PATH is not set}/ios"
 
 # CI_TAG is set when a tag started the build. Falling back to the tag pointing at this commit keeps
 # the script working if the variable is ever absent or renamed.

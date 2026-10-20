@@ -1,6 +1,6 @@
 # Hop Tales
 
-iOS read-aloud game for early readers. SwiftUI shell + SpriteKit world, on-device `SFSpeechRecognizer`, AirPlay second screen. Read `docs/HANDOFF.md` before touching anything — it has the product rules, tokens, layout numbers, parallax maths, speech-matching rules and milestone order.
+Read-aloud game for early readers. SwiftUI shell + SpriteKit world, on-device `SFSpeechRecognizer`, AirPlay second screen. Read `docs/HANDOFF.md` before touching anything — it has the product rules, tokens, layout numbers, parallax maths, speech-matching rules and milestone order.
 
 ## Ground rules
 
@@ -19,18 +19,21 @@ iOS read-aloud game for early readers. SwiftUI shell + SpriteKit world, on-devic
 - Progress and profile live in SQLite through SQLiteData (`Content/Database.swift`); `ProgressStore`
   and `ProfileStore` stay the app's interface to them. Never drop or rename a synced table or column.
 - Matching is forgiving by default (`docs/HANDOFF.md §5`). Never show a failure state to the child.
-- Design source of truth is `Design/world/*.svg` (2340×844 world) and `Design/artboards/*.dc.html`. `scripts/render-assets.sh` converts them to the PDFs and PNGs in `HopTalesPackage/Sources/World/Resources`, which are committed; don't hand-edit them. The world layers rasterise at runtime through `WorldArt`.
+- Design source of truth is `Design/world/*.svg` (2340×844 world) and `Design/artboards/*.dc.html`. `scripts/render-assets.sh` converts them to the PDFs and PNGs in `ios/HopTalesPackage/Sources/World/Resources`, which are committed; don't hand-edit them. The world layers rasterise at runtime through `WorldArt`.
 - Milestone 1 (reading loop on a flat background) ships before any world art is wired up.
 
 ## Layout
+
+The repository is a monorepo: the iOS app lives in `ios/`, and `Design/`, `docs/` and `scripts/`
+at the root are shared. Paths below under `HopTales…` and `project.yml` are inside `ios/`.
 
 - `HopTales/` — thin app target: `@main` entry point, `Info.plist`, asset catalog. No feature code.
 - `HopTalesPackage/` — all the code, as SPM modules: `AppFeature` (root + navigation), `Content`
   (models + bundled `stories.json`), `DesignSystem` (tokens), `Home`, `Reading`,
   `SpeechRecognition` (`SpeechClient`, `WordMatcher`), `World` (SpriteKit).
 - `Design/` — handoff assets (not compiled; scripts read from here).
-- `docs/HANDOFF.md` — the spec. `project.yml` — XcodeGen spec; run `xcodegen generate` after
-  adding files or targets, and commit the regenerated `HopTales.xcodeproj`.
+- `docs/HANDOFF.md` — the spec. `project.yml` — XcodeGen spec; run `xcodegen generate` from `ios/`
+  after adding files or targets, and commit the regenerated `HopTales.xcodeproj`.
 - `scripts/render-assets.sh` — SVG → @2x/@3x PNG into the asset catalog. Run it manually; it needs
   `rsvg-convert` (`brew install librsvg`).
 
@@ -60,8 +63,8 @@ iOS read-aloud game for early readers. SwiftUI shell + SpriteKit world, on-devic
 
 ## Commands
 
-- Open `HopTales.xcworkspace`, not the `.xcodeproj` — the local package lives in the workspace.
-- Build: `xcodebuild -workspace HopTales.xcworkspace -scheme HopTales -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -skipMacroValidation build`
+- Open `ios/HopTales.xcworkspace`, not the `.xcodeproj` — the local package lives in the workspace.
+- Build: `xcodebuild -workspace ios/HopTales.xcworkspace -scheme HopTales -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -skipMacroValidation build`
 - Tests: same command with `test` — the `HopTales` scheme runs all six package test targets.
   `WordMatcherTests` must stay green; they encode the tolerance rules.
 - `-skipMacroValidation` is required from the CLI: the package macros need one-time approval that
@@ -73,7 +76,7 @@ iOS read-aloud game for early readers. SwiftUI shell + SpriteKit world, on-devic
   says so out loud. Debug builds also pass `-enable-actor-data-race-checks`, which is what catches
   an un-annotated framework calling back on the wrong queue — the crash in #62 that the compiler
   could not see.
-- CI is Xcode Cloud: `ci_scripts/` runs on every build and `docs/xcode-cloud.md` is the runbook.
+- CI is Xcode Cloud: `ios/ci_scripts/` runs on every build and `docs/xcode-cloud.md` is the runbook.
   When its free hours run out, `scripts/ci-runner.sh github` hands pull requests to GitHub Actions
   (`.github/workflows/test.yml`); `docs/ci.md` covers switching.
   Snapshot references are recorded on iPhone 18 Pro / iOS 27 — CI has to test on that simulator.

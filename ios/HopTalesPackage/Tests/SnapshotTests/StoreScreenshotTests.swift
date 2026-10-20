@@ -45,7 +45,7 @@ struct StoreScreenshotTests {
   static func output(file: StaticString = #filePath) -> String {
     URL(fileURLWithPath: "\(file)")
       .deletingLastPathComponent()
-      .appendingPathComponent("../../../build/store-screenshots/raw")
+      .appendingPathComponent("../../../../build/store-screenshots/raw")
       .standardized.path
   }
 

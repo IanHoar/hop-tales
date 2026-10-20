@@ -78,7 +78,7 @@ jobs:
 
       - name: Name the build cache
         id: packages
-        run: echo "hash=$(shasum -a 256 HopTales.xcworkspace/xcshareddata/swiftpm/Package.resolved | cut -c1-64)" >> "$GITHUB_OUTPUT"
+        run: echo "hash=$(shasum -a 256 ios/HopTales.xcworkspace/xcshareddata/swiftpm/Package.resolved | cut -c1-64)" >> "$GITHUB_OUTPUT"
 
       - uses: actions/cache@v4
         with:
@@ -99,7 +99,7 @@ jobs:
             format() { cat; }
           fi
           xcodebuild test \
-            -workspace HopTales.xcworkspace \
+            -workspace ios/HopTales.xcworkspace \
             -scheme HopTales \
             -destination "id=${{ steps.simulator.outputs.udid }}" \
             -derivedDataPath build/DerivedData \
