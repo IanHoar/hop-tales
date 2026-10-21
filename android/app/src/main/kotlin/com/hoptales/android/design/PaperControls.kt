@@ -1,7 +1,11 @@
 package com.hoptales.android.design
 
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,22 +13,22 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
@@ -32,49 +36,82 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-val Palette.field: Color get() = parchmentLip.copy(alpha = 0.6f).compositeOver(paper)
+val EaseInOut = CubicBezierEasing(0.42f, 0f, 0.58f, 1f)
 
 @Composable
-fun PaperChoice(title: String, selected: Boolean, modifier: Modifier = Modifier, detail: String? = null, onClick: () -> Unit) {
-    val palette = LocalPalette.current
+fun Modifier.paperField(
+    selected: Boolean = false,
+    base: Color = LocalPaper.current.page,
+    fill: Float = 0.6f,
+    shape: RoundedCornerShape = RoundedCornerShape(18.dp),
+): Modifier {
+    val paper = LocalPaper.current
+    val colour = if (selected) paper.red.copy(alpha = 0.1f) else paper.rim.copy(alpha = fill)
+    return dropShadow(shape, Shadow(3.dp, paper.shadow.copy(alpha = paper.shadow.alpha * 0.5f), offset = DpOffset(0.dp, 2.dp)))
+        .background(colour.compositeOver(base), shape)
+        .border(3.dp, if (selected) paper.red else paper.rim, shape)
+}
+
+@Composable
+fun PaperChoice(
+    title: String,
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    detail: String? = null,
+    base: Color = LocalPaper.current.page,
+    onClick: () -> Unit,
+) {
+    val paper = LocalPaper.current
     val type = LocalTypography.current
-    ChoiceSurface(selected, modifier, onClick) {
-        Text(title, style = type.display(19.sp), color = palette.ink)
-        if (detail != null) Text(detail, style = type.ui(14.sp), color = palette.muted)
+    ChoiceSurface(selected, modifier, base, onClick) {
+        Text(title, style = type.display(19.sp), color = paper.ink)
+        if (detail != null) Text(detail, style = type.ui(14.sp), color = paper.muted)
     }
 }
 
 @Composable
-fun ChoiceSurface(selected: Boolean, modifier: Modifier = Modifier, onClick: (() -> Unit)?, content: @Composable ColumnScope.() -> Unit) {
-    val palette = LocalPalette.current
-    val shape = RoundedCornerShape(18.dp)
-    val color = if (selected) palette.red.copy(alpha = 0.1f).compositeOver(palette.paper) else palette.field
-    val border = BorderStroke(3.dp, if (selected) palette.red else palette.parchmentLip)
-    val body: @Composable () -> Unit = {
-        Column(Modifier.padding(horizontal = 16.dp, vertical = 14.dp), verticalArrangement = Arrangement.spacedBy(2.dp), content = content)
-    }
-    if (onClick != null) {
-        Surface(
-            onClick = onClick,
-            modifier = modifier.fillMaxWidth().semantics { this.selected = selected },
-            shape = shape,
-            color = color,
-            border = border,
-            shadowElevation = 1.dp,
-            content = body,
-        )
-    } else {
-        Surface(modifier.fillMaxWidth(), shape = shape, color = color, border = border, shadowElevation = 1.dp, content = body)
-    }
+fun ChoiceSurface(
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    base: Color = LocalPaper.current.page,
+    onClick: (() -> Unit)?,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Column(
+        modifier
+            .fillMaxWidth()
+            .then(if (onClick != null) Modifier.pressable(onClick).semantics { this.selected = selected } else Modifier)
+            .paperField(selected, base)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+        content = content,
+    )
+}
+
+@Composable
+fun PaperSwitch(checked: Boolean) {
+    val paper = LocalPaper.current
+    Switch(
+        checked = checked,
+        onCheckedChange = null,
+        colors = SwitchDefaults.colors(
+            checkedThumbColor = paper.onRed,
+            checkedTrackColor = paper.sageDeep,
+            checkedBorderColor = Color.Transparent,
+            uncheckedThumbColor = paper.onRed,
+            uncheckedTrackColor = paper.muted.copy(alpha = 0.35f),
+            uncheckedBorderColor = Color.Transparent,
+        ),
+    )
 }
 
 @Composable
 fun PaperToggle(title: String, detail: String, checked: Boolean, onChange: (Boolean) -> Unit, extra: @Composable () -> Unit = {}) {
-    val palette = LocalPalette.current
+    val paper = LocalPaper.current
     val type = LocalTypography.current
     ChoiceSurface(
         selected = false,
@@ -86,21 +123,11 @@ fun PaperToggle(title: String, detail: String, checked: Boolean, onChange: (Bool
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(title, style = type.display(20.sp), color = palette.ink)
-                Text(detail, style = type.ui(15.sp, FontWeight.Medium), color = palette.muted)
+                Text(title, style = type.display(20.sp), color = paper.ink)
+                Text(detail, style = type.ui(15.sp), color = paper.muted)
             }
             Spacer(Modifier.width(12.dp))
-            Switch(
-                checked = checked,
-                onCheckedChange = null,
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = palette.onTeal,
-                    checkedTrackColor = palette.teal,
-                    uncheckedThumbColor = palette.muted,
-                    uncheckedTrackColor = palette.paper,
-                    uncheckedBorderColor = palette.muted,
-                ),
-            )
+            PaperSwitch(checked)
         }
         extra()
     }
@@ -108,17 +135,24 @@ fun PaperToggle(title: String, detail: String, checked: Boolean, onChange: (Bool
 
 @Composable
 fun ProgressPills(current: Int, count: Int, modifier: Modifier = Modifier) {
-    val palette = LocalPalette.current
     Row(
         modifier.semantics(mergeDescendants = true) { contentDescription = "Step ${current + 1} of $count" },
         horizontalArrangement = Arrangement.spacedBy(7.dp),
     ) {
-        for (index in 0 until count) {
-            Box(
-                Modifier
-                    .size(width = if (index == current) 22.dp else 8.dp, height = 8.dp)
-                    .background(if (index <= current) palette.red else palette.muted.copy(alpha = 0.35f), CircleShape),
-            )
-        }
+        for (index in 0 until count) Pill(isCurrent = index == current, isDone = index <= current)
     }
 }
+
+@Composable
+private fun Pill(isCurrent: Boolean, isDone: Boolean) {
+    val paper = LocalPaper.current
+    val width by animateDpAsState(if (isCurrent) 22.dp else 8.dp, tween(PILL_MILLIS, easing = EaseInOut), label = "pill")
+    val colour by animateColorAsState(
+        if (isDone) paper.red else paper.muted.copy(alpha = 0.35f),
+        tween(PILL_MILLIS, easing = EaseInOut),
+        label = "pill colour",
+    )
+    Box(Modifier.size(width = width, height = 8.dp).background(colour, CircleShape))
+}
+
+private const val PILL_MILLIS = 300

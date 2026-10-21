@@ -45,7 +45,14 @@ private fun ArtImage(image: ImageBitmap, height: Dp, modifier: Modifier = Modifi
 }
 
 @Composable
-fun FriendSticker(friend: Friend, height: Dp, modifier: Modifier = Modifier, isSilhouette: Boolean = false, isBare: Boolean = false) {
+fun FriendSticker(
+    friend: Friend,
+    height: Dp,
+    modifier: Modifier = Modifier,
+    isSilhouette: Boolean = false,
+    isBare: Boolean = false,
+    saturation: Float = 1f,
+) {
     val dressed = if (isBare) null else friend.startingLook()?.let { rememberArt(it) }
     val image = dressed ?: rememberArt(friend.stickerAsset()) ?: return
     val shadow = LocalPalette.current.muted
@@ -53,7 +60,11 @@ fun FriendSticker(friend: Friend, height: Dp, modifier: Modifier = Modifier, isS
         image,
         height,
         modifier,
-        colorFilter = if (isSilhouette) ColorFilter.tint(shadow, BlendMode.SrcIn) else null,
+        colorFilter = when {
+            isSilhouette -> ColorFilter.tint(shadow, BlendMode.SrcIn)
+            saturation < 1f -> ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(saturation) })
+            else -> null
+        },
         alpha = if (isSilhouette) 0.45f else 1f,
     )
 }

@@ -43,7 +43,7 @@ way. Change `.editorconfig` rather than suppressing a rule in the code.
 midway), reading, sound-button marks, the microphone ask, the microphone off, a story prop, a
 companion, a thought bubble, the story-finished panel with its tally, a full basket, the stop card,
 the journey map, friends, the wardrobe, the collection book, each onboarding step and the grown-ups
-settings, light and dark, with Roborazzi on Robolectric — on the JVM, no emulator. The references
+settings, light and dark (and the settings in a chosen Dark theme on a light device), with Roborazzi on Robolectric — on the JVM, no emulator. The references
 live in
 `app/src/test/screenshots`; `verifyRoborazziDebug` fails when a render differs, and leaves the
 actual image and a diff in `app/build/outputs/roborazzi`. After a deliberate change, record again
@@ -78,7 +78,7 @@ and `HopTalesDatabaseTest` builds the iOS statements next to ours and compares t
 column, so a change on one side fails until the other follows. Never drop or rename a table or
 column. The JSON columns are written the way Swift's `JSONEncoder` writes them (a dictionary keyed
 by an enum is a flat `[key, value, …]` array). Only `STRICT` is left off, since Android 12's SQLite
-predates it. `profiles.theme` exists for iOS and Android leaves it alone. The first launch after
+predates it. `profiles.theme` holds the Theme setting (Match device, Light or Dark) with the iOS raw values `device`, `light` and `dark`, and the whole app follows it. The first launch after
 the update imports `progress.json` and `profile.json` and deletes them once the import has
 committed; a file that cannot be read stays where it is. The accent picks the recogniser and help-voice locale; the
 help voice is one of the engine's offline English voices, never a network one. Matching strictness,

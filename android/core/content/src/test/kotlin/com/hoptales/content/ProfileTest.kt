@@ -40,6 +40,20 @@ class ProfileTest {
     }
 
     @Test
+    fun theThemeKeepsTheIOSRawValuesAndFollowsTheDeviceUntilChosen() {
+        assertEquals(listOf("device", "light", "dark"), Profile.Theme.entries.map { it.raw })
+        assertEquals(listOf("Match device", "Light", "Dark"), Profile.Theme.entries.map { it.themeName })
+        assertEquals(Profile.Theme.DEVICE, Profile().theme)
+        assertEquals(Profile.Theme.DEVICE, Profile.Theme.of("sepia"))
+        assertEquals(true, Profile.Theme.DEVICE.isDark(deviceIsDark = true))
+        assertEquals(false, Profile.Theme.DEVICE.isDark(deviceIsDark = false))
+        assertEquals(false, Profile.Theme.LIGHT.isDark(deviceIsDark = true))
+        assertEquals(true, Profile.Theme.DARK.isDark(deviceIsDark = false))
+        val json = StoryLibrary.json.encodeToString(Profile.serializer(), Profile(theme = Profile.Theme.DARK))
+        assertEquals(true, json.contains("\"dark\""))
+    }
+
+    @Test
     fun aLongNameIsCutShort() {
         assertEquals(24, Profile.trimmedName("A".repeat(40)).length)
     }
