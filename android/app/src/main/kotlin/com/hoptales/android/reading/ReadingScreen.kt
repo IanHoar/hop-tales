@@ -15,12 +15,9 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
@@ -53,7 +50,6 @@ import com.hoptales.android.design.BackChip
 import com.hoptales.android.design.LocalPalette
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
-import com.hoptales.android.design.StarChip
 import com.hoptales.android.world.Art
 import com.hoptales.android.world.HareSheets
 import com.hoptales.android.world.MeadowLayer
@@ -109,19 +105,15 @@ fun ReadingScreen(story: Story, onDone: () -> Unit) {
         PathStage(state = state, onWordTapped = model::help)
         Box(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 12.dp, vertical = 4.dp)) {
             BackChip(Modifier.align(Alignment.TopStart)) { if (model.backTapped()) onDone() }
-            if (!state.isFinished) StarChip(state.stars, Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp))
-            Column(
-                Modifier.align(Alignment.BottomCenter).padding(bottom = 12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                val word = state.currentWord
-                if (BuildConfig.DEBUG && word != null) DebugHear(word.text, model::skipWord)
-                if (!state.isFinished) MicPill(listening)
+            val word = state.currentWord
+            if (BuildConfig.DEBUG && word != null) {
+                Box(Modifier.align(Alignment.BottomCenter).padding(bottom = 6.dp)) { DebugHear(word.text, model::skipWord) }
             }
         }
-        if (listening == Listening.NeedsPermission) {
-            AskToListen { request.launch(Manifest.permission.RECORD_AUDIO) }
+        when (listening) {
+            Listening.NeedsPermission -> AskToListen { request.launch(Manifest.permission.RECORD_AUDIO) }
+            Listening.Denied, Listening.Unsupported -> ListeningUnavailable(listening, onBack = onDone)
+            else -> Unit
         }
         AnimatedVisibility(state.isFinished, enter = fadeIn(), exit = fadeOut()) {
             StoryFinished(

@@ -20,7 +20,7 @@ cd android
 
 Speech recognition is on-device only — `SpeechRecognizer.createOnDeviceSpeechRecognizer`, never the
 network recogniser — so the app needs Android 12 (API 31) or later. Where the device has no on-device
-model, the mic pill says so and tapping the word still speaks it. Debug builds show a "Hear …"
+model, or the microphone was turned off, a panel says so and leads back to the stories, as on iOS. Debug builds show a "Hear …"
 button that stands in for a recognised word, like the DEBUG controls on iOS.
 
 ## Style
@@ -39,7 +39,7 @@ way. Change `.editorconfig` rather than suppressing a rule in the code.
 
 ## Screenshot tests
 
-`ScreenshotTest` renders home, reading, the microphone ask, a story prop, a companion, a thought
+`ScreenshotTest` renders home, reading, the microphone ask, the microphone off, a story prop, a companion, a thought
 bubble, the story-finished chips, the stop card, each onboarding step and the grown-ups settings,
 light and dark, with Roborazzi on Robolectric — on the JVM, no emulator. The references live in
 `app/src/test/screenshots`; `verifyRoborazziDebug` fails when a render differs, and leaves the

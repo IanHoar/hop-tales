@@ -21,9 +21,9 @@ import java.util.Locale
 sealed interface Listening {
     data object Waiting : Listening
     data object NeedsPermission : Listening
-    data object Unavailable : Listening
+    data object Denied : Listening
+    data object Unsupported : Listening
     data object Active : Listening
-    data class Heard(val word: String) : Listening
 }
 
 class ReadingViewModel(story: Story, private val app: HopTalesApplication) : ViewModel() {
@@ -34,7 +34,6 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
     private val mutableListening = MutableStateFlow<Listening>(Listening.Waiting)
     private var listenJob: Job? = null
     private var watchJob: Job? = null
-    private var heardJob: Job? = null
     private var heardAt = SystemClock.elapsedRealtime()
     private var hasPermission = false
     private var isStarted = false
@@ -48,12 +47,12 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
         when {
             !permission ->
                 mutableListening.value =
-                    if (app.listeningPreferences.hasAskedForMicrophone) Listening.Unavailable else Listening.NeedsPermission
+                    if (app.listeningPreferences.hasAskedForMicrophone) Listening.Denied else Listening.NeedsPermission
 
-            !app.listener.isAvailable -> mutableListening.value = Listening.Unavailable
+            !app.listener.isAvailable -> mutableListening.value = Listening.Unsupported
 
             else -> {
-                if (mutableListening.value !is Listening.Heard) mutableListening.value = Listening.Active
+                mutableListening.value = Listening.Active
                 app.readingAudio.activate()
                 listen()
                 watchSilence()
@@ -101,22 +100,9 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
     private fun heard(tokens: List<String>, isFinal: Boolean) {
         heardAt = SystemClock.elapsedRealtime()
         val before = reading.state
-        val match = reading.heard(tokens, isFinal) ?: return
+        reading.heard(tokens, isFinal) ?: return
         publish()
-        val word = before.currentWord?.text ?: match.token
-        showHeard(word)
         if (reading.state.sentenceIndex != before.sentenceIndex) sentenceChanged(before)
-    }
-
-    private fun showHeard(word: String) {
-        mutableListening.value = Listening.Heard(word)
-        heardJob?.cancel()
-        heardJob = viewModelScope.launch {
-            delay(HEARD_HOLD_MILLIS)
-            if (mutableListening.value is Listening.Heard) {
-                mutableListening.value = if (hasPermission && app.listener.isAvailable) Listening.Active else Listening.Unavailable
-            }
-        }
     }
 
     fun help() {
@@ -134,11 +120,10 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
     }
 
     fun skipWord() {
-        val word = reading.state.currentWord?.text ?: return
+        if (reading.state.currentWord == null) return
         val before = reading.state
         reading.skipWord()
         publish()
-        showHeard(word)
         if (reading.state.sentenceIndex != before.sentenceIndex) sentenceChanged(before)
     }
 
@@ -176,6 +161,5 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
 
     private companion object {
         const val RELISTEN_AFTER_END_MILLIS = 150L
-        const val HEARD_HOLD_MILLIS = 1_200L
     }
 }

@@ -84,6 +84,10 @@ class ScreenshotTest {
 
     @Test fun askToListenDark() = askToListen(dark = true)
 
+    @Test fun listeningUnavailableLight() = listeningUnavailable(dark = false)
+
+    @Test fun listeningUnavailableDark() = listeningUnavailable(dark = true)
+
     @Test fun onboardingNameLight() = onboarding(OnboardingStep.NAME, dark = false)
 
     @Test fun onboardingNameDark() = onboarding(OnboardingStep.NAME, dark = true)
@@ -177,6 +181,13 @@ class ScreenshotTest {
         shadowOf(app).denyPermissions(Manifest.permission.RECORD_AUDIO)
         showReading(dark)
         compose.onRoot().captureRoboImage(path("ask-to-listen", dark), options)
+    }
+
+    private fun listeningUnavailable(dark: Boolean) {
+        shadowOf(app).denyPermissions(Manifest.permission.RECORD_AUDIO)
+        app.listeningPreferences.hasAskedForMicrophone = true
+        showReading(dark)
+        compose.onRoot().captureRoboImage(path("listening-unavailable", dark), options)
     }
 
     private fun showReading(dark: Boolean, story: Story = this.story) {
