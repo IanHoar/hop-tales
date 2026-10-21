@@ -190,6 +190,10 @@ class LargeScreenshotTest {
 
     @Test
     @Config(qualifiers = FOLD_OPEN)
+    fun onboardingBackupBook() = onboarding(OnboardingStep.BACKUP, "book", fold = FoldingFeature.Orientation.VERTICAL)
+
+    @Test
+    @Config(qualifiers = FOLD_OPEN)
     fun onboardingNameBook() = onboarding(OnboardingStep.NAME, "book", fold = FoldingFeature.Orientation.VERTICAL)
 
     @Test
@@ -203,6 +207,10 @@ class LargeScreenshotTest {
     @Test
     @Config(qualifiers = FOLD_OPEN_PORTRAIT)
     fun homeTabletop() = home("tabletop", fold = FoldingFeature.Orientation.HORIZONTAL)
+
+    @Test
+    @Config(qualifiers = FOLD_OPEN_PORTRAIT)
+    fun onboardingBackupTabletop() = onboarding(OnboardingStep.BACKUP, "tabletop", fold = FoldingFeature.Orientation.HORIZONTAL)
 
     @Test
     @Config(qualifiers = FOLD_OPEN_PORTRAIT)
@@ -261,6 +269,7 @@ class LargeScreenshotTest {
     private fun onboarding(step: OnboardingStep, device: String, fold: FoldingFeature.Orientation? = null) {
         val state = OnboardingState(
             step = step,
+            backup = true,
             childName = "Maya",
             startingFriend = Friend.HARE.takeIf { step >= OnboardingStep.FRIEND },
         )

@@ -35,6 +35,8 @@ class OnboardingViewModel(private val app: HopTalesApplication, hasMicrophone: B
 
     fun soundButtonsPicked(isOn: Boolean) = update { soundButtonsPicked(isOn) }
 
+    fun backupPicked(isOn: Boolean) = update { backupPicked(isOn) }
+
     fun backTapped() = update { backTapped() }
 
     fun microphoneAnswered(granted: Boolean) {
@@ -43,7 +45,11 @@ class OnboardingViewModel(private val app: HopTalesApplication, hasMicrophone: B
     }
 
     fun primaryTapped(): OnboardingNext {
+        val leaving = onboarding.state
         val next = onboarding.primaryTapped()
+        if (leaving.step == OnboardingStep.BACKUP && next == OnboardingNext.Advanced) {
+            app.backupChoice.isOn = leaving.backup == true
+        }
         if (next is OnboardingNext.Finished) {
             app.profileStore.save(next.profile)
             app.progressStore.startJourney(next.profile.startingFriend)

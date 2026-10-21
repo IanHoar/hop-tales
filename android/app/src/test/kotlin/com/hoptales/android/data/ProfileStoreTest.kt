@@ -8,16 +8,28 @@ import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
+import java.io.File
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [36])
 class ProfileStoreTest {
     @get:Rule
     val folder = TemporaryFolder()
 
-    private val maya = Profile("Maya", Friend.FROG, Profile.Accent.AMERICAN, soundButtons = true)
+    private val maya = Profile("Maya", Friend.FROG, Profile.Accent.AMERICAN, voiceID = "v1", soundButtons = true)
+    private val database by lazy {
+        HopTalesDatabase(RuntimeEnvironment.getApplication(), File(folder.root, "hoptales.db").path, legacy = null)
+    }
+
+    private fun store() = ProfileStore(database, folder.root)
 
     @Test
     fun aFirstRunHasNoProfile() {
-        val store = ProfileStore(folder.root)
+        val store = store()
         assertNull(store.load())
         assertNull(store.profile.value)
         assertNull(store.loadDraft())
@@ -25,34 +37,34 @@ class ProfileStoreTest {
 
     @Test
     fun aSavedProfileIsThereNextLaunch() {
-        ProfileStore(folder.root).save(maya)
-        assertEquals(maya, ProfileStore(folder.root).load())
+        store().save(maya)
+        assertEquals(maya, store().load())
     }
 
     @Test
     fun aDraftIsKeptUntilTheProfileIsSaved() {
-        val store = ProfileStore(folder.root)
-        val draft = ProfileDraft(childName = "Maya", step = 2)
+        val store = store()
+        val draft = ProfileDraft(childName = "Maya", backup = true, step = 2)
         store.saveDraft(draft)
-        assertEquals(draft, ProfileStore(folder.root).loadDraft())
+        assertEquals(draft, store().loadDraft())
         store.save(maya)
         assertNull(store.loadDraft())
     }
 
     @Test
     fun erasingForgetsTheProfileAndTheDraft() {
-        val store = ProfileStore(folder.root)
+        val store = store()
         store.save(maya)
         store.saveDraft(ProfileDraft(childName = "Maya", step = 1))
         store.erase()
         assertNull(store.profile.value)
-        assertNull(ProfileStore(folder.root).load())
+        assertNull(store().load())
         assertNull(store.loadDraft())
     }
 
     @Test
-    fun aDamagedFileReadsAsNoProfile() {
-        folder.newFile("profile.json").writeText("{not json")
-        assertNull(ProfileStore(folder.root).load())
+    fun aDamagedDraftReadsAsNoDraft() {
+        folder.newFile("profile-draft.json").writeText("{not json")
+        assertNull(store().loadDraft())
     }
 }
