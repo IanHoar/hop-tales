@@ -1,9 +1,10 @@
 package com.hoptales.android
 
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.graphics.Color
 import android.media.AudioManager
 import android.os.Bundle
-import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
@@ -49,7 +50,10 @@ import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.hoptales.android.design.FoldAware
 import com.hoptales.android.design.HopTalesTheme
+import com.hoptales.android.design.Metrics
+import com.hoptales.android.design.reducesMotion
 import com.hoptales.android.home.BookScreen
 import com.hoptales.android.home.FriendsScreen
 import com.hoptales.android.home.HomeScreen
@@ -87,11 +91,12 @@ class MainActivity : ComponentActivity() {
             view.view.animate().alpha(0f).setDuration(SPLASH_FADE_MILLIS).withEndAction(view::remove).start()
         }
         lifecycleScope.launch { introArt = withContext(Dispatchers.IO) { IntroArt.load(assets) } }
+        holdPhonesUpright(resources.configuration)
         enableEdgeToEdge(SystemBarStyle.dark(Color.TRANSPARENT), SystemBarStyle.dark(Color.TRANSPARENT))
         volumeControlStream = AudioManager.STREAM_MUSIC
         val app = application as HopTalesApplication
         finishAnsweredDraft(app)
-        val reduceMotion = Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
+        val reduceMotion = reducesMotion()
         setContent {
             val profile by app.profileStore.profile.collectAsStateWithLifecycle()
             val dark = (profile?.theme ?: Profile.Theme.DEVICE).isDark(isSystemInDarkTheme())
@@ -104,14 +109,27 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 }
-                Entry(
-                    introArt = introArt,
-                    introDone = introDone,
-                    reduceMotion = reduceMotion,
-                    onIntroFinished = { introDone = true },
-                ) { Destination(app) }
+                FoldAware {
+                    Entry(
+                        introArt = introArt,
+                        introDone = introDone,
+                        reduceMotion = reduceMotion,
+                        onIntroFinished = { introDone = true },
+                    ) { Destination(app) }
+                }
             }
         }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        holdPhonesUpright(newConfig)
+    }
+
+    private fun holdPhonesUpright(configuration: Configuration) {
+        val upright = configuration.smallestScreenWidthDp < Metrics.REGULAR_WIDTH
+        val wanted = if (upright) ActivityInfo.SCREEN_ORIENTATION_PORTRAIT else ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        if (requestedOrientation != wanted) requestedOrientation = wanted
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
@@ -79,17 +80,31 @@ fun ChoiceSurface(
     modifier: Modifier = Modifier,
     base: Color = LocalPaper.current.page,
     onClick: (() -> Unit)?,
+    label: String? = null,
+    role: Role = Role.Button,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val action = if (onClick == null) {
+        Modifier
+    } else {
+        Modifier.pressable(onClick, role).semantics {
+            this.selected = selected
+            if (label != null) contentDescription = label
+        }
+    }
     Column(
         modifier
             .fillMaxWidth()
-            .then(if (onClick != null) Modifier.pressable(onClick).semantics { this.selected = selected } else Modifier)
+            .then(action)
             .paperField(selected, base)
             .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalArrangement = Arrangement.spacedBy(2.dp),
-        content = content,
-    )
+    ) {
+        Column(
+            if (label != null) Modifier.clearAndSetSemantics {} else Modifier,
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+            content = content,
+        )
+    }
 }
 
 @Composable
@@ -115,11 +130,9 @@ fun PaperToggle(title: String, detail: String, checked: Boolean, onChange: (Bool
     val type = LocalTypography.current
     ChoiceSurface(
         selected = false,
-        modifier = Modifier.semantics(mergeDescendants = true) {
-            role = Role.Switch
-            toggleableState = ToggleableState(checked)
-        },
+        modifier = Modifier.semantics(mergeDescendants = true) { toggleableState = ToggleableState(checked) },
         onClick = { onChange(!checked) },
+        role = Role.Switch,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {

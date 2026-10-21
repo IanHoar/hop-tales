@@ -4,6 +4,8 @@ import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
+import com.hoptales.speech.VoiceCandidate
+import com.hoptales.speech.VoiceChoice
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
@@ -56,9 +58,16 @@ class Speaker(context: Context) {
             TextToSpeech.Engine.KEY_FEATURE_NETWORK_SYNTHESIS !in voice.features.orEmpty()
     }
 
+    private fun bestVoice(voices: List<Voice>, locale: Locale): Voice? {
+        val candidates = voices.map { VoiceCandidate(it.name, it.locale.toLanguageTag(), it.quality, it.latency) }
+        val best = VoiceChoice.best(candidates, locale.toLanguageTag()) ?: return null
+        return voices.firstOrNull { it.name == best.id }
+    }
+
     suspend fun speak(word: String, locale: Locale = Locale.getDefault(), voiceID: String? = null) {
         if (!ready.await()) return
-        val voice = voiceID?.let { id -> offlineVoices().firstOrNull { it.name == id } }
+        val voices = offlineVoices()
+        val voice = voiceID?.let { id -> voices.firstOrNull { it.name == id } } ?: bestVoice(voices, locale)
         if (voice != null) engine.voice = voice else engine.language = locale
         engine.setSpeechRate(RATE)
         val id = UUID.randomUUID().toString()

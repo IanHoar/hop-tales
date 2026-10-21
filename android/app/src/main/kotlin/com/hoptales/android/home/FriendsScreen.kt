@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.font.FontWeight
@@ -86,6 +87,10 @@ private fun FriendCard(friend: Friend, progress: Progress, wardrobe: WardrobeLib
                 contentDescription = label
                 selected = isReading
                 role = Role.Button
+                onClick {
+                    onClick()
+                    true
+                }
             }
             .pressable(onClick)
             .dropShadow(shape, Shadow(4.dp, paper.shadow.copy(alpha = paper.shadow.alpha * 0.5f), offset = DpOffset(0.dp, 3.dp)))

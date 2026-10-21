@@ -2,6 +2,7 @@ package com.hoptales.android.reading
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,10 +24,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.shadow.Shadow
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
@@ -45,6 +49,7 @@ import com.hoptales.android.design.PaperLabel
 import com.hoptales.android.design.PaperQuietButton
 import com.hoptales.android.design.StarChip
 import com.hoptales.android.design.bevel
+import com.hoptales.android.design.headingGroup
 import com.hoptales.android.design.pressable
 import kotlin.math.roundToInt
 
@@ -145,7 +150,10 @@ fun StoryFinished(title: String, stars: Int, readAgain: () -> Unit, done: () -> 
         Column(
             Modifier
                 .centredAt(STICKER_Y / REFERENCE_HEIGHT)
-                .semantics { contentDescription = "You finished $title." },
+                .semantics {
+                    contentDescription = "You finished $title."
+                    isTraversalGroup = true
+                },
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
@@ -159,6 +167,7 @@ fun StoryFinished(title: String, stars: Int, readAgain: () -> Unit, done: () -> 
             Box(
                 Modifier
                     .size(236.dp, 56.dp)
+                    .semantics { traversalIndex = -1f }
                     .pressable(done)
                     .dropShadow(CircleShape, Shadow(5.dp, paper.shadow, offset = DpOffset(0.dp, 4.dp)))
                     .background(paper.rim, CircleShape)
@@ -176,13 +185,14 @@ fun StoryFinished(title: String, stars: Int, readAgain: () -> Unit, done: () -> 
 fun StopReading(friend: String, keepReading: () -> Unit, stop: () -> Unit) {
     val paper = LocalPaper.current
     val type = LocalTypography.current
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(paper.night.copy(alpha = 0.45f))
-            .clickable(remember { MutableInteractionSource() }, indication = null, onClick = keepReading),
-        contentAlignment = Alignment.Center,
-    ) {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(paper.night.copy(alpha = 0.45f))
+                .clearAndSetSemantics {}
+                .clickable(remember { MutableInteractionSource() }, indication = null, onClick = keepReading),
+        )
         val card = remember { Deckle(seed = 31, jitter = 3.dp, step = 12.dp) }
         Column(
             Modifier
@@ -191,12 +201,12 @@ fun StopReading(friend: String, keepReading: () -> Unit, stop: () -> Unit) {
                 .rotate(-1f)
                 .dropShadow(card, Shadow(12.dp, paper.shadow, offset = DpOffset(0.dp, 8.dp)))
                 .background(paper.paper, card)
-                .clickable(remember { MutableInteractionSource() }, indication = null) {}
+                .pointerInput(Unit) { detectTapGestures {} }
                 .padding(horizontal = 24.dp, vertical = 28.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            PaperLabel(Modifier.rotate(-2f).semantics { heading() }, seed = 23) {
+            PaperLabel(Modifier.rotate(-2f).headingGroup(), seed = 23) {
                 Text(
                     "Stop reading?",
                     style = type.display(26.sp),

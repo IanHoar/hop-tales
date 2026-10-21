@@ -52,6 +52,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
@@ -78,6 +79,7 @@ import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.design.ChoiceSurface
 import com.hoptales.android.design.Deckle
 import com.hoptales.android.design.Glyphs
+import com.hoptales.android.design.LocalFold
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.PaperButton
@@ -86,6 +88,7 @@ import com.hoptales.android.design.ProgressPills
 import com.hoptales.android.design.paperField
 import com.hoptales.android.design.pressable
 import com.hoptales.android.world.FriendSticker
+import com.hoptales.android.world.IdleFriend
 import com.hoptales.android.world.MeadowBackdrop
 import com.hoptales.android.world.SoundMarksExamples
 import com.hoptales.android.world.Sticker
@@ -134,12 +137,27 @@ fun OnboardingScreen(key: String) {
 @Composable
 fun OnboardingContent(state: OnboardingState, actions: OnboardingActions) {
     val paper = LocalPaper.current
-    val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 12.dp
+    val statusBar = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val fold = LocalFold.current
     BoxWithConstraints(Modifier.background(paper.page)) {
-        val sheetHeight = maxHeight * 0.61f - top
+        val area = Size(maxWidth.value, maxHeight.value)
+        val room = fold?.room(area)
+        val top = maxOf(statusBar, (room?.top ?: 0f).dp) + 12.dp
+        val sheetHeight = minOf(maxHeight * 0.61f - top, room?.let { it.bottom.dp - top } ?: Dp.Infinity)
         MeadowBackdrop()
-        Box(Modifier.padding(top = top).imePadding().align(Alignment.BottomCenter)) {
+        if (fold != null && !fold.runsAcross) StandingHare(fold.stage(area))
+        Box(
+            Modifier
+                .padding(
+                    top = top,
+                    start = room?.left?.takeIf { it > 0f }?.let { it.dp + 12.dp } ?: 0.dp,
+                    end =
+                    room?.let { maxWidth - it.right.dp } ?: 0.dp,
+                )
+                .imePadding()
+                .align(Alignment.BottomCenter),
+        ) {
             val sheet = remember { SheetEdge(Deckle(seed = 21, jitter = 3.dp, step = 16.dp), overhang = 12.dp) }
             Box(
                 Modifier
@@ -172,6 +190,19 @@ fun OnboardingContent(state: OnboardingState, actions: OnboardingActions) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun StandingHare(stage: Rect) {
+    val height = minOf(160f, stage.width * 0.5f)
+    Box(
+        Modifier
+            .offset(x = (stage.center.x - height).dp, y = (stage.bottom * 0.86f - height).dp)
+            .size((height * 2).dp, height.dp),
+        contentAlignment = Alignment.BottomCenter,
+    ) {
+        IdleFriend(Friend.HARE, null, height.dp)
     }
 }
 
@@ -237,7 +268,12 @@ private fun StepPage(state: OnboardingState, actions: OnboardingActions) {
     val paper = LocalPaper.current
     val type = LocalTypography.current
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Text("STEP ${state.stepNumber} OF ${state.stepCount}", style = type.caps(13.sp).copy(letterSpacing = 1.sp), color = paper.muted)
+        Text(
+            "STEP ${state.stepNumber} OF ${state.stepCount}",
+            style = type.caps(13.sp).copy(letterSpacing = 1.sp),
+            color = paper.muted,
+            modifier = Modifier.semantics { contentDescription = "Step ${state.stepNumber} of ${state.stepCount}" },
+        )
         Text(state.step.title, style = type.display(28.sp), color = paper.ink, modifier = Modifier.semantics { heading() })
         Text(state.step.detail, style = type.ui(16.sp, FontWeight.Medium), color = paper.ink.copy(alpha = 0.85f))
         Box(Modifier.padding(top = 4.dp)) {
@@ -341,11 +377,9 @@ private fun FriendChoice(friend: Friend, isSelected: Boolean, onClick: () -> Uni
     val type = LocalTypography.current
     ChoiceSurface(
         selected = isSelected,
-        modifier = Modifier.semantics(mergeDescendants = true) {
-            contentDescription = "${friend.friendName}, ${friend.stage}. Words like ${friend.examples.joinToString(", ")}."
-        },
         base = paper.paper,
         onClick = onClick,
+        label = "${friend.friendName}, ${friend.stage}. Words like ${friend.examples.joinToString(", ")}.",
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Sticker(friend.sticker, Modifier.size(58.dp))

@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.PaperLabel
+import com.hoptales.android.design.headingGroup
 import com.hoptales.android.design.paperChip
 import com.hoptales.android.design.pressable
 
@@ -68,7 +69,7 @@ private fun HeaderRow(
 
 @Composable
 fun PaperTitle(title: String, modifier: Modifier = Modifier) {
-    PaperLabel(modifier.rotate(-2f).semantics { heading() }, seed = 11) {
+    PaperLabel(modifier.rotate(-2f).headingGroup(), seed = 11) {
         Text(
             title,
             style = LocalTypography.current.display(22.sp),

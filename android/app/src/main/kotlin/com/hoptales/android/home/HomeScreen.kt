@@ -40,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeJoin
@@ -66,14 +67,16 @@ import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.design.Deckle
 import com.hoptales.android.design.GearGlyph
 import com.hoptales.android.design.Glyphs
+import com.hoptales.android.design.LocalFold
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.PaperLabel
 import com.hoptales.android.design.PaperStar
+import com.hoptales.android.design.headingGroup
 import com.hoptales.android.design.paperChip
 import com.hoptales.android.design.pressable
-import com.hoptales.android.world.DressedFriend
 import com.hoptales.android.world.FriendSticker
+import com.hoptales.android.world.IdleFriend
 import com.hoptales.android.world.MeadowBackdrop
 import com.hoptales.android.world.MeadowFraming
 import com.hoptales.android.world.MeadowLayout
@@ -118,7 +121,11 @@ fun HomeScreen(
     BoxWithConstraints(Modifier.fillMaxSize().background(paper.page)) {
         val fullHeight = maxHeight
         val screen = fullHeight.value
-        val standsAside = maxWidth > HomeLayout.WIDE_LAYOUT.dp
+        val area = Size(maxWidth.value, maxHeight.value)
+        val fold = LocalFold.current?.takeUnless { it.runsAcross }
+        val room = fold?.room(area)
+        val standsAside = fold != null || maxWidth > HomeLayout.WIDE_LAYOUT.dp
+        val column = minOf(HomeLayout.COLUMN_WIDTH, (room?.width ?: Float.POSITIVE_INFINITY) - 32f).dp
         val landscape = maxWidth > maxHeight
         val horizon = if (standsAside && landscape) HomeLayout.LOW_HORIZON else HomeLayout.SHEET_TOP
         val landScale = HomeLayout.LAND_SCALE * (maxWidth.value / 390f).coerceIn(1f, 1.3f)
@@ -132,12 +139,12 @@ fun HomeScreen(
             Box(
                 Modifier
                     .offset(
-                        x = (maxWidth - HomeLayout.COLUMN_WIDTH.dp) / 4 - stage / 2,
+                        x = (fold?.stage(area)?.center?.x?.dp ?: ((maxWidth - HomeLayout.COLUMN_WIDTH.dp) / 4)) - stage / 2,
                         y = (screen * horizon - HomeLayout.FEET_ABOVE_SHEET - HomeLayout.FRIEND_HEIGHT).dp,
                     ).size(stage, HomeLayout.FRIEND_HEIGHT.dp),
                 contentAlignment = Alignment.BottomCenter,
             ) {
-                DressedFriend(friend, outfit, HomeLayout.FRIEND_HEIGHT.dp)
+                IdleFriend(friend, outfit.firstOrNull()?.id, HomeLayout.FRIEND_HEIGHT.dp)
             }
         }
         val scroll = rememberScrollState()
@@ -145,8 +152,11 @@ fun HomeScreen(
         val top = insets.calculateTopPadding()
         val bottom = insets.calculateBottomPadding()
         val sheetTopDp = with(LocalDensity.current) { sheetTop.toDp() }
-        Box(Modifier.fillMaxSize().verticalScroll(scroll), contentAlignment = Alignment.TopCenter) {
-            Box(Modifier.widthIn(max = HomeLayout.COLUMN_WIDTH.dp).fillMaxWidth().heightIn(min = fullHeight)) {
+        Box(
+            Modifier.fillMaxSize().verticalScroll(scroll).padding(start = (room?.left ?: 0f).dp),
+            contentAlignment = Alignment.TopCenter,
+        ) {
+            Box(Modifier.widthIn(max = column).fillMaxWidth().heightIn(min = fullHeight)) {
                 Column(
                     Modifier
                         .fillMaxWidth()
@@ -156,9 +166,9 @@ fun HomeScreen(
                 ) {
                     TopBar(greeting(hour, childName), onGrownUps, Modifier.padding(top = top + maxOf(8.dp, 20.dp - top)))
                     Spacer(Modifier.height(maxOf(0.dp, (screen * HomeLayout.SHEET_TOP).dp - top - 330.dp)))
-                    DressedFriend(
+                    IdleFriend(
                         friend,
-                        outfit,
+                        outfit.firstOrNull()?.id,
                         HomeLayout.FRIEND_HEIGHT.dp,
                         Modifier.alpha(if (standsAside) 0f else 1f),
                     )
@@ -202,7 +212,7 @@ private fun TopBar(greeting: String, onGrownUps: () -> Unit, modifier: Modifier 
     val paper = LocalPaper.current
     Row(modifier.fillMaxWidth().padding(horizontal = 20.dp), verticalAlignment = Alignment.Top) {
         Box(Modifier.weight(1f)) {
-            PaperLabel(Modifier.rotate(-3f).semantics { heading() }, seed = 7) {
+            PaperLabel(Modifier.rotate(-3f).headingGroup(), seed = 7) {
                 Text(
                     greeting,
                     style = LocalTypography.current.display(21.sp),
@@ -253,11 +263,11 @@ private fun LevelChip(library: StoryLibrary, journey: Journey, onClick: () -> Un
     Row(
         modifier
             .fillMaxWidth()
+            .pressable(onClick)
             .clearAndSetSemantics {
                 contentDescription = "$title. Opens your journey."
                 role = Role.Button
             }
-            .pressable(onClick)
             .paperChip(RoundedCornerShape(18.dp), rim = 3.dp)
             .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -331,11 +341,11 @@ private fun RowScope.StickerButton(title: String, onClick: () -> Unit, art: @Com
     Column(
         Modifier
             .weight(1f)
+            .pressable(onClick)
             .clearAndSetSemantics {
                 contentDescription = title
                 role = Role.Button
-            }
-            .pressable(onClick),
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
@@ -363,11 +373,11 @@ private fun KeepGoingCard(standing: StoryStanding, onClick: () -> Unit) {
     Row(
         Modifier
             .fillMaxWidth()
+            .pressable(onClick)
             .clearAndSetSemantics {
                 contentDescription = "$heading. ${standing.story.title}. $meta."
                 role = Role.Button
             }
-            .pressable(onClick)
             .dropShadow(shape, Shadow(3.dp, paper.shadow.copy(alpha = paper.shadow.alpha * 0.55f), offset = DpOffset(0.dp, 2.dp)))
             .background(paper.rim, shape)
             .padding(12.dp),
@@ -402,11 +412,11 @@ private fun StoryRow(standing: StoryStanding, onClick: () -> Unit) {
     Row(
         Modifier
             .fillMaxWidth()
+            .pressable(onClick)
             .clearAndSetSemantics {
                 contentDescription = "${standing.story.title}. ${standing.subtitle}"
                 role = Role.Button
             }
-            .pressable(onClick)
             .background(paper.rim.copy(alpha = 0.55f), shape)
             .padding(horizontal = 10.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -428,7 +438,12 @@ private fun StoryRow(standing: StoryStanding, onClick: () -> Unit) {
 
             is StoryStanding.Standing.InProgress -> PaperStar(22.dp)
 
-            StoryStanding.Standing.Unread -> Text("New", style = type.ui(13.sp), color = paper.red, modifier = Modifier.padding(end = 4.dp))
+            StoryStanding.Standing.Unread -> Text(
+                "New",
+                style = type.ui(13.sp),
+                color = paper.redInk,
+                modifier = Modifier.padding(end = 4.dp),
+            )
         }
     }
 }

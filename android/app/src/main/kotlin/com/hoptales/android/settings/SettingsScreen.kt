@@ -214,7 +214,10 @@ private fun Section(title: String, content: @Composable ColumnScope.() -> Unit) 
             title.uppercase(),
             style = LocalTypography.current.ui(13.sp).copy(letterSpacing = 0.14.em),
             color = LocalPaper.current.muted,
-            modifier = Modifier.padding(horizontal = 4.dp).semantics { heading() },
+            modifier = Modifier.padding(horizontal = 4.dp).semantics {
+                heading()
+                contentDescription = title
+            },
         )
         content()
     }
@@ -314,9 +317,6 @@ private fun ReadingWith(friend: Friend, selected: Boolean, onClick: () -> Unit) 
     val type = LocalTypography.current
     ChoiceSurface(
         selected = selected,
-        modifier = Modifier.semantics(mergeDescendants = true) {
-            contentDescription = "${friend.friendName}, ${friend.stage}. Words like ${friend.examples.joinToString(", ")}."
-        },
         onClick = onClick,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {

@@ -129,11 +129,10 @@ fun BookScreen(library: StoryLibrary, progress: Progress, friend: Friend, onFrie
                     val met = tab in progress.journey.met
                     Box(
                         Modifier
+                            .pressable({ onFriend(tab) }, enabled = met)
                             .clearAndSetSemantics {
                                 contentDescription = if (met) "${tab.friendName}'s page" else "A friend at reading level ${tab.level}"
-                                role = Role.Button
                             }
-                            .pressable({ if (met) onFriend(tab) })
                             .size(56.dp)
                             .background(
                                 if (tab == friend) paper.paper else paper.shade,

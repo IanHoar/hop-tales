@@ -33,6 +33,7 @@ import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -176,9 +177,17 @@ fun CalloutCard(
     ) {
         when (moment) {
             is JourneyMoment.BigStoryReady -> FriendSticker(moment.friend, 120.dp)
+
             is JourneyMoment.NotYet -> FriendSticker(moment.friend, 120.dp)
-            is JourneyMoment.NewFriend -> FriendSticker(moment.friend, 120.dp)
+
+            is JourneyMoment.NewFriend -> FriendSticker(
+                moment.friend,
+                120.dp,
+                Modifier.clearAndSetSemantics { contentDescription = "${moment.friend.friendName}, your new friend" },
+            )
+
             is JourneyMoment.BasketFull -> PresentReveal(moment.friend, item, opened) { opened = true }
+
             else -> Unit
         }
         Text(title(moment), style = type.display(22.sp), color = paper.ink, textAlign = TextAlign.Center)
@@ -208,7 +217,7 @@ private fun PresentReveal(friend: Friend, item: WardrobeItem?, opened: Boolean, 
     Box(
         Modifier
             .height(120.dp)
-            .clickable(enabled = !opened, onClick = open)
+            .clickable(enabled = !opened, role = Role.Button, onClick = open)
             .semantics { contentDescription = if (opened) item?.name ?: "A present" else "A present. Double tap to open it." },
         contentAlignment = Alignment.Center,
     ) {

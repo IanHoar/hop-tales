@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.unit.DpOffset
@@ -192,6 +193,10 @@ private fun TileFace(
                 contentDescription = label
                 selected = isSelected
                 role = Role.Button
+                onClick {
+                    onClick()
+                    true
+                }
             }
             .pressable(onClick)
             .size(TILE)
