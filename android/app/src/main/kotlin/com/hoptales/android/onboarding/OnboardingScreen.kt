@@ -48,6 +48,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
@@ -59,6 +61,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -67,12 +70,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.design.BackChip
 import com.hoptales.android.design.ChoiceSurface
+import com.hoptales.android.design.LocalFold
 import com.hoptales.android.design.LocalPalette
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.PaperButton
 import com.hoptales.android.design.PaperChoice
 import com.hoptales.android.design.ProgressPills
 import com.hoptales.android.design.field
+import com.hoptales.android.world.DressedFriend
 import com.hoptales.android.world.MeadowBackdrop
 import com.hoptales.android.world.SoundMarksExamples
 import com.hoptales.android.world.Sticker
@@ -120,12 +125,27 @@ fun OnboardingScreen(key: String) {
 @Composable
 fun OnboardingContent(state: OnboardingState, actions: OnboardingActions) {
     val palette = LocalPalette.current
-    val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 12.dp
+    val statusBar = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val fold = LocalFold.current
     BoxWithConstraints(Modifier.background(palette.page)) {
-        val sheetHeight = maxHeight * 0.61f - top
+        val area = Size(maxWidth.value, maxHeight.value)
+        val room = fold?.room(area)
+        val top = maxOf(statusBar, (room?.top ?: 0f).dp) + 12.dp
+        val sheetHeight = minOf(maxHeight * 0.61f - top, room?.let { it.bottom.dp - top } ?: Dp.Infinity)
         MeadowBackdrop()
-        Box(Modifier.padding(top = top).imePadding().align(Alignment.BottomCenter)) {
+        if (fold != null && !fold.runsAcross) StandingHare(fold.stage(area))
+        Box(
+            Modifier
+                .padding(
+                    top = top,
+                    start = room?.left?.takeIf { it > 0f }?.let { it.dp + 12.dp } ?: 0.dp,
+                    end =
+                    room?.let { maxWidth - it.right.dp } ?: 0.dp,
+                )
+                .imePadding()
+                .align(Alignment.BottomCenter),
+        ) {
             Surface(
                 modifier = Modifier.widthIn(max = 560.dp).fillMaxWidth().heightIn(min = sheetHeight),
                 shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
@@ -155,6 +175,19 @@ fun OnboardingContent(state: OnboardingState, actions: OnboardingActions) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun StandingHare(stage: Rect) {
+    val height = minOf(160f, stage.width * 0.5f)
+    Box(
+        Modifier
+            .offset(x = (stage.center.x - height).dp, y = (stage.bottom * 0.86f - height).dp)
+            .size((height * 2).dp, height.dp),
+        contentAlignment = Alignment.BottomCenter,
+    ) {
+        DressedFriend(Friend.HARE, emptyList(), height.dp)
     }
 }
 

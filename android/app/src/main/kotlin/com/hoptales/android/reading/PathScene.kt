@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.sp
+import com.hoptales.android.design.Metrics
 import com.hoptales.android.world.Art
 import com.hoptales.android.world.HareSheet
 import com.hoptales.android.world.HareSheets
@@ -48,11 +49,15 @@ import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-data class PathGeometry(val width: Float, val height: Float, val density: Float) {
-    val isLarge: Boolean get() = min(width, height) / density >= 600f
-    val scale: Float get() = min(width, height) / density / if (isLarge) 834f else 390f
-    val pathScale: Float get() = scale * (if (isLarge) 1.15f else 1f) * density
-    val pathCentre: Float get() = height * if (isLarge) 632f / 834f else 640f / 844f
+data class PathGeometry(
+    val width: Float,
+    val height: Float,
+    val density: Float,
+    val metrics: Metrics = Metrics.forScreen(width / density, height / density),
+) {
+    val scale: Float get() = min(width, height) / density / metrics.shortSide
+    val pathScale: Float get() = scale * metrics.pathScale * density
+    val pathCentre: Float get() = height * metrics.pathCentre / metrics.reference.height
 
     fun path(value: Float) = value * pathScale
 
