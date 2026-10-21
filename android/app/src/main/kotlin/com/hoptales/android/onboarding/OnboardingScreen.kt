@@ -76,6 +76,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hoptales.android.HopTalesApplication
+import com.hoptales.android.design.ChoicePair
 import com.hoptales.android.design.ChoiceSurface
 import com.hoptales.android.design.Deckle
 import com.hoptales.android.design.Glyphs
@@ -427,11 +428,11 @@ private fun SoundButtonChoices(selected: Boolean?, onPick: (Boolean) -> Unit) {
         ChoiceSurface(selected = false, base = LocalPaper.current.paper, onClick = null) {
             SoundMarksExamples(modifier = Modifier.padding(vertical = 14.dp))
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            PaperChoice("Yes, show them", selected = selected == true, modifier = Modifier.weight(1f), base = LocalPaper.current.paper) {
+        ChoicePair {
+            PaperChoice("Yes, show them", selected = selected == true, base = LocalPaper.current.paper) {
                 onPick(true)
             }
-            PaperChoice("No thanks", selected = selected == false, modifier = Modifier.weight(1f), base = LocalPaper.current.paper) {
+            PaperChoice("No thanks", selected = selected == false, base = LocalPaper.current.paper) {
                 onPick(false)
             }
         }
@@ -441,11 +442,11 @@ private fun SoundButtonChoices(selected: Boolean?, onPick: (Boolean) -> Unit) {
 @Composable
 private fun BackupChoices(selected: Boolean?, onPick: (Boolean) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            PaperChoice("Yes, back up", selected = selected == true, modifier = Modifier.weight(1f), base = LocalPaper.current.paper) {
+        ChoicePair {
+            PaperChoice("Yes, back up", selected = selected == true, base = LocalPaper.current.paper) {
                 onPick(true)
             }
-            PaperChoice("Not now", selected = selected == false, modifier = Modifier.weight(1f), base = LocalPaper.current.paper) {
+            PaperChoice("Not now", selected = selected == false, base = LocalPaper.current.paper) {
                 onPick(false)
             }
         }

@@ -62,7 +62,6 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -70,6 +69,7 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.design.Deckle
+import com.hoptales.android.design.FitText
 import com.hoptales.android.design.GearGlyph
 import com.hoptales.android.design.Glyphs
 import com.hoptales.android.design.LocalFold
@@ -298,12 +298,11 @@ private fun TopBar(greeting: String, onGrownUps: () -> Unit, modifier: Modifier 
     Row(modifier.fillMaxWidth().padding(horizontal = 20.dp), verticalAlignment = Alignment.Top) {
         Box(Modifier.weight(1f)) {
             PaperLabel(Modifier.rotate(-3f).headingGroup(), seed = 7) {
-                Text(
+                FitText(
                     greeting,
                     style = LocalTypography.current.display(21.sp),
                     color = paper.ink,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                    minimumScale = 0.7f,
                     modifier = Modifier.padding(horizontal = 18.dp, vertical = 9.dp),
                 )
             }
@@ -360,13 +359,7 @@ private fun LevelChip(library: StoryLibrary, journey: Journey, onClick: () -> Un
         Rosette(journey.level, Modifier.width(40.dp))
         Spacer(Modifier.size(12.dp))
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-            Text(
-                title,
-                style = LocalTypography.current.display(16.sp),
-                color = paper.ink,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            FitText(title, style = LocalTypography.current.display(16.sp), color = paper.ink, minimumScale = 0.75f)
             if (next != null) {
                 Box(Modifier.fillMaxWidth().height(8.dp).clip(CircleShape).background(paper.muted.copy(alpha = 0.22f))) {
                     Box(Modifier.fillMaxWidth(journey.fill(library).toFloat()).height(8.dp).background(paper.wash, CircleShape))
@@ -472,7 +465,7 @@ private fun KeepGoingCard(standing: StoryStanding, onClick: () -> Unit) {
         MeadowPostcard(standing.story.mood, Modifier.size(62.dp).clip(RoundedCornerShape(12.dp)))
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(heading.uppercase(), style = type.caps(12.sp).copy(letterSpacing = 0.06.em), color = paper.muted)
-            Text(standing.story.title, style = type.display(19.sp), color = paper.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            FitText(standing.story.title, style = type.display(19.sp), color = paper.ink, minimumScale = 0.8f)
             Text(meta, style = type.ui(13.sp, FontWeight.Medium), color = paper.muted)
         }
         Box(Modifier.size(46.dp).paperChip(CircleShape, fill = paper.red), contentAlignment = Alignment.Center) {
