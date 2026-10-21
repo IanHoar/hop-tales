@@ -55,12 +55,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.design.ChevronGlyph
 import com.hoptales.android.design.LocalPalette
+import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.PaperChip
 import com.hoptales.android.design.PaperChoice
 import com.hoptales.android.design.PaperToggle
 import com.hoptales.android.design.SpeakerGlyph
 import com.hoptales.android.design.field
+import com.hoptales.android.design.paperChip
+import com.hoptales.android.design.pressable
 import com.hoptales.android.world.SoundMarksExamples
 import com.hoptales.content.Friend
 import com.hoptales.content.Profile
@@ -283,15 +286,15 @@ private fun VoiceRow(state: SettingsState, actions: SettingsActions) {
             }
         }
         Spacer(Modifier.width(12.dp))
-        Surface(
-            onClick = actions.hearVoice,
-            modifier = Modifier.size(56.dp).semantics { contentDescription = "Hear the help voice" },
-            shape = CircleShape,
-            color = palette.paper,
-            border = BorderStroke(3.dp, palette.outline),
-            shadowElevation = 2.dp,
+        Box(
+            Modifier
+                .size(56.dp)
+                .semantics { contentDescription = "Hear the help voice" }
+                .pressable(actions.hearVoice)
+                .paperChip(CircleShape),
+            contentAlignment = Alignment.Center,
         ) {
-            Box(contentAlignment = Alignment.Center) { SpeakerGlyph(palette.ink) }
+            SpeakerGlyph(LocalPaper.current.ink)
         }
     }
 }

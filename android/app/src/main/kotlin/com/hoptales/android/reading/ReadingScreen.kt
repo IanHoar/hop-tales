@@ -51,6 +51,7 @@ import com.hoptales.android.BuildConfig
 import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.design.BackChip
 import com.hoptales.android.design.LocalPalette
+import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.StarChip
 import com.hoptales.android.world.Art
@@ -143,6 +144,7 @@ private fun PathStage(state: ReadingState, onWordTapped: () -> Unit) {
         Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
     }
     val palette = LocalPalette.current
+    val paper = LocalPaper.current
     val type = LocalTypography.current
     val measurer = rememberTextMeasurer()
     val friend = state.story.friend
@@ -230,7 +232,7 @@ private fun PathStage(state: ReadingState, onWordTapped: () -> Unit) {
         Canvas(Modifier.fillMaxSize()) {
             val time = if (reduceMotion) null else propTime
             val items = propLayout.items(position, camera.value, cues, time)
-            drawProps(items, propArt, time, geometry.path(1f), look().tint(MeadowLayer.NEAR), palette)
+            drawProps(items, propArt, time, geometry.path(1f), look().tint(MeadowLayer.NEAR), paper)
         }
 
         val signs = remember(path, type) { Signposts(context.assets, path, measurer, type.displayFamily, state.story.title) }

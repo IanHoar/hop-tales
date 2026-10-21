@@ -18,7 +18,7 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import com.hoptales.android.design.Palette
+import com.hoptales.android.design.Paper
 import com.hoptales.android.world.Art
 import com.hoptales.content.Story
 import com.hoptales.content.StoryProps
@@ -48,9 +48,9 @@ object ThoughtBubble {
     const val HEIGHT = 96f
 }
 
-fun DrawScope.drawProps(items: List<PropItem>, art: PropArt, now: Double?, unit: Float, tint: Color, palette: Palette) {
+fun DrawScope.drawProps(items: List<PropItem>, art: PropArt, now: Double?, unit: Float, tint: Color, paper: Paper) {
     for (item in items) {
-        if (item.thought) drawThought(item, art, now, unit, tint, palette) else drawFigure(item, art, now, unit, tint)
+        if (item.thought) drawThought(item, art, now, unit, tint, paper) else drawFigure(item, art, now, unit, tint)
     }
 }
 
@@ -71,14 +71,14 @@ private fun DrawScope.drawFigure(item: PropItem, art: PropArt, now: Double?, uni
     }
 }
 
-private fun DrawScope.drawThought(item: PropItem, art: PropArt, now: Double?, unit: Float, tint: Color, palette: Palette) {
+private fun DrawScope.drawThought(item: PropItem, art: PropArt, now: Double?, unit: Float, tint: Color, paper: Paper) {
     val pose = PropPose.thinking(item.elapsed(now), item.exit(now), unit)
     if (pose.opacity <= 0f) return
     val left = item.anchor
     val bottom = item.baseline + pose.dy
     val top = bottom - ThoughtBubble.HEIGHT * unit
-    val fill = multiply(palette.paperChip, tint)
-    val rim = multiply(palette.paperRim, tint)
+    val fill = multiply(paper.paper, tint)
+    val rim = multiply(paper.rim, tint)
     val bounds = Rect(left, top, left + ThoughtBubble.WIDTH * unit, bottom).inflate(8 * unit)
     withTransform({ scale(pose.scale, pose.scale, Offset(left, bottom)) }) {
         drawIntoCanvas { it.saveLayer(bounds, Paint().apply { alpha = pose.opacity.coerceIn(0f, 1f) }) }
@@ -86,7 +86,7 @@ private fun DrawScope.drawThought(item: PropItem, art: PropArt, now: Double?, un
         drawIntoCanvas { canvas ->
             val shadow = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
                 color = fill.toArgb()
-                setShadowLayer(4 * unit, 0f, 3 * unit, multiply(palette.paperShadow, tint).toArgb())
+                setShadowLayer(4 * unit, 0f, 3 * unit, multiply(paper.shadow, tint).toArgb())
             }
             canvas.nativeCanvas.drawOval(chip.left, chip.top, chip.right, chip.bottom, shadow)
         }

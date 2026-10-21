@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
@@ -49,10 +50,10 @@ fun Modifier.paperChip(shape: Shape, fill: Color = LocalPaper.current.paper, rim
 }
 
 @Composable
-fun Modifier.pressable(onClick: () -> Unit, role: Role = Role.Button): Modifier {
+fun Modifier.pressable(onClick: () -> Unit, role: Role = Role.Button, enabled: Boolean = true): Modifier {
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
-    return scale(if (pressed) 0.97f else 1f).clickable(interaction, indication = null, role = role, onClick = onClick)
+    return scale(if (pressed) 0.97f else 1f).clickable(interaction, indication = null, enabled = enabled, role = role, onClick = onClick)
 }
 
 @Composable
@@ -76,12 +77,12 @@ fun PaperChip(
 }
 
 @Composable
-fun BackChip(modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun BackChip(modifier: Modifier = Modifier, description: String = "Back to stories", onClick: () -> Unit) {
     val paper = LocalPaper.current
     Box(
         modifier
             .size(48.dp)
-            .semantics { contentDescription = "Back to stories" }
+            .semantics { contentDescription = description }
             .pressable(onClick),
         contentAlignment = Alignment.Center,
     ) {
@@ -123,14 +124,15 @@ fun StarChip(stars: Int, modifier: Modifier = Modifier, prefix: String = "", hei
 }
 
 @Composable
-fun PaperButton(text: String, modifier: Modifier = Modifier, icon: ImageVector? = null, onClick: () -> Unit) {
+fun PaperButton(text: String, modifier: Modifier = Modifier, icon: ImageVector? = null, enabled: Boolean = true, onClick: () -> Unit) {
     val paper = LocalPaper.current
     val shape = RoundedCornerShape(28.dp)
     Box(
         modifier
             .fillMaxWidth()
             .height(56.dp)
-            .pressable(onClick)
+            .alpha(if (enabled) 1f else 0.5f)
+            .pressable(onClick, enabled = enabled)
             .dropShadow(shape, Shadow(5.dp, paper.shadow, offset = DpOffset(0.dp, 4.dp)))
             .background(paper.rim, shape)
             .padding(4.dp)

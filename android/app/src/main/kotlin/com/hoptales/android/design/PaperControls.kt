@@ -36,27 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-val onRed = Color(0xFFFFF6E2)
-
 val Palette.field: Color get() = parchmentLip.copy(alpha = 0.6f).compositeOver(paper)
-
-@Composable
-fun PaperButton(text: String, modifier: Modifier = Modifier, enabled: Boolean = true, onClick: () -> Unit) {
-    val palette = LocalPalette.current
-    Surface(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = modifier.fillMaxWidth().height(56.dp).alpha(if (enabled) 1f else 0.5f),
-        shape = RoundedCornerShape(28.dp),
-        color = palette.red,
-        border = BorderStroke(4.dp, palette.parchmentLip),
-        shadowElevation = 3.dp,
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            Text(text, style = LocalTypography.current.ui(18.sp), color = onRed)
-        }
-    }
-}
 
 @Composable
 fun PaperChoice(title: String, selected: Boolean, modifier: Modifier = Modifier, detail: String? = null, onClick: () -> Unit) {
@@ -114,7 +94,7 @@ fun PaperToggle(title: String, detail: String, checked: Boolean, onChange: (Bool
                 checked = checked,
                 onCheckedChange = null,
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = onRed,
+                    checkedThumbColor = palette.onTeal,
                     checkedTrackColor = palette.teal,
                     uncheckedThumbColor = palette.muted,
                     uncheckedTrackColor = palette.paper,
