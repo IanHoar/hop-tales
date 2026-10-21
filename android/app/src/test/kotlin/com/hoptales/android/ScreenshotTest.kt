@@ -106,6 +106,15 @@ class ScreenshotTest {
 
     @Test fun thoughtDark() = moment("thought", "big-nap", sentence = 2, word = 0, dark = true)
 
+    @Test fun soundButtonsMeadowWalk() = moment("sound-buttons-meadow-walk", "meadow-walk", sentence = 0, word = 1, soundButtons = true)
+
+    @Test fun soundButtonsGoldenHour() = moment("sound-buttons-golden-hour", "golden-hour", sentence = 3, word = 1, soundButtons = true)
+
+    @Test fun soundButtonsOffGoldenHour() = moment("sound-buttons-off-golden-hour", "golden-hour", sentence = 3, word = 1)
+
+    @Test fun soundButtonsStormOnTheHill() =
+        moment("sound-buttons-storm-on-the-hill", "storm-on-the-hill", sentence = 3, word = 2, soundButtons = true)
+
     @Test fun storyFinishedLight() = storyFinished(dark = false)
 
     @Test fun storyFinishedDark() = storyFinished(dark = true)
@@ -117,6 +126,10 @@ class ScreenshotTest {
     @Test fun askToListenLight() = askToListen(dark = false)
 
     @Test fun askToListenDark() = askToListen(dark = true)
+
+    @Test fun listeningUnavailableLight() = listeningUnavailable(dark = false)
+
+    @Test fun listeningUnavailableDark() = listeningUnavailable(dark = true)
 
     @Test fun onboardingNameLight() = onboarding(OnboardingStep.NAME, dark = false)
 
@@ -251,8 +264,9 @@ class ScreenshotTest {
         compose.onRoot().captureRoboImage(path("reading", dark), options)
     }
 
-    private fun moment(name: String, id: String, sentence: Int, word: Int, dark: Boolean) {
+    private fun moment(name: String, id: String, sentence: Int, word: Int, dark: Boolean = false, soundButtons: Boolean = false) {
         val story = app.library[id]!!
+        if (soundButtons) app.profileStore.save(Profile("Maya", soundButtons = true))
         showReading(dark, story)
         val words = story.sentences.take(sentence).sumOf { it.words.size } + word
         repeat(words) {
@@ -284,6 +298,13 @@ class ScreenshotTest {
         shadowOf(app).denyPermissions(Manifest.permission.RECORD_AUDIO)
         showReading(dark)
         compose.onRoot().captureRoboImage(path("ask-to-listen", dark), options)
+    }
+
+    private fun listeningUnavailable(dark: Boolean) {
+        shadowOf(app).denyPermissions(Manifest.permission.RECORD_AUDIO)
+        app.listeningPreferences.hasAskedForMicrophone = true
+        showReading(dark)
+        compose.onRoot().captureRoboImage(path("listening-unavailable", dark), options)
     }
 
     private fun showReading(dark: Boolean, story: Story = this.story) {
