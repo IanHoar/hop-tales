@@ -50,4 +50,16 @@ class ChallengeTipTest {
         assertEquals(200f, ChallengeTip.x(200f, 390f, geometry), 0.001f)
         assertEquals(249f, ChallengeTip.x(400f, 390f, geometry), 0.001f)
     }
+
+    @Test
+    fun theCurrentWordExplainsAChallengeWordAsOnIOS() {
+        val word = "Current word: meadow. Say it out loud."
+        assertEquals(word, CurrentWord.label(word, challenge = false))
+        assertEquals(
+            "$word Challenge word: A word from a level or two ahead, worth 5 steps instead of 1.",
+            CurrentWord.label(word, challenge = true),
+        )
+        assertEquals("Hear the word", CurrentWord.HEAR)
+        assertEquals(44f, CurrentWord.MINIMUM)
+    }
 }

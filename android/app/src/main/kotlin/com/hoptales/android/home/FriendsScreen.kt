@@ -139,7 +139,11 @@ private fun FriendCard(friend: Friend, progress: Progress, wardrobe: WardrobeLib
                 Text("Level ${friend.level}", style = type.ui(14.sp), color = paper.ink, modifier = Modifier.weight(1f))
                 TreatSticker(friend, 20.dp)
                 Spacer(Modifier.size(4.dp))
-                Text("${progress.baskets[friend]?.total ?: 0}", style = type.ui(14.sp), color = paper.ink)
+                Text(
+                    "${progress.baskets[friend]?.total ?: 0}",
+                    style = type.ui(14.sp).copy(fontFeatureSettings = "tnum"),
+                    color = paper.ink,
+                )
             }
         } else {
             Text(

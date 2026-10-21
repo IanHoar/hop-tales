@@ -29,6 +29,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
@@ -45,13 +46,13 @@ import com.hoptales.android.design.LocalPalette
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.PaperButton
-import com.hoptales.android.design.PaperChip
 import com.hoptales.android.design.PaperLabel
 import com.hoptales.android.design.PaperQuietButton
+import com.hoptales.android.design.PaperStar
 import com.hoptales.android.design.Press
-import com.hoptales.android.design.StarChip
 import com.hoptales.android.design.bevel
 import com.hoptales.android.design.headingGroup
+import com.hoptales.android.design.paperChip
 import com.hoptales.android.design.pressable
 import kotlin.math.roundToInt
 
@@ -74,6 +75,7 @@ private fun DebugButton(title: String, onClick: () -> Unit) {
     val palette = LocalPalette.current
     Box(
         Modifier
+            .semantics { hideFromAccessibility() }
             .pressable(onClick)
             .height(34.dp)
             .background(palette.goldShade.copy(alpha = 0.9f), CircleShape)
@@ -154,39 +156,63 @@ fun ListeningUnavailable(listening: Listening, onBack: () -> Unit) {
 }
 
 @Composable
-fun StoryFinished(title: String, stars: Int, readAgain: () -> Unit, done: () -> Unit) {
+fun StoryFinished(title: String, stars: Int, geometry: PathGeometry, readAgain: () -> Unit, done: () -> Unit) {
     val paper = LocalPaper.current
     val type = LocalTypography.current
     Box(Modifier.fillMaxSize()) {
         Column(
             Modifier
-                .centredAt(STICKER_Y / REFERENCE_HEIGHT)
+                .centredAt(geometry.y(STICKER_Y))
                 .semantics {
                     contentDescription = "You finished $title."
                     isTraversalGroup = true
                 },
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.spacedBy(geometry.dp(14f)),
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                PaperChip(height = 48.dp, rim = 4.dp, press = Press.PLAIN, onClick = readAgain) {
-                    Icon(Glyphs.again, null, tint = paper.ink, modifier = Modifier.size(19.dp))
-                    Text("Read it again", style = type.display(18.sp), color = paper.ink)
+            Row(horizontalArrangement = Arrangement.spacedBy(geometry.dp(12f)), verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    Modifier
+                        .pressable(readAgain, press = Press.PLAIN)
+                        .height(geometry.dp(48f))
+                        .paperChip(CircleShape, rim = geometry.dp(4f))
+                        .padding(horizontal = geometry.dp(18f)),
+                    horizontalArrangement = Arrangement.spacedBy(geometry.dp(8f)),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(Glyphs.again, null, tint = paper.ink, modifier = Modifier.size(geometry.dp(15f)))
+                    Text("Read it again", style = type.display(geometry.sp(18f)), color = paper.ink)
                 }
-                StarChip(stars, Modifier.rotate(4f), prefix = "+", height = 44.dp)
+                Row(
+                    Modifier
+                        .rotate(4f)
+                        .clearAndSetSemantics { contentDescription = "$stars stars" }
+                        .height(geometry.dp(44f))
+                        .paperChip(CircleShape, rim = geometry.dp(4f))
+                        .padding(horizontal = geometry.dp(14f)),
+                    horizontalArrangement = Arrangement.spacedBy(geometry.dp(6f)),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    PaperStar(geometry.dp(20f))
+                    Text(
+                        "+$stars",
+                        style = type.display(geometry.sp(18f)).copy(fontFeatureSettings = "tnum"),
+                        color = paper.ink,
+                    )
+                }
             }
             Box(
                 Modifier
-                    .size(236.dp, 56.dp)
+                    .size(geometry.dp(236f), geometry.dp(56f))
                     .semantics { traversalIndex = -1f }
                     .pressable(done, press = Press.PAPER)
-                    .dropShadow(CircleShape, Shadow(5.dp, paper.shadow, offset = DpOffset(0.dp, 4.dp)))
+                    .dropShadow(CircleShape, Shadow(geometry.dp(5f), paper.shadow, offset = DpOffset(0.dp, geometry.dp(4f))))
                     .background(paper.rim, CircleShape)
-                    .padding(4.dp)
+                    .padding(geometry.dp(4f))
                     .background(paper.red, CircleShape),
                 contentAlignment = Alignment.Center,
             ) {
-                Text("Done", style = type.display(21.sp), color = paper.onRed)
+                Text("Done", style = type.display(geometry.sp(21f)), color = paper.onRed)
             }
         }
     }
@@ -237,15 +263,11 @@ fun StopReading(friend: String, keepReading: () -> Unit, stop: () -> Unit) {
     }
 }
 
-private fun Modifier.centredAt(fraction: Float) = layout { measurable, constraints ->
+private fun Modifier.centredAt(y: Float) = layout { measurable, constraints ->
     val placeable = measurable.measure(constraints.copy(minWidth = 0, minHeight = 0))
     layout(constraints.maxWidth, constraints.maxHeight) {
-        placeable.place(
-            (constraints.maxWidth - placeable.width) / 2,
-            (constraints.maxHeight * fraction - placeable.height / 2f).roundToInt(),
-        )
+        placeable.place((constraints.maxWidth - placeable.width) / 2, (y - placeable.height / 2f).roundToInt())
     }
 }
 
 private const val STICKER_Y = 728f
-private const val REFERENCE_HEIGHT = 844f

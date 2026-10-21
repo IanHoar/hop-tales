@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.world.FriendSticker
+import com.hoptales.android.world.ROSETTE_INK
 import com.hoptales.android.world.Sticker
 import com.hoptales.content.Friend
 import kotlinx.coroutines.launch
@@ -102,7 +103,7 @@ fun swiftSpring(duration: Double, bounce: Double) = spring<Float>(
 )
 
 @Composable
-fun FriendReveal(friend: Friend) {
+fun FriendReveal(friend: Friend, geometry: PathGeometry) {
     val context = LocalContext.current
     val still = remember { Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f }
     val haptics = LocalHapticFeedback.current
@@ -146,12 +147,12 @@ fun FriendReveal(friend: Friend) {
             if (next == RevealStage.SETTLED) liftTime = (elapsed - FriendReveal.SETTLES_AT) / 1e3
         }
     }
-    val height = FriendReveal.HEIGHT.dp
+    val height = geometry.dp(FriendReveal.HEIGHT)
     val wash = paper.wash
     Box(
         Modifier
             .fillMaxWidth()
-            .height(FriendReveal.FRAME.dp)
+            .height(geometry.dp(FriendReveal.FRAME))
             .clearAndSetSemantics { contentDescription = "${friend.friendName}, your new friend" },
         contentAlignment = Alignment.Center,
     ) {
@@ -195,7 +196,7 @@ fun FriendReveal(friend: Friend) {
                 "collect-star",
                 Modifier
                     .offset(reach * cos(angle).toFloat(), reach * sin(angle).toFloat() * 0.8f)
-                    .size(if (index % 2 == 0) 20.dp else 14.dp)
+                    .size(geometry.dp(if (index % 2 == 0) 20f else 14f))
                     .graphicsLayer {
                         scaleX = 0.2f + 0.8f * sparkle
                         scaleY = 0.2f + 0.8f * sparkle
@@ -223,19 +224,19 @@ fun FriendReveal(friend: Friend) {
                 scaleX = 0.3f + 0.7f * shown
                 scaleY = 0.3f + 0.7f * shown
                 transformOrigin = TransformOrigin(0.5f, 1f)
-                translationY = -FriendReveal.keyframes(FriendReveal.lifts, liftTime).dp.toPx()
+                translationY = -geometry.path(FriendReveal.keyframes(FriendReveal.lifts, liftTime))
             },
         )
         FriendSticker(
             Friend.at(friend.level - 1),
-            60.dp,
+            geometry.dp(60f),
             Modifier
-                .offset(-height * 0.95f - 30.dp * (1 - settled), height / 2 - 30.dp)
+                .offset(-height * 0.95f - geometry.dp(30f) * (1 - settled), height / 2 - geometry.dp(30f))
                 .graphicsLayer { alpha = settled.coerceIn(0f, 1f) },
         )
         Box(
             Modifier
-                .offset(height * 0.85f, (-38).dp)
+                .offset(height * 0.85f, -geometry.dp(38f))
                 .graphicsLayer {
                     rotationZ = -40f + 48f * settled
                     scaleX = 0.2f + 0.8f * settled
@@ -244,8 +245,13 @@ fun FriendReveal(friend: Friend) {
                 },
             contentAlignment = Alignment.Center,
         ) {
-            Sticker("collect-rosette", Modifier.size(56.dp))
-            Text("${friend.level}", style = type.display(18.sp), color = paper.ink, modifier = Modifier.offset(y = (-5).dp))
+            Sticker("collect-rosette", Modifier.size(geometry.dp(56f)))
+            Text(
+                "${friend.level}",
+                style = type.display(geometry.sp(18f)),
+                color = ROSETTE_INK,
+                modifier = Modifier.offset(y = -geometry.dp(5f)),
+            )
         }
     }
 }
