@@ -5,6 +5,8 @@ plugins {
 }
 
 val shared = rootDir.resolve("../ios/HopTalesPackage/Sources")
+val wardrobe = listOf("look-*", "wear-*", "looks.json", "wardrobe.json")
+val notYetOnAndroid = listOf("postcard-*", "cast-*", "prop-*", "hare-front-sit.*")
 
 android {
     namespace = "com.hoptales.android"
@@ -54,7 +56,8 @@ android {
     }
 
     androidResources {
-        noCompress += listOf("webp", "png", "ttf", "json")
+        noCompress += listOf("webp", "png")
+        ignoreAssetsPatterns += wardrobe + notYetOnAndroid
     }
 }
 
