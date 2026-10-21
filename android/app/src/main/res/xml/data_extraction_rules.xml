@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <data-extraction-rules>
     <cloud-backup>
-        <exclude domain="root" />
-        <exclude domain="file" />
-        <exclude domain="database" />
-        <exclude domain="sharedpref" />
-        <exclude domain="external" />
+        <include domain="database" path="hoptales.db" />
+        <include domain="sharedpref" path="backup.xml" />
     </cloud-backup>
     <device-transfer>
-        <include domain="file" path="progress.json" />
+        <include domain="database" path="hoptales.db" />
+        <include domain="sharedpref" path="backup.xml" />
     </device-transfer>
 </data-extraction-rules>

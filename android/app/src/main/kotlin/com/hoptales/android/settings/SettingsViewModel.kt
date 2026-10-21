@@ -20,6 +20,8 @@ data class SettingsState(
     val profile: Profile = Profile(),
     val strictness: Strictness = Strictness.GENTLE,
     val soundOn: Boolean = true,
+    val backupOn: Boolean = false,
+    val backupWasOn: Boolean = false,
     val voices: List<VoiceOption> = emptyList(),
     val journey: Journey = Journey(),
 ) {
@@ -36,6 +38,8 @@ class SettingsViewModel(private val app: HopTalesApplication) : ViewModel() {
                 profile = profile,
                 strictness = app.listeningPreferences.strictness,
                 soundOn = app.soundPreference.isOn,
+                backupOn = app.backupChoice.isOn,
+                backupWasOn = app.backupChoice.wasEverOn,
                 journey = app.progressStore.load().journey,
             )
         },
@@ -81,6 +85,11 @@ class SettingsViewModel(private val app: HopTalesApplication) : ViewModel() {
     fun soundToggled(isOn: Boolean) {
         app.soundPreference.isOn = isOn
         mutableState.update { it.copy(soundOn = isOn) }
+    }
+
+    fun backupToggled(isOn: Boolean) {
+        app.backupChoice.isOn = isOn
+        mutableState.update { it.copy(backupOn = isOn, backupWasOn = app.backupChoice.wasEverOn) }
     }
 
     fun done() = save()
