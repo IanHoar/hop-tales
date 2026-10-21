@@ -5,7 +5,6 @@ import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,12 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.addOutline
-import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -51,7 +45,6 @@ val EaseOut = CubicBezierEasing(0f, 0f, 0.58f, 1f)
 @Composable
 fun Modifier.paperField(
     selected: Boolean = false,
-    base: Color = LocalPaper.current.page,
     fill: Float = 0.6f,
     shape: RoundedCornerShape = RoundedCornerShape(18.dp),
     shadowOpacity: Float = 0.5f,
@@ -62,39 +55,14 @@ fun Modifier.paperField(
     val colour = if (selected) paper.red.copy(alpha = 0.1f) else paper.rim.copy(alpha = fill)
     val shadow = Shadow(shadowRadius, paper.shadow.copy(alpha = paper.shadow.alpha * shadowOpacity), offset = DpOffset(0.dp, shadowY))
     val rim = if (selected) paper.red else paper.rim
-    val shapeShadow = rememberShadow(shape, shadow)
-    val fillShadow =
-        rememberShadow(shape, Shadow(shadowRadius, shadow.color.copy(alpha = shadow.color.alpha * colour.alpha), offset = shadow.offset))
-    val rimShadow = rememberRimShadow(shape, 3.dp, shadow)
-    return drawBehind {
-        val path = Path().apply { addOutline(shape.createOutline(size, layoutDirection, this@drawBehind)) }
-        drawShadow(shapeShadow)
-        clipPath(path) {
-            drawRect(base)
-            drawShadow(fillShadow)
-            drawRect(colour)
-        }
-    }
-        .border(3.dp, rim, shape)
-        .drawWithContent {
-            drawContent()
-            drawShadow(rimShadow)
-        }
-        .contentShadow(shadow)
+    return paperShading(shape, colour, rim, 3.dp, shadow)
 }
 
 @Composable
-fun PaperChoice(
-    title: String,
-    selected: Boolean,
-    modifier: Modifier = Modifier,
-    detail: String? = null,
-    base: Color = LocalPaper.current.page,
-    onClick: () -> Unit,
-) {
+fun PaperChoice(title: String, selected: Boolean, modifier: Modifier = Modifier, detail: String? = null, onClick: () -> Unit) {
     val paper = LocalPaper.current
     val type = LocalTypography.current
-    ChoiceSurface(selected, modifier, base, onClick) {
+    ChoiceSurface(selected, modifier, onClick) {
         Text(title, style = type.display(19.sp), color = paper.ink)
         if (detail != null) Text(detail, style = type.ui(14.sp), color = paper.muted)
     }
@@ -104,7 +72,6 @@ fun PaperChoice(
 fun ChoiceSurface(
     selected: Boolean,
     modifier: Modifier = Modifier,
-    base: Color = LocalPaper.current.page,
     onClick: (() -> Unit)?,
     label: String? = null,
     role: Role = Role.Button,
@@ -122,7 +89,7 @@ fun ChoiceSurface(
         modifier
             .fillMaxWidth()
             .then(action)
-            .paperField(selected, base)
+            .paperField(selected)
             .padding(horizontal = 16.dp, vertical = 14.dp),
     ) {
         Column(
