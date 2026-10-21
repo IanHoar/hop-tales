@@ -1,7 +1,6 @@
 package com.hoptales.android.reading
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.BlendMode
@@ -20,9 +19,7 @@ import com.hoptales.android.world.IdleMotion
 import com.hoptales.android.world.MeadowLayer
 import com.hoptales.android.world.MeadowLayout
 import com.hoptales.android.world.SpriteSheet
-import com.hoptales.android.world.layerTint
-import com.hoptales.android.world.skyColors
-import com.hoptales.content.Sky
+import com.hoptales.android.world.SkyLook
 import com.hoptales.content.Story
 import kotlin.math.PI
 import kotlin.math.min
@@ -113,13 +110,10 @@ data class HareArt(val idle: ImageBitmap?, val hop: ImageBitmap?, val sheets: Ha
 
 data class Hop(val startNanos: Long, val carried: Boolean)
 
-fun DrawScope.drawSky(sky: Sky) {
-    drawRect(Brush.verticalGradient(skyColors(sky)))
-}
-
-fun DrawScope.drawMeadow(layers: Map<MeadowLayer, ImageBitmap?>, layout: MeadowLayout, cameraX: Float, sky: Sky) {
-    val tint = layerTint(sky)?.let { ColorFilter.tint(it, BlendMode.Multiply) }
+fun DrawScope.drawMeadow(layers: Map<MeadowLayer, ImageBitmap?>, layout: MeadowLayout, cameraX: Float, look: SkyLook) {
     for (layer in MeadowLayer.entries) {
+        val colour = look.tint(layer)
+        val tint = if (colour == Color.White) null else ColorFilter.tint(colour, BlendMode.Modulate)
         val image = layers[layer] ?: continue
         val width = layout.tileWidth(layer)
         val height = layout.tileHeight(layer)
@@ -137,7 +131,7 @@ fun DrawScope.drawMeadow(layers: Map<MeadowLayer, ImageBitmap?>, layout: MeadowL
         if (layer == MeadowLayer.NEAR) {
             val bottom = top + height
             if (bottom < size.height) {
-                drawRect(Color(0xFF6E8B3D), topLeft = Offset(0f, bottom - 1), size = androidx.compose.ui.geometry.Size(size.width, size.height - bottom + 1))
+                drawRect(multiply(UNDERSTORY, look.tint(layer)), topLeft = Offset(0f, bottom - 1), size = androidx.compose.ui.geometry.Size(size.width, size.height - bottom + 1))
             }
         }
     }
@@ -194,3 +188,7 @@ fun DrawScope.drawHare(art: HareArt, geometry: PathGeometry, nowNanos: Long, hop
 }
 
 const val IDLE_FPS = 20f
+
+private val UNDERSTORY = Color(0xFF6E8B3D)
+
+private fun multiply(colour: Color, tint: Color) = Color(colour.red * tint.red, colour.green * tint.green, colour.blue * tint.blue, colour.alpha)
