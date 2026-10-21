@@ -83,7 +83,7 @@ class FontScaleScreenshotTest {
     }
 
     @Test
-    @Config(qualifiers = "w412dp-h3300dp-xhdpi")
+    @Config(qualifiers = "w412dp-h3400dp-xhdpi")
     fun settings() {
         val profile = Profile("Maya", Friend.HARE, Profile.Accent.CANADIAN, soundButtons = true)
         compose.setContent {

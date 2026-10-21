@@ -3,7 +3,9 @@ package com.hoptales.android.settings
 import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.speech.SpeechLogEntry
 import com.hoptales.content.Friend
+import com.hoptales.content.Journey
 import com.hoptales.content.Profile
+import com.hoptales.content.Progress
 import com.hoptales.reading.Heard
 import com.hoptales.speech.Strictness
 import org.junit.After
@@ -70,6 +72,23 @@ class SettingsViewModelTest {
         assertEquals(0, model.state.value.speechLogLines)
         model.speechLogToggled(false)
         assertFalse(model.state.value.speechLogOn)
+    }
+
+    @Test
+    fun unlockingEverythingMeetsEveryFriendAndFillsTheirBaskets() {
+        val model = SettingsViewModel(app)
+        model.unlockEverything()
+        val progress = app.progressStore.load()
+        assertEquals(Friend.entries.toSet(), progress.journey.met)
+        assertEquals(Friend.entries.toSet(), model.state.value.readingFriends.toSet())
+        for (friend in Friend.entries) assertEquals(app.wardrobe.items(friend).size, progress.baskets[friend]?.filled)
+
+        model.resetJourney()
+        val reset = app.progressStore.load()
+        assertEquals(Journey.starting(maya.startingFriend), reset.journey)
+        assertTrue(reset.baskets.isEmpty())
+        assertEquals(reset.journey, model.state.value.journey)
+        app.progressStore.save(Progress())
     }
 
     @Test
