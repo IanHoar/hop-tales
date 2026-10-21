@@ -9,6 +9,7 @@ import com.hoptales.content.Progress
 import com.hoptales.content.StoryLibrary
 import com.hoptales.content.treat
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -72,5 +73,29 @@ class FinishingTest {
         reading.readAgain()
         assertTrue(reading.state.journeyMoments.isEmpty())
         assertEquals(journey.treat(story), reading.state.treat)
+    }
+
+    @Test
+    fun tryingTheItemOnLeavesTheBasketForDoneThenTheTally() {
+        val reading = reading()
+        reading.readToTheEnd()
+        reading.finishing(Progress(journey = journey, baskets = mapOf(Friend.BUNNY to Basket(inBasket = 3))), library)
+        reading.tryItOn()
+        assertTrue(reading.state.hasTriedItOn)
+        assertEquals(JourneyMoment.BasketFull(Friend.BUNNY, number = 1), reading.state.callout)
+        reading.momentDismissed()
+        assertFalse(reading.state.hasTriedItOn)
+        assertNull(reading.state.callout)
+        assertTrue(reading.state.tally != null)
+    }
+
+    @Test
+    fun onlyASentenceInsideTheStoryEndsASentence() {
+        val reading = reading()
+        assertFalse(reading.state.endedASentence)
+        while (reading.state.sentenceIndex == 0) reading.skipWord()
+        assertTrue(reading.state.endedASentence)
+        reading.readToTheEnd()
+        assertFalse(reading.state.endedASentence)
     }
 }

@@ -47,7 +47,8 @@ way. Change `.editorconfig` rather than suppressing a rule in the code.
 
 `ScreenshotTest` renders the intro at night, mid-sunrise and with its title, home (first run and
 midway), reading, sound-button marks, the microphone ask, the microphone off, a story prop, a
-companion, a thought bubble, the story-finished panel with its tally, a full basket, the stop card,
+companion, a thought bubble, a big word, the challenge-word tip, the story-finished panel with its
+tally, a full basket, the "Done" card after trying the present on, a new friend, the stop card,
 the journey map, friends, the wardrobe, the collection book, each onboarding step and the grown-ups
 settings, light and dark (and the settings in a chosen Dark theme on a light device), with Roborazzi on Robolectric — on the JVM, no emulator. The references
 live in
