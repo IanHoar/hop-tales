@@ -116,6 +116,12 @@ fun Progress.undressing(friend: Friend): Progress = copy(outfits = outfits + (fr
 fun Progress.takingOff(slot: Slot, friend: Friend, wardrobe: WardrobeLibrary): Progress =
     copy(outfits = outfits + (friend to choices(friend, wardrobe) - slot))
 
+fun Progress.tapping(item: WardrobeItem, friend: Friend, wardrobe: WardrobeLibrary): Progress = when {
+    !isUnlocked(item, friend, wardrobe) -> this
+    item in outfit(friend, wardrobe) -> takingOff(item.slot, friend, wardrobe)
+    else -> wearing(item, friend, wardrobe)
+}
+
 private fun Progress.choices(friend: Friend, wardrobe: WardrobeLibrary): Map<Slot, String> {
     outfits[friend]?.let { return it }
     val item = wardrobe.startingItem(friend) ?: return emptyMap()
