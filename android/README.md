@@ -29,6 +29,10 @@ off, a panel says so and leads back to the stories, as on iOS. As on iOS, a part
 sentences. The hint voice, unless a grown-up picked one, is the best offline voice for the accent. Debug builds show a "Hear …"
 button that stands in for a recognised word, like the DEBUG controls on iOS.
 
+As on iOS, a grown-up can turn on a speech log in Settings: one line per thing the recogniser hears
+(words only, never audio), kept in memory until the app closes, capped at 5,000 lines, and exported
+through the share sheet as a CSV in plain text. It never leaves the device unless the grown-up shares it.
+
 ## Style
 
 ktlint is the house style, configured in `android/.editorconfig` (IntelliJ IDEA style, trailing

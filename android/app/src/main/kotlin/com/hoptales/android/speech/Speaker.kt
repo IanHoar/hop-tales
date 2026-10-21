@@ -13,7 +13,9 @@ import java.util.Locale
 import java.util.UUID
 import kotlin.coroutines.resume
 
-data class VoiceOption(val id: String, val name: String)
+data class VoiceOption(val id: String, val name: String, val region: String) {
+    val label: String get() = "$name · $region"
+}
 
 class Speaker(context: Context) {
     private val ready = CompletableDeferred<Boolean>()
@@ -47,7 +49,7 @@ class Speaker(context: Context) {
             .toSortedMap()
             .flatMap { (region, voices) ->
                 voices.sortedWith(compareByDescending<Voice> { it.quality }.thenBy { it.name })
-                    .mapIndexed { index, voice -> VoiceOption(voice.name, if (voices.size == 1) region else "$region ${index + 1}") }
+                    .mapIndexed { index, voice -> VoiceOption(voice.name, "Voice ${index + 1}", region) }
             }
     }
 

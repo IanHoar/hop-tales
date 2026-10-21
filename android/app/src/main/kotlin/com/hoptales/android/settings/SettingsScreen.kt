@@ -46,6 +46,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
@@ -85,13 +86,17 @@ class SettingsActions(
     val hearVoice: () -> Unit = {},
     val soundToggled: (Boolean) -> Unit = {},
     val backupToggled: (Boolean) -> Unit = {},
+    val speechLogToggled: (Boolean) -> Unit = {},
+    val speechLogExported: () -> Unit = {},
+    val speechLogCleared: () -> Unit = {},
     val resetOnboarding: () -> Unit = {},
     val done: () -> Unit = {},
 )
 
 @Composable
 fun SettingsScreen(key: String, onDone: () -> Unit) {
-    val app = LocalContext.current.applicationContext as HopTalesApplication
+    val context = LocalContext.current
+    val app = context.applicationContext as HopTalesApplication
     val model: SettingsViewModel = viewModel(key = key) { SettingsViewModel(app) }
     val state by model.state.collectAsStateWithLifecycle()
     val done = {
@@ -113,6 +118,9 @@ fun SettingsScreen(key: String, onDone: () -> Unit) {
             hearVoice = model::hearVoice,
             soundToggled = model::soundToggled,
             backupToggled = model::backupToggled,
+            speechLogToggled = model::speechLogToggled,
+            speechLogExported = { app.speechLog.shareIntent(context)?.let(context::startActivity) },
+            speechLogCleared = model::speechLogCleared,
             resetOnboarding = {
                 model.resetOnboarding()
                 onDone()
@@ -197,6 +205,7 @@ fun SettingsContent(state: SettingsState, actions: SettingsActions) {
                     )
                 }
                 Section("Backup") { BackupRow(state, actions.backupToggled) }
+                Section("Speech log") { SpeechLogRow(state, actions) }
                 Section("Testing") {
                     PaperChip(height = 48.dp, onClick = actions.resetOnboarding) {
                         Text("Reset onboarding", style = LocalTypography.current.ui(15.sp), color = paper.ink)
@@ -288,7 +297,7 @@ private fun VoiceRow(state: SettingsState, actions: SettingsActions) {
                 )
                 for (voice in state.voices) {
                     DropdownMenuItem(
-                        text = { Text(voice.name, style = type.ui(16.sp), color = paper.ink) },
+                        text = { Text(voice.label, style = type.ui(16.sp), color = paper.ink) },
                         onClick = {
                             open = false
                             actions.voicePicked(voice.id)
@@ -307,6 +316,35 @@ private fun VoiceRow(state: SettingsState, actions: SettingsActions) {
             contentAlignment = Alignment.Center,
         ) {
             SpeakerGlyph(LocalPaper.current.ink)
+        }
+    }
+}
+
+@Composable
+private fun SpeechLogRow(state: SettingsState, actions: SettingsActions) {
+    val paper = LocalPaper.current
+    val type = LocalTypography.current
+    PaperToggle(
+        "Keep a log of what's heard",
+        "Words only, never sound, kept on this device until the app closes. Nothing is sent anywhere.",
+        checked = state.speechLogOn,
+        onChange = actions.speechLogToggled,
+    )
+    Row(Modifier.padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            if (state.speechLogLines == 1) "1 line" else "${state.speechLogLines} lines",
+            style = type.ui(15.sp, FontWeight.Medium),
+            color = paper.muted,
+            modifier = Modifier.weight(1f),
+        )
+        if (state.speechLogLines > 0) {
+            PaperChip(onClick = actions.speechLogExported) {
+                Text("Export", style = type.ui(15.sp), color = paper.ink)
+            }
+            Spacer(Modifier.width(12.dp))
+            PaperChip(onClick = actions.speechLogCleared) {
+                Text("Clear", style = type.ui(15.sp), color = paper.ink)
+            }
         }
     }
 }

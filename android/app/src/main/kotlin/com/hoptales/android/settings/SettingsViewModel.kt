@@ -24,10 +24,12 @@ data class SettingsState(
     val backupWasOn: Boolean = false,
     val voices: List<VoiceOption> = emptyList(),
     val journey: Journey = Journey(),
+    val speechLogOn: Boolean = false,
+    val speechLogLines: Int = 0,
 ) {
     val readingFriends: List<Friend> get() = Friend.entries.filter { it in journey.met || it in Friend.starters }
 
-    val voiceName: String get() = voices.firstOrNull { it.id == profile.voiceID }?.name ?: "Automatic"
+    val voiceName: String get() = voices.firstOrNull { it.id == profile.voiceID }?.label ?: "Automatic"
 }
 
 class SettingsViewModel(private val app: HopTalesApplication) : ViewModel() {
@@ -41,6 +43,8 @@ class SettingsViewModel(private val app: HopTalesApplication) : ViewModel() {
                 backupOn = app.backupChoice.isOn,
                 backupWasOn = app.backupChoice.wasEverOn,
                 journey = app.progressStore.load().journey,
+                speechLogOn = app.speechLog.isOn,
+                speechLogLines = app.speechLog.entries.size,
             )
         },
     )
@@ -93,6 +97,19 @@ class SettingsViewModel(private val app: HopTalesApplication) : ViewModel() {
         app.backupChoice.isOn = isOn
         mutableState.update { it.copy(backupOn = isOn, backupWasOn = app.backupChoice.wasEverOn) }
     }
+
+    fun speechLogToggled(isOn: Boolean) {
+        app.speechLog.isOn = isOn
+        refreshSpeechLog()
+    }
+
+    fun speechLogCleared() {
+        app.speechLog.clear()
+        refreshSpeechLog()
+    }
+
+    private fun refreshSpeechLog() =
+        mutableState.update { it.copy(speechLogOn = app.speechLog.isOn, speechLogLines = app.speechLog.entries.size) }
 
     fun done() = save()
 

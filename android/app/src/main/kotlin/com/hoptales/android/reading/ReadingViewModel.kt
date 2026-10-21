@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.speech.SpeechEvent
+import com.hoptales.android.speech.SpeechLogEntry
 import com.hoptales.content.Friend
 import com.hoptales.content.Profile
 import com.hoptales.content.Story
@@ -58,6 +59,7 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
     private var hasCheckedSupport = false
     private var watchJob: Job? = null
     private var heardAt = SystemClock.elapsedRealtime()
+    private var level: Float? = null
     private var hasPermission = false
     private var isStarted = false
 
@@ -111,7 +113,7 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
                     when (event) {
                         is SpeechEvent.Partial -> heard(event.tokens, isFinal = false)
                         is SpeechEvent.Final -> heard(event.tokens, isFinal = true)
-                        is SpeechEvent.Level -> Unit
+                        is SpeechEvent.Level -> level = event.decibels
                         is SpeechEvent.Ended -> end = event.reason
                     }
                 }
@@ -136,7 +138,19 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
     private fun heard(tokens: List<String>, isFinal: Boolean) {
         heardAt = SystemClock.elapsedRealtime()
         val before = reading.state
-        reading.heard(tokens, isFinal) ?: return
+        val match = reading.heard(tokens, isFinal)
+        app.speechLog.record(
+            SpeechLogEntry(
+                story = before.story.id,
+                sentence = before.sentenceIndex,
+                word = before.currentWord?.text.orEmpty(),
+                heard = tokens,
+                isFinal = isFinal,
+                outcome = reading.lastHeard,
+                level = level,
+            ),
+        )
+        match ?: return
         publish()
         if (reading.state.sentenceIndex != before.sentenceIndex) sentenceChanged(before)
     }
