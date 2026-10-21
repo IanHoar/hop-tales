@@ -3,12 +3,12 @@ package com.hoptales.speech
 import com.hoptales.content.StoryLibrary
 import com.hoptales.content.Word
 import com.hoptales.speech.WordMatcher.Target
-import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
 
 class WordMatcherTest {
     private val sat = Word("sat")
@@ -24,16 +24,14 @@ class WordMatcherTest {
 
     @Test fun levenshteinOneIsAcceptedForLongerWords() = assertEquals(Target.CURRENT, target("knigh", current = knight))
 
-    @Test fun levenshteinIsNotAppliedToShortWords() =
-        assertNull(target("sad", current = sat, strictness = Strictness.STANDARD))
+    @Test fun levenshteinIsNotAppliedToShortWords() = assertNull(target("sad", current = sat, strictness = Strictness.STANDARD))
 
     @Test fun droppedFinalConsonantIsForgivenWhenGentle() {
         assertEquals(Target.CURRENT, target("sap", current = sat))
         assertNull(target("sap", current = sat, strictness = Strictness.STANDARD))
     }
 
-    @Test fun aDoubledFinalLetterIsForgivenWhenGentle() =
-        assertEquals(Target.CURRENT, target("bob", "sapp", current = sat))
+    @Test fun aDoubledFinalLetterIsForgivenWhenGentle() = assertEquals(Target.CURRENT, target("bob", "sapp", current = sat))
 
     @Test fun onIsHeardWithoutItsN() {
         val on = Word("on")
@@ -47,8 +45,7 @@ class WordMatcherTest {
         for (token in listOf("yep", "yup", "yipp")) assertEquals(token, Target.CURRENT, target(token, current = Word("Yip")))
     }
 
-    @Test fun aSaidAsUhIsHeardEvenWhenTheRecogniserWritesOh() =
-        assertEquals(Target.CURRENT, target("oh", current = Word("a")))
+    @Test fun aSaidAsUhIsHeardEvenWhenTheRecogniserWritesOh() = assertEquals(Target.CURRENT, target("oh", current = Word("a")))
 
     @Test fun aShortWordWithAnotherVowelIsHeardWhenGentle() {
         for (token in listOf("set", "sit", "said", "sed")) assertEquals(token, Target.CURRENT, target(token, current = sat))
@@ -62,8 +59,7 @@ class WordMatcherTest {
         for (token in listOf("cat", "hat", "sun", "seats")) assertNull(token, target(token, current = sat))
     }
 
-    @Test fun theShortWordRuleStaysOffWhenStandard() =
-        assertNull(target("set", current = sat, strictness = Strictness.STANDARD))
+    @Test fun theShortWordRuleStaysOffWhenStandard() = assertNull(target("set", current = sat, strictness = Strictness.STANDARD))
 
     @Test fun aWordThatSoundsLikeALetterIsHeardAsThatLetter() {
         for (token in listOf("b", "bb", "be")) assertEquals(token, Target.CURRENT, target(token, current = Word("bee")))
@@ -98,8 +94,7 @@ class WordMatcherTest {
 
     @Test fun readingAheadMarksTheCurrentWordReadToo() = assertEquals(Target.NEXT, target("mat", current = sat, next = mat))
 
-    @Test fun normalizeStripsPunctuationAndCase() =
-        assertEquals(listOf("the", "cat", "sat"), WordMatcher.normalize("The cat, SAT!"))
+    @Test fun normalizeStripsPunctuationAndCase() = assertEquals(listOf("the", "cat", "sat"), WordMatcher.normalize("The cat, SAT!"))
 
     @Test fun partialsMustRepeatBeforeTheyCount() {
         val debouncer = PartialDebouncer()
@@ -107,8 +102,7 @@ class WordMatcherTest {
         assertEquals(listOf("sat"), debouncer.confirm(listOf("sat"), isFinal = false))
     }
 
-    @Test fun finalResultsCountImmediately() =
-        assertEquals(listOf("sat"), PartialDebouncer().confirm(listOf("sat"), isFinal = true))
+    @Test fun finalResultsCountImmediately() = assertEquals(listOf("sat"), PartialDebouncer().confirm(listOf("sat"), isFinal = true))
 
     @Test fun aWordFromTheStoryMatchesItselfOnceNormalised() {
         val library = StoryLibrary.decode(File(System.getProperty("hoptales.resources"), "stories.json").readText())
@@ -133,6 +127,7 @@ class WordMatcherTest {
         assertNotNull(WordMatcher.match(listOf("its"), Word("Its"), null))
     }
 
-    @Test fun capitalsAndPunctuationInTheStoryDoNotMatter() =
-        assertNotNull(WordMatcher.match(WordMatcher.normalize("MAT"), Word("Mat."), null))
+    @Test fun capitalsAndPunctuationInTheStoryDoNotMatter() = assertNotNull(
+        WordMatcher.match(WordMatcher.normalize("MAT"), Word("Mat."), null),
+    )
 }

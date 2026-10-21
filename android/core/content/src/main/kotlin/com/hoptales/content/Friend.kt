@@ -14,7 +14,14 @@ enum class Friend(
     CROW("crow", "Button", "Harvest Field", "the field", Treat("button", "buttons", "button"), listOf("jumped", "farm", "garden")),
     CAT("cat", "Marmalade", "Cottage Garden", "the garden", Treat("ball of wool", "balls of wool", "yarn"), listOf("rain", "boat", "moon")),
     CRAB("crab", "Barnacle", "Rock Pools", "the rock pools", Treat("shell", "shells", "shell"), listOf("knock", "tiny", "bottle")),
-    GRASSHOPPER("grasshopper", "Bartholomew", "Tall Grass", "the tall grass", Treat("clover leaf", "clover leaves", "clover"), listOf("station", "adventure", "enormous")),
+    GRASSHOPPER(
+        "grasshopper",
+        "Bartholomew",
+        "Tall Grass",
+        "the tall grass",
+        Treat("clover leaf", "clover leaves", "clover"),
+        listOf("station", "adventure", "enormous"),
+    ),
     ;
 
     val level: Int get() = ordinal + 1

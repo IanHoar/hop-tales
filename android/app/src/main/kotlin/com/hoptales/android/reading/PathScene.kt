@@ -1,10 +1,10 @@
 package com.hoptales.android.reading
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Shadow
@@ -90,8 +90,7 @@ class WordPath(story: Story, val geometry: PathGeometry, measurer: TextMeasurer,
         return last.centre + geometry.path(PathGeometry.OVERSHOOT) - geometry.path(PathGeometry.FOCUS_X)
     }
 
-    fun wordCentreY(stop: Stop): Float =
-        geometry.pathCentre + (0.5f - PathGeometry.RISE) * stop.layout.size.height
+    fun wordCentreY(stop: Stop): Float = geometry.pathCentre + (0.5f - PathGeometry.RISE) * stop.layout.size.height
 
     fun hit(offset: Offset, cameraX: Float, sentence: Int, word: Int): Boolean {
         val stop = stop(sentence, word) ?: return false
@@ -137,7 +136,14 @@ fun DrawScope.drawMeadow(layers: Map<MeadowLayer, ImageBitmap?>, layout: MeadowL
         if (layer == MeadowLayer.NEAR) {
             val bottom = top + height
             if (bottom < size.height) {
-                drawRect(Color(0xFF6E8B3D), topLeft = Offset(0f, bottom - 1), size = androidx.compose.ui.geometry.Size(size.width, size.height - bottom + 1))
+                drawRect(
+                    Color(0xFF6E8B3D),
+                    topLeft = Offset(0f, bottom - 1),
+                    size = androidx.compose.ui.geometry.Size(
+                        size.width,
+                        size.height - bottom + 1,
+                    ),
+                )
             }
         }
     }

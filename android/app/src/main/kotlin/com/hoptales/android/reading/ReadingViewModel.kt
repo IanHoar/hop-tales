@@ -43,7 +43,9 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
         isStarted = true
         when {
             !permission -> mutableListening.value = Listening.NeedsPermission
+
             !app.listener.isAvailable -> mutableListening.value = Listening.Unavailable
+
             else -> {
                 if (mutableListening.value !is Listening.Heard) mutableListening.value = Listening.Active
                 listen()

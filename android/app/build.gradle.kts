@@ -1,9 +1,12 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.roborazzi)
 }
 
 val shared = rootDir.resolve("../ios/HopTalesPackage/Sources")
+val wardrobe = listOf("look-*", "wear-*", "looks.json", "wardrobe.json")
+val notYetOnAndroid = listOf("postcard-*", "cast-*", "prop-*", "hare-front-sit.*")
 
 android {
     namespace = "com.hoptales.android"
@@ -42,8 +45,19 @@ android {
         }
     }
 
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+            all {
+                it.systemProperty("robolectric.pixelCopyRenderMode", "hardware")
+                it.jvmArgs("--add-opens=java.base/jdk.internal.access=ALL-UNNAMED")
+            }
+        }
+    }
+
     androidResources {
-        noCompress += listOf("webp", "png", "ttf", "json")
+        noCompress += listOf("webp", "png")
+        ignoreAssetsPatterns += wardrobe + notYetOnAndroid
     }
 }
 
@@ -61,4 +75,14 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     debugImplementation(libs.compose.ui.tooling)
     testImplementation(libs.junit)
+    testImplementation(platform(libs.compose.bom))
+    testImplementation(libs.compose.ui.test.junit4)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
+    debugImplementation(libs.compose.ui.test.manifest)
+}
+
+roborazzi {
+    outputDir.set(file("src/test/screenshots"))
 }
