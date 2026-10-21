@@ -57,7 +57,6 @@ fun IntroScreen(art: IntroArt?, reduceMotion: Boolean, onFinished: () -> Unit, m
     IntroContent(
         art = art,
         time = { if (reduceMotion) 0.0 else elapsed },
-        fade = { IntroTimeline.launchFade(elapsed) },
         showsTitle = !reduceMotion,
         modifier = modifier
             .clickable(remember { MutableInteractionSource() }, indication = null) { finish() }
@@ -69,10 +68,10 @@ fun IntroScreen(art: IntroArt?, reduceMotion: Boolean, onFinished: () -> Unit, m
 }
 
 @Composable
-fun IntroContent(art: IntroArt?, time: () -> Double, fade: () -> Float, showsTitle: Boolean, modifier: Modifier = Modifier) {
+fun IntroContent(art: IntroArt?, time: () -> Double, showsTitle: Boolean, modifier: Modifier = Modifier) {
     Box(modifier.fillMaxSize().background(Color(IntroLayout.NIGHT))) {
         if (art != null) {
-            IntroScene(art, time, Modifier.fillMaxSize().graphicsLayer { alpha = fade() })
+            IntroScene(art, time, Modifier.fillMaxSize())
         }
         if (showsTitle) IntroTitle { IntroFrame.at(time()) }
     }
