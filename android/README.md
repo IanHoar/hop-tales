@@ -39,9 +39,9 @@ way. Change `.editorconfig` rather than suppressing a rule in the code.
 
 ## Screenshot tests
 
-`ScreenshotTest` renders home, reading, the story-finished card and the stop dialog, light and dark,
-with Roborazzi on Robolectric — on the JVM, no emulator. The references live in
-`app/src/test/screenshots`; `verifyRoborazziDebug` fails when a render differs, and leaves the
+`ScreenshotTest` renders home, reading, the microphone ask, the story-finished chips and the stop
+card, light and dark, with Roborazzi on Robolectric — on the JVM, no emulator. The references live
+in `app/src/test/screenshots`; `verifyRoborazziDebug` fails when a render differs, and leaves the
 actual image and a diff in `app/build/outputs/roborazzi`. After a deliberate change, record again
 and commit the new PNGs with the change. Motion is frozen (the animator scale is set to 0), so the
 hare stands still and the camera snaps.
@@ -68,6 +68,10 @@ The app does not copy any content or art. Its assets come straight from the iOS 
 | `ios/HopTalesPackage/Sources/Content/Resources` | `stories.json`, `props.json`, `phonics.json`, … |
 | `ios/HopTalesPackage/Sources/World/Resources` | the world layers, characters and props (WebP, PNG) |
 | `ios/HopTalesPackage/Sources/DesignSystem/Resources` | `Fonts/` — Young Serif, Fraunces, Fredoka |
+
+The launcher icon is the one exception: `scripts/render-android-icon.py` renders the adaptive icon's
+foreground, background and monochrome layers from `ios/HopTales/AppIcon.icon` into `res/mipmap-*`,
+and they are committed. Re-run it when the iOS icon changes.
 
 `app/build.gradle.kts` adds those folders as asset directories, and the JVM tests read `stories.json`
 from the same place, so a story added through `scripts/build-stories.py` reaches both apps.

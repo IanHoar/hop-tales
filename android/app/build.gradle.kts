@@ -6,7 +6,8 @@ plugins {
 
 val shared = rootDir.resolve("../ios/HopTalesPackage/Sources")
 val wardrobe = listOf("look-*", "wear-*", "looks.json", "wardrobe.json")
-val notYetOnAndroid = listOf("postcard-*", "cast-*", "prop-*", "hare-front-sit.*")
+val storyProps = listOf("bush", "fence", "flowers", "mushrooms", "oak").map { "prop-$it.*" }
+val notYetOnAndroid = listOf("postcard-*", "cast-*", "hare-front-sit.*") + storyProps
 
 android {
     namespace = "com.hoptales.android"
