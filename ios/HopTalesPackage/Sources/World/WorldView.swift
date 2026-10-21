@@ -150,7 +150,7 @@ public struct MeadowBackdrop: View {
     GeometryReader { proxy in
       if freezesMotion {
         postcard(proxy.size)
-      } else if camera != nil, reduceMotion {
+      } else if reduceMotion {
         ZStack {
           postcard(proxy.size)
             .id(progress)
