@@ -100,6 +100,7 @@ fun ReadingScreen(story: Story, onDone: () -> Unit) {
         mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
     }
     val request = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        app.listeningPreferences.hasAskedForMicrophone = true
         permission = granted
         model.start(granted)
     }

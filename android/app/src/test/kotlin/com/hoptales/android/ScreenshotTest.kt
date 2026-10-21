@@ -14,10 +14,18 @@ import com.github.takahirom.roborazzi.captureRoboImage
 import com.github.takahirom.roborazzi.captureScreenRoboImage
 import com.hoptales.android.design.HopTalesTheme
 import com.hoptales.android.home.HomeScreen
+import com.hoptales.android.onboarding.OnboardingActions
+import com.hoptales.android.onboarding.OnboardingContent
 import com.hoptales.android.reading.ReadingScreen
+import com.hoptales.android.settings.SettingsActions
+import com.hoptales.android.settings.SettingsContent
+import com.hoptales.android.settings.SettingsState
 import com.hoptales.content.Friend
+import com.hoptales.content.Profile
 import com.hoptales.content.Progress
 import com.hoptales.content.Story
+import com.hoptales.onboarding.OnboardingState
+import com.hoptales.onboarding.OnboardingStep
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -72,10 +80,57 @@ class ScreenshotTest {
 
     @Test fun stopReadingDark() = stopReading(dark = true)
 
+    @Test fun onboardingNameLight() = onboarding(OnboardingStep.NAME, dark = false)
+
+    @Test fun onboardingNameDark() = onboarding(OnboardingStep.NAME, dark = true)
+
+    @Test fun onboardingListeningLight() = onboarding(OnboardingStep.LISTENING, dark = false)
+
+    @Test fun onboardingListeningDark() = onboarding(OnboardingStep.LISTENING, dark = true)
+
+    @Test fun onboardingFriendLight() = onboarding(OnboardingStep.FRIEND, dark = false)
+
+    @Test fun onboardingFriendDark() = onboarding(OnboardingStep.FRIEND, dark = true)
+
+    @Test fun onboardingSoundButtonsLight() = onboarding(OnboardingStep.SOUND_BUTTONS, dark = false)
+
+    @Test fun onboardingSoundButtonsDark() = onboarding(OnboardingStep.SOUND_BUTTONS, dark = true)
+
+    @Test
+    @Config(qualifiers = "w412dp-h1700dp-xhdpi")
+    fun settingsLight() = settings(dark = false)
+
+    @Test
+    @Config(qualifiers = "w412dp-h1700dp-xhdpi")
+    fun settingsDark() = settings(dark = true)
+
+    private fun onboarding(step: OnboardingStep, dark: Boolean) {
+        val state = OnboardingState(
+            step = step,
+            childName = "Maya",
+            startingFriend = Friend.HARE.takeIf { step >= OnboardingStep.FRIEND },
+            soundButtons = true.takeIf { step >= OnboardingStep.SOUND_BUTTONS },
+        )
+        compose.setContent {
+            HopTalesTheme(dark = dark) { OnboardingContent(state, OnboardingActions()) }
+        }
+        compose.onRoot().captureRoboImage(path("onboarding-${step.name.lowercase().replace('_', '-')}", dark), options)
+    }
+
+    private fun settings(dark: Boolean) {
+        val profile = Profile("Maya", Friend.HARE, Profile.Accent.CANADIAN, soundButtons = true)
+        compose.setContent {
+            HopTalesTheme(dark = dark) { SettingsContent(SettingsState(childName = "Maya", profile = profile), SettingsActions()) }
+        }
+        compose.onRoot().captureRoboImage(path("settings", dark), options)
+    }
+
     private fun home(dark: Boolean) {
         val progress = Progress(stars = 12, completedSentences = mapOf(story.id to story.sentences.size))
         compose.setContent {
-            HopTalesTheme(dark = dark) { HomeScreen(library = app.library, progress = progress, onStory = {}) }
+            HopTalesTheme(dark = dark) {
+                HomeScreen(library = app.library, progress = progress, onStory = {}, childName = "Maya", hour = 9)
+            }
         }
         compose.onRoot().captureRoboImage(path("home", dark), options)
     }
