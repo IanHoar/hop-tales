@@ -2,7 +2,7 @@
 # Prepares a CI machine to build and test Hop Tales. Both CI runners call it:
 #
 #   Xcode Cloud     ios/ci_scripts/ci_post_clone.sh, after clone
-#   GitHub Actions  .github/workflows/test.yml, after checkout
+#   GitHub Actions  .github/workflows/ci.yml, after checkout
 #
 # It rewrites global git and Xcode defaults, so it refuses to run anywhere CI is unset — both
 # runners set it, and a developer's machine does not.
