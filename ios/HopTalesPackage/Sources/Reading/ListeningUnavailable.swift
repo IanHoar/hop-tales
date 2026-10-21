@@ -8,39 +8,48 @@ struct ListeningUnavailable: View {
 
   var body: some View {
     ZStack {
-      Palette.duskRoot.opacity(0.55)
+      Paper.night.opacity(0.45)
         .ignoresSafeArea()
-      VStack(spacing: 16) {
+        .accessibilityHidden(true)
+      VStack(spacing: 14) {
         Image(systemName: authorization == .denied ? "mic.slash" : "iphone.slash")
           .font(.system(size: 44, weight: .light))
-          .foregroundStyle(Palette.muted)
-        Text(headline)
-          .font(Typography.display(26))
-          .foregroundStyle(Palette.ink)
-          .multilineTextAlignment(.center)
-        Text(explanation)
-          .font(Typography.ui(16))
-          .foregroundStyle(Palette.muted)
-          .multilineTextAlignment(.center)
-        Button(action: action) {
-          Text("Back to stories")
-            .frame(maxWidth: .infinity)
+          .foregroundStyle(Paper.muted)
+          .accessibilityHidden(true)
+        PaperLabel(seed: 17) {
+          Text(headline)
+            .font(Typography.display(26))
+            .foregroundStyle(Paper.ink)
+            .multilineTextAlignment(.center)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 8)
         }
-        .buttonStyle(.ink(.primary))
+        .rotationEffect(.degrees(-2))
+        .accessibilityAddTraits(.isHeader)
+        Text(explanation)
+          .font(Typography.ui(16, weight: .medium))
+          .foregroundStyle(Paper.ink.opacity(0.85))
+          .multilineTextAlignment(.center)
+          .fixedSize(horizontal: false, vertical: true)
+        Button(action: action) {
+          Label("Back to stories", systemImage: "house.fill")
+        }
+        .buttonStyle(.paper)
         .padding(.top, 6)
       }
-      .padding(28)
-      .frame(maxWidth: 330)
-      .bevel(
-        Palette.parchment,
-        lip: Palette.parchmentLip,
-        shape: RoundedRectangle(cornerRadius: 32, style: .continuous),
-        border: 4,
-        drop: 6,
-        lipHeight: 9
-      )
-      .shadow(color: Color(hex: 0x0C0A1E, opacity: 0.32), radius: 17, x: 0, y: 22)
+      .padding(.horizontal, 24)
+      .padding(.vertical, 28)
+      .frame(maxWidth: 340)
+      .background {
+        Deckle(seed: 53, jitter: 3, step: 12)
+          .fill(Paper.paper)
+          .shadow(color: Paper.shadow, radius: 12, y: 8)
+      }
+      .rotationEffect(.degrees(-1))
+      .padding(.horizontal, 24)
     }
+    .accessibilityElement(children: .contain)
   }
 
   private var headline: String {
