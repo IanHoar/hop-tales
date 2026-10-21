@@ -17,6 +17,7 @@ import com.hoptales.android.home.HomeScreen
 import com.hoptales.android.reading.ReadingScreen
 import com.hoptales.content.Friend
 import com.hoptales.content.Progress
+import com.hoptales.content.Story
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -51,6 +52,18 @@ class ScreenshotTest {
 
     @Test fun readingDark() = reading(dark = true)
 
+    @Test fun propLight() = moment("prop", "golden-hour", sentence = 3, word = 2, dark = false)
+
+    @Test fun propDark() = moment("prop", "golden-hour", sentence = 3, word = 2, dark = true)
+
+    @Test fun companionLight() = moment("companion", "meadow-walk", sentence = 3, word = 4, dark = false)
+
+    @Test fun companionDark() = moment("companion", "meadow-walk", sentence = 3, word = 4, dark = true)
+
+    @Test fun thoughtLight() = moment("thought", "big-nap", sentence = 2, word = 0, dark = false)
+
+    @Test fun thoughtDark() = moment("thought", "big-nap", sentence = 2, word = 0, dark = true)
+
     @Test fun storyFinishedLight() = storyFinished(dark = false)
 
     @Test fun storyFinishedDark() = storyFinished(dark = true)
@@ -72,6 +85,17 @@ class ScreenshotTest {
         compose.onRoot().captureRoboImage(path("reading", dark), options)
     }
 
+    private fun moment(name: String, id: String, sentence: Int, word: Int, dark: Boolean) {
+        val story = app.library[id]!!
+        showReading(dark, story)
+        val words = story.sentences.take(sentence).sumOf { it.words.size } + word
+        repeat(words) {
+            compose.onNodeWithText("Hear “", substring = true).performClick()
+            compose.waitForIdle()
+        }
+        compose.onRoot().captureRoboImage(path(name, dark), options)
+    }
+
     private fun storyFinished(dark: Boolean) {
         showReading(dark)
         val hear = compose.onNodeWithText("Hear “", substring = true)
@@ -90,7 +114,7 @@ class ScreenshotTest {
         captureScreenRoboImage(path("stop-reading", dark), options)
     }
 
-    private fun showReading(dark: Boolean) {
+    private fun showReading(dark: Boolean, story: Story = this.story) {
         compose.setContent {
             HopTalesTheme(dark = dark) { ReadingScreen(story = story, onDone = {}) }
         }
