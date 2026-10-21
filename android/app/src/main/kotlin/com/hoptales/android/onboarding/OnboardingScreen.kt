@@ -202,7 +202,7 @@ private fun StandingHare(stage: Rect) {
             .size((height * 2).dp, height.dp),
         contentAlignment = Alignment.BottomCenter,
     ) {
-        IdleFriend(Friend.HARE, null, height.dp)
+        IdleFriend(Friend.HARE, null, height.dp, shadow = LocalPaper.current.shadow)
     }
 }
 
