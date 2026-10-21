@@ -6,7 +6,7 @@ plugins {
 
 val shared = rootDir.resolve("../ios/HopTalesPackage/Sources")
 val sceneryProps = listOf("bush", "fence", "flowers", "mushrooms", "oak").map { "prop-$it.*" }
-val notYetOnAndroid = listOf("postcard-*", "hare-front-sit.*") + sceneryProps
+val notYetOnAndroid = listOf("postcard-*") + sceneryProps
 
 android {
     namespace = "com.hoptales.android"
