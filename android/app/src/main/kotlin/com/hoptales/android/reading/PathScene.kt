@@ -28,11 +28,14 @@ import androidx.compose.ui.unit.sp
 import com.hoptales.android.world.Art
 import com.hoptales.android.world.HareSheet
 import com.hoptales.android.world.HareSheets
+import com.hoptales.android.world.MeadowGround
 import com.hoptales.android.world.MeadowLayer
 import com.hoptales.android.world.MeadowLayout
+import com.hoptales.android.world.MeadowUnderstory
 import com.hoptales.android.world.SkyLook
 import com.hoptales.android.world.SoundMarks
 import com.hoptales.android.world.WorldStyle
+import com.hoptales.android.world.drawGround
 import com.hoptales.android.world.drawSoundMarks
 import com.hoptales.content.Phonics
 import com.hoptales.content.SoundMark
@@ -67,6 +70,7 @@ data class PathGeometry(val width: Float, val height: Float, val density: Float)
         const val HOPPING_HEIGHT = 116f
         const val WORD_APEX = 30f
         const val SENTENCE_APEX = 60f
+        const val BIG_WORD_LIFT = 1.4f
         const val OVERSHOOT = 200f
         const val RISE = 0.58f
         const val PAN_MILLIS = 620
@@ -180,7 +184,13 @@ data class HareArt(val idle: ImageBitmap?, val hop: ImageBitmap?, val sheets: Ha
     fun image(sheet: HareSheet): ImageBitmap? = if (sheet == HareSheet.IDLE) idle else hop
 }
 
-fun DrawScope.drawMeadow(layers: Map<MeadowLayer, ImageBitmap?>, layout: MeadowLayout, cameraX: Float, look: SkyLook) {
+fun DrawScope.drawMeadow(
+    layers: Map<MeadowLayer, ImageBitmap?>,
+    layout: MeadowLayout,
+    cameraX: Float,
+    look: SkyLook,
+    ground: MeadowGround? = null,
+) {
     for (layer in MeadowLayer.entries) {
         val colour = look.tint(layer)
         val tint = if (colour == Color.White) null else ColorFilter.tint(colour, BlendMode.Modulate)
@@ -198,15 +208,8 @@ fun DrawScope.drawMeadow(layers: Map<MeadowLayer, ImageBitmap?>, layout: MeadowL
                 filterQuality = FilterQuality.Medium,
             )
         }
-        if (layer == MeadowLayer.NEAR) {
-            val bottom = top + height
-            if (bottom < size.height) {
-                drawRect(
-                    multiply(UNDERSTORY, look.tint(layer)),
-                    topLeft = Offset(0f, bottom - 1),
-                    size = Size(size.width, size.height - bottom + 1),
-                )
-            }
+        if (layer == MeadowLayer.NEAR && ground != null) {
+            drawGround(ground, top + height - MeadowUnderstory.TORN_EDGE.toPx(), width, offset, colour)
         }
     }
 }
@@ -344,8 +347,21 @@ fun DrawScope.drawSigns(signs: Signposts, cameraX: Float, tint: Color) {
     }
 }
 
-fun DrawScope.drawHare(art: HareArt, path: WordPath, pose: HareMotion.Pose, lift: Float) {
+fun DrawScope.drawHare(art: HareArt, path: WordPath, pose: HareMotion.Pose, lift: Float, shadow: Color) {
     val hopping = pose.frame.sheet == HareSheet.HOP
+    val airborne = hopping && pose.frame.index in 2..5
+    val shadowSize = Size(path.geometry.path(if (airborne) 52f else 80f), path.geometry.path(14f))
+    val shadowCentre = Offset(path.hareX, path.hareFeetY)
+    drawOval(
+        Brush.radialGradient(
+            listOf(shadow.copy(alpha = minOf(1f, shadow.alpha * 1.6f)), shadow.copy(alpha = 0f)),
+            center = shadowCentre,
+            radius = path.geometry.path(40f),
+        ),
+        topLeft = shadowCentre - Offset(shadowSize.width / 2, shadowSize.height / 2),
+        size = shadowSize,
+        alpha = if (airborne) 0.45f else 1f,
+    )
     val sheet = art.sheets.of(pose.frame.sheet)
     val image = art.image(pose.frame.sheet) ?: art.idle ?: return
     val frame = pose.frame.index.coerceIn(0, sheet.frames - 1)
@@ -367,7 +383,6 @@ fun DrawScope.drawHare(art: HareArt, path: WordPath, pose: HareMotion.Pose, lift
 const val IDLE_FPS = 20f
 
 private const val MARKS_BELOW_BASELINE = 0.075f
-private val UNDERSTORY = Color(0xFF6E8B3D)
 private val WASH = Color(0xFFF7D774)
 private val WASH_REACH = 0.5f * sqrt(2f)
 private val SIGN_INK = Color(0xFF3B2A20)

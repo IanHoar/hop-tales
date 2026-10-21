@@ -112,6 +112,14 @@ class ReadingTest {
         assertEquals(ReadingState(story), reading.state)
     }
 
+    @Test fun readingAgainKeepsTheBigWords() {
+        val bigWords = setOf(HopTarget(0, 1))
+        val reading = Reading(story, bigWords = bigWords)
+        listOf("the", "cat", "sat").forEach { reading.read(it) }
+        reading.readAgain()
+        assertEquals(ReadingState(story, bigWords = bigWords), reading.state)
+    }
+
     @Test fun progressOnlyCountsNewStars() {
         val reading = Reading(story)
         listOf("the", "cat", "sat").forEach { reading.read(it) }

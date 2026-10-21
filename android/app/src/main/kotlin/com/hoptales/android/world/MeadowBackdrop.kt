@@ -24,6 +24,7 @@ fun MeadowBackdrop(modifier: Modifier = Modifier, progress: Float = 700f) {
     val look = remember(palette) { SkyLook.of(Mood(sky = if (palette == Palette.dark) Sky.NIGHT else Sky.DAY)) }
     val layers = remember { MeadowLayer.entries.associateWith { Art.image(context.assets, it.asset(Friend.HARE)) } }
     val skyArt = remember { SkyArt.load(context.assets) }
+    val ground = remember { MeadowGround.of(WorldStyle.meadow, layers[MeadowLayer.NEAR], MeadowLayer.NEAR.asset(Friend.HARE)) }
     BoxWithConstraints(modifier.fillMaxSize().background(palette.page)) {
         val density = LocalDensity.current.density
         val geometry = PathGeometry(constraints.maxWidth.toFloat(), constraints.maxHeight.toFloat(), density)
@@ -31,7 +32,7 @@ fun MeadowBackdrop(modifier: Modifier = Modifier, progress: Float = 700f) {
         val stars = remember(skyLayout) { MeadowStars.field(skyLayout) }
         Canvas(Modifier.fillMaxSize()) {
             drawSky(look, skyLayout, skyArt, stars, 0.0, still = true)
-            drawMeadow(layers, geometry.meadow, progress * geometry.pathScale, look)
+            drawMeadow(layers, geometry.meadow, progress * geometry.pathScale, look, ground)
         }
     }
 }

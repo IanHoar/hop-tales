@@ -52,6 +52,7 @@ import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.world.Art
 import com.hoptales.android.world.HareSheets
+import com.hoptales.android.world.MeadowGround
 import com.hoptales.android.world.MeadowLayer
 import com.hoptales.android.world.MeadowStars
 import com.hoptales.android.world.SkyArt
@@ -144,6 +145,10 @@ private fun PathStage(state: ReadingState, soundButtons: Boolean, onWordTapped: 
         MeadowLayer.entries.associateWith { Art.image(context.assets, it.asset(friend)) ?: Art.image(context.assets, "${it.prefix}-day") }
     }
     val skyArt = remember { SkyArt.load(context.assets) }
+    val ground = remember(friend) {
+        val name = if (Art.image(context.assets, MeadowLayer.NEAR.asset(friend)) != null) MeadowLayer.NEAR.asset(friend) else "near-day"
+        MeadowGround.of(WorldStyle.of(friend), layers[MeadowLayer.NEAR], name)
+    }
     val look = rememberSkyLook(state.mood, still = reduceMotion)
     val weather = remember { SkyWeather() }
     var skyTime by remember { mutableDoubleStateOf(0.0) }
@@ -187,11 +192,13 @@ private fun PathStage(state: ReadingState, soundButtons: Boolean, onWordTapped: 
         val camera = remember(path) { Animatable(target) }
         var motion by remember { mutableStateOf(HareMotion()) }
         var now by remember { mutableDoubleStateOf(0.0) }
+        var bigHop by remember { mutableStateOf(false) }
+        val clock = remember { HopClock() }
 
         LaunchedEffect(reduceMotion, motion) {
             if (reduceMotion) return@LaunchedEffect
             while (true) {
-                val time = withFrameNanos { it } / 1e9
+                val time = clock.time(withFrameNanos { it } / 1e9)
                 now = time
                 val landing = motion.hop?.let { it.start + it.length } ?: 0.0
                 if (time >= landing) delay(IDLE_FRAME_MILLIS)
@@ -200,7 +207,10 @@ private fun PathStage(state: ReadingState, soundButtons: Boolean, onWordTapped: 
         LaunchedEffect(state.recognised) {
             val recognised = state.recognised ?: return@LaunchedEffect
             if (reduceMotion) return@LaunchedEffect
-            motion = motion.jump(System.nanoTime() / 1e9, distance = 0f, carried = recognised.sentenceIndex != state.sentenceIndex)
+            val start = System.nanoTime() / 1e9
+            bigHop = HopTarget(recognised.sentenceIndex, recognised.wordIndex) in state.bigWords
+            clock.began(start)
+            motion = motion.jump(start, distance = 0f, carried = recognised.sentenceIndex != state.sentenceIndex)
         }
         LaunchedEffect(target) {
             if (reduceMotion) {
@@ -218,7 +228,7 @@ private fun PathStage(state: ReadingState, soundButtons: Boolean, onWordTapped: 
             drawSky(look(), skyLayout, skyArt, stars, skyTime, still = reduceMotion)
         }
         Canvas(Modifier.fillMaxSize()) {
-            drawMeadow(layers, geometry.meadow, camera.value, look())
+            drawMeadow(layers, geometry.meadow, camera.value, look(), ground)
         }
         Canvas(Modifier.fillMaxSize()) {
             drawWeather(look(), weather, skyTime, geometry.density, stillDrops)
@@ -251,8 +261,13 @@ private fun PathStage(state: ReadingState, soundButtons: Boolean, onWordTapped: 
         }
         Canvas(Modifier.fillMaxSize()) {
             val pose = motion.pose(now, reduceMotion)
-            val lift = if (reduceMotion) 0f else motion.arc(now) * path.apex(motion.hop?.carried ?: false)
-            drawHare(hare, path, pose, lift)
+            val lift = if (reduceMotion) {
+                0f
+            } else {
+                motion.arc(now) * path.apex(motion.hop?.carried ?: false) *
+                    if (bigHop) PathGeometry.BIG_WORD_LIFT else 1f
+            }
+            drawHare(hare, path, pose, lift, paper.shadow)
         }
     }
 }

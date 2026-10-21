@@ -21,6 +21,7 @@ data class ReadingState(
     val isSpeaking: Boolean = false,
     val isConfirmingStop: Boolean = false,
     val strictness: Strictness = Strictness.GENTLE,
+    val bigWords: Set<HopTarget> = emptySet(),
 ) {
     sealed interface Completed {
         data class Sentence(val index: Int) : Completed
@@ -73,8 +74,8 @@ data class ReadingState(
     }
 }
 
-class Reading(story: Story, strictness: Strictness = Strictness.GENTLE) {
-    var state = ReadingState(story, strictness = strictness)
+class Reading(story: Story, strictness: Strictness = Strictness.GENTLE, bigWords: Set<HopTarget> = emptySet()) {
+    var state = ReadingState(story, strictness = strictness, bigWords = bigWords)
         private set
 
     private val debouncer = PartialDebouncer()
@@ -123,7 +124,7 @@ class Reading(story: Story, strictness: Strictness = Strictness.GENTLE) {
     }
 
     fun readAgain() {
-        state = ReadingState(state.story, strictness = state.strictness)
+        state = ReadingState(state.story, strictness = state.strictness, bigWords = state.bigWords)
         savedStars = 0
         debouncer.reset()
     }
