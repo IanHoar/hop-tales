@@ -39,8 +39,9 @@ way. Change `.editorconfig` rather than suppressing a rule in the code.
 
 ## Screenshot tests
 
-`ScreenshotTest` renders home, reading, a story prop, a companion, a thought bubble, the
-story-finished card and the stop dialog, light and dark,
+`ScreenshotTest` renders home (first run and midway), reading, a story prop, a companion, a thought
+bubble, the story-finished card with its tally, a full basket, the stop dialog, the journey map,
+friends, the wardrobe and the collection book, light and dark,
 with Roborazzi on Robolectric — on the JVM, no emulator. The references live in
 `app/src/test/screenshots`; `verifyRoborazziDebug` fails when a render differs, and leaves the
 actual image and a diff in `app/build/outputs/roborazzi`. After a deliberate change, record again
