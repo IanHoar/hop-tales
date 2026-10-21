@@ -95,8 +95,17 @@ class AccessibilityTest {
     fun onboardingNamesTheFieldAndTheStep() {
         onboarding(OnboardingStep.NAME)
         compose.onNode(isHeading() and hasText("What should we call you?")).assertExists()
-        assertEquals(2, compose.onAllNodesWithContentDescription("Step 1 of 4").fetchSemanticsNodes().size)
+        val step = "Step ${OnboardingStep.NAME.number} of ${OnboardingStep.entries.size}"
+        assertEquals(2, compose.onAllNodesWithContentDescription(step).fetchSemanticsNodes().size)
         compose.onNode(hasContentDescription("Name or nickname") and hasSetText()).assertExists()
+    }
+
+    @Test
+    fun onboardingBackupChoicesAreButtons() {
+        onboarding(OnboardingStep.BACKUP)
+        compose.onNode(isHeading() and hasText("Back up to your Google account?")).assertExists()
+        compose.onNodeWithText("Yes, back up").assertIsButton()
+        compose.onNodeWithText("Not now").assertIsButton()
     }
 
     @Test
