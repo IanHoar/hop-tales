@@ -175,6 +175,7 @@ private fun StopView(friend: Friend, stop: JourneyStop, onClick: () -> Unit) {
                     70.dp,
                     Modifier.alpha(if (stop == JourneyStop.Later) 0.4f else 1f),
                     isSilhouette = stop == JourneyStop.Later,
+                    silhouette = paper.silhouette,
                     saturation = if (stop is JourneyStop.Next) 0f else 1f,
                 )
             }

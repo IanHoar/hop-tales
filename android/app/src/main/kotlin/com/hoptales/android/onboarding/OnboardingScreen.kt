@@ -12,7 +12,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -54,12 +53,10 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.shadow.Shadow
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
@@ -88,10 +85,10 @@ import com.hoptales.android.design.PaperChoice
 import com.hoptales.android.design.ProgressPills
 import com.hoptales.android.design.paperField
 import com.hoptales.android.design.pressable
+import com.hoptales.android.world.FriendSticker
 import com.hoptales.android.world.MeadowBackdrop
 import com.hoptales.android.world.SoundMarksExamples
 import com.hoptales.android.world.Sticker
-import com.hoptales.android.world.rememberArt
 import com.hoptales.content.Friend
 import com.hoptales.content.Phonics
 import com.hoptales.onboarding.Authorization
@@ -377,14 +374,7 @@ private fun LaterFriends(modifier: Modifier = Modifier) {
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.Bottom) {
             for (friend in later) {
-                val art = rememberArt(friend.sticker) ?: continue
-                Image(
-                    art,
-                    contentDescription = null,
-                    modifier = Modifier.height(34.dp).alpha(0.45f),
-                    contentScale = ContentScale.Fit,
-                    colorFilter = ColorFilter.tint(paper.muted),
-                )
+                FriendSticker(friend, 34.dp, Modifier.alpha(0.45f), isSilhouette = true, silhouette = paper.silhouette)
             }
         }
         Text(

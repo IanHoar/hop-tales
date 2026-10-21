@@ -52,10 +52,11 @@ fun FriendSticker(
     isSilhouette: Boolean = false,
     isBare: Boolean = false,
     saturation: Float = 1f,
+    silhouette: Color? = null,
 ) {
     val dressed = if (isBare) null else friend.startingLook()?.let { rememberArt(it) }
     val image = dressed ?: rememberArt(friend.stickerAsset()) ?: return
-    val shadow = LocalPalette.current.muted
+    val shadow = silhouette ?: LocalPalette.current.muted
     ArtImage(
         image,
         height,
@@ -65,7 +66,7 @@ fun FriendSticker(
             saturation < 1f -> ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(saturation) })
             else -> null
         },
-        alpha = if (isSilhouette) 0.45f else 1f,
+        alpha = if (isSilhouette && silhouette == null) 0.45f else 1f,
     )
 }
 

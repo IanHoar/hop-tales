@@ -141,7 +141,13 @@ fun BookScreen(library: StoryLibrary, progress: Progress, friend: Friend, onFrie
                             ),
                         contentAlignment = Alignment.Center,
                     ) {
-                        FriendSticker(tab, 38.dp, Modifier.alpha(if (met) 1f else 0.35f), isSilhouette = !met)
+                        FriendSticker(
+                            tab,
+                            38.dp,
+                            Modifier.alpha(if (met) 1f else 0.35f),
+                            isSilhouette = !met,
+                            silhouette = paper.silhouette,
+                        )
                     }
                 }
             }

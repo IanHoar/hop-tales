@@ -104,6 +104,7 @@ private fun FriendCard(friend: Friend, progress: Progress, wardrobe: WardrobeLib
                         96.dp,
                         Modifier.alpha(if (isNext) 1f else 0.35f),
                         isSilhouette = !isNext,
+                        silhouette = paper.silhouette,
                         saturation = if (isNext) 0.4f else 1f,
                     )
                 }
