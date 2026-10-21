@@ -13,7 +13,6 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -46,7 +45,6 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -60,6 +58,7 @@ import com.hoptales.android.design.Deckle
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.PaperChip
+import com.hoptales.android.design.Press
 import com.hoptales.android.design.paperChip
 import com.hoptales.android.design.pressable
 import com.hoptales.android.design.rememberReducedMotion
@@ -247,7 +246,7 @@ private fun PresentReveal(friend: Friend, item: WardrobeItem?, opened: Boolean, 
     Box(
         Modifier
             .height(120.dp)
-            .clickable(enabled = !opened, role = Role.Button, onClick = open)
+            .pressable(open, enabled = !opened)
             .semantics { contentDescription = if (opened) item?.name ?: "A present" else "A present. Double tap to open it." },
         contentAlignment = Alignment.Center,
     ) {
@@ -301,7 +300,7 @@ private fun CardButton(text: String, filled: Boolean, onClick: () -> Unit) {
             Text(text, style = style, color = paper.onRed)
         }
     } else {
-        PaperChip(height = 46.dp, onClick = onClick) {
+        PaperChip(height = 46.dp, press = Press.PLAIN, onClick = onClick) {
             Text(text, style = style, color = paper.ink)
         }
     }

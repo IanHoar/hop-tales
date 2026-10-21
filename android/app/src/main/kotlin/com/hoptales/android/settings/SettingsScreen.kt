@@ -29,6 +29,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,6 +43,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
@@ -55,14 +57,16 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hoptales.android.HopTalesApplication
-import com.hoptales.android.design.ChevronGlyph
 import com.hoptales.android.design.ChoiceSurface
+import com.hoptales.android.design.Glyphs
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.PaperChip
 import com.hoptales.android.design.PaperChoice
 import com.hoptales.android.design.PaperToggle
+import com.hoptales.android.design.PaperToggleField
 import com.hoptales.android.design.SpeakerGlyph
+import com.hoptales.android.design.UpDownChevronGlyph
 import com.hoptales.android.design.paperChip
 import com.hoptales.android.design.paperField
 import com.hoptales.android.design.pressable
@@ -211,14 +215,10 @@ fun SettingsContent(state: SettingsState, actions: SettingsActions) {
                 Section("Backup") { BackupRow(state, actions.backupToggled) }
                 Section("Speech log") { SpeechLogRow(state, actions) }
                 Section("Testing") {
-                    PaperChip(height = 48.dp, onClick = actions.resetOnboarding) {
-                        Text("Reset onboarding", style = LocalTypography.current.ui(15.sp), color = paper.ink)
-                    }
-                    PaperChip(height = 48.dp, onClick = actions.resetJourney) {
-                        Text("Reset reading journey", style = LocalTypography.current.ui(15.sp), color = paper.ink)
-                    }
-                    PaperChip(height = 48.dp, onClick = actions.unlockEverything) {
-                        Text("Unlock everything", style = LocalTypography.current.ui(15.sp), color = paper.ink)
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        ActionChip("Reset onboarding", Glyphs.counterclockwise, actions.resetOnboarding)
+                        ActionChip("Reset reading journey", Glyphs.uturnBackward, actions.resetJourney)
+                        ActionChip("Unlock everything", Glyphs.lockOpen, actions.unlockEverything)
                     }
                 }
             }
@@ -295,7 +295,7 @@ private fun VoiceRow(state: SettingsState, actions: SettingsActions) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(state.voiceName, style = type.display(19.sp), color = paper.ink, modifier = Modifier.weight(1f))
-                ChevronGlyph(paper.muted)
+                UpDownChevronGlyph(paper.muted)
             }
             DropdownMenu(expanded = open, onDismissRequest = { open = false }, containerColor = paper.paper) {
                 DropdownMenuItem(
@@ -334,28 +334,33 @@ private fun VoiceRow(state: SettingsState, actions: SettingsActions) {
 private fun SpeechLogRow(state: SettingsState, actions: SettingsActions) {
     val paper = LocalPaper.current
     val type = LocalTypography.current
-    PaperToggle(
+    PaperToggleField(
         "Keep a log of what's heard",
-        "Words only, never sound, kept on this device until the app closes. Nothing is sent anywhere.",
+        "Words only, never sound, kept on this device until the app closes.",
         checked = state.speechLogOn,
         onChange = actions.speechLogToggled,
-    )
-    Row(Modifier.padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            if (state.speechLogLines == 1) "1 line" else "${state.speechLogLines} lines",
-            style = type.ui(15.sp, FontWeight.Medium),
-            color = paper.muted,
-            modifier = Modifier.weight(1f),
-        )
-        if (state.speechLogLines > 0) {
-            PaperChip(onClick = actions.speechLogExported) {
-                Text("Export", style = type.ui(15.sp), color = paper.ink)
-            }
-            Spacer(Modifier.width(12.dp))
-            PaperChip(onClick = actions.speechLogCleared) {
-                Text("Clear", style = type.ui(15.sp), color = paper.ink)
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                if (state.speechLogLines == 1) "1 line" else "${state.speechLogLines} lines",
+                style = type.ui(15.sp, FontWeight.Medium).copy(fontFeatureSettings = "tnum"),
+                color = paper.muted,
+                modifier = Modifier.weight(1f),
+            )
+            if (state.speechLogLines > 0) {
+                ActionChip("Export", Glyphs.share, actions.speechLogExported)
+                ActionChip("Clear", Glyphs.trash, actions.speechLogCleared)
             }
         }
+    }
+}
+
+@Composable
+private fun ActionChip(text: String, icon: ImageVector, onClick: () -> Unit) {
+    val paper = LocalPaper.current
+    PaperChip(onClick = onClick) {
+        Icon(icon, contentDescription = null, tint = paper.ink, modifier = Modifier.size(17.dp))
+        Text(text, style = LocalTypography.current.ui(15.sp), color = paper.ink)
     }
 }
 
