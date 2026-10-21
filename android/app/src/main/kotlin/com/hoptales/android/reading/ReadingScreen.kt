@@ -136,12 +136,20 @@ fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {
     }
 
     Box(Modifier.fillMaxSize()) {
-        PathStage(state = state, wearing = look, soundButtons = model.soundButtons, onWordTapped = model::help)
+        PathStage(
+            state = state,
+            wearing = look,
+            soundButtons = model.soundButtons,
+            onWordTapped = model::help,
+            onMeadowTapped = if (BuildConfig.DEBUG) model::skipWord else null,
+        )
         Box(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 12.dp, vertical = 4.dp)) {
             BackChip(Modifier.align(Alignment.TopStart)) { if (model.backTapped()) onDone() }
             val word = state.currentWord
             if (BuildConfig.DEBUG && word != null) {
-                Box(Modifier.align(Alignment.BottomCenter).padding(bottom = 6.dp)) { DebugHear(word.text, model::skipWord) }
+                Box(Modifier.align(Alignment.BottomCenter).padding(bottom = 6.dp)) {
+                    DebugControls(word.text, readWord = model::skipWord, restOfSentence = model::readRestOfSentence)
+                }
             }
         }
         when (listening) {
@@ -176,7 +184,13 @@ fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {
 }
 
 @Composable
-private fun PathStage(state: ReadingState, wearing: String?, soundButtons: Boolean, onWordTapped: () -> Unit) {
+private fun PathStage(
+    state: ReadingState,
+    wearing: String?,
+    soundButtons: Boolean,
+    onWordTapped: () -> Unit,
+    onMeadowTapped: (() -> Unit)?,
+) {
     val context = LocalContext.current
     val reduceMotion = rememberReducedMotion()
     val palette = LocalPalette.current
@@ -270,6 +284,8 @@ private fun PathStage(state: ReadingState, wearing: String?, soundButtons: Boole
                     still = from.copy(fade = EaseInOut.transform(elapsed))
                 }
                 still = null
+            } else if (!PathCamera.pans(from.position, position)) {
+                camera.snapTo(target)
             } else {
                 val rate = motion.hop?.rate ?: 1.0
                 camera.animateTo(target, tween((PathGeometry.PAN_MILLIS / rate).toInt(), easing = CubicBezierEasing(0.45f, 0f, 0.3f, 1f)))
@@ -339,7 +355,7 @@ private fun PathStage(state: ReadingState, wearing: String?, soundButtons: Boole
             Canvas(
                 Modifier
                     .fillMaxSize()
-                    .wordPresses(path, camera, position, isChallenge, onWordTapped, explain)
+                    .wordPresses(path, camera, position, isChallenge, onWordTapped, explain, onMeadowTapped)
                     .semantics {
                         contentDescription = state.wordCardLabel
                         if (currentStop != null) {
@@ -414,11 +430,11 @@ private fun PickupLayer(state: ReadingState, geometry: PathGeometry, reduceMotio
         passed = position
         if (reduceMotion) return@LaunchedEffect
         val treat = Pickup.passed(state.treat, old, position) ?: return@LaunchedEffect
+        pickup = treat
+        landed.snapTo(0f)
+        leaving.snapTo(1f)
         scope.launch {
             delay((PathMarks.PICKUP_DELAY * 1_000).toLong())
-            pickup = treat
-            landed.snapTo(0f)
-            leaving.snapTo(1f)
             launch { landed.animateTo(1f, swiftSpring(PathMarks.FLIGHT_SECONDS, PathMarks.FLIGHT_BOUNCE)) }
             delay((PathMarks.CHIP_DELAY * 1_000).toLong())
             showsBasket = true
@@ -457,9 +473,13 @@ private fun PickupLayer(state: ReadingState, geometry: PathGeometry, reduceMotio
                 scaleIn(tween((PathMarks.CHIP_SECONDS * 1_000).toInt(), easing = EaseOut), PathMarks.CHIP_FROM),
             exit = fadeOut(tween(0)),
         ) {
-            BasketChip(treat)
+            BasketChip(treat, geometry)
         }
     }
+}
+
+object PathCamera {
+    fun pans(from: HopTarget, to: HopTarget): Boolean = to > from
 }
 
 private data class StillStep(val cameraX: Float, val position: HopTarget, val fade: Float = 0f) {
@@ -505,9 +525,14 @@ private fun Modifier.wordPresses(
     isChallenge: (HopTarget) -> Boolean,
     onWordTapped: () -> Unit,
     explain: (HopTarget) -> Unit,
-) = pointerInput(path, position) {
+    onMeadowTapped: (() -> Unit)?,
+) = pointerInput(path, position, onMeadowTapped) {
     fun respond(press: WordPress, offset: Offset) {
-        val target = path.pressed(offset, camera.value, position, isChallenge) ?: return
+        val target = path.pressed(offset, camera.value, position, isChallenge)
+        if (target == null) {
+            if (press == WordPress.TAP) onMeadowTapped?.invoke()
+            return
+        }
         when (val response = ChallengeTip.respond(press, target, position, isChallenge(target))) {
             WordResponse.Hear -> onWordTapped()
             is WordResponse.Explain -> explain(response.target)

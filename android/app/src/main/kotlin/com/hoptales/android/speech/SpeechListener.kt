@@ -11,6 +11,7 @@ import android.speech.RecognitionSupportCallback
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import com.hoptales.speech.ListenEnd
+import com.hoptales.speech.NoiseMeter
 import com.hoptales.speech.OnDeviceSupport
 import com.hoptales.speech.SettledPartial
 import com.hoptales.speech.WordMatcher
@@ -33,6 +34,8 @@ sealed interface SpeechEvent {
 }
 
 class SpeechListener(private val context: Context, private val audio: ReadingAudio) {
+    private val meter = NoiseMeter()
+
     val isAvailable: Boolean
         get() = SpeechRecognizer.isOnDeviceRecognitionAvailable(context)
 
@@ -103,7 +106,7 @@ class SpeechListener(private val context: Context, private val audio: ReadingAud
                 }
 
                 override fun onRmsChanged(rmsdB: Float) {
-                    trySend(SpeechEvent.Level(rmsdB))
+                    meter.add(rmsdB, SystemClock.elapsedRealtime())
                 }
 
                 override fun onReadyForSpeech(params: Bundle?) = Unit
@@ -117,6 +120,12 @@ class SpeechListener(private val context: Context, private val audio: ReadingAud
             while (true) {
                 delay(SettledPartial.STABILITY_TICK_MILLIS)
                 settling.settled(SystemClock.elapsedRealtime())?.let { send(SpeechEvent.Partial(it)) }
+            }
+        }
+        launch {
+            while (true) {
+                delay(NoiseMeter.SAMPLE_MILLIS)
+                send(SpeechEvent.Level(meter.floor.toFloat()))
             }
         }
         launch {

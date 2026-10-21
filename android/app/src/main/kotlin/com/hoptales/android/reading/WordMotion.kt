@@ -34,6 +34,7 @@ data class WordLook(
     val scale: Float,
     val wash: Float,
     val star: Float,
+    val starScale: Float,
     val pop: Float,
     val rise: Float,
     val solidUnderline: Boolean,
@@ -91,6 +92,8 @@ object WordMotion {
         val wash = mix(if (from == WordState.READ) 1f else 0f, if (to == WordState.READ) 1f else 0f, washing)
         val popping = isBig && now != null && from != WordState.READ && to == WordState.READ
         val floated = easeOut.transform(progress(sinceMove, FLOAT_DELAY, FLOAT_SECONDS))
+        val shrink = if (popping) easeOut.transform(progress(sinceMove, 0.0, POP_SECONDS)) else 1f
+        val star = if (to == WordState.READ) 1f - shrink else 1f
         val pop = if (popping) easeOut.transform(progress(sinceMove, 0.0, POP_SECONDS)) * (1f - floated) else 0f
         return WordLook(
             state = to,
@@ -98,7 +101,8 @@ object WordMotion {
             chalk = lerp(from.chalk, to.chalk, change),
             scale = scale,
             wash = wash,
-            star = if (to == WordState.READ) 0f else 1f,
+            star = star,
+            starScale = star,
             pop = pop,
             rise = POP_FROM + (POP_TO - POP_FROM) * floated,
             solidUnderline = to == WordState.READ && now == null,

@@ -76,6 +76,19 @@ class WordMotionTest {
     }
 
     @Test
+    fun aReadBigWordsStarShrinksAndFadesOverThreeTenthsOfASecond() {
+        val start = WordMotion.look(first, true, hop, quiet, 10.0)
+        assertEquals(1f, start.star, 0.0001f)
+        assertEquals(1f, start.starScale, 0.0001f)
+        val midway = WordMotion.look(first, true, hop, quiet, 10.15)
+        assertTrue(midway.star > 0f && midway.star < 1f)
+        assertEquals(midway.star, midway.starScale, 0.0001f)
+        assertTrue(midway.pop > 0f)
+        assertEquals(0f, WordMotion.look(first, true, hop, quiet, 10.3).star, 0.0001f)
+        assertEquals(0f, WordMotion.look(first, true, hop, quiet, null).star, 0.0001f)
+    }
+
+    @Test
     fun movesAndSpeechAreRecordedOnlyWhenTheyChange() {
         val moves = WordMoves(first, speaking = false)
         val move = moves.moved(second, 5.0)
