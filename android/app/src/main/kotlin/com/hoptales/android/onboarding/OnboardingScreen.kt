@@ -336,7 +336,6 @@ fun NameField(name: String, onChange: (String) -> Unit, onSubmit: () -> Unit) {
                 .fillMaxWidth()
                 .height(54.dp)
                 .paperField(
-                    base = paper.paper,
                     fill = 0.7f,
                     shape = RoundedCornerShape(16.dp),
                     shadowOpacity = 0.4f,
@@ -402,7 +401,6 @@ private fun FriendChoice(friend: Friend, isSelected: Boolean, onClick: () -> Uni
     val type = LocalTypography.current
     ChoiceSurface(
         selected = isSelected,
-        base = paper.paper,
         onClick = onClick,
         label = "${friend.friendName}, ${friend.stage}. Words like ${friend.examples.joinToString(", ")}.",
     ) {
@@ -451,14 +449,14 @@ private fun LaterFriends(modifier: Modifier = Modifier) {
 @Composable
 private fun SoundButtonChoices(selected: Boolean?, onPick: (Boolean) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        ChoiceSurface(selected = false, base = LocalPaper.current.paper, onClick = null) {
+        ChoiceSurface(selected = false, onClick = null) {
             SoundMarksExamples(modifier = Modifier.padding(vertical = 14.dp))
         }
         ChoicePair {
-            PaperChoice("Yes, show them", selected = selected == true, base = LocalPaper.current.paper) {
+            PaperChoice("Yes, show them", selected = selected == true) {
                 onPick(true)
             }
-            PaperChoice("No thanks", selected = selected == false, base = LocalPaper.current.paper) {
+            PaperChoice("No thanks", selected = selected == false) {
                 onPick(false)
             }
         }
@@ -469,10 +467,10 @@ private fun SoundButtonChoices(selected: Boolean?, onPick: (Boolean) -> Unit) {
 private fun BackupChoices(selected: Boolean?, onPick: (Boolean) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         ChoicePair {
-            PaperChoice("Yes, back up", selected = selected == true, base = LocalPaper.current.paper) {
+            PaperChoice("Yes, back up", selected = selected == true) {
                 onPick(true)
             }
-            PaperChoice("Not now", selected = selected == false, base = LocalPaper.current.paper) {
+            PaperChoice("Not now", selected = selected == false) {
                 onPick(false)
             }
         }
