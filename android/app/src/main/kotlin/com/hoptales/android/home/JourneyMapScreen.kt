@@ -177,9 +177,9 @@ private fun StopView(friend: Friend, stop: JourneyStop, onClick: () -> Unit) {
             Text(
                 tag,
                 style = type.ui(12.sp),
-                color = if (reading) palette.onTeal else palette.onAccent,
+                color = if (reading) LocalPaper.current.onRed else LocalPaper.current.ink,
                 modifier = Modifier
-                    .background(if (reading) palette.red else palette.gold, CircleShape)
+                    .background(if (reading) LocalPaper.current.red else LocalPaper.current.wash, CircleShape)
                     .padding(horizontal = 8.dp, vertical = 3.dp),
             )
         }
