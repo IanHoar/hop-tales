@@ -78,6 +78,7 @@ import com.hoptales.android.world.SoundMarksExamples
 import com.hoptales.android.world.Sticker
 import com.hoptales.android.world.rememberArt
 import com.hoptales.content.Friend
+import com.hoptales.content.Phonics
 import com.hoptales.onboarding.Authorization
 import com.hoptales.onboarding.OnboardingNext
 import com.hoptales.onboarding.OnboardingState
@@ -321,7 +322,11 @@ private fun LaterFriends(modifier: Modifier = Modifier) {
     val palette = LocalPalette.current
     val type = LocalTypography.current
     val later = Friend.entries.filter { it !in Friend.starters }
-    Column(modifier.fillMaxWidth().semantics(mergeDescendants = true) {}, horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        modifier.fillMaxWidth().semantics(mergeDescendants = true) {},
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.Bottom) {
             for (friend in later) {
                 val art = rememberArt(friend.sticker) ?: continue
@@ -334,14 +339,13 @@ private fun LaterFriends(modifier: Modifier = Modifier) {
                 )
             }
         }
-        Spacer(Modifier.height(6.dp))
         Text(
             "${later.size} more friends join as your reader gets stronger",
             style = type.ui(13.sp, FontWeight.Medium),
             color = palette.muted,
             textAlign = TextAlign.Center,
         )
-        Text(Friend.PHONICS_STANDARD, style = type.ui(12.sp), color = palette.muted, textAlign = TextAlign.Center)
+        Text(Phonics.STANDARD, style = type.ui(12.sp), color = palette.muted, textAlign = TextAlign.Center)
     }
 }
 
