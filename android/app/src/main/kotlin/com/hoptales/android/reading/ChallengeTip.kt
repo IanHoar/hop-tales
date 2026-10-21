@@ -22,7 +22,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import com.hoptales.android.design.LocalPalette
 import com.hoptales.android.design.LocalPaper
@@ -106,7 +105,6 @@ fun ChallengeTipCard(geometry: PathGeometry, modifier: Modifier = Modifier) {
     val type = LocalTypography.current
     val density = LocalDensity.current
     fun dp(value: Float): Dp = with(density) { geometry.path(value).toDp() }
-    fun sp(value: Float): TextUnit = with(density) { geometry.path(value).toSp() }
     val star = remember { Star() }
     Column(
         modifier
@@ -125,6 +123,6 @@ fun ChallengeTipCard(geometry: PathGeometry, modifier: Modifier = Modifier) {
             }
             Text(ChallengeTip.TITLE, style = type.display(dp(17f).value.sp), color = paper.ink)
         }
-        Text(ChallengeTip.DETAIL, style = type.ui(sp(14f), FontWeight.Medium), color = paper.ink.copy(alpha = 0.85f))
+        Text(ChallengeTip.DETAIL, style = type.ui(geometry.sp(14f), FontWeight.Medium), color = paper.ink.copy(alpha = 0.85f))
     }
 }
