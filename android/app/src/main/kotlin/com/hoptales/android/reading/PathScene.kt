@@ -291,7 +291,7 @@ private fun DrawScope.drawBigWord(word: Rect, size: Float, look: WordLook, marks
         var dotX = left
         while (dotX <= right) {
             drawLine(PathMarks.wash, Offset(dotX, underline), Offset(dotX + 1, underline), strokeWidth = dot, cap = StrokeCap.Round)
-            dotX += size * 0.16f + dot
+            dotX += size * 0.16f + 1
         }
     }
     val starHeight = size * 0.42f
