@@ -1,8 +1,6 @@
 package com.hoptales.android.world
 
-import androidx.compose.ui.graphics.Color
 import com.hoptales.content.Friend
-import com.hoptales.content.Sky
 
 enum class MeadowLayer(val prefix: String, val pixelWidth: Float, val pixelHeight: Float, val speed: Float, val pathScale: Float) {
     FAR("far", 5615f, 826f, 0.3f, 0.42f),
@@ -45,18 +43,4 @@ data class MeadowLayout(val width: Float, val pathScale: Float, val pathCentre: 
     companion object {
         const val PATH_LINE = 440f
     }
-}
-
-fun skyColors(sky: Sky): List<Color> = when (sky) {
-    Sky.DAY -> listOf(Color(0xFFBCDCEE), Color(0xFFDCEBEF), Color(0xFFEEF2E6))
-    Sky.GOLDEN -> listOf(Color(0xFFF0C9A4), Color(0xFFF7DDB8), Color(0xFFFBEBCB))
-    Sky.DUSK -> listOf(Color(0xFF7F74A6), Color(0xFFC98FA2), Color(0xFFF0B48E))
-    Sky.NIGHT -> listOf(Color(0xFF18223F), Color(0xFF2C3A63), Color(0xFF46557E))
-}
-
-fun layerTint(sky: Sky): Color? = when (sky) {
-    Sky.DAY -> null
-    Sky.GOLDEN -> Color(0xFFFFDEB4)
-    Sky.DUSK -> Color(0xFFD6ACBE)
-    Sky.NIGHT -> Color(0xFF6070A0)
 }

@@ -19,9 +19,9 @@ import com.hoptales.android.world.HareSheet
 import com.hoptales.android.world.HareSheets
 import com.hoptales.android.world.MeadowLayer
 import com.hoptales.android.world.MeadowLayout
+import com.hoptales.android.world.SkyLook
+import com.hoptales.android.world.SpriteSheet
 import com.hoptales.android.world.WorldStyle
-import com.hoptales.android.world.layerTint
-import com.hoptales.android.world.skyColors
 import com.hoptales.content.Sky
 import com.hoptales.content.Story
 import kotlin.math.min
@@ -125,13 +125,10 @@ data class HareArt(val idle: ImageBitmap?, val hop: ImageBitmap?, val sheets: Ha
     fun image(sheet: HareSheet): ImageBitmap? = if (sheet == HareSheet.IDLE) idle else hop
 }
 
-fun DrawScope.drawSky(sky: Sky) {
-    drawRect(Brush.verticalGradient(skyColors(sky)))
-}
-
-fun DrawScope.drawMeadow(layers: Map<MeadowLayer, ImageBitmap?>, layout: MeadowLayout, cameraX: Float, sky: Sky) {
-    val tint = layerTint(sky)?.let { ColorFilter.tint(it, BlendMode.Multiply) }
+fun DrawScope.drawMeadow(layers: Map<MeadowLayer, ImageBitmap?>, layout: MeadowLayout, cameraX: Float, look: SkyLook) {
     for (layer in MeadowLayer.entries) {
+        val colour = look.tint(layer)
+        val tint = if (colour == Color.White) null else ColorFilter.tint(colour, BlendMode.Modulate)
         val image = layers[layer] ?: continue
         val width = layout.tileWidth(layer)
         val height = layout.tileHeight(layer)
@@ -150,7 +147,7 @@ fun DrawScope.drawMeadow(layers: Map<MeadowLayer, ImageBitmap?>, layout: MeadowL
             val bottom = top + height
             if (bottom < size.height) {
                 drawRect(
-                    Color(0xFF6E8B3D),
+                    multiply(UNDERSTORY, look.tint(layer)),
                     topLeft = Offset(0f, bottom - 1),
                     size = androidx.compose.ui.geometry.Size(
                         size.width,
@@ -202,3 +199,8 @@ fun DrawScope.drawHare(art: HareArt, path: WordPath, pose: HareMotion.Pose, lift
 }
 
 const val IDLE_FPS = 20f
+
+private val UNDERSTORY = Color(0xFF6E8B3D)
+
+private fun multiply(colour: Color, tint: Color) =
+    Color(colour.red * tint.red, colour.green * tint.green, colour.blue * tint.blue, colour.alpha)
