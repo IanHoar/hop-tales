@@ -20,7 +20,11 @@ cd android
 
 Speech recognition is on-device only — `SpeechRecognizer.createOnDeviceSpeechRecognizer`, never the
 network recogniser — so the app needs Android 12 (API 31) or later. Where the device has no on-device
-model, or the microphone was turned off, a panel says so and leads back to the stories, as on iOS. Debug builds show a "Hear …"
+model for the chosen accent (`checkRecognitionSupport` on Android 13 and later; Android 12 can only ask
+whether any on-device model exists), or the microphone was turned off, a panel says so and leads back to
+the stories, as on iOS. As on iOS, a partial result that holds for 250 ms counts, a recogniser error waits
+1 s before listening again, losing audio focus restarts listening, and the focus is held for 3 s between
+sentences. The hint voice, unless a grown-up picked one, is the best offline voice for the accent. Debug builds show a "Hear …"
 button that stands in for a recognised word, like the DEBUG controls on iOS.
 
 ## Style
@@ -55,7 +59,7 @@ hare stands still and the camera snaps.
 ```
 app/            the Compose app: MainActivity, Intro, Onboarding, Home, Reading, Settings, design tokens, speech, persistence
 core/content    Story, Sentence, Word, Friend, Progress, StoryLibrary — pure Kotlin
-core/speech     WordMatcher and PartialDebouncer — pure Kotlin, ported from SpeechRecognition
+core/speech     WordMatcher, PartialDebouncer, SettledPartial, VoiceChoice — pure Kotlin, ported from SpeechRecognition
 core/reading    the reading state machine (Reading, ReadingState) — pure Kotlin
 core/onboarding the onboarding step flow (Onboarding, OnboardingState) — pure Kotlin
 ```
