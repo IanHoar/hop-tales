@@ -164,8 +164,9 @@ import World
         state.usedHelp = true
         state.isSpeaking = true
         let voice = profile.voiceID
+        let locale = profile.accent.locale
         store.addTask {
-          await speechClient.speak(word, voice)
+          await speechClient.speak(word, voice, locale)
           try? await Task.sleep(for: Reading.settleAfterSpeaking)
           try store.send(.speechFinished)
         }

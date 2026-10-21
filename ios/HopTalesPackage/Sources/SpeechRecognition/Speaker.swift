@@ -6,7 +6,6 @@ final class Speaker: NSObject {
   static let shared = Speaker()
 
   static let rate: Float = 0.42
-  static let preferredVoice = "Samantha"
 
   private let synthesizer = AVSpeechSynthesizer()
   private var finished: CheckedContinuation<Void, Never>?
@@ -16,13 +15,14 @@ final class Speaker: NSObject {
     synthesizer.delegate = self
   }
 
-  func speak(_ word: String, voiceID: String? = nil) async {
+  func speak(_ word: String, voiceID: String? = nil, locale: Locale) async {
     synthesizer.stopSpeaking(at: .immediate)
     resume()
 
     let utterance = AVSpeechUtterance(string: word)
     utterance.rate = Self.rate
-    utterance.voice = voiceID.flatMap(AVSpeechSynthesisVoice.init(identifier:)) ?? Self.voice()
+    utterance.voice = voiceID.flatMap(AVSpeechSynthesisVoice.init(identifier:))
+      ?? Self.voice(for: locale)
 
     await withCheckedContinuation { continuation in
       finished = continuation
@@ -30,15 +30,20 @@ final class Speaker: NSObject {
     }
   }
 
-  static func voice() -> AVSpeechSynthesisVoice? {
-    let english = AVSpeechSynthesisVoice.speechVoices().filter {
-      $0.language.hasPrefix("en") && !$0.voiceTraits.contains(.isNoveltyVoice)
+  static func voice(for locale: Locale) -> AVSpeechSynthesisVoice? {
+    let candidates = AVSpeechSynthesisVoice.speechVoices().map {
+      VoiceCandidate(
+        id: $0.identifier,
+        name: $0.name,
+        language: $0.language,
+        quality: $0.quality.rawValue,
+        isNovelty: $0.voiceTraits.contains(.isNoveltyVoice)
+      )
     }
-    let named = english.first { $0.name == preferredVoice && $0.quality != .default }
-    let enhanced = english.first { $0.quality == .premium }
-      ?? english.first { $0.quality == .enhanced }
-    return named ?? enhanced ?? english.first { $0.name == preferredVoice }
-      ?? AVSpeechSynthesisVoice(language: "en-US")
+    let accent = locale.identifier(.bcp47)
+    return VoiceChoice.best(candidates, accent: accent)
+      .flatMap { AVSpeechSynthesisVoice(identifier: $0.id) }
+      ?? AVSpeechSynthesisVoice(language: accent)
   }
 
   nonisolated static func voices() -> [Voice] {

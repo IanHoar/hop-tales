@@ -10,12 +10,12 @@ import Testing
 struct GrownUpsSnapshotTests {
   @Test(arguments: [ColorScheme.light, .dark])
   func everySetting(scheme: ColorScheme) {
-    expectSnapshot(of: SettingsPreview(height: 1320), scheme: scheme)
+    expectSnapshot(of: SettingsPreview(height: 2560), scheme: scheme)
   }
 
   @Test(arguments: [ColorScheme.light, .dark])
   func everySettingOnAnIPad(scheme: ColorScheme) {
-    expectSnapshot(of: SettingsPreview(width: 700, height: 1320), scheme: scheme)
+    expectSnapshot(of: SettingsPreview(width: 700, height: 2560), scheme: scheme)
   }
 
   @Test(arguments: [ColorScheme.light, .dark])
