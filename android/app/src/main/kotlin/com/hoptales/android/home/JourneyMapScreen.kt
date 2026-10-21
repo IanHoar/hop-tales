@@ -25,21 +25,24 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hoptales.android.design.LocalPalette
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.world.FriendSticker
@@ -58,9 +61,9 @@ private val MAP_HEIGHT = SPACING * (Friend.entries.size - 1) + INSET * 2
 
 @Composable
 fun JourneyMapScreen(library: StoryLibrary, journey: Journey, onFriend: (Friend) -> Unit, onBigStory: (Story) -> Unit, onDone: () -> Unit) {
-    val palette = LocalPalette.current
-    Column(Modifier.fillMaxSize().background(palette.page)) {
-        SheetHeader("Your journey", onDone)
+    val paper = LocalPaper.current
+    Column(Modifier.fillMaxSize().background(paper.page)) {
+        PlainSheetHeader("Your journey", 26.sp, onDone, vertical = 10.dp)
         BoxWithConstraints(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState(Int.MAX_VALUE))) {
             val width = maxWidth
             val points = Friend.entries.indices.map { index ->
@@ -99,7 +102,7 @@ private fun Centred(x: Dp, y: Dp, content: @Composable () -> Unit) {
 
 @Composable
 private fun Trail(points: List<Pair<Dp, Dp>>, journey: Journey, library: StoryLibrary) {
-    val palette = LocalPalette.current
+    val paper = LocalPaper.current
     Canvas(Modifier.fillMaxSize()) {
         val offsets = points.map { (x, y) -> Offset(x.toPx(), y.toPx()) }
         val path = Path().apply {
@@ -109,10 +112,10 @@ private fun Trail(points: List<Pair<Dp, Dp>>, journey: Journey, library: StoryLi
                 cubicTo(from.x, middle, to.x, middle, to.x, to.y)
             }
         }
-        drawPath(path, palette.parchmentLip.copy(alpha = 0.6f), style = Stroke(34.dp.toPx(), cap = StrokeCap.Round))
+        drawPath(path, paper.shade, style = Stroke(34.dp.toPx(), cap = StrokeCap.Round))
         drawPath(
             path,
-            palette.muted.copy(alpha = 0.35f),
+            paper.muted.copy(alpha = 0.35f),
             style = Stroke(
                 3.dp.toPx(),
                 cap = StrokeCap.Round,
@@ -122,8 +125,8 @@ private fun Trail(points: List<Pair<Dp, Dp>>, journey: Journey, library: StoryLi
         val level = journey.level
         if (level < offsets.size) {
             val dot = point(offsets[level - 1], offsets[level], 0.2 + 0.6 * journey.fill(library))
-            drawCircle(palette.gold, 11.dp.toPx(), dot)
-            drawCircle(palette.goldShade, 9.5.dp.toPx(), dot, style = Stroke(3.dp.toPx()))
+            drawCircle(paper.wash, 11.dp.toPx(), dot)
+            drawCircle(paper.washRing, 9.5.dp.toPx(), dot, style = Stroke(3.dp.toPx()))
         }
     }
 }
@@ -139,7 +142,7 @@ private fun point(from: Offset, to: Offset, progress: Double): Offset {
 
 @Composable
 private fun StopView(friend: Friend, stop: JourneyStop, onClick: () -> Unit) {
-    val palette = LocalPalette.current
+    val paper = LocalPaper.current
     val type = LocalTypography.current
     val reading = stop == JourneyStop.Reading
     val tag = when (stop) {
@@ -162,24 +165,32 @@ private fun StopView(friend: Friend, stop: JourneyStop, onClick: () -> Unit) {
             Box(
                 Modifier
                     .size(90.dp)
-                    .background(palette.paper, CircleShape)
-                    .border(4.dp, if (reading) palette.red else LocalPaper.current.rim, CircleShape),
+                    .dropShadow(CircleShape, Shadow(4.dp, paper.shadow, offset = DpOffset(0.dp, 3.dp)))
+                    .background(paper.paper, CircleShape)
+                    .border(4.dp, if (reading) paper.red else paper.rim, CircleShape),
                 contentAlignment = Alignment.Center,
             ) {
-                FriendSticker(friend, 70.dp, isSilhouette = stop == JourneyStop.Later)
+                FriendSticker(
+                    friend,
+                    70.dp,
+                    Modifier.alpha(if (stop == JourneyStop.Later) 0.4f else 1f),
+                    isSilhouette = stop == JourneyStop.Later,
+                    silhouette = paper.silhouette,
+                    saturation = if (stop is JourneyStop.Next) 0f else 1f,
+                )
             }
             if (stop == JourneyStop.Met || reading) {
                 Rosette(friend.level, Modifier.align(Alignment.TopEnd).offset(x = 10.dp, y = (-8).dp))
             }
         }
-        Text(if (stop == JourneyStop.Later) "?" else friend.friendName, style = type.display(17.sp), color = palette.ink)
+        Text(if (stop == JourneyStop.Later) "?" else friend.friendName, style = type.display(17.sp), color = paper.ink)
         if (tag != null) {
             Text(
                 tag,
                 style = type.ui(12.sp),
-                color = if (reading) palette.onTeal else palette.onAccent,
+                color = if (reading) paper.onRed else paper.ink,
                 modifier = Modifier
-                    .background(if (reading) palette.red else palette.gold, CircleShape)
+                    .background(if (reading) paper.red else paper.wash, CircleShape)
                     .padding(horizontal = 8.dp, vertical = 3.dp),
             )
         }

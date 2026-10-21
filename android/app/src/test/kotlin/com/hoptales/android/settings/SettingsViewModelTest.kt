@@ -43,6 +43,17 @@ class SettingsViewModelTest {
     }
 
     @Test
+    fun theThemeIsSavedOnTheProfileAsItIsPicked() {
+        val model = SettingsViewModel(app)
+        assertEquals(Profile.Theme.DEVICE, model.state.value.profile.theme)
+        model.themePicked(Profile.Theme.DARK)
+        assertEquals(Profile.Theme.DARK, app.profileStore.load()?.theme)
+        assertEquals(Profile.Theme.DARK, app.profileStore.profile.value?.theme)
+        model.themePicked(Profile.Theme.LIGHT)
+        assertEquals(Profile.Theme.LIGHT, SettingsViewModel(app).state.value.profile.theme)
+    }
+
+    @Test
     fun theNameIsSavedWhenTheGrownUpIsDone() {
         val model = SettingsViewModel(app)
         model.nameChanged("  Mia ")

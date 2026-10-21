@@ -178,6 +178,21 @@ class ScreenshotTest {
     @Config(qualifiers = "w412dp-h1960dp-xhdpi")
     fun settingsDark() = settings(dark = true)
 
+    @Test
+    @Config(qualifiers = "w412dp-h1960dp-notnight-xhdpi")
+    fun settingsThemeDarkOnALightDevice() {
+        val profile = Profile("Maya", Friend.HARE, theme = Profile.Theme.DARK)
+        compose.setContent {
+            HopTalesTheme(theme = profile.theme) {
+                SettingsContent(
+                    SettingsState(childName = "Maya", profile = profile, journey = Journey.starting(Friend.HARE)),
+                    SettingsActions(),
+                )
+            }
+        }
+        compose.onRoot().captureRoboImage("src/test/screenshots/settings-theme-dark.png", options)
+    }
+
     @Test fun introNight() = intro("intro-night", time = 0.0)
 
     @Test fun introSunrise() = intro("intro-sunrise", time = IntroTimeline.SUNRISE + IntroTimeline.SUNRISE_LENGTH / 2)

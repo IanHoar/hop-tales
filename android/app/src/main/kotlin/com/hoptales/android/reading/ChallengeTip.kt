@@ -23,6 +23,7 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
 import com.hoptales.android.design.LocalPalette
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
@@ -122,7 +123,7 @@ fun ChallengeTipCard(geometry: PathGeometry, modifier: Modifier = Modifier) {
             Canvas(Modifier.size(dp(13f))) {
                 drawOutline(star.createOutline(size, layoutDirection, this), palette.gold)
             }
-            Text(ChallengeTip.TITLE, style = type.display(sp(17f)), color = paper.ink)
+            Text(ChallengeTip.TITLE, style = type.display(dp(17f).value.sp), color = paper.ink)
         }
         Text(ChallengeTip.DETAIL, style = type.ui(sp(14f), FontWeight.Medium), color = paper.ink.copy(alpha = 0.85f))
     }

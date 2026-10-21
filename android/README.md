@@ -19,8 +19,14 @@ cd android
 `local.properties` (ignored) holds `sdk.dir`; Android Studio writes it for you.
 
 Speech recognition is on-device only — `SpeechRecognizer.createOnDeviceSpeechRecognizer`, never the
-network recogniser — so the app needs Android 12 (API 31) or later. Where the device has no on-device
-model, or the microphone was turned off, a panel says so and leads back to the stories, as on iOS. Debug builds show a "Hear …"
+network recogniser — so the app needs Android 12 (API 31) or later. Listening uses the on-device model for the
+chosen accent; where that one isn't installed it borrows another installed English model (American
+first, then any English), checked with `checkRecognitionSupport` on Android 13 and later (Android 12
+can only ask whether any on-device model exists, and if the check fails or takes over 2 s the accent's
+own model is assumed). Where there is no English on-device model at all, or the microphone was turned
+off, a panel says so and leads back to the stories, as on iOS. As on iOS, a partial result that holds for 250 ms counts, a recogniser error waits
+1 s before listening again, losing audio focus restarts listening, and the focus is held for 3 s between
+sentences. The hint voice, unless a grown-up picked one, is the best offline voice for the accent. Debug builds show a "Hear …"
 button that stands in for a recognised word, like the DEBUG controls on iOS.
 
 ## Style
@@ -44,19 +50,44 @@ midway), reading, sound-button marks, the microphone ask, the microphone off, a 
 companion, a thought bubble, a big word, the challenge-word tip, the story-finished panel with its
 tally, a full basket, the "Done" card after trying the present on, a new friend, the stop card,
 the journey map, friends, the wardrobe, the collection book, each onboarding step and the grown-ups
-settings, light and dark, with Roborazzi on Robolectric — on the JVM, no emulator. The references
+settings, light and dark (and the settings in a chosen Dark theme on a light device), with Roborazzi on Robolectric — on the JVM, no emulator. The references
 live in
 `app/src/test/screenshots`; `verifyRoborazziDebug` fails when a render differs, and leaves the
 actual image and a diff in `app/build/outputs/roborazzi`. After a deliberate change, record again
 and commit the new PNGs with the change. Motion is frozen (the animator scale is set to 0), so the
 hare stands still and the camera snaps.
 
+`LargeScreenshotTest` shoots the same screens on a tablet in portrait and landscape, on a
+foldable's outer and inner screens, and half open as a book and on a tabletop, with a fake
+`FoldingFeature` published through `WindowLayoutInfoPublisherRule`. Those references live in
+`app/src/test/screenshots/large`.
+
+`FontScaleScreenshotTest` shoots home, the onboarding name step, settings and the story-finished panel
+at font scale 2.0, into `app/src/test/screenshots/font-scale`.
+
+## Accessibility
+
+As on iOS, Fredoka UI text (`Typography.ui`) follows the system font size, while the words on the
+path, Fraunces titles and caps labels stay at their design size. "Remove animations" (animator
+duration scale 0) is read as Reduce Motion: the idle friend stands still, the camera and sky cut,
+and props hold their layout. `AccessibilityTest` checks the TalkBack labels, headings and actions
+screen by screen, and `ContrastTest` holds the dark palettes to WCAG AA.
+
+## Tablets and foldables
+
+`Metrics.forScreen` picks the reading layout as iOS does: the iPad numbers when the window is at
+least 600 × 480 dp, the iPhone Duo's on a squat compact window, the phone's otherwise. `FoldAware`
+reads the hinge from Jetpack WindowManager. While a foldable is half open, onboarding keeps its sheet
+below a fold that runs across and beside one that runs down, with the hare in the other half, and
+Home moves its column after a book fold with the friend before it. Phones stay upright, as the
+iPhone does; screens 600 dp and wider rotate freely.
+
 ## Layout
 
 ```
 app/            the Compose app: MainActivity, Intro, Onboarding, Home, Reading, Settings, design tokens, speech, persistence
 core/content    Story, Sentence, Word, Friend, Progress, StoryLibrary — pure Kotlin
-core/speech     WordMatcher and PartialDebouncer — pure Kotlin, ported from SpeechRecognition
+core/speech     WordMatcher, PartialDebouncer, SettledPartial, VoiceChoice — pure Kotlin, ported from SpeechRecognition
 core/reading    the reading state machine (Reading, ReadingState) — pure Kotlin
 core/onboarding the onboarding step flow (Onboarding, OnboardingState) — pure Kotlin
 ```
@@ -79,7 +110,7 @@ and `HopTalesDatabaseTest` builds the iOS statements next to ours and compares t
 column, so a change on one side fails until the other follows. Never drop or rename a table or
 column. The JSON columns are written the way Swift's `JSONEncoder` writes them (a dictionary keyed
 by an enum is a flat `[key, value, …]` array). Only `STRICT` is left off, since Android 12's SQLite
-predates it. `profiles.theme` exists for iOS and Android leaves it alone. The first launch after
+predates it. `profiles.theme` holds the Theme setting (Match device, Light or Dark) with the iOS raw values `device`, `light` and `dark`, and the whole app follows it. The first launch after
 the update imports `progress.json` and `profile.json` and deletes them once the import has
 committed; a file that cannot be read stays where it is. The accent picks the recogniser and help-voice locale; the
 help voice is one of the engine's offline English voices, never a network one. Matching strictness,

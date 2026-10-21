@@ -21,9 +21,10 @@ scripts/ci-runner.sh xcode-cloud  # hand them back to Xcode Cloud
 The script changes two things together, so a merge is never blocked on a check that no one will
 post:
 
-1. The `CI_RUNNER` repository variable. `.github/workflows/test.yml` runs when it is `github` and
-   is skipped otherwise.
-2. The required status check in the `main` ruleset.
+1. The `CI_RUNNER` repository variable. The iOS job in `.github/workflows/ci.yml` runs when it is
+   `github` and is skipped otherwise.
+2. The required status checks in the `main` ruleset: `CI` alone, or `CI` and `HopTales | Default`
+   while Xcode Cloud is live.
 
 It needs `gh` signed in as a repository admin.
 
@@ -41,7 +42,7 @@ posting checks and pull requests wait on `HopTales | Default` forever. That is t
 
 Pull requests that are already open pick up the new runner on their next push. To try GitHub
 Actions without switching, run the workflow by hand from the Actions tab (`gh workflow run
-test.yml --ref <branch>`), which runs whichever runner is live.
+ci.yml --ref <branch>`), which builds both apps.
 
 The workflow runs only when a pull request is opened, reopened or pushed to, and never when it is
 labelled. Labelling a new pull request fires one event per label at the same moment. Each started
@@ -63,11 +64,13 @@ resolve packages. Every branch here is pushed to this repository, so that does n
 ## What the workflow does
 
 - Starts on every pull request and push to `main`, and a quick Linux job checks which files
-  changed. The macOS job runs only when `ios/`, `scripts/ci-setup.sh` or the workflow itself
-  changed; otherwise it is skipped, and a skipped job counts as passing for the required `Test`.
-  A `paths:` filter on the trigger would skip the whole workflow instead, and then the required
-  check never reports and the pull request can't merge. `.github/workflows/android.yml` does the
-  same for `android/` and the shared resources, under the check name `Android`.
+  changed. The macOS job (`Test`) runs only when `ios/`, `scripts/ci-setup.sh` or the workflow
+  itself changed. The Linux job (`Android`) runs only when `android/` or the content, art and fonts
+  it reads from `ios/` changed. A `paths:` filter on the trigger would skip the whole workflow
+  instead, and then the required check never reports and the pull request can't merge.
+- `CI` is the one required check. It waits for both jobs and fails if either failed or was
+  cancelled; a job skipped because its files didn't change counts as passing. So an Android-only
+  pull request waits for Android and nothing else, and one that touches both waits for both.
 - Xcode Cloud has no equivalent. Its start conditions can ignore `android/`, but a build it skips
   posts no check at all, so while Xcode Cloud is the live runner its required check blocks
   Android-only pull requests. Leave the PR workflow's start condition on every change while it is
