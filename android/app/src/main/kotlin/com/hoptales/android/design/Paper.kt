@@ -34,7 +34,7 @@ data class Paper(
             sageDeep = Color(0xFF7E9A6A),
             wash = Color(0xFFF7D774),
             washRing = Color(0xFFB8862E),
-            muted = Color(0xFF9C8B78),
+            muted = Color(0xFF736350),
             rim = Color(0xFFFFFFFF),
             silhouette = Color(0x993C3C43),
             redInk = Color(0xFFB8423A),

@@ -19,6 +19,28 @@ enum Contrast {
     return 0.2126 * channel(red) + 0.7152 * channel(green) + 0.0722 * channel(blue)
   }
 
+  static func composite(
+    _ top: Color,
+    opacity: Double,
+    over base: Color,
+    style: UIUserInterfaceStyle
+  ) -> Color {
+    let traits = UITraitCollection(userInterfaceStyle: style)
+    func channels(_ color: Color) -> [Double] {
+      var red: CGFloat = 0
+      var green: CGFloat = 0
+      var blue: CGFloat = 0
+      var alpha: CGFloat = 0
+      UIColor(color).resolvedColor(with: traits)
+        .getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+      return [red, green, blue].map(Double.init)
+    }
+    let blended = zip(channels(top), channels(base)).map { front, back in
+      front * opacity + back * (1 - opacity)
+    }
+    return Color(.sRGB, red: blended[0], green: blended[1], blue: blended[2])
+  }
+
   static func ratio(
     _ foreground: Color,
     on background: Color,
