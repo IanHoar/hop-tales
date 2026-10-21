@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -54,6 +55,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.semantics
@@ -125,7 +127,14 @@ fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {
         model.start(permission)
         onStopOrDispose { model.stop() }
     }
-    BackHandler { if (model.backTapped()) onDone() }
+    val unavailable = listening == Listening.Denied || listening == Listening.Unsupported
+    BackHandler {
+        when {
+            unavailable -> onDone()
+            state.isConfirmingStop -> model.keepReading()
+            model.backTapped() -> onDone()
+        }
+    }
 
     val haptics = LocalHapticFeedback.current
     LaunchedEffect(state.recognised) {
@@ -135,7 +144,8 @@ fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {
         if (state.endedASentence) haptics.performHapticFeedback(HapticFeedbackType.Confirm)
     }
 
-    Box(Modifier.fillMaxSize()) {
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val geometry = with(LocalDensity.current) { PathGeometry(constraints.maxWidth.toFloat(), constraints.maxHeight.toFloat(), density) }
         PathStage(
             state = state,
             wearing = look,
@@ -144,10 +154,10 @@ fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {
             onMeadowTapped = if (BuildConfig.DEBUG) model::skipWord else null,
         )
         Box(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 12.dp, vertical = 4.dp)) {
-            BackChip(Modifier.align(Alignment.TopStart)) { if (model.backTapped()) onDone() }
+            BackChip(Modifier.align(Alignment.TopStart), scale = geometry.chipScale) { if (model.backTapped()) onDone() }
             val word = state.currentWord
             if (BuildConfig.DEBUG && word != null) {
-                Box(Modifier.align(Alignment.BottomCenter).padding(bottom = 6.dp)) {
+                Box(Modifier.align(Alignment.BottomCenter).padding(bottom = 6.dp).semantics { hideFromAccessibility() }) {
                     DebugControls(word.text, readWord = model::skipWord, restOfSentence = model::readRestOfSentence)
                 }
             }
@@ -157,17 +167,19 @@ fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {
             Listening.Denied, Listening.Unsupported -> ListeningUnavailable(listening, onBack = onDone)
             else -> Unit
         }
-        AnimatedVisibility(state.isFinished, enter = finishedFade, exit = fadeOut()) {
+        AnimatedVisibility(state.isFinished, enter = finishedFade, exit = finishedFadeOut) {
             StoryFinished(
                 title = story.title,
                 stars = (state.completed as? ReadingState.Completed.Story)?.stars ?: state.stars,
+                geometry = geometry,
                 readAgain = model::readAgain,
                 done = onDone,
             )
         }
-        AnimatedVisibility(state.isFinished, enter = finishedFade, exit = fadeOut()) {
+        AnimatedVisibility(state.isFinished, enter = finishedFade, exit = finishedFadeOut) {
             JourneyPanel(
                 state,
+                geometry,
                 onStory = onStory,
                 onTryItOn = { friend ->
                     model.tryItOn(friend)
@@ -177,7 +189,7 @@ fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {
                 dismiss = model::momentDismissed,
             )
         }
-        AnimatedVisibility(state.isConfirmingStop, enter = fadeIn(), exit = fadeOut()) {
+        AnimatedVisibility(state.isConfirmingStop, enter = fadeIn(stopFade), exit = fadeOut(stopFade)) {
             StopReading(friend = story.friend.friendName, keepReading = model::keepReading, stop = onDone)
         }
     }
@@ -355,22 +367,7 @@ private fun PathStage(
             Canvas(
                 Modifier
                     .fillMaxSize()
-                    .wordPresses(path, camera, position, isChallenge, onWordTapped, explain, onMeadowTapped)
-                    .semantics {
-                        contentDescription = state.wordCardLabel
-                        if (currentStop != null) {
-                            onClick(label = "Hear the word") {
-                                onWordTapped()
-                                true
-                            }
-                            if (isChallenge(position)) {
-                                onLongClick(label = ChallengeTip.TITLE) {
-                                    explain(position)
-                                    true
-                                }
-                            }
-                        }
-                    },
+                    .wordPresses(path, camera, position, isChallenge, onWordTapped, explain, onMeadowTapped),
             ) {
                 val wordNow = if (reduceMotion) null else wordClock
                 crossfading(still) { stepX, _ ->
@@ -383,6 +380,31 @@ private fun PathStage(
                     drawTreatOnPath(path, marks, cameraX, state, look().tint(MeadowLayer.NEAR))
                 }
             }
+        }
+        if (currentStop != null) {
+            val minimum = geometry.path(CurrentWord.MINIMUM)
+            val challenge = isChallenge(position)
+            Box(
+                Modifier
+                    .centredOn { Offset(currentStop.centre - camera.value, path.wordCentreY(currentStop)) }
+                    .size(
+                        with(density) { maxOf(minimum, currentStop.width).toDp() },
+                        with(density) { maxOf(minimum, currentStop.layout.size.height.toFloat()).toDp() },
+                    )
+                    .semantics {
+                        contentDescription = CurrentWord.label(state.wordCardLabel, challenge)
+                        onClick(label = CurrentWord.HEAR) {
+                            onWordTapped()
+                            true
+                        }
+                        if (challenge) {
+                            onLongClick(label = ChallengeTip.TITLE) {
+                                explain(position)
+                                true
+                            }
+                        }
+                    },
+            )
         }
         Canvas(Modifier.fillMaxSize()) {
             val pose = motion.pose(now, reduceMotion)
@@ -513,8 +535,18 @@ private fun Modifier.centredOn(point: () -> Offset) = layout { measurable, const
 }
 
 private val finishedFade = fadeIn(tween(FINISHED_FADE_MILLIS, delayMillis = PathGeometry.PAN_MILLIS, easing = EaseOut))
+private val finishedFadeOut = fadeOut(tween(FINISHED_FADE_MILLIS, delayMillis = PathGeometry.PAN_MILLIS, easing = EaseOut))
+private val stopFade = tween<Float>(STOP_FADE_MILLIS, easing = EaseInOut)
+
+object CurrentWord {
+    const val MINIMUM = 44f
+    const val HEAR = "Hear the word"
+
+    fun label(word: String, challenge: Boolean): String = if (challenge) "$word ${ChallengeTip.TITLE}: ${ChallengeTip.DETAIL}" else word
+}
 
 private const val FINISHED_FADE_MILLIS = 400
+private const val STOP_FADE_MILLIS = 200
 private const val PLUS_FIVE_SIZE = 0.4f
 private const val IDLE_FRAME_MILLIS = (1_000f / IDLE_FPS).toLong()
 

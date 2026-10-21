@@ -91,6 +91,8 @@ fun TreatSticker(friend: Friend, height: Dp, modifier: Modifier = Modifier, isGo
     ArtImage(image, height, modifier, colorFilter = if (isGolden) ColorFilter.tint(TreatGold, BlendMode.Modulate) else null)
 }
 
+val ROSETTE_INK = Color(0xFF3B2A20)
+
 @Composable
 fun Rosette(level: Int, modifier: Modifier = Modifier, height: Dp = 38.dp) {
     Box(modifier.clearAndSetSemantics {}, contentAlignment = Alignment.Center) {
@@ -98,7 +100,7 @@ fun Rosette(level: Int, modifier: Modifier = Modifier, height: Dp = 38.dp) {
         Text(
             "$level",
             style = LocalTypography.current.display((height.value * 13 / 38).sp),
-            color = Color(0xFF3B2A20),
+            color = ROSETTE_INK,
             modifier = Modifier.offset(y = -height * 4 / 38),
         )
     }

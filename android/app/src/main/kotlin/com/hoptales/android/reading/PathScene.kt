@@ -25,9 +25,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hoptales.android.design.Metrics
 import com.hoptales.android.world.Art
 import com.hoptales.android.world.HareSheet
@@ -63,6 +66,12 @@ data class PathGeometry(
     val pathCentre: Float get() = height * metrics.pathCentre / metrics.reference.height
 
     fun path(value: Float) = value * pathScale
+
+    fun dp(value: Float): Dp = (path(value) / density).dp
+
+    fun sp(value: Float): TextUnit = (path(value) / density).sp
+
+    val chipScale: Float get() = pathScale / density
 
     fun y(value: Float) = height * value / metrics.reference.height
 

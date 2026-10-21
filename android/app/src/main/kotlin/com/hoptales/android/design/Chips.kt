@@ -87,20 +87,26 @@ fun PaperChip(
 }
 
 @Composable
-fun BackChip(modifier: Modifier = Modifier, description: String = "Back to stories", onClick: () -> Unit) {
+fun BackChip(modifier: Modifier = Modifier, description: String = "Back to stories", scale: Float = 1f, onClick: () -> Unit) {
     val paper = LocalPaper.current
     Box(
         modifier
-            .size(48.dp)
+            .size(48.dp * maxOf(scale, 1f))
             .semantics { contentDescription = description }
             .pressable(onClick),
         contentAlignment = Alignment.Center,
     ) {
         Box(
-            Modifier.size(40.dp).paperChip(CircleShape, fill = paper.paper.copy(alpha = 0.72f), rim = 3.dp, shadow = 0.67f),
+            Modifier.size(40.dp * scale).paperChip(
+                CircleShape,
+                fill = paper.paper.copy(alpha = 0.72f),
+                rim = 3.dp * scale,
+                shadow =
+                0.67f * scale,
+            ),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(Glyphs.chevronLeft, contentDescription = null, tint = paper.ink, modifier = Modifier.size(19.dp))
+            Icon(Glyphs.chevronLeft, contentDescription = null, tint = paper.ink, modifier = Modifier.size(19.dp * scale))
         }
     }
 }

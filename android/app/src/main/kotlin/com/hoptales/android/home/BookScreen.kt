@@ -93,7 +93,7 @@ fun BookScreen(library: StoryLibrary, progress: Progress, friend: Friend, onFrie
                             }
                         }
                         Column(Modifier.padding(start = 12.dp)) {
-                            Text("${basket.total}", style = type.display(38.sp), color = paper.ink)
+                            Text("${basket.total}", style = type.display(38.sp).copy(fontFeatureSettings = "tnum"), color = paper.ink)
                             Text("${friend.treat.many} found", style = type.ui(15.sp, FontWeight.Medium), color = paper.muted)
                         }
                     }
