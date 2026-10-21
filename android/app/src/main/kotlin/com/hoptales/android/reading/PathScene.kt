@@ -104,7 +104,7 @@ data class Stop(
     val marksLeft: Float = 0f,
     val wordRight: Float = layout.size.width.toFloat(),
 ) {
-    val width: Float get() = layout.size.width.toFloat()
+    val width: Float get() = wordRight - marksLeft
 }
 
 class WordPath(
@@ -124,7 +124,9 @@ class WordPath(
         for ((sentence, words) in story.sentences.withIndex()) {
             for ((index, word) in words.words.withIndex()) {
                 val layout = measurer.measure(word.leading + word.text + word.trailing, style)
-                val width = layout.size.width.toFloat()
+                val marksLeft = layout.getHorizontalPosition(word.leading.length, usePrimaryDirection = true)
+                val wordRight = layout.getHorizontalPosition(word.leading.length + word.text.length, usePrimaryDirection = true)
+                val width = wordRight - marksLeft
                 val previous = stops.lastOrNull()
                 val centre = if (previous == null) {
                     geometry.path(PathGeometry.FOCUS_X)
@@ -134,8 +136,6 @@ class WordPath(
                 }
                 val marks = phonics?.soundMarks(word.text)
                 val edges = if (marks == null) emptyList() else SoundMarks.edges(layout, word.leading.length, word.text.length)
-                val marksLeft = layout.getHorizontalPosition(word.leading.length, usePrimaryDirection = true)
-                val wordRight = layout.getHorizontalPosition(word.leading.length + word.text.length, usePrimaryDirection = true)
                 stops += Stop(sentence, index, layout, centre, marks, edges, marksLeft, wordRight)
             }
         }
@@ -232,13 +232,14 @@ fun DrawScope.drawWords(path: WordPath, cameraX: Float, marks: WordMarks?, isBig
     val blend = if (path.world.chalk) BlendMode.Screen else BlendMode.Multiply
     for (stop in path.stops) {
         val x = stop.centre - cameraX
-        if (x + stop.width < 0 || x - stop.width > size.width) continue
+        val full = stop.layout.size.width.toFloat()
+        if (x + full < 0 || x - full > size.width) continue
         val look = look(stop)
         val height = stop.layout.size.height.toFloat()
-        val frame = Rect(Offset(x - stop.width / 2, path.wordCentreY(stop) - height / 2), Size(stop.width, height))
-        val word = Rect(frame.left + stop.marksLeft, frame.top, frame.left + stop.wordRight, frame.bottom)
+        val word = Rect(Offset(x - stop.width / 2, path.wordCentreY(stop) - height / 2), Size(stop.width, height))
+        val frame = Rect(Offset(word.left - stop.marksLeft, word.top), Size(full, height))
         val colour = if (path.world.chalk) look.chalk else look.ink
-        lying(frame, look.scale) {
+        lying(word, look.scale) {
             if (look.wash > 0f) drawWash(word.inflateHorizontally(overhang), blend, look.wash)
             drawWord(stop, frame, word, colour, blend)
             if (stop.marks != null) {

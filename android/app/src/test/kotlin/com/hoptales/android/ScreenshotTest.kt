@@ -33,9 +33,12 @@ import com.hoptales.android.world.IntroTimeline
 import com.hoptales.content.Basket
 import com.hoptales.content.Friend
 import com.hoptales.content.Journey
+import com.hoptales.content.Mood
 import com.hoptales.content.Profile
 import com.hoptales.content.Progress
+import com.hoptales.content.Sky
 import com.hoptales.content.Story
+import com.hoptales.content.Weather
 import com.hoptales.onboarding.OnboardingState
 import com.hoptales.onboarding.OnboardingStep
 import org.junit.Before
@@ -117,6 +120,30 @@ class ScreenshotTest {
 
     @Test fun soundButtonsStormOnTheHill() =
         moment("sound-buttons-storm-on-the-hill", "storm-on-the-hill", sentence = 3, word = 2, soundButtons = true)
+
+    @Test fun moodDayClear() = mood(Sky.DAY, Weather.CLEAR)
+
+    @Test fun moodGoldenClouds() = mood(Sky.GOLDEN, Weather.CLOUDS)
+
+    @Test fun moodDayStorm() = mood(Sky.DAY, Weather.STORM)
+
+    @Test fun moodDayRain() = mood(Sky.DAY, Weather.RAIN)
+
+    @Test fun moodDuskClear() = mood(Sky.DUSK, Weather.CLEAR)
+
+    @Test fun moodNightClear() = mood(Sky.NIGHT, Weather.CLEAR)
+
+    @Test fun worldBunny() = world(Friend.BUNNY)
+
+    @Test fun worldFrog() = world(Friend.FROG)
+
+    @Test fun worldCrow() = world(Friend.CROW)
+
+    @Test fun worldCat() = world(Friend.CAT)
+
+    @Test fun worldCrab() = world(Friend.CRAB)
+
+    @Test fun worldGrasshopper() = world(Friend.GRASSHOPPER)
 
     @Test fun storyFinishedLight() = storyFinished(dark = false)
 
@@ -312,8 +339,20 @@ class ScreenshotTest {
     private fun moment(name: String, id: String, sentence: Int, word: Int, dark: Boolean = false, soundButtons: Boolean = false) {
         val story = app.library[id]!!
         if (soundButtons) app.profileStore.save(Profile("Maya", soundButtons = true))
+        midPage(name, story, story.sentences.take(sentence).sumOf { it.words.size } + word, dark)
+    }
+
+    private fun mood(sky: Sky, weather: Weather) {
+        val story = story.copy(mood = Mood(sky, weather), sentences = story.sentences.map { it.copy(sky = null, weather = null) })
+        midPage("mood-${sky.name.lowercase()}-${weather.name.lowercase()}", story)
+    }
+
+    private fun world(friend: Friend) {
+        midPage("world-${friend.key}", app.library["meadow-walk"]!!.copy(level = friend.level), words = 0)
+    }
+
+    private fun midPage(name: String, story: Story, words: Int = 3, dark: Boolean = false) {
         showReading(dark, story)
-        val words = story.sentences.take(sentence).sumOf { it.words.size } + word
         repeat(words) {
             compose.onNodeWithText("Hear “", substring = true).performClick()
             compose.waitForIdle()
