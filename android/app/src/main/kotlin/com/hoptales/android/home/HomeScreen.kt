@@ -40,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeJoin
@@ -66,6 +67,7 @@ import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.design.Deckle
 import com.hoptales.android.design.GearGlyph
 import com.hoptales.android.design.Glyphs
+import com.hoptales.android.design.LocalFold
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.PaperLabel
@@ -118,7 +120,11 @@ fun HomeScreen(
     BoxWithConstraints(Modifier.fillMaxSize().background(paper.page)) {
         val fullHeight = maxHeight
         val screen = fullHeight.value
-        val standsAside = maxWidth > HomeLayout.WIDE_LAYOUT.dp
+        val area = Size(maxWidth.value, maxHeight.value)
+        val fold = LocalFold.current?.takeUnless { it.runsAcross }
+        val room = fold?.room(area)
+        val standsAside = fold != null || maxWidth > HomeLayout.WIDE_LAYOUT.dp
+        val column = minOf(HomeLayout.COLUMN_WIDTH, (room?.width ?: Float.POSITIVE_INFINITY) - 32f).dp
         val landscape = maxWidth > maxHeight
         val horizon = if (standsAside && landscape) HomeLayout.LOW_HORIZON else HomeLayout.SHEET_TOP
         val landScale = HomeLayout.LAND_SCALE * (maxWidth.value / 390f).coerceIn(1f, 1.3f)
@@ -132,7 +138,7 @@ fun HomeScreen(
             Box(
                 Modifier
                     .offset(
-                        x = (maxWidth - HomeLayout.COLUMN_WIDTH.dp) / 4 - stage / 2,
+                        x = (fold?.stage(area)?.center?.x?.dp ?: ((maxWidth - HomeLayout.COLUMN_WIDTH.dp) / 4)) - stage / 2,
                         y = (screen * horizon - HomeLayout.FEET_ABOVE_SHEET - HomeLayout.FRIEND_HEIGHT).dp,
                     ).size(stage, HomeLayout.FRIEND_HEIGHT.dp),
                 contentAlignment = Alignment.BottomCenter,
@@ -145,8 +151,11 @@ fun HomeScreen(
         val top = insets.calculateTopPadding()
         val bottom = insets.calculateBottomPadding()
         val sheetTopDp = with(LocalDensity.current) { sheetTop.toDp() }
-        Box(Modifier.fillMaxSize().verticalScroll(scroll), contentAlignment = Alignment.TopCenter) {
-            Box(Modifier.widthIn(max = HomeLayout.COLUMN_WIDTH.dp).fillMaxWidth().heightIn(min = fullHeight)) {
+        Box(
+            Modifier.fillMaxSize().verticalScroll(scroll).padding(start = (room?.left ?: 0f).dp),
+            contentAlignment = Alignment.TopCenter,
+        ) {
+            Box(Modifier.widthIn(max = column).fillMaxWidth().heightIn(min = fullHeight)) {
                 Column(
                     Modifier
                         .fillMaxWidth()
