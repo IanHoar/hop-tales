@@ -6,6 +6,7 @@ import com.hoptales.content.Friend
 import com.hoptales.content.Journey
 import com.hoptales.content.Profile
 import com.hoptales.content.Progress
+import com.hoptales.content.greeting
 import com.hoptales.reading.Heard
 import com.hoptales.speech.Strictness
 import org.junit.After
@@ -101,11 +102,12 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun anEmptyNameKeepsTheOldOne() {
+    fun anEmptyNameClearsTheName() {
         val model = SettingsViewModel(app)
         model.nameChanged("   ")
         model.done()
-        assertEquals("Maya", app.profileStore.load()?.childName)
+        assertEquals("", app.profileStore.load()?.childName)
+        assertEquals("Good morning!", greeting(9, app.profileStore.load()?.childName))
     }
 
     @Test
