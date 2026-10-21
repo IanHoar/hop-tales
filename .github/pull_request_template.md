@@ -12,6 +12,8 @@ Closes #
 
 - <!-- What the feature or fix is, in the terms someone using the app would recognise. -->
 
+Parity: <!-- both | #123 (an open "parity" issue for the other app) | n/a — reason. Needed when only one app changes; docs/parity.md. -->
+
 ## Spec changes
 
 <!-- Only if this amends docs/HANDOFF.md: one line per rule changed. -->
