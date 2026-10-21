@@ -161,7 +161,7 @@ request.contextualStrings = sentence.words.map(\.text)   // biases the model tow
 ```
 
 - One `AVAudioEngine` tap → recognition task per **sentence**. Tear down and restart between sentences (cheap, and keeps transcripts short).
-- Audio session: `.record`, mode `.measurement`, options `[.duckOthers, .allowBluetooth]`. Do not use `.playAndRecord` with speaker output while listening — the ball hop sound will be transcribed.
+- Audio session: `.record`, mode `.measurement`, options `[.duckOthers, .allowBluetooth]`. Do not use `.playAndRecord` with speaker output while listening — the sentence chord will be transcribed.
 - **Matching** (run on every partial result):
   1. Normalise transcript: lowercase, strip punctuation, split on whitespace.
   2. Look at the last 3 tokens only.
@@ -329,10 +329,10 @@ Stars: 1 per word, +5 for a sentence with no help, +20 for a finished story. Sta
 
 - Word taps speak the word. Nothing else on the reading screen is tappable except Back (which asks "Stop reading?" with two big buttons).
 - Haptics: `.soft` on hop, `.success` on sentence complete. Off on iPad/TV.
-- Sound: a short marimba `hop` on each recognised word (pitch rises across the sentence), a chord on sentence complete, ambient loop per stage (birds / wind + distant flag / crackling fire + crickets) at −18dB under speech. All sounds route to `.ambient` category **between** recognition sessions; while listening, output is muted except the hop (see §5).
+- Sound: no sound on each recognised word — the `.soft` haptic marks the hop, and a sound would only compete with the child's voice. A short marimba-like chord (generated in code, no audio file) plays on sentence complete under the `.ambient` category, so it respects the silent switch; the "Sound effects" setting turns it off. Ambient loops per stage (birds / wind + distant flag / crackling fire + crickets) at −18dB under speech are still to come and need recordings.
 - Dynamic Type is not applied to the word track (sizes are the design); it is applied to home-screen text.
 - VoiceOver: word card announces "Current word: sat. Say it out loud." Progress rail announces sentence index.
-- Colour contrast: all text on cream ≥ 4.5:1 (`muted #6E6780` on `#FFF8EC` = 5.3:1). Labels over the dark ground use `#F0E3D0`.
+- Colour contrast: all text on cream ≥ 4.5:1 (`muted #6E6780` on `#FFF8EC` = 5.1:1). Labels over the dark ground use `#F0E3D0`.
 
 ---
 
