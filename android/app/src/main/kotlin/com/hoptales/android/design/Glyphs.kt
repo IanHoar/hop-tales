@@ -58,15 +58,18 @@ fun SpeakerGlyph(color: Color, size: Dp = 22.dp) {
 }
 
 @Composable
-fun ChevronGlyph(color: Color, size: Dp = 16.dp) {
+fun UpDownChevronGlyph(color: Color, size: Dp = 16.dp) {
     Canvas(Modifier.size(size)) {
         val unit = this.size.width / 16f
         val path = Path().apply {
-            moveTo(3 * unit, 6 * unit)
-            lineTo(8 * unit, 11 * unit)
-            lineTo(13 * unit, 6 * unit)
+            moveTo(4.5f * unit, 6 * unit)
+            lineTo(8 * unit, 2.5f * unit)
+            lineTo(11.5f * unit, 6 * unit)
+            moveTo(4.5f * unit, 10 * unit)
+            lineTo(8 * unit, 13.5f * unit)
+            lineTo(11.5f * unit, 10 * unit)
         }
-        drawPath(path, color, style = Stroke(width = 2.5f * unit, cap = StrokeCap.Round, join = StrokeJoin.Round))
+        drawPath(path, color, style = Stroke(width = 2.2f * unit, cap = StrokeCap.Round, join = StrokeJoin.Round))
     }
 }
 
@@ -111,7 +114,8 @@ object Glyphs {
 
     val book = filled(
         "book",
-        "M18,2H6c-1.1,0 -2,0.9 -2,2v16c0,1.1 0.9,2 2,2h12c1.1,0 2,-0.9 2,-2V4c0,-1.1 -0.9,-2 -2,-2zM6,4h5v8l-2.5,-1.5L6,12V4z",
+        "M11,5.9C9.1,4.6 6.5,4 3.6,4.3 2.9,4.4 2.4,4.9 2.4,5.6v12c0,0.7 0.6,1.2 1.3,1.1 2.8,-0.3 5.4,0.3 7.3,1.6z" +
+            "M13,5.9C14.9,4.6 17.5,4 20.4,4.3c0.7,0.1 1.2,0.6 1.2,1.3v12c0,0.7 -0.6,1.2 -1.3,1.1 -2.8,-0.3 -5.4,0.3 -7.3,1.6z",
     )
 
     val house = filled("house", "M10,20v-6h4v6h5v-8h3L12,3 2,12h3v8z")
@@ -140,8 +144,40 @@ object Glyphs {
 
     val check = filled("check", "M9,16.17L4.83,12l-1.42,1.41L9,19 21,7l-1.41,-1.41z")
 
+    val counterclockwise = stroked("counterclockwise", "M5,9.4A7.5,7.5 0 1,0 12,4.5H9.5M11.8,1.6L9,4.5 11.8,7.4")
+
+    val uturnBackward = stroked("uturnBackward", "M8.5,4L4,8.5 8.5,13M4,8.5H15a4.75,4.75 0 0,1 0,9.5H11")
+
+    val lockOpen = stroked(
+        "lockOpen",
+        "M4,11.5h11a1.5,1.5 0 0,1 1.5,1.5v6.5a1.5,1.5 0 0,1 -1.5,1.5H4a1.5,1.5 0 0,1 -1.5,-1.5V13a1.5,1.5 0 0,1 1.5,-1.5z" +
+            "M13,11.5V7.5a3.75,3.75 0 0,1 7.5,0V9.5",
+    )
+
+    val share = stroked(
+        "share",
+        "M12,14.5V3M8.25,6.5L12,2.75 15.75,6.5M8.5,9.5H7a1.5,1.5 0 0,0 -1.5,1.5v8.5a1.5,1.5 0 0,0 1.5,1.5h10" +
+            "a1.5,1.5 0 0,0 1.5,-1.5V11a1.5,1.5 0 0,0 -1.5,-1.5H15.5",
+    )
+
+    val trash = stroked(
+        "trash",
+        "M3.5,6.5H20.5M9,6.5V4.5a1,1 0 0,1 1,-1h4a1,1 0 0,1 1,1v2M5.5,6.5L6.6,19.6a1.5,1.5 0 0,0 1.5,1.4h7.8" +
+            "a1.5,1.5 0 0,0 1.5,-1.4L18.5,6.5",
+    )
+
     private fun filled(name: String, data: String): ImageVector = ImageVector.Builder(name, 24.dp, 24.dp, 24f, 24f)
         .addPath(addPathNodes(data), fill = SolidColor(Color.Black))
+        .build()
+
+    private fun stroked(name: String, data: String): ImageVector = ImageVector.Builder(name, 24.dp, 24.dp, 24f, 24f)
+        .addPath(
+            addPathNodes(data),
+            stroke = SolidColor(Color.Black),
+            strokeLineWidth = 2.2f,
+            strokeLineCap = StrokeCap.Round,
+            strokeLineJoin = StrokeJoin.Round,
+        )
         .build()
 }
 
