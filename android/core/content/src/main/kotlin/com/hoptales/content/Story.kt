@@ -57,6 +57,10 @@ data class StoryEvent(
     val companion: Boolean? = null,
     val thought: Boolean? = null,
 ) {
+    val isCompanion: Boolean get() = companion ?: false
+
+    val isThought: Boolean get() = thought ?: false
+
     @Serializable
     enum class Place {
         @SerialName("ground")

@@ -39,7 +39,8 @@ way. Change `.editorconfig` rather than suppressing a rule in the code.
 
 ## Screenshot tests
 
-`ScreenshotTest` renders home, reading, the story-finished card and the stop dialog, light and dark,
+`ScreenshotTest` renders home, reading, a story prop, a companion, a thought bubble, the
+story-finished card and the stop dialog, light and dark,
 with Roborazzi on Robolectric — on the JVM, no emulator. The references live in
 `app/src/test/screenshots`; `verifyRoborazziDebug` fails when a render differs, and leaves the
 actual image and a diff in `app/build/outputs/roborazzi`. After a deliberate change, record again
@@ -73,7 +74,8 @@ The app does not copy any content or art. Its assets come straight from the iOS 
 from the same place, so a story added through `scripts/build-stories.py` reaches both apps.
 
 Art that Android does not draw yet is left out of the package by `ignoreAssetsPatterns` in
-`app/build.gradle.kts` — the wardrobe (`look-*`, `wear-*`), postcards, story cast and props. When a
+`app/build.gradle.kts` — the wardrobe (`look-*`, `wear-*`), postcards and the land's `prop-*`
+scenery. The story props, companions and thought bubbles draw from `cast-*`, so that ships. When a
 feature starts drawing one of those families, take its pattern off the list, or `Art.image` quietly
 returns null. WebP and PNG are stored as they are, since deflating them saves well under 2%; JSON,
 fonts and text are compressed.
