@@ -9,8 +9,12 @@ import com.hoptales.content.StoryLibrary
 import kotlinx.serialization.KSerializer
 import java.io.File
 
-class HopTalesDatabase(context: Context, name: String? = NAME, private val legacy: File? = context.filesDir) :
-    SQLiteOpenHelper(context, name, null, VERSION) {
+class HopTalesDatabase(
+    context: Context,
+    name: String? = NAME,
+    private val legacy: File? = context.filesDir,
+    private val library: StoryLibrary? = null,
+) : SQLiteOpenHelper(context, name, null, VERSION) {
     private val imported = mutableListOf<File>()
 
     init {
@@ -27,7 +31,7 @@ class HopTalesDatabase(context: Context, name: String? = NAME, private val legac
         }
         val progressFile = File(legacy, LEGACY_PROGRESS)
         read(progressFile, Progress.serializer())?.let {
-            ProgressTable.write(db, it, existing = null)
+            ProgressTable.write(db, library?.let(it::restoringStoriesRead) ?: it, existing = null)
             imported += progressFile
         }
     }

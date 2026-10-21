@@ -30,6 +30,6 @@ class ProgressStore(private val database: HopTalesDatabase, private val library:
     }
 
     private fun read(): Progress = runCatching {
-        ProgressTable.read(database.readableDatabase).restoringStoriesRead(library)
+        ProgressTable.read(database.readableDatabase, library)
     }.getOrDefault(Progress())
 }

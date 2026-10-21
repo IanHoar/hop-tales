@@ -8,6 +8,7 @@ import com.hoptales.content.Journey
 import com.hoptales.content.Profile
 import com.hoptales.content.Progress
 import com.hoptales.content.Slot
+import com.hoptales.content.StoryLibrary
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
@@ -69,6 +70,14 @@ object ProgressTable {
     const val ONLY = "progress"
 
     private data class StoryRow(val completedSentences: Int, val wordsRead: Int)
+
+    fun read(db: SQLiteDatabase, library: StoryLibrary): Progress {
+        val progress = read(db)
+        val journey = db.rawQuery("""SELECT "journey" FROM "progress" WHERE "id" = ?""", arrayOf(ONLY)).use { row ->
+            if (row.moveToFirst()) row.getString(0) else null
+        }
+        return if (journey != null && !Columns.recordsStoriesRead(journey)) progress.restoringStoriesRead(library) else progress
+    }
 
     fun read(db: SQLiteDatabase): Progress {
         val record = db.rawQuery(
@@ -138,6 +147,9 @@ object Columns {
     fun journey(journey: Journey): String = json.encodeToString(Journey.serializer(), journey)
 
     fun journey(text: String): Journey = runCatching { json.decodeFromString(Journey.serializer(), text) }.getOrDefault(Journey())
+
+    fun recordsStoriesRead(journey: String): Boolean =
+        runCatching { (json.parseToJsonElement(journey) as? JsonObject)?.containsKey("storiesRead") }.getOrNull() ?: true
 
     fun baskets(baskets: Map<Friend, Basket>): String = pairs(baskets, Friend.serializer(), Basket.serializer()).toString()
 

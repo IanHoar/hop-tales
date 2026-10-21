@@ -33,7 +33,7 @@ class HopTalesApplication : Application() {
     val phonics: Phonics by lazy {
         Phonics.decode(assets.open("phonics.json").bufferedReader().use { it.readText() })
     }
-    val database: HopTalesDatabase by lazy { HopTalesDatabase(this) }
+    val database: HopTalesDatabase by lazy { HopTalesDatabase(this, library = library) }
     val progressStore: ProgressStore by lazy { ProgressStore(database, library) }
     val profileStore: ProfileStore by lazy { ProfileStore(database, filesDir) }
     val backupChoice: BackupChoice by lazy { BackupChoice(this) }
