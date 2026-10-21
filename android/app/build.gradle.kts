@@ -5,7 +5,6 @@ plugins {
 }
 
 val shared = rootDir.resolve("../ios/HopTalesPackage/Sources")
-val wardrobe = listOf("look-*", "wear-*", "looks.json", "wardrobe.json")
 val sceneryProps = listOf("bush", "fence", "flowers", "mushrooms", "oak").map { "prop-$it.*" }
 val notYetOnAndroid = listOf("postcard-*", "hare-front-sit.*") + sceneryProps
 
@@ -58,7 +57,7 @@ android {
 
     androidResources {
         noCompress += listOf("webp", "png")
-        ignoreAssetsPatterns += wardrobe + notYetOnAndroid
+        ignoreAssetsPatterns += notYetOnAndroid
     }
 }
 
