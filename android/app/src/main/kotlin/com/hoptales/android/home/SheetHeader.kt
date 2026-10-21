@@ -103,6 +103,6 @@ fun MapButton(onClick: () -> Unit) {
             .paperChip(CircleShape, rim = 3.dp),
         contentAlignment = Alignment.Center,
     ) {
-        MapGlyph(LocalPaper.current.ink, Modifier.size(19.dp))
+        MapGlyph(LocalPaper.current.ink)
     }
 }

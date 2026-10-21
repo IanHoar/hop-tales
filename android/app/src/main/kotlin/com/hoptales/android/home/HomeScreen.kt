@@ -373,7 +373,7 @@ private fun LevelChip(library: StoryLibrary, journey: Journey, onClick: () -> Un
 
 @Composable
 fun MapGlyph(colour: Color, modifier: Modifier = Modifier) {
-    Canvas(modifier.size(22.dp)) {
+    Canvas(modifier.size(20.dp)) {
         val w = size.width
         val h = size.height
         val stroke = Stroke(width = 2.dp.toPx(), join = StrokeJoin.Round)
