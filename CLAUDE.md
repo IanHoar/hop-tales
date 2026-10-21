@@ -8,6 +8,9 @@ Read-aloud game for early readers. SwiftUI shell + SpriteKit world, on-device `S
   it. Change `.swiftlint.yml` rather than adding `swiftlint:disable` comments.
 - Commits and pull request titles follow Conventional Commits — `CONTRIBUTING.md` has the rules,
   and a `commit-msg` hook enforces them. `main` squash-merges, so the PR title lands as the commit.
+- Features ship on both iOS and Android. A pull request that changes only one app's code needs a
+  `Parity:` line in its description (`both`, an open `parity` issue for the other app, or
+  `n/a — reason`); the required `Parity` check enforces it. `docs/parity.md` has the rules.
 
 - The words are printed on the meadow path and pan 1:1 with the near land layer, driven by one
   `MeadowCamera`. The hare stays put and hops in place while the ground slides one word.

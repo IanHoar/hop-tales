@@ -1,0 +1,32 @@
+# Requires every pull request that changes only one app to say what happens on the other, so
+# features stay roughly equal on iOS and Android. scripts/parity-check.sh has the rules and
+# docs/parity.md the reasoning. It runs on description edits too, and takes seconds, so fixing
+# the Parity line never waits on a build.
+name: Parity
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, edited, synchronize, reopened]
+
+concurrency:
+  group: parity-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
+
+jobs:
+  parity:
+    name: Parity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: scripts
+      - name: Check parity
+        run: scripts/parity-check.sh "${{ github.event.pull_request.number }}"
+        env:
+          GH_TOKEN: ${{ github.token }}

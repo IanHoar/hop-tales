@@ -68,7 +68,9 @@ resolve packages. Every branch here is pushed to this repository, so that does n
   itself changed. The Linux job (`Android`) runs only when `android/` or the content, art and fonts
   it reads from `ios/` changed. A `paths:` filter on the trigger would skip the whole workflow
   instead, and then the required check never reports and the pull request can't merge.
-- `CI` is the one required check. It waits for both jobs and fails if either failed or was
+- `Parity` (`.github/workflows/parity.yml`) is required alongside it whichever runner is live; see
+  [parity.md](parity.md).
+- `CI` is the one required check for builds. It waits for both jobs and fails if either failed or was
   cancelled; a job skipped because its files didn't change counts as passing. So an Android-only
   pull request waits for Android and nothing else, and one that touches both waits for both.
 - Xcode Cloud has no equivalent. Its start conditions can ignore `android/`, but a build it skips

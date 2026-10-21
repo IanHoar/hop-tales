@@ -22,6 +22,7 @@ xcode_cloud_check="HopTales | Default"
 xcode_cloud_app=117084
 github_check="CI"
 github_actions_app=15368
+parity_check="Parity"
 
 current() {
   gh variable get CI_RUNNER --repo "$repo" 2>/dev/null || echo "xcode-cloud"
@@ -68,7 +69,7 @@ case "${1:-}" in
     ;;
   github)
     gh variable set CI_RUNNER --repo "$repo" --body github
-    require "$github_check" "$github_actions_app"
+    require "$github_check" "$github_actions_app" "$parity_check" "$github_actions_app"
     echo "GitHub Actions now tests iOS, and \"$github_check\" is required on main."
     echo "Open pull requests pick it up on their next push."
     echo
@@ -78,7 +79,8 @@ case "${1:-}" in
     ;;
   xcode-cloud)
     gh variable set CI_RUNNER --repo "$repo" --body xcode-cloud
-    require "$github_check" "$github_actions_app" "$xcode_cloud_check" "$xcode_cloud_app"
+    require "$github_check" "$github_actions_app" "$parity_check" "$github_actions_app" \
+      "$xcode_cloud_check" "$xcode_cloud_app"
     echo "Xcode Cloud now tests iOS, and \"$github_check\" and \"$xcode_cloud_check\" are required on main."
     echo
     echo "Now enable Xcode Cloud's pull request workflow again:"
