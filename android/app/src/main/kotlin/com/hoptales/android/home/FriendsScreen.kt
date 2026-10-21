@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -133,13 +134,16 @@ private fun FriendCard(friend: Friend, progress: Progress, wardrobe: WardrobeLib
         }
         Text(if (isMet || isNext) friend.friendName else "?", style = type.display(20.sp), color = paper.ink)
         if (isMet) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Rosette(friend.level, height = 30.dp)
-                Spacer(Modifier.size(6.dp))
-                Text("Level ${friend.level}", style = type.ui(14.sp), color = paper.ink, modifier = Modifier.weight(1f))
+                Text("Level ${friend.level}", style = type.ui(14.sp), color = paper.ink)
+                Spacer(Modifier.weight(1f).widthIn(min = 4.dp))
                 TreatSticker(friend, 20.dp)
-                Spacer(Modifier.size(4.dp))
-                Text("${progress.baskets[friend]?.total ?: 0}", style = type.ui(14.sp), color = paper.ink)
+                Text(
+                    "${progress.baskets[friend]?.total ?: 0}",
+                    style = type.ui(14.sp).copy(fontFeatureSettings = "tnum"),
+                    color = paper.ink,
+                )
             }
         } else {
             Text(
