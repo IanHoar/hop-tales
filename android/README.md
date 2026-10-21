@@ -50,6 +50,20 @@ actual image and a diff in `app/build/outputs/roborazzi`. After a deliberate cha
 and commit the new PNGs with the change. Motion is frozen (the animator scale is set to 0), so the
 hare stands still and the camera snaps.
 
+`LargeScreenshotTest` shoots the same screens on a tablet in portrait and landscape, on a
+foldable's outer and inner screens, and half open as a book and on a tabletop, with a fake
+`FoldingFeature` published through `WindowLayoutInfoPublisherRule`. Those references live in
+`app/src/test/screenshots/large`.
+
+## Tablets and foldables
+
+`Metrics.forScreen` picks the reading layout as iOS does: the iPad numbers when the window is at
+least 600 × 480 dp, the iPhone Duo's on a squat compact window, the phone's otherwise. `FoldAware`
+reads the hinge from Jetpack WindowManager. While a foldable is half open, onboarding keeps its sheet
+below a fold that runs across and beside one that runs down, with the hare in the other half, and
+Home moves its column after a book fold with the friend before it. Phones stay upright, as the
+iPhone does; screens 600 dp and wider rotate freely.
+
 ## Layout
 
 ```
