@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
@@ -90,7 +91,8 @@ private fun DebugButton(title: String, onClick: () -> Unit) {
 fun AskToListen(onAllow: () -> Unit) {
     val palette = LocalPalette.current
     val type = LocalTypography.current
-    Box(Modifier.fillMaxSize().background(palette.duskRoot.copy(alpha = 0.55f)), contentAlignment = Alignment.Center) {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        PanelBackdrop(palette.duskRoot.copy(alpha = 0.55f))
         val shape = RoundedCornerShape(32.dp)
         Column(
             Modifier
@@ -121,7 +123,8 @@ fun ListeningUnavailable(listening: Listening, onBack: () -> Unit) {
     val palette = LocalPalette.current
     val type = LocalTypography.current
     val denied = listening == Listening.Denied
-    Box(Modifier.fillMaxSize().background(palette.duskRoot.copy(alpha = 0.55f)), contentAlignment = Alignment.Center) {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        PanelBackdrop(palette.duskRoot.copy(alpha = 0.55f))
         val shape = RoundedCornerShape(32.dp)
         Column(
             Modifier
@@ -271,3 +274,14 @@ private fun Modifier.centredAt(y: Float) = layout { measurable, constraints ->
 }
 
 private const val STICKER_Y = 728f
+
+@Composable
+private fun PanelBackdrop(color: Color) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(color)
+            .clearAndSetSemantics {}
+            .clickable(remember { MutableInteractionSource() }, indication = null, onClick = {}),
+    )
+}

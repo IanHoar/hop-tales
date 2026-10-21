@@ -6,6 +6,8 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -61,6 +63,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -189,7 +192,8 @@ fun OnboardingContent(state: OnboardingState, actions: OnboardingActions) {
                                     slideInHorizontally(tween(STEP_MILLIS, easing = EaseOut)) { slide } +
                                         fadeIn(tween(STEP_MILLIS, easing = EaseOut))
                                     ) togetherWith
-                                    fadeOut(tween(STEP_MILLIS, easing = EaseOut))
+                                    fadeOut(tween(STEP_MILLIS, easing = EaseOut)) using
+                                    SizeTransform(clip = false) { _, _ -> snap() }
                             },
                             modifier = Modifier.verticalScroll(rememberScrollState()),
                             label = "step",
@@ -308,6 +312,7 @@ private fun StepPage(state: OnboardingState, actions: OnboardingActions) {
 fun NameField(name: String, onChange: (String) -> Unit, onSubmit: () -> Unit) {
     val paper = LocalPaper.current
     val type = LocalTypography.current
+    val focus = LocalFocusManager.current
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("Name or nickname", style = type.ui(14.sp), color = paper.muted)
         BasicTextField(
@@ -321,7 +326,12 @@ fun NameField(name: String, onChange: (String) -> Unit, onSubmit: () -> Unit) {
                 autoCorrectEnabled = false,
                 imeAction = ImeAction.Done,
             ),
-            keyboardActions = KeyboardActions(onDone = { onSubmit() }),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    focus.clearFocus()
+                    onSubmit()
+                },
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(54.dp)

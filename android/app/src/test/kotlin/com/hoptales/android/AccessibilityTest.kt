@@ -4,6 +4,15 @@ import android.Manifest
 import android.provider.Settings
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -13,6 +22,7 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isHeading
@@ -22,7 +32,9 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import com.hoptales.android.design.HopTalesTheme
 import com.hoptales.android.home.BookScreen
 import com.hoptales.android.home.FriendsScreen
@@ -32,6 +44,9 @@ import com.hoptales.android.home.WardrobeScreen
 import com.hoptales.android.intro.IntroScreen
 import com.hoptales.android.onboarding.OnboardingActions
 import com.hoptales.android.onboarding.OnboardingContent
+import com.hoptales.android.reading.AskToListen
+import com.hoptales.android.reading.Listening
+import com.hoptales.android.reading.ListeningUnavailable
 import com.hoptales.android.reading.ReadingScreen
 import com.hoptales.android.settings.SettingsActions
 import com.hoptales.android.settings.SettingsContent
@@ -265,6 +280,27 @@ class AccessibilityTest {
         showReading()
         compose.onNodeWithText("The microphone is off").assertExists()
         compose.onAllNodesWithText("Back to stories").fetchSemanticsNodes().let { assertEquals(1, it.size) }
+    }
+
+    @Test
+    fun listeningPanelsTakeEveryTap() {
+        val panels = listOf<@Composable () -> Unit>(
+            { AskToListen(onAllow = {}) },
+            { ListeningUnavailable(Listening.Denied, onBack = {}) },
+        )
+        var panel by mutableStateOf(panels.first())
+        var taps = 0
+        compose.setContent {
+            HopTalesTheme {
+                Box(Modifier.fillMaxSize().clickable { taps++ }) { panel() }
+            }
+        }
+        panels.forEach {
+            panel = it
+            compose.onRoot().performTouchInput { click(Offset(20f, 20f)) }
+            compose.waitForIdle()
+        }
+        assertEquals(0, taps)
     }
 
     private fun onboarding(step: OnboardingStep) {
