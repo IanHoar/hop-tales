@@ -57,7 +57,6 @@ import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.design.Deckle
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
-import com.hoptales.android.design.PaperChip
 import com.hoptales.android.design.Press
 import com.hoptales.android.design.paperChip
 import com.hoptales.android.design.pressable
@@ -79,50 +78,50 @@ import com.hoptales.reading.ReadingState
 import kotlin.math.roundToInt
 
 @Composable
-fun TallyCard(tally: JourneyMoment.Tally, found: JourneyMoment.TreatFound?, modifier: Modifier = Modifier) {
+fun TallyCard(tally: JourneyMoment.Tally, found: JourneyMoment.TreatFound?, geometry: PathGeometry, modifier: Modifier = Modifier) {
     val type = LocalTypography.current
     val reached = tally.total >= tally.goal
     val paper = LocalPaper.current
-    val card = remember { Deckle(seed = 21, jitter = 2.4.dp, step = 10.dp) }
+    val card = remember(geometry) { Deckle(seed = 21, jitter = geometry.dp(2.4f), step = geometry.dp(10f)) }
     Column(
         modifier
-            .widthIn(max = 320.dp)
+            .widthIn(max = geometry.dp(320f))
             .rotate(-1.5f)
-            .dropShadow(card, Shadow(8.dp, paper.shadow, offset = DpOffset(0.dp, 5.dp)))
+            .dropShadow(card, Shadow(geometry.dp(8f), paper.shadow, offset = DpOffset(0.dp, geometry.dp(5f))))
             .background(paper.paper, card)
-            .padding(16.dp)
+            .padding(geometry.dp(16f))
             .clearAndSetSemantics {
                 contentDescription = "${tally.steps.roundToInt()} steps. ${tally.total.toInt()} of ${tally.goal.toInt()} on the path to " +
                     "${tally.next.friendName}." +
                     if (tally.storiesLeft > 0 && reached) " ${tally.storiesLeft} more stories to read first." else ""
             },
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(geometry.dp(10f)),
     ) {
         found?.let { (treat, trail) ->
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                TreatSticker(treat.friend, 26.dp, isGolden = treat.isGolden)
-                Text(treatLine(treat, trail), style = type.display(17.sp), color = paper.ink)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(geometry.dp(6f))) {
+                TreatSticker(treat.friend, geometry.dp(26f), isGolden = treat.isGolden)
+                Text(treatLine(treat, trail), style = type.display(geometry.sp(17f)), color = paper.ink)
             }
         }
         if (tally.bigWords > 0) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Sticker("collect-star", Modifier.size(22.dp))
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(geometry.dp(6f))) {
+                Sticker("collect-star", Modifier.size(geometry.dp(22f)))
                 Text(
                     if (tally.bigWords == 1) "A big word read!" else "${tally.bigWords} big words read!",
-                    style = type.display(17.sp),
+                    style = type.display(geometry.sp(17f)),
                     color = paper.ink,
                 )
             }
         }
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            FriendSticker(tally.next, 46.dp, Modifier.alpha(if (reached) 1f else 0.55f), isSilhouette = !reached)
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("The path to ${tally.next.friendName}", style = type.display(16.sp), color = paper.ink)
-                PathRibbon(if (tally.goal > 0) tally.total / tally.goal else 1.0)
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(geometry.dp(12f))) {
+            FriendSticker(tally.next, geometry.dp(46f), Modifier.alpha(if (reached) 1f else 0.55f), isSilhouette = !reached)
+            Column(verticalArrangement = Arrangement.spacedBy(geometry.dp(6f))) {
+                Text("The path to ${tally.next.friendName}", style = type.display(geometry.sp(16f)), color = paper.ink)
+                PathRibbon(if (tally.goal > 0) tally.total / tally.goal else 1.0, geometry)
                 Text(
                     "+${tally.steps.roundToInt()} steps · ${tally.total.toInt()} of ${tally.goal.toInt()}",
-                    style = type.ui(13.sp, FontWeight.Medium),
+                    style = type.ui(geometry.sp(13f), FontWeight.Medium).copy(fontFeatureSettings = "tnum"),
                     color = paper.muted,
                 )
                 if (tally.storiesLeft > 0 && reached) {
@@ -132,7 +131,7 @@ fun TallyCard(tally: JourneyMoment.Tally, found: JourneyMoment.TreatFound?, modi
                         } else {
                             "Read ${tally.storiesLeft} more stories to meet ${tally.next.friendName}"
                         },
-                        style = type.ui(13.sp, FontWeight.SemiBold),
+                        style = type.ui(geometry.sp(13f), FontWeight.SemiBold),
                         color = paper.ink,
                     )
                 }
@@ -154,12 +153,12 @@ fun treatLine(treat: CollectedTreat, trail: Int): String {
 }
 
 @Composable
-fun PathRibbon(fill: Double, modifier: Modifier = Modifier) {
+fun PathRibbon(fill: Double, geometry: PathGeometry, modifier: Modifier = Modifier) {
     val paper = LocalPaper.current
-    val track = remember { Deckle(seed = 8, jitter = 1.2.dp, step = 6.dp) }
-    val filled = remember { Deckle(seed = 9, jitter = 1.2.dp, step = 6.dp) }
-    Box(modifier.width(180.dp).height(12.dp).background(paper.muted.copy(alpha = 0.22f), track)) {
-        Box(Modifier.fillMaxWidth(fill.coerceIn(0.0, 1.0).toFloat()).height(12.dp).background(paper.wash, filled))
+    val track = remember(geometry) { Deckle(seed = 8, jitter = geometry.dp(1.2f), step = geometry.dp(6f)) }
+    val filled = remember(geometry) { Deckle(seed = 9, jitter = geometry.dp(1.2f), step = geometry.dp(6f)) }
+    Box(modifier.width(geometry.dp(180f)).height(geometry.dp(12f)).background(paper.muted.copy(alpha = 0.22f), track)) {
+        Box(Modifier.fillMaxWidth(fill.coerceIn(0.0, 1.0).toFloat()).height(geometry.dp(12f)).background(paper.wash, filled))
     }
 }
 
@@ -170,6 +169,7 @@ fun CalloutCard(
     leads: Boolean,
     primary: () -> Unit,
     dismiss: () -> Unit,
+    geometry: PathGeometry,
     modifier: Modifier = Modifier,
     isDone: Boolean = false,
 ) {
@@ -178,50 +178,52 @@ fun CalloutCard(
     var tapped by rememberSaveable(moment.toString()) { mutableStateOf(false) }
     val opened = tapped || isDone
     val waitsForOpening = moment is JourneyMoment.BasketFull && !opened
-    val card = remember { Deckle(seed = 33, jitter = 2.6.dp, step = 10.dp) }
+    val card = remember(geometry) { Deckle(seed = 33, jitter = geometry.dp(2.6f), step = geometry.dp(10f)) }
     Column(
         modifier
             .padding(horizontal = 24.dp)
-            .widthIn(max = 340.dp)
+            .widthIn(max = geometry.dp(340f))
+            .fillMaxWidth()
             .rotate(-1f)
-            .dropShadow(card, Shadow(10.dp, paper.shadow, offset = DpOffset(0.dp, 6.dp)))
+            .dropShadow(card, Shadow(geometry.dp(10f), paper.shadow, offset = DpOffset(0.dp, geometry.dp(6f))))
             .background(paper.paper, card)
-            .padding(20.dp),
+            .padding(geometry.dp(20f)),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(geometry.dp(12f)),
     ) {
         when (moment) {
-            is JourneyMoment.BigStoryReady -> FriendSticker(moment.friend, 120.dp)
+            is JourneyMoment.BigStoryReady -> FriendSticker(moment.friend, geometry.dp(120f))
 
-            is JourneyMoment.NotYet -> FriendSticker(moment.friend, 120.dp)
+            is JourneyMoment.NotYet -> FriendSticker(moment.friend, geometry.dp(120f))
 
             is JourneyMoment.NewFriend -> Box(
                 Modifier.clearAndSetSemantics { contentDescription = "${moment.friend.friendName}, your new friend" },
-            ) { FriendReveal(moment.friend) }
+            ) { FriendReveal(moment.friend, geometry) }
 
-            is JourneyMoment.BasketFull -> PresentReveal(moment.friend, item, opened) { tapped = true }
+            is JourneyMoment.BasketFull -> PresentReveal(moment.friend, item, opened, geometry) { tapped = true }
 
             else -> Unit
         }
-        Text(title(moment), style = type.display(22.sp), color = paper.ink, textAlign = TextAlign.Center)
+        Text(title(moment), style = type.display(geometry.sp(22f)), color = paper.ink, textAlign = TextAlign.Center)
         Text(
             detail(moment, item, opened),
-            style = type.ui(15.sp, FontWeight.Medium),
+            style = type.ui(geometry.sp(15f), FontWeight.Medium),
             color = paper.ink.copy(alpha = 0.85f),
             textAlign = TextAlign.Center,
         )
         Row(
-            Modifier.padding(top = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            Modifier.padding(top = geometry.dp(4f)),
+            horizontalArrangement = Arrangement.spacedBy(geometry.dp(10f)),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (waitsForOpening) {
-                Text("Tap the present to open it", style = type.ui(14.sp, FontWeight.SemiBold), color = paper.muted)
+                Text("Tap the present to open it", style = type.ui(geometry.sp(14f), FontWeight.SemiBold), color = paper.muted)
             } else {
-                if (!isDone) secondary(moment)?.let { CardButton(it, filled = false, onClick = dismiss) }
+                if (!isDone) secondary(moment)?.let { CardButton(it, filled = false, geometry, onClick = dismiss) }
                 CardButton(
                     if (isDone) "Done" else primaryTitle(moment),
                     filled = true,
+                    geometry = geometry,
                     onClick = if (leads &&
                         !isDone
                     ) {
@@ -236,7 +238,7 @@ fun CalloutCard(
 }
 
 @Composable
-private fun PresentReveal(friend: Friend, item: WardrobeItem?, opened: Boolean, open: () -> Unit) {
+private fun PresentReveal(friend: Friend, item: WardrobeItem?, opened: Boolean, geometry: PathGeometry, open: () -> Unit) {
     val reduceMotion = rememberReducedMotion()
     val opening = remember { Animatable(if (opened) 1f else 0f) }
     LaunchedEffect(opened) {
@@ -245,21 +247,21 @@ private fun PresentReveal(friend: Friend, item: WardrobeItem?, opened: Boolean, 
     }
     Box(
         Modifier
-            .height(120.dp)
+            .height(geometry.dp(120f))
             .pressable(open, enabled = !opened)
             .semantics { contentDescription = if (opened) item?.name ?: "A present" else "A present. Double tap to open it." },
         contentAlignment = Alignment.Center,
     ) {
         val shown = { opening.value.coerceIn(0f, 1f) }
         if (opened) {
-            Sticker("collect-present-open", Modifier.size(96.dp).offset(x = (-40).dp).graphicsLayer { alpha = shown() })
+            Sticker("collect-present-open", Modifier.size(geometry.dp(96f)).offset(x = -geometry.dp(40f)).graphicsLayer { alpha = shown() })
             if (item != null) {
                 WearSticker(
                     friend,
                     item,
-                    96.dp,
-                    78.dp,
-                    Modifier.offset(x = 56.dp, y = (-24).dp).graphicsLayer {
+                    geometry.dp(96f),
+                    geometry.dp(78f),
+                    Modifier.offset(x = geometry.dp(56f), y = -geometry.dp(24f)).graphicsLayer {
                         val scale = PresentMotion.itemScale(opening.value)
                         scaleX = scale
                         scaleY = scale
@@ -272,7 +274,7 @@ private fun PresentReveal(friend: Friend, item: WardrobeItem?, opened: Boolean, 
         if (opening.value < 1f) {
             Sticker(
                 "collect-present",
-                Modifier.size(110.dp).graphicsLayer {
+                Modifier.size(geometry.dp(110f)).graphicsLayer {
                     val scale = PresentMotion.closedScale(opening.value)
                     scaleX = scale
                     scaleY = scale
@@ -284,23 +286,30 @@ private fun PresentReveal(friend: Friend, item: WardrobeItem?, opened: Boolean, 
 }
 
 @Composable
-private fun CardButton(text: String, filled: Boolean, onClick: () -> Unit) {
+private fun CardButton(text: String, filled: Boolean, geometry: PathGeometry, onClick: () -> Unit) {
     val paper = LocalPaper.current
-    val style = LocalTypography.current.display(16.sp)
+    val style = LocalTypography.current.display(geometry.sp(16f))
     if (filled) {
         Box(
             Modifier
                 .pressable(onClick)
-                .height(46.dp)
+                .height(geometry.dp(46f))
                 .background(paper.red, CircleShape)
-                .border(3.dp, paper.rim, CircleShape)
-                .padding(horizontal = 18.dp),
+                .border(geometry.dp(3f), paper.rim, CircleShape)
+                .padding(horizontal = geometry.dp(18f)),
             contentAlignment = Alignment.Center,
         ) {
             Text(text, style = style, color = paper.onRed)
         }
     } else {
-        PaperChip(height = 46.dp, press = Press.PLAIN, onClick = onClick) {
+        Box(
+            Modifier
+                .pressable(onClick, press = Press.PLAIN)
+                .height(geometry.dp(46f))
+                .paperChip(CircleShape, rim = geometry.dp(3f))
+                .padding(horizontal = geometry.dp(16f)),
+            contentAlignment = Alignment.Center,
+        ) {
             Text(text, style = style, color = paper.ink)
         }
     }
@@ -372,10 +381,17 @@ fun BasketChip(treat: StoryTreat, geometry: PathGeometry, modifier: Modifier = M
 }
 
 @Composable
-fun JourneyPanel(state: ReadingState, onStory: (Story) -> Unit, onTryItOn: (Friend) -> Unit, isDone: Boolean, dismiss: () -> Unit) {
+fun JourneyPanel(
+    state: ReadingState,
+    geometry: PathGeometry,
+    onStory: (Story) -> Unit,
+    onTryItOn: (Friend) -> Unit,
+    isDone: Boolean,
+    dismiss: () -> Unit,
+) {
     val app = LocalContext.current.applicationContext as HopTalesApplication
     Box(Modifier.fillMaxSize()) {
-        MomentCards(state, app, onStory, onTryItOn, isDone, dismiss)
+        MomentCards(state, geometry, app, onStory, onTryItOn, isDone, dismiss)
         if (state.callout is JourneyMoment.NewFriend) PaperConfetti(delayMillis = FriendReveal.CONFETTI_DELAY_MILLIS)
     }
 }
@@ -383,6 +399,7 @@ fun JourneyPanel(state: ReadingState, onStory: (Story) -> Unit, onTryItOn: (Frie
 @Composable
 private fun MomentCards(
     state: ReadingState,
+    geometry: PathGeometry,
     app: HopTalesApplication,
     onStory: (Story) -> Unit,
     onTryItOn: (Friend) -> Unit,
@@ -408,7 +425,7 @@ private fun MomentCards(
             when (shown) {
                 null -> Unit
 
-                is JourneyMoment.Tally -> TallyCard(shown, state.collectedTreat)
+                is JourneyMoment.Tally -> TallyCard(shown, state.collectedTreat, geometry)
 
                 else -> {
                     val item = shown.unlockedItem(app.wardrobe)
@@ -422,6 +439,7 @@ private fun MomentCards(
                             if (shown is JourneyMoment.BasketFull) onTryItOn(shown.friend)
                         },
                         dismiss = dismiss,
+                        geometry = geometry,
                         isDone = isDone,
                     )
                 }
