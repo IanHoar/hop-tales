@@ -60,6 +60,7 @@ import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -153,11 +154,15 @@ fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {
             onWordTapped = model::help,
             onMeadowTapped = if (BuildConfig.DEBUG) model::skipWord else null,
         )
-        Box(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 12.dp, vertical = 4.dp)) {
-            BackChip(Modifier.align(Alignment.TopStart), scale = geometry.chipScale) { if (model.backTapped()) onDone() }
+        Box(Modifier.fillMaxSize().safeDrawingPadding()) {
+            BackChip(
+                Modifier.align(Alignment.TopStart),
+                scale = geometry.chipScale,
+                at = DpOffset(geometry.dp(BACK_CHIP_X), geometry.dp(BACK_CHIP_Y)),
+            ) { if (model.backTapped()) onDone() }
             val word = state.currentWord
             if (BuildConfig.DEBUG && word != null) {
-                Box(Modifier.align(Alignment.BottomCenter).padding(bottom = 6.dp).semantics { hideFromAccessibility() }) {
+                Box(Modifier.align(Alignment.BottomCenter).padding(bottom = 10.dp).semantics { hideFromAccessibility() }) {
                     DebugControls(word.text, readWord = model::skipWord, restOfSentence = model::readRestOfSentence)
                 }
             }
@@ -316,6 +321,11 @@ private fun PathStage(
         Canvas(Modifier.fillMaxSize()) {
             drawWeather(look(), weather, skyTime, geometry.density, stillDrops)
         }
+        val signs =
+            remember(path, type, density) { Signposts(context.assets, path, measurer, type.displayFamily, state.story.title, density) }
+        Canvas(Modifier.fillMaxSize()) {
+            crossfading(still) { cameraX, _ -> drawSigns(signs, cameraX ?: camera.value, look().tint(MeadowLayer.NEAR)) }
+        }
         val propLayout = remember(path, props, friend) { StoryPropLayout(path, state.story.sentences, props, friend) }
         Canvas(Modifier.fillMaxSize()) {
             val time = if (reduceMotion) null else propTime
@@ -325,8 +335,6 @@ private fun PathStage(
             }
         }
 
-        val signs =
-            remember(path, type, density) { Signposts(context.assets, path, measurer, type.displayFamily, state.story.title, density) }
         val currentStop = path.stop(state.sentenceIndex, state.wordIndex)
         val plusFive = remember(measurer, type, path) {
             measurer.measure("+5", type.display((path.wordSize * PLUS_FIVE_SIZE / density.density).sp))
@@ -372,7 +380,6 @@ private fun PathStage(
                 val wordNow = if (reduceMotion) null else wordClock
                 crossfading(still) { stepX, _ ->
                     val cameraX = stepX ?: camera.value
-                    drawSigns(signs, cameraX, look().tint(MeadowLayer.NEAR))
                     drawWords(path, cameraX, wordMarks, { state.isBig(it.sentence, it.word) }) { stop ->
                         val target = HopTarget(stop.sentence, stop.word)
                         WordMotion.look(target, isChallenge(target), move, speech, wordNow)
@@ -548,6 +555,8 @@ object CurrentWord {
 private const val FINISHED_FADE_MILLIS = 400
 private const val STOP_FADE_MILLIS = 200
 private const val PLUS_FIVE_SIZE = 0.4f
+private const val BACK_CHIP_X = 18f
+private const val BACK_CHIP_Y = 7f
 private const val IDLE_FRAME_MILLIS = (1_000f / IDLE_FPS).toLong()
 
 private fun Modifier.wordPresses(

@@ -15,7 +15,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,7 +22,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -406,8 +404,8 @@ private fun MomentCards(
     isDone: Boolean,
     dismiss: () -> Unit,
 ) {
-    BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding(), contentAlignment = Alignment.TopCenter) {
-        val top = maxHeight * (PANEL_Y / PANEL_REFERENCE_HEIGHT)
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+        val top = (geometry.y(PANEL_Y) / geometry.density).dp
         val moment = state.callout ?: state.tally
         AnimatedContent(
             moment,
@@ -463,4 +461,3 @@ private const val TRAIL_ALPHA = 0.6f
 private const val MOMENT_MILLIS = 300
 private const val CALLOUT_FROM = 0.9f
 private const val PANEL_Y = 110f
-private const val PANEL_REFERENCE_HEIGHT = 844f

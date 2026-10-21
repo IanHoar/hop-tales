@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -87,23 +88,31 @@ fun PaperChip(
 }
 
 @Composable
-fun BackChip(modifier: Modifier = Modifier, description: String = "Back to stories", scale: Float = 1f, onClick: () -> Unit) {
+fun BackChip(
+    modifier: Modifier = Modifier,
+    description: String = "Back to stories",
+    scale: Float = 1f,
+    at: DpOffset = DpOffset.Zero,
+    onClick: () -> Unit,
+) {
     val paper = LocalPaper.current
+    val disc = 38.dp * scale
+    val touch = maxOf(48.dp, 44.dp * scale)
+    val spare = (touch - disc) / 2
     Box(
         modifier
-            .size(48.dp * maxOf(scale, 1f))
+            .offset(at.x - spare, at.y - spare)
+            .size(touch)
             .semantics { contentDescription = description }
             .pressable(onClick),
         contentAlignment = Alignment.Center,
     ) {
         Box(
-            Modifier.size(40.dp * scale).paperChip(
-                CircleShape,
-                fill = paper.paper.copy(alpha = 0.72f),
-                rim = 3.dp * scale,
-                shadow =
-                0.67f * scale,
-            ),
+            Modifier
+                .size(disc)
+                .dropShadow(CircleShape, Shadow(4.dp * scale, paper.shadow, offset = DpOffset(0.dp, 2.dp * scale)))
+                .background(paper.paper.copy(alpha = 0.72f), CircleShape)
+                .border(3.dp * scale, paper.rim, CircleShape),
             contentAlignment = Alignment.Center,
         ) {
             Icon(Glyphs.chevronLeft, contentDescription = null, tint = paper.ink, modifier = Modifier.size(19.dp * scale))
