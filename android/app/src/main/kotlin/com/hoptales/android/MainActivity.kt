@@ -203,6 +203,7 @@ private fun Destination(app: HopTalesApplication) {
     var trying by rememberSaveable { mutableStateOf<String?>(null) }
     var isShowingSettings by rememberSaveable { mutableStateOf(false) }
     var visit by rememberSaveable { mutableIntStateOf(0) }
+    var fromOnboarding by remember { mutableStateOf(false) }
     val progress by app.progressStore.progress.collectAsStateWithLifecycle()
     val profile by app.profileStore.profile.collectAsStateWithLifecycle()
     val route = when {
@@ -231,7 +232,10 @@ private fun Destination(app: HopTalesApplication) {
             label = "route",
         ) { target ->
             when (target) {
-                Route.Onboarding -> OnboardingScreen(key = "onboarding-$visit")
+                Route.Onboarding -> {
+                    LaunchedEffect(Unit) { fromOnboarding = true }
+                    OnboardingScreen(key = "onboarding-$visit")
+                }
 
                 is Route.Reading -> ReadingScreen(
                     story = target.story,
@@ -246,20 +250,25 @@ private fun Destination(app: HopTalesApplication) {
                     onTryItOn = { trying = Sheet.wardrobe(it) },
                 )
 
-                Route.Home -> HomeScreen(
-                    library = app.library,
-                    progress = progress,
-                    onStory = { storyID = it.id },
-                    childName = profile?.childName,
-                    onGrownUps = {
-                        visit += 1
-                        isShowingSettings = true
-                    },
-                    onJourney = { sheet = Sheet.JOURNEY },
-                    onFriends = { sheet = Sheet.FRIENDS },
-                    onWardrobe = { sheet = Sheet.wardrobe(friend) },
-                    onBook = { sheet = Sheet.book(friend) },
-                )
+                Route.Home -> {
+                    LaunchedEffect(Unit) { fromOnboarding = false }
+                    HomeScreen(
+                        library = app.library,
+                        progress = progress,
+                        onStory = { storyID = it.id },
+                        childName = profile?.childName,
+                        onGrownUps = {
+                            visit += 1
+                            isShowingSettings = true
+                        },
+                        onJourney = { sheet = Sheet.JOURNEY },
+                        onFriends = { sheet = Sheet.FRIENDS },
+                        onWardrobe = { sheet = Sheet.wardrobe(friend) },
+                        onBook = { sheet = Sheet.book(friend) },
+                        entrance = fromOnboarding,
+                        covered = overlay != null,
+                    )
+                }
             }
         }
         SheetOverlay(overlay) { target ->

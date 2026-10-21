@@ -5,11 +5,14 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DoubleState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
@@ -20,6 +23,9 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.currentStateAsState
 import com.hoptales.content.Mood
 import kotlin.math.hypot
 import kotlin.math.roundToInt
@@ -54,6 +60,19 @@ fun rememberSkyLook(mood: Mood, still: Boolean): () -> SkyLook {
         }
     }
     return { from.blend(to, fade.value) }
+}
+
+@Composable
+fun rememberSkyTime(running: Boolean): DoubleState {
+    val time = remember { mutableDoubleStateOf(0.0) }
+    val state by LocalLifecycleOwner.current.lifecycle.currentStateAsState()
+    val live = running && state.isAtLeast(Lifecycle.State.STARTED)
+    LaunchedEffect(live) {
+        if (!live) return@LaunchedEffect
+        val origin = withFrameNanos { it } - (time.doubleValue * 1e9).toLong()
+        while (true) withFrameNanos { time.doubleValue = (it - origin) / 1e9 }
+    }
+    return time
 }
 
 class SkyWeather {

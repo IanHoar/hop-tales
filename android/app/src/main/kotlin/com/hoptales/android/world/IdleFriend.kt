@@ -1,6 +1,7 @@
 package com.hoptales.android.world
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -10,11 +11,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.BlurEffect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import com.hoptales.android.design.rememberReducedMotion
 import com.hoptales.content.Friend
 import kotlin.math.roundToInt
@@ -32,7 +41,7 @@ data class IdlePose(val frame: Int, val scaleX: Float, val scaleY: Float) {
 }
 
 @Composable
-fun IdleFriend(friend: Friend, look: String?, height: Dp, modifier: Modifier = Modifier) {
+fun IdleFriend(friend: Friend, look: String?, height: Dp, modifier: Modifier = Modifier, shadow: Color? = null) {
     val assets = LocalContext.current.assets
     val still = rememberReducedMotion()
     val sheets = HareSheets.of(friend)
@@ -47,8 +56,8 @@ fun IdleFriend(friend: Friend, look: String?, height: Dp, modifier: Modifier = M
         while (true) withFrameNanos { time = (it - origin) / 1e9 }
     }
     val width = height / HareSheet.REST_HEIGHT * sheet.scale * sheet.cellWidth.toFloat()
-    Canvas(modifier.size(width, height)) {
-        val art = image ?: return@Canvas
+    val draw: DrawScope.(ColorFilter?) -> Unit = draw@{ filter ->
+        val art = image ?: return@draw
         val pose = IdlePose.at(time, still)
         val scale = size.height / HareSheet.REST_HEIGHT * sheet.scale
         val drawn = IntSize((sheet.cellWidth * scale * pose.scaleX).roundToInt(), (sheet.cellHeight * scale * pose.scaleY).roundToInt())
@@ -61,7 +70,23 @@ fun IdleFriend(friend: Friend, look: String?, height: Dp, modifier: Modifier = M
                 (size.height - drawn.height * sheet.anchorY).roundToInt(),
             ),
             dstSize = drawn,
+            colorFilter = filter,
             filterQuality = FilterQuality.Medium,
         )
     }
+    Box(modifier.size(width, height)) {
+        if (shadow != null) {
+            Canvas(
+                Modifier.matchParentSize().graphicsLayer {
+                    translationY = SHADOW_DROP.toPx()
+                    val blur = SHADOW_BLUR.toPx()
+                    renderEffect = BlurEffect(blur, blur, TileMode.Decal)
+                },
+            ) { draw(ColorFilter.tint(shadow, BlendMode.SrcIn)) }
+        }
+        Canvas(Modifier.matchParentSize()) { draw(null) }
+    }
 }
+
+private val SHADOW_DROP = 4.dp
+private val SHADOW_BLUR = 6.dp

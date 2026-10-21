@@ -41,7 +41,6 @@ fun MeadowPostcard(mood: Mood, modifier: Modifier = Modifier) {
 object MeadowPostcards {
     private const val WIDTH = 390
     private const val HEIGHT = 520
-    private const val FAR_ANCHOR = 986f
     private val cache = mutableMapOf<Mood, ImageBitmap>()
 
     fun image(assets: AssetManager, mood: Mood): ImageBitmap = cache.getOrPut(mood) { render(assets, mood) }
@@ -49,32 +48,25 @@ object MeadowPostcards {
     private fun render(assets: AssetManager, mood: Mood): ImageBitmap {
         val look = SkyLook.of(mood)
         val layers = meadowLayers(assets, Friend.HARE)
-        val sky = SkyLayout(WIDTH.toFloat(), HEIGHT.toFloat(), 1f, HEIGHT - FAR_ANCHOR * SkyLayout.BASE_SCALE)
+        val meadow = MeadowLayout.wide(WIDTH.toFloat(), HEIGHT.toFloat(), 1f)
+        val sky = SkyLayout.of(meadow, HEIGHT.toFloat())
         val bitmap = ImageBitmap(WIDTH, HEIGHT)
         CanvasDrawScope().draw(Density(1f), LayoutDirection.Ltr, Canvas(bitmap), Size(WIDTH.toFloat(), HEIGHT.toFloat())) {
             drawSky(look, sky, SkyArt.load(assets), MeadowStars.field(sky), 0.0, still = true)
             for (layer in MeadowLayer.entries) {
                 val image = layers[layer] ?: continue
                 val colour = look.tint(layer)
-                val width = layer.pixelWidth * SkyLayout.BASE_SCALE
-                val height = layer.pixelHeight * SkyLayout.BASE_SCALE
-                val top = HEIGHT - layer.anchor * SkyLayout.BASE_SCALE
                 drawImage(
                     image,
-                    dstOffset = IntOffset(0, top.roundToInt()),
-                    dstSize = IntSize(width.roundToInt(), height.roundToInt()),
+                    dstOffset = IntOffset(0, meadow.top(layer).roundToInt()),
+                    dstSize = IntSize(meadow.tileWidth(layer).roundToInt(), meadow.tileHeight(layer).roundToInt()),
                     colorFilter = if (colour == Color.White) null else ColorFilter.tint(colour, BlendMode.Modulate),
                     filterQuality = FilterQuality.Medium,
                 )
             }
+            val weather = SkyWeather().apply { apply(mood, 0.0) }
+            drawWeather(look, weather, 0.0, 1f, StillDrops(WIDTH.toFloat(), HEIGHT.toFloat(), 1f))
         }
         return bitmap
     }
-
-    private val MeadowLayer.anchor: Float
-        get() = when (this) {
-            MeadowLayer.FAR -> FAR_ANCHOR
-            MeadowLayer.MID -> 848f
-            MeadowLayer.NEAR -> 705f
-        }
 }
