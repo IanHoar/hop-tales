@@ -133,7 +133,7 @@ fun ListeningUnavailable(listening: Listening, onBack: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Icon(if (denied) Glyphs.micOff else Glyphs.phoneOff, null, tint = palette.muted, modifier = Modifier.size(44.dp))
+            Icon(if (denied) Glyphs.micSlash else Glyphs.phoneSlash, null, tint = palette.muted, modifier = Modifier.size(44.dp))
             Text(
                 if (denied) "The microphone is off" else "This device can’t listen yet",
                 style = type.display(26.sp),
@@ -180,7 +180,7 @@ fun StoryFinished(title: String, stars: Int, geometry: PathGeometry, readAgain: 
                     horizontalArrangement = Arrangement.spacedBy(geometry.dp(8f)),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(Glyphs.again, null, tint = paper.ink, modifier = Modifier.size(geometry.dp(15f)))
+                    Icon(Glyphs.again, null, tint = paper.ink, modifier = Modifier.size(geometry.dp(17f)))
                     Text("Read it again", style = type.display(geometry.sp(18f)), color = paper.ink)
                 }
                 Row(

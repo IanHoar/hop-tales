@@ -115,10 +115,10 @@ object Glyphs {
         }
     }.build()
 
-    val again = filled(
+    val again = stroked(
         "again",
-        "M17.65,6.35C16.2,4.9 14.21,4 12,4c-4.42,0 -7.99,3.58 -7.99,8s3.57,8 7.99,8c3.73,0 6.84,-2.55 7.73,-6h-2.08" +
-            "c-0.82,2.33 -3.04,4 -5.65,4 -3.31,0 -6,-2.69 -6,-6s2.69,-6 6,-6c1.66,0 3.14,0.69 4.22,1.78L13,11h7V4l-2.35,2.35z",
+        "M19.27,9A8.4,8.4 0 1,1 12,4.8H14.6M11.6,1.8L14.6,4.8 11.6,7.8",
+        strokeWidth = 3.2f,
     )
 
     val book = filled(
@@ -127,7 +127,11 @@ object Glyphs {
             "M13,5.9C14.9,4.6 17.5,4 20.4,4.3c0.7,0.1 1.2,0.6 1.2,1.3v12c0,0.7 -0.6,1.2 -1.3,1.1 -2.8,-0.3 -5.4,0.3 -7.3,1.6z",
     )
 
-    val house = filled("house", "M10,20v-6h4v6h5v-8h3L12,3 2,12h3v8z")
+    val house = filled(
+        "house",
+        "M12,1.6L23,11.4H20.3V20.4a1.6,1.6 0 0,1 -1.6,1.6H14.6V16.4a1.2,1.2 0 0,0 -1.2,-1.2H10.6a1.2,1.2 0 0,0 -1.2,1.2V22" +
+            "H5.3a1.6,1.6 0 0,1 -1.6,-1.6V11.4H1z",
+    )
 
     val mic = filled(
         "mic",
@@ -135,20 +139,18 @@ object Glyphs {
             "M17.3,11c0,3 -2.54,5.1 -5.3,5.1S6.7,14 6.7,11H5c0,3.41 2.72,6.23 6,6.72V21h2v-3.28c3.28,-0.48 6,-3.3 6,-6.72h-1.7z",
     )
 
-    val micOff = filled(
-        "micOff",
-        "M19,11h-1.7c0,0.74 -0.16,1.43 -0.43,2.05l1.23,1.23c0.56,-0.98 0.9,-2.09 0.9,-3.28z" +
-            "M14.98,11.17c0,-0.06 0.02,-0.11 0.02,-0.17V5c0,-1.66 -1.34,-3 -3,-3S9,3.34 9,5v0.18l5.98,5.99z" +
-            "M4.27,3L3,4.27l6.01,6.01V11c0,1.66 1.33,3 2.99,3 0.22,0 0.44,-0.03 0.65,-0.08l1.66,1.66" +
-            "c-0.71,0.33 -1.5,0.52 -2.31,0.52 -2.76,0 -5.3,-2.1 -5.3,-5.1H5c0,3.41 2.72,6.23 6,6.72V21h2v-3.28" +
-            "c0.91,-0.13 1.77,-0.45 2.54,-0.9L19.73,21 21,19.73 4.27,3z",
+    val micSlash = stroked(
+        "micSlash",
+        "M12,2.5a3,3 0 0,1 3,3V11a3,3 0 0,1 -6,0V5.5a3,3 0 0,1 3,-3zM5.5,11a6.5,6.5 0 0,0 13,0M12,17.5V21.5M8.5,21.5H15.5" +
+            "M3.5,2.5L20.5,21.5",
+        strokeWidth = 1.2f,
     )
 
-    val phoneOff = filled(
-        "phoneOff",
-        "M17,5v8.61l2,2V3c0,-1.1 -0.9,-2 -2,-2H7c-0.71,0 -1.34,0.37 -1.69,0.92L6.39,3H17v2z" +
-            "M2.71,2.56L1.29,3.97 5,7.69V21c0,1.1 0.9,2 2,2h10c1.02,0 1.85,-0.77 1.98,-1.77l1.74,1.74 1.41,-1.41L2.71,2.56z" +
-            "M7,19V9.69L16.31,19H7z",
+    val phoneSlash = stroked(
+        "phoneSlash",
+        "M9,2H15a2.5,2.5 0 0,1 2.5,2.5V19.5a2.5,2.5 0 0,1 -2.5,2.5H9a2.5,2.5 0 0,1 -2.5,-2.5V4.5A2.5,2.5 0 0,1 9,2z" +
+            "M10.5,4.75H13.5M3.5,2.5L20.5,21.5",
+        strokeWidth = 1.2f,
     )
 
     val check = filled("check", "M9,16.17L4.83,12l-1.42,1.41L9,19 21,7l-1.41,-1.41z")
@@ -179,15 +181,16 @@ object Glyphs {
         .addPath(addPathNodes(data), fill = SolidColor(Color.Black))
         .build()
 
-    private fun stroked(name: String, data: String): ImageVector = ImageVector.Builder(name, 24.dp, 24.dp, 24f, 24f)
-        .addPath(
-            addPathNodes(data),
-            stroke = SolidColor(Color.Black),
-            strokeLineWidth = 2.2f,
-            strokeLineCap = StrokeCap.Round,
-            strokeLineJoin = StrokeJoin.Round,
-        )
-        .build()
+    private fun stroked(name: String, data: String, strokeWidth: Float = 2.2f): ImageVector =
+        ImageVector.Builder(name, 24.dp, 24.dp, 24f, 24f)
+            .addPath(
+                addPathNodes(data),
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = strokeWidth,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+            )
+            .build()
 }
 
 class Star(private val points: Int = 5, private val innerRatio: Float = 0.42f) : Shape {
