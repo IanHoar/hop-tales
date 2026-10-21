@@ -5,6 +5,7 @@ import com.hoptales.content.Sentence
 import com.hoptales.content.Sky
 import com.hoptales.content.Story
 import com.hoptales.content.Word
+import com.hoptales.content.WordRef
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -110,6 +111,14 @@ class ReadingTest {
         listOf("the", "cat", "sat").forEach { reading.read(it) }
         reading.readAgain()
         assertEquals(ReadingState(story), reading.state)
+    }
+
+    @Test fun readingAgainKeepsTheBigWords() {
+        val bigWords = setOf(WordRef(0, 1))
+        val reading = Reading(story, bigWords = bigWords)
+        listOf("the", "cat", "sat").forEach { reading.read(it) }
+        reading.readAgain()
+        assertEquals(ReadingState(story, bigWords = bigWords), reading.state)
     }
 
     @Test fun progressOnlyCountsNewStars() {

@@ -36,6 +36,7 @@ fun MeadowBackdrop(modifier: Modifier = Modifier, progress: Float = 700f, world:
     val look = remember(palette) { SkyLook.of(Mood(sky = if (palette == Palette.dark) Sky.NIGHT else Sky.DAY)) }
     val layers = remember(world) { meadowLayers(context.assets, world) }
     val skyArt = remember { SkyArt.load(context.assets) }
+    val ground = remember(world) { meadowGround(context.assets, world, layers) }
     BoxWithConstraints(modifier.fillMaxSize().background(palette.page)) {
         val density = LocalDensity.current.density
         val width = constraints.maxWidth.toFloat()
@@ -45,8 +46,7 @@ fun MeadowBackdrop(modifier: Modifier = Modifier, progress: Float = 700f, world:
         val stars = remember(skyLayout) { MeadowStars.field(skyLayout) }
         Canvas(Modifier.fillMaxSize()) {
             drawSky(look, skyLayout, skyArt, stars, 0.0, still = true)
-            drawMeadow(layers, meadow, progress * meadow.pathScale, look)
-            if (framing != null) drawGround(meadow, world, look)
+            drawMeadow(layers, meadow, progress * meadow.pathScale, look, ground)
         }
     }
 }
@@ -57,17 +57,8 @@ fun meadowLayers(assets: AssetManager, world: Friend): Map<MeadowLayer, ImageBit
     return MeadowLayer.entries.associateWith { Art.image(assets, it.asset(Friend.HARE)) }
 }
 
-private fun DrawScope.drawGround(meadow: MeadowLayout, world: Friend, look: SkyLook) {
-    val top = meadow.top(MeadowLayer.NEAR) + meadow.tileHeight(MeadowLayer.NEAR) - 1
-    if (top >= size.height) return
-    val tint = look.tint(MeadowLayer.NEAR)
-    val colours = listOf(WorldStyle.of(world).ground, GROUND_MIDDLE, GROUND_FOOT).map { multiply(it, tint) }
-    drawRect(
-        Brush.verticalGradient(colours, startY = top, endY = size.height),
-        topLeft = Offset(0f, top),
-        size = Size(size.width, size.height - top),
-    )
+fun meadowGround(assets: AssetManager, world: Friend, layers: Map<MeadowLayer, ImageBitmap?>): MeadowGround {
+    val own = MeadowLayer.entries.all { Art.image(assets, it.asset(world)) != null }
+    val name = MeadowLayer.NEAR.asset(if (own) world else Friend.HARE)
+    return MeadowGround.of(WorldStyle.of(world), layers[MeadowLayer.NEAR], name)
 }
-
-private val GROUND_MIDDLE = Color(0xFFD9D6A6)
-private val GROUND_FOOT = Color(0xFFEDE6C8)

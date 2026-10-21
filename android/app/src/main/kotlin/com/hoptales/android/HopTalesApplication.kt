@@ -9,6 +9,7 @@ import com.hoptales.android.reading.ChordPlayer
 import com.hoptales.android.speech.ReadingAudio
 import com.hoptales.android.speech.Speaker
 import com.hoptales.android.speech.SpeechListener
+import com.hoptales.content.Phonics
 import com.hoptales.content.StoryLibrary
 import com.hoptales.content.StoryProps
 import com.hoptales.content.WardrobeLibrary
@@ -26,6 +27,9 @@ class HopTalesApplication : Application() {
             assets.open("wardrobe.json").bufferedReader().use { it.readText() },
             assets.open("looks.json").bufferedReader().use { it.readText() },
         )
+    }
+    val phonics: Phonics by lazy {
+        Phonics.decode(assets.open("phonics.json").bufferedReader().use { it.readText() })
     }
     val progressStore: ProgressStore by lazy { ProgressStore(File(filesDir, "progress.json"), library) }
     val profileStore: ProfileStore by lazy { ProfileStore(filesDir) }
