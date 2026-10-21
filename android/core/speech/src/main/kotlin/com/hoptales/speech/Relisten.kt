@@ -14,9 +14,13 @@ object Relisten {
 }
 
 object OnDeviceSupport {
-    fun supports(localeTag: String, installed: Collection<String>): Boolean {
-        val wanted = normalized(localeTag)
-        return installed.any { normalized(it) == wanted }
+    const val FALLBACK_TAG = "en-US"
+
+    fun listeningTag(accentTag: String, installed: Collection<String>): String? {
+        val english = installed.filter { normalized(it).substringBefore('-') == "en" }
+        return english.firstOrNull { normalized(it) == normalized(accentTag) }
+            ?: english.firstOrNull { normalized(it) == normalized(FALLBACK_TAG) }
+            ?: english.minByOrNull { normalized(it) }
     }
 
     private fun normalized(tag: String) = tag.replace('_', '-').lowercase()

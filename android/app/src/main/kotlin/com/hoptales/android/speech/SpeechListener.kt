@@ -36,31 +36,31 @@ class SpeechListener(private val context: Context, private val audio: ReadingAud
     val isAvailable: Boolean
         get() = SpeechRecognizer.isOnDeviceRecognitionAvailable(context)
 
-    suspend fun supports(locale: Locale): Boolean {
-        if (!isAvailable) return false
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return true
-        return withTimeoutOrNull(SUPPORT_CHECK_TIMEOUT_MILLIS) { installedModel(locale) } ?: true
+    suspend fun listeningLocale(accent: Locale): Locale? {
+        if (!isAvailable) return null
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return accent
+        val installed = withTimeoutOrNull(SUPPORT_CHECK_TIMEOUT_MILLIS) { installedLanguages(accent) } ?: return accent
+        return OnDeviceSupport.listeningTag(accent.toLanguageTag(), installed)?.let { Locale.forLanguageTag(it.replace('_', '-')) }
     }
 
-    private suspend fun installedModel(locale: Locale): Boolean = suspendCancellableCoroutine { continuation ->
+    private suspend fun installedLanguages(locale: Locale): List<String>? = suspendCancellableCoroutine { continuation ->
         val recognizer = runCatching { SpeechRecognizer.createOnDeviceSpeechRecognizer(context) }.getOrNull()
         if (recognizer == null) {
-            continuation.resume(false)
+            continuation.resume(emptyList())
             return@suspendCancellableCoroutine
         }
-        fun answer(supported: Boolean) {
+        fun answer(installed: List<String>?) {
             recognizer.destroy()
-            if (continuation.isActive) continuation.resume(supported)
+            if (continuation.isActive) continuation.resume(installed)
         }
         continuation.invokeOnCancellation { recognizer.destroy() }
         recognizer.checkRecognitionSupport(
             intent(emptyList(), locale),
             context.mainExecutor,
             object : RecognitionSupportCallback {
-                override fun onSupportResult(support: RecognitionSupport) =
-                    answer(OnDeviceSupport.supports(locale.toLanguageTag(), support.installedOnDeviceLanguages))
+                override fun onSupportResult(support: RecognitionSupport) = answer(support.installedOnDeviceLanguages)
 
-                override fun onError(error: Int) = answer(true)
+                override fun onError(error: Int) = answer(null)
             },
         )
     }

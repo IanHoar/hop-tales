@@ -1,7 +1,6 @@
 package com.hoptales.speech
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -47,10 +46,22 @@ class ListeningTest {
         assertEquals(150L, Relisten.after(ListenEnd.INTERRUPTED))
     }
 
-    @Test fun theAccentNeedsItsOwnInstalledModel() {
-        assertTrue(OnDeviceSupport.supports("en-GB", listOf("en-US", "en_gb")))
-        assertFalse(OnDeviceSupport.supports("en-CA", listOf("en-US", "en-GB")))
-        assertFalse(OnDeviceSupport.supports("en-US", emptyList()))
+    @Test fun theAccentsOwnModelComesFirst() {
+        assertEquals("en_gb", OnDeviceSupport.listeningTag("en-GB", listOf("en-US", "en_gb")))
+        assertEquals("en-AU", OnDeviceSupport.listeningTag("en-AU", listOf("en-AU")))
+    }
+
+    @Test fun americanStandsInForAMissingAccent() =
+        assertEquals("en-US", OnDeviceSupport.listeningTag("en-CA", listOf("fr-FR", "en-GB", "en-US")))
+
+    @Test fun anyEnglishStandsInWhenAmericanIsMissingToo() {
+        assertEquals("en-GB", OnDeviceSupport.listeningTag("en-CA", listOf("fr-FR", "en-IN", "en-GB")))
+        assertEquals("en-AU", OnDeviceSupport.listeningTag("en-US", listOf("en-AU")))
+    }
+
+    @Test fun withNoEnglishModelThereIsNothingToListenWith() {
+        assertNull(OnDeviceSupport.listeningTag("en-US", emptyList()))
+        assertNull(OnDeviceSupport.listeningTag("en-CA", listOf("fr-FR", "de-DE")))
     }
 
     @Test fun theBestVoiceSpeaksTheAccentAtTheHighestQuality() {

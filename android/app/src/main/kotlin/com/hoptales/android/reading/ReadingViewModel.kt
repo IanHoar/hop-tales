@@ -49,7 +49,8 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
     private val mutableListening = MutableStateFlow<Listening>(Listening.Waiting)
     private var listenJob: Job? = null
     private var supportJob: Job? = null
-    private var isSupported: Boolean? = null
+    private var listeningLocale: Locale? = null
+    private var hasCheckedSupport = false
     private var watchJob: Job? = null
     private var heardAt = SystemClock.elapsedRealtime()
     private var hasPermission = false
@@ -70,9 +71,12 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
             else -> {
                 supportJob?.cancel()
                 supportJob = viewModelScope.launch {
-                    val supported = isSupported ?: app.listener.supports(locale).also { isSupported = it }
+                    if (!hasCheckedSupport) {
+                        listeningLocale = app.listener.listeningLocale(locale)
+                        hasCheckedSupport = true
+                    }
                     if (!isStarted) return@launch
-                    if (!supported) {
+                    if (listeningLocale == null) {
                         mutableListening.value = Listening.Unsupported
                         return@launch
                     }
@@ -98,7 +102,7 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
             while (isActive && !reading.state.isFinished) {
                 val biasing = reading.state.sentence?.words?.map { it.text }.orEmpty()
                 var end = ListenEnd.FINISHED
-                app.listener.listen(biasing, locale).collect { event ->
+                app.listener.listen(biasing, listeningLocale ?: locale).collect { event ->
                     when (event) {
                         is SpeechEvent.Partial -> heard(event.tokens, isFinal = false)
                         is SpeechEvent.Final -> heard(event.tokens, isFinal = true)
@@ -142,7 +146,7 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
             reading.speechFinished()
             heardAt = SystemClock.elapsedRealtime()
             publish()
-            if (isStarted && hasPermission && isSupported == true) listen()
+            if (isStarted && hasPermission && listeningLocale != null) listen()
         }
     }
 
