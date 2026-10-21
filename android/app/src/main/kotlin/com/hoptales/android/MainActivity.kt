@@ -31,9 +31,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,6 +47,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
@@ -88,8 +91,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()
-        super.onCreate(savedInstanceState)
-        introDone = savedInstanceState?.getBoolean(INTRO_DONE) ?: false
+        val restored = savedInstanceState?.takeIf { processStarted }
+        processStarted = true
+        super.onCreate(restored)
+        introDone = restored?.getBoolean(INTRO_DONE) ?: false
         splash.setKeepOnScreenCondition { introArt == null && !introDone }
         splash.setOnExitAnimationListener { view ->
             view.view.animate().alpha(0f).setDuration(SPLASH_FADE_MILLIS).withEndAction(view::remove).start()
@@ -103,7 +108,9 @@ class MainActivity : ComponentActivity() {
         val reduceMotion = reducesMotion()
         setContent {
             val profile by app.profileStore.profile.collectAsStateWithLifecycle()
-            val dark = (profile?.theme ?: Profile.Theme.DEVICE).isDark(isSystemInDarkTheme())
+            var keptTheme by remember { mutableStateOf(Profile.Theme.DEVICE) }
+            LaunchedEffect(profile?.theme) { profile?.theme?.let { keptTheme = it } }
+            val dark = (profile?.theme ?: keptTheme).isDark(isSystemInDarkTheme())
             HopTalesTheme(dark = dark) {
                 LaunchedEffect(introDone, dark) {
                     if (introDone) {
@@ -154,6 +161,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private companion object {
+        var processStarted = false
         const val INTRO_DONE = "introDone"
         const val SPLASH_FADE_MILLIS = 300L
         val LIGHT_SCRIM = Color.argb(0xE6, 0xFF, 0xFF, 0xFF)
@@ -357,13 +365,25 @@ private fun SheetOverlay(sheet: String?, content: @Composable (String) -> Unit) 
         if (target == null) {
             Box(Modifier.fillMaxSize())
         } else {
-            Box(
+            BoxWithConstraints(
                 Modifier
                     .fillMaxSize()
                     .windowInsetsPadding(WindowInsets.statusBars)
-                    .padding(top = SHEET_GAP)
-                    .clip(RoundedCornerShape(topStart = SHEET_CORNER, topEnd = SHEET_CORNER)),
-            ) { content(target) }
+                    .padding(top = SHEET_GAP),
+            ) {
+                if (Metrics.isRegular(maxWidth.value, maxHeight.value)) {
+                    Box(
+                        Modifier
+                            .align(Alignment.Center)
+                            .size(minOf(maxWidth, FORM_SHEET_WIDTH), minOf(maxHeight - SHEET_GAP, FORM_SHEET_HEIGHT))
+                            .clip(RoundedCornerShape(SHEET_CORNER)),
+                    ) { content(target) }
+                } else {
+                    Box(Modifier.fillMaxSize().clip(RoundedCornerShape(topStart = SHEET_CORNER, topEnd = SHEET_CORNER))) {
+                        content(target)
+                    }
+                }
+            }
         }
     }
 }
@@ -372,6 +392,8 @@ private const val SCRIM_ALPHA = 0.25f
 private const val SHEET_FADE_MILLIS = 250
 private val SHEET_GAP = 10.dp
 private val SHEET_CORNER = 28.dp
+private val FORM_SHEET_WIDTH = 540.dp
+private val FORM_SHEET_HEIGHT = 620.dp
 
 private fun routeTransition(from: Route, to: Route): ContentTransform {
     val push = tween<IntOffset>(PUSH_MILLIS, easing = FastOutSlowInEasing)

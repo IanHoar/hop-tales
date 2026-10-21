@@ -52,7 +52,7 @@ object MeadowPostcards {
         val sky = SkyLayout.of(meadow, HEIGHT.toFloat())
         val bitmap = ImageBitmap(WIDTH, HEIGHT)
         CanvasDrawScope().draw(Density(1f), LayoutDirection.Ltr, Canvas(bitmap), Size(WIDTH.toFloat(), HEIGHT.toFloat())) {
-            drawSky(look, sky, SkyArt.load(assets), MeadowStars.field(sky), 0.0, still = true)
+            drawSky(look, sky, SkyArt.load(assets), MeadowStars.field(sky), 0.0, still = true, postcard = true)
             for (layer in MeadowLayer.entries) {
                 val image = layers[layer] ?: continue
                 val colour = look.tint(layer)

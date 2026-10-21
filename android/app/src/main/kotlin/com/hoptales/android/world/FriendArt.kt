@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -94,7 +95,7 @@ val ROSETTE_INK = Color(0xFF3B2A20)
 
 @Composable
 fun Rosette(level: Int, modifier: Modifier = Modifier, height: Dp = 38.dp) {
-    Box(modifier, contentAlignment = Alignment.Center) {
+    Box(modifier.clearAndSetSemantics {}, contentAlignment = Alignment.Center) {
         rememberArt("collect-rosette")?.let { ArtImage(it, height) }
         Text(
             "$level",

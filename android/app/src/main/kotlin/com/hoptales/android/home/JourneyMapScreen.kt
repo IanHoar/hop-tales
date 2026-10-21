@@ -33,10 +33,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
@@ -153,11 +151,8 @@ private fun StopView(friend: Friend, stop: JourneyStop, onClick: () -> Unit) {
     }
     Column(
         Modifier
-            .pressable(onClick, enabled = stop.isTappable)
-            .clearAndSetSemantics {
-                contentDescription = label(friend, stop)
-                if (stop.isTappable) role = Role.Button
-            },
+            .pressable(onClick)
+            .clearAndSetSemantics { contentDescription = label(friend, stop) },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {

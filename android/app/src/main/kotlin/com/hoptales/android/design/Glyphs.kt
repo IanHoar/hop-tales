@@ -4,7 +4,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -15,7 +14,6 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.compose.ui.graphics.vector.path
@@ -77,20 +75,31 @@ fun UpDownChevronGlyph(color: Color, size: Dp = 16.dp) {
 fun GearGlyph(color: Color, size: Dp = 22.dp) {
     Canvas(Modifier.size(size)) {
         val unit = this.size.width / 24f
-        for (tooth in 0 until 8) {
-            rotate(tooth * 45f) {
-                drawRoundRect(
-                    color,
-                    topLeft = Offset(10.25f * unit, 1.5f * unit),
-                    size = Size(3.5f * unit, 5f * unit),
-                    cornerRadius = CornerRadius(unit),
-                )
-            }
+        val centre = Offset(12 * unit, 12 * unit)
+        val outline = Path()
+        val steps = GEAR_TEETH * GEAR_PROFILE.size
+        for (step in 0..steps) {
+            val (offset, radius) = GEAR_PROFILE[step % GEAR_PROFILE.size]
+            val angle = ((step / GEAR_PROFILE.size) * (360f / GEAR_TEETH) + offset - 90f) * PI.toFloat() / 180f
+            val point = centre + Offset(cos(angle), sin(angle)) * (radius * unit)
+            if (step == 0) outline.moveTo(point.x, point.y) else outline.lineTo(point.x, point.y)
         }
-        drawCircle(color, radius = 7.5f * unit, style = Stroke(width = 3f * unit))
-        drawCircle(color, radius = 2.4f * unit)
+        outline.close()
+        val stroke = Stroke(width = 2f * unit, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        drawPath(outline, color, style = stroke)
+        drawCircle(color, radius = 3.4f * unit, center = centre, style = stroke)
     }
 }
+
+private const val GEAR_TEETH = 8
+private val GEAR_PROFILE = listOf(
+    -22.5f to 8.1f,
+    -15f to 8.1f,
+    -10f to 10.6f,
+    0f to 10.6f,
+    10f to 10.6f,
+    15f to 8.1f,
+)
 
 object Glyphs {
     val chevronLeft: ImageVector = ImageVector.Builder("chevronLeft", 24.dp, 24.dp, 24f, 24f).apply {
