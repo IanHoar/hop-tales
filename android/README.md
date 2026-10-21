@@ -72,6 +72,22 @@ The app does not copy any content or art. Its assets come straight from the iOS 
 `app/build.gradle.kts` adds those folders as asset directories, and the JVM tests read `stories.json`
 from the same place, so a story added through `scripts/build-stories.py` reaches both apps.
 
+Art that Android does not draw yet is left out of the package by `ignoreAssetsPatterns` in
+`app/build.gradle.kts` — the wardrobe (`look-*`, `wear-*`), postcards, story cast and props. When a
+feature starts drawing one of those families, take its pattern off the list, or `Art.image` quietly
+returns null. WebP and PNG are stored as they are, since deflating them saves well under 2%; JSON,
+fonts and text are compressed.
+
+## Release
+
+Play gets an App Bundle, not an APK:
+
+```sh
+./gradlew :app:bundleRelease    # app/build/outputs/bundle/release/app-release.aab, R8-minified
+```
+
+It is unsigned; sign it with the upload key when it goes to Play.
+
 ## Privacy
 
 Same rules as iOS: on-device recognition only, nothing recorded or sent, no analytics, no third-party
