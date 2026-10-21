@@ -41,6 +41,9 @@ public enum MeadowPostcard {
       for layer in MeadowLayer.allCases {
         drawLayer(layer, in: world, mood: mood, layout: layout, progress: progress)
       }
+      if layout.showsProps, world == .hare {
+        drawProps(mood: mood, layout: layout, progress: progress)
+      }
       let weather = mood.weather.style
       if weather.overlay > 0 {
         UIColor(rgb: 0x4E5A6E).withAlphaComponent(weather.overlay).setFill()
@@ -128,6 +131,47 @@ public enum MeadowPostcard {
         height: tile.height
       ))
     }
+  }
+
+  private static func drawProps(mood: Mood, layout: MeadowLayout, progress: Double) {
+    let width = MeadowProps.segmentWidth * layout.scale
+    guard width > 0 else { return }
+    let scroll = CGFloat(progress)
+    let first = Int(floor(scroll / width)) - 1
+    let last = Int(floor((scroll + layout.size.width) / width)) + 1
+    let placed = (first...last)
+      .flatMap { index in MeadowProps.placements(inSegment: index).map { (index, $0) } }
+      .sorted { $0.1.depth < $1.1.depth }
+    for (index, placement) in placed {
+      guard let image = tintedProp(placement.asset, mood: mood) else { continue }
+      let scale = layout.scale * (0.62 + 0.3 * placement.depth)
+      let size = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+      let centre = CGFloat(index) * width + placement.x * layout.scale - scroll
+      let ground = layout.top(of: .near) + (300 + 90 * placement.depth) * layout.scale
+      image.draw(in: CGRect(
+        x: centre - size.width / 2,
+        y: ground - size.height * 0.96,
+        width: size.width,
+        height: size.height
+      ))
+    }
+  }
+
+  private static func tintedProp(_ asset: String, mood: Mood) -> UIImage? {
+    let key = "\(asset)-\(mood.sky.rawValue)-\(mood.weather.rawValue)"
+    if let cached = tinted[key] { return cached }
+    guard let source = MeadowArt.image(asset) else { return nil }
+    let format = UIGraphicsImageRendererFormat.default()
+    format.scale = source.scale
+    let image = UIGraphicsImageRenderer(size: source.size, format: format).image { context in
+      let rect = CGRect(origin: .zero, size: source.size)
+      source.draw(in: rect)
+      mood.tint(for: .near).setFill()
+      context.fill(rect, blendMode: .multiply)
+      source.draw(in: rect, blendMode: .destinationIn, alpha: 1)
+    }
+    tinted[key] = image
+    return image
   }
 
   private static func tintedLayer(
