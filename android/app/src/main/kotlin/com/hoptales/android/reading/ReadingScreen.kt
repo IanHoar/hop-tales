@@ -105,6 +105,7 @@ fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {
     val model: ReadingViewModel = viewModel(owner) { ReadingViewModel(story, app) }
     val state by model.state.collectAsStateWithLifecycle()
     val listening by model.listening.collectAsStateWithLifecycle()
+    val look by model.look.collectAsStateWithLifecycle()
     var permission by remember {
         mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
     }
@@ -129,7 +130,7 @@ fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {
     }
 
     Box(Modifier.fillMaxSize()) {
-        PathStage(state = state, wearing = model.look, soundButtons = model.soundButtons, onWordTapped = model::help)
+        PathStage(state = state, wearing = look, soundButtons = model.soundButtons, onWordTapped = model::help)
         Box(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 12.dp, vertical = 4.dp)) {
             BackChip(Modifier.align(Alignment.TopStart)) { if (model.backTapped()) onDone() }
             val word = state.currentWord

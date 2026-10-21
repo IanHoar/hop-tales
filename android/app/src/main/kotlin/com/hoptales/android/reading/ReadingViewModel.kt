@@ -19,8 +19,11 @@ import com.hoptales.speech.Relisten
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -44,7 +47,9 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
             treat = journey.treat(story),
         )
     }
-    val look: String? = app.progressStore.load().outfit(story.friend, app.wardrobe).firstOrNull()?.id
+    val look: StateFlow<String?> = app.progressStore.progress
+        .map { it.outfit(story.friend, app.wardrobe).firstOrNull()?.id }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, app.progressStore.load().outfit(story.friend, app.wardrobe).firstOrNull()?.id)
     private val mutableState = MutableStateFlow(reading.state)
     private val mutableListening = MutableStateFlow<Listening>(Listening.Waiting)
     private var listenJob: Job? = null
