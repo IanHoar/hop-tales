@@ -1,8 +1,10 @@
 package com.hoptales.android.settings
 
 import com.hoptales.android.HopTalesApplication
+import com.hoptales.android.speech.SpeechLogEntry
 import com.hoptales.content.Friend
 import com.hoptales.content.Profile
+import com.hoptales.reading.Heard
 import com.hoptales.speech.Strictness
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -51,6 +53,23 @@ class SettingsViewModelTest {
         assertEquals(Profile.Theme.DARK, app.profileStore.profile.value?.theme)
         model.themePicked(Profile.Theme.LIGHT)
         assertEquals(Profile.Theme.LIGHT, SettingsViewModel(app).state.value.profile.theme)
+    }
+
+    @Test
+    fun theSpeechLogKeepsWhatIsHeardOnlyWhileItIsOn() {
+        val model = SettingsViewModel(app)
+        val heard = SpeechLogEntry("meadow-walk", 0, "The", listOf("the"), isFinal = true, outcome = Heard.CURRENT)
+        app.speechLog.record(heard)
+        assertEquals(0, model.state.value.speechLogLines)
+        model.speechLogToggled(true)
+        app.speechLog.record(heard)
+        app.speechLog.record(heard)
+        assertTrue(SettingsViewModel(app).state.value.speechLogOn)
+        assertEquals(2, SettingsViewModel(app).state.value.speechLogLines)
+        model.speechLogCleared()
+        assertEquals(0, model.state.value.speechLogLines)
+        model.speechLogToggled(false)
+        assertFalse(model.state.value.speechLogOn)
     }
 
     @Test

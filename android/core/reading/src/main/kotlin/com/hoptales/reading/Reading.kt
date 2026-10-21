@@ -95,6 +95,14 @@ data class ReadingState(
     }
 }
 
+enum class Heard(val label: String) {
+    CURRENT("current"),
+    NEXT("next"),
+    WAITING("waiting"),
+    NONE("none"),
+    SPEAKING("speaking"),
+}
+
 class Reading(story: Story, strictness: Strictness = Strictness.GENTLE, bigWords: Set<WordRef> = emptySet(), treat: StoryTreat? = null) {
     var state = ReadingState(story, strictness = strictness, bigWords = bigWords, treat = treat)
         private set
@@ -104,11 +112,24 @@ class Reading(story: Story, strictness: Strictness = Strictness.GENTLE, bigWords
     private val wordsRead = mutableSetOf<WordRef>()
     private val wordsHelped = mutableSetOf<WordRef>()
 
+    var lastHeard: Heard = Heard.WAITING
+        private set
+
     fun heard(tokens: List<String>, isFinal: Boolean): WordMatcher.Match? {
-        if (state.isSpeaking) return null
+        if (state.isSpeaking) {
+            lastHeard = Heard.SPEAKING
+            return null
+        }
         val eligible = debouncer.confirm(tokens, isFinal)
-        val current = state.currentWord ?: return null
-        val match = WordMatcher.match(eligible, current, state.nextWord, state.strictness) ?: return null
+        val current = state.currentWord
+        val match = current?.let { WordMatcher.match(eligible, it, state.nextWord, state.strictness) }
+        lastHeard = when {
+            match?.target == WordMatcher.Target.NEXT -> Heard.NEXT
+            match != null -> Heard.CURRENT
+            eligible.isEmpty() -> Heard.WAITING
+            else -> Heard.NONE
+        }
+        if (match == null) return null
         val before = state
         val count = if (match.target == WordMatcher.Target.NEXT) 2 else 1
         for (offset in 0 until count) wordsRead += WordRef(before.sentenceIndex, before.wordIndex + offset)
