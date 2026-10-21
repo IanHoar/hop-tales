@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -41,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hoptales.android.design.AdaptiveGrid
 import com.hoptales.android.design.Deckle
 import com.hoptales.android.design.FitText
 import com.hoptales.android.design.LocalPaper
@@ -118,7 +117,7 @@ fun BookScreen(library: StoryLibrary, progress: Progress, friend: Friend, onFrie
                     val met = tab in progress.journey.met
                     Box(
                         Modifier
-                            .pressable({ onFriend(tab) }, enabled = met)
+                            .pressable({ if (met) onFriend(tab) })
                             .clearAndSetSemantics {
                                 contentDescription = if (met) "${tab.friendName}'s page" else "A friend at reading level ${tab.level}"
                             }
@@ -143,13 +142,12 @@ fun BookScreen(library: StoryLibrary, progress: Progress, friend: Friend, onFrie
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun Section(title: String, flow: Boolean = true, content: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(title, style = LocalTypography.current.display(18.sp), color = LocalPaper.current.ink)
         if (flow) {
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) { content() }
+            AdaptiveGrid(minimum = 52.dp, spacing = 10.dp, modifier = Modifier.fillMaxWidth()) { content() }
         } else {
             content()
         }

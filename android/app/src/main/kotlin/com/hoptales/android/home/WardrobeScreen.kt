@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -46,6 +45,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hoptales.android.design.AdaptiveCells
 import com.hoptales.android.design.Deckle
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
@@ -83,7 +83,7 @@ fun WardrobeScreen(
     Column(Modifier.fillMaxSize().background(paper.page)) {
         PlainSheetHeader("${friend.friendName}'s wardrobe", 24.sp, onDone)
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(TILE + 12.dp),
+            columns = AdaptiveCells(TILE, TILE + 20.dp),
             modifier = Modifier.fillMaxWidth().weight(1f),
             contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 30.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
@@ -138,7 +138,7 @@ fun WardrobeScreen(
                         )
                     }
                     if (!unlocked) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp)) {
                             Padlock(paper.ink.copy(alpha = 0.8f))
                             Text("Basket $basket", style = type.ui(11.sp), color = paper.ink.copy(alpha = 0.8f))
                         }
@@ -151,8 +151,8 @@ fun WardrobeScreen(
 
 @Composable
 private fun Padlock(colour: Color) {
-    Canvas(Modifier.size(width = 16.dp, height = 20.dp)) {
-        val stroke = 2.5.dp.toPx()
+    Canvas(Modifier.size(width = 13.dp, height = 17.dp)) {
+        val stroke = 2.2.dp.toPx()
         drawArc(
             colour,
             startAngle = 180f,

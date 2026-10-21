@@ -30,9 +30,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +49,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -194,13 +197,13 @@ fun SettingsContent(state: SettingsState, actions: SettingsActions) {
                     }
                 }
                 Section("Sound buttons") {
-                    PaperToggle(
+                    PaperToggleField(
                         "Dots and dashes under words",
                         "A dot for each sound, a dash for letters that make one sound together.",
                         checked = state.profile.soundButtons,
                         onChange = actions.soundButtonsToggled,
                     ) {
-                        SoundMarksExamples(size = 26f, modifier = Modifier.padding(top = 14.dp, bottom = 4.dp))
+                        SoundMarksExamples(size = 26f, modifier = Modifier.padding(vertical = 4.dp))
                     }
                 }
                 Section("Help voice") { VoiceRow(state, actions) }
@@ -254,7 +257,7 @@ private fun SettingsName(name: String, actions: SettingsActions) {
         textStyle = type.display(22.sp).copy(color = paper.ink),
         cursorBrush = SolidColor(paper.ink),
         keyboardOptions = KeyboardOptions(
-            capitalization = KeyboardCapitalization.Words,
+            capitalization = KeyboardCapitalization.Sentences,
             autoCorrectEnabled = false,
             imeAction = ImeAction.Done,
         ),
@@ -297,22 +300,18 @@ private fun VoiceRow(state: SettingsState, actions: SettingsActions) {
                 Text(state.voiceName, style = type.display(19.sp), color = paper.ink, modifier = Modifier.weight(1f))
                 UpDownChevronGlyph(paper.muted)
             }
-            DropdownMenu(expanded = open, onDismissRequest = { open = false }, containerColor = paper.paper) {
-                DropdownMenuItem(
-                    text = { Text("Automatic", style = type.ui(16.sp), color = paper.ink) },
-                    onClick = {
+            CompositionLocalProvider(LocalRippleConfiguration provides null) {
+                DropdownMenu(expanded = open, onDismissRequest = { open = false }, containerColor = paper.paper) {
+                    VoiceItem("Automatic", isCurrent = state.profile.voiceID == null) {
                         open = false
                         actions.voicePicked(null)
-                    },
-                )
-                for (voice in state.voices) {
-                    DropdownMenuItem(
-                        text = { Text(voice.label, style = type.ui(16.sp), color = paper.ink) },
-                        onClick = {
+                    }
+                    for (voice in state.voices) {
+                        VoiceItem(voice.label, isCurrent = state.profile.voiceID == voice.id) {
                             open = false
                             actions.voicePicked(voice.id)
-                        },
-                    )
+                        }
+                    }
                 }
             }
         }
@@ -328,6 +327,21 @@ private fun VoiceRow(state: SettingsState, actions: SettingsActions) {
             SpeakerGlyph(LocalPaper.current.ink)
         }
     }
+}
+
+@Composable
+private fun VoiceItem(label: String, isCurrent: Boolean, onClick: () -> Unit) {
+    val paper = LocalPaper.current
+    DropdownMenuItem(
+        text = { Text(label, style = LocalTypography.current.ui(16.sp), color = paper.ink) },
+        onClick = onClick,
+        leadingIcon = {
+            Box(Modifier.size(18.dp)) {
+                if (isCurrent) Icon(Glyphs.check, contentDescription = null, tint = paper.ink, modifier = Modifier.size(18.dp))
+            }
+        },
+        modifier = Modifier.semantics { selected = isCurrent },
+    )
 }
 
 @Composable
@@ -395,7 +409,7 @@ private fun BackupRow(state: SettingsState, onChange: (Boolean) -> Unit) {
 
         else -> null
     }
-    PaperToggle(
+    PaperToggleField(
         "Back up to your Google account",
         "Keeps your reader's name and progress safe for a new phone or tablet. It's stored in your own Google account. " +
             "We never see it.",
@@ -403,12 +417,7 @@ private fun BackupRow(state: SettingsState, onChange: (Boolean) -> Unit) {
         onChange = onChange,
     ) {
         if (note != null) {
-            Text(
-                note,
-                style = LocalTypography.current.ui(14.sp),
-                color = LocalPaper.current.muted,
-                modifier = Modifier.padding(top = 12.dp),
-            )
+            Text(note, style = LocalTypography.current.ui(14.sp, FontWeight.Medium), color = LocalPaper.current.muted)
         }
     }
 }

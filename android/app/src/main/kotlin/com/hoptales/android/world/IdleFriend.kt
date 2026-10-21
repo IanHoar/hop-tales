@@ -49,11 +49,10 @@ fun IdleFriend(friend: Friend, look: String?, height: Dp, modifier: Modifier = M
     val image = remember(friend, look) {
         look?.let { Art.image(assets, sheets.dressed(friend, it, HareSheet.IDLE)) } ?: Art.image(assets, sheet.asset)
     }
-    var time by remember { mutableDoubleStateOf(0.0) }
+    var time by remember { mutableDoubleStateOf(System.nanoTime() / 1e9) }
     LaunchedEffect(still) {
         if (still) return@LaunchedEffect
-        val origin = withFrameNanos { it }
-        while (true) withFrameNanos { time = (it - origin) / 1e9 }
+        while (true) withFrameNanos { time = it / 1e9 }
     }
     val width = height / HareSheet.REST_HEIGHT * sheet.scale * sheet.cellWidth.toFloat()
     val draw: DrawScope.(ColorFilter?) -> Unit = draw@{ filter ->
