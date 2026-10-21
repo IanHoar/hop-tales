@@ -2,14 +2,13 @@ import SwiftUI
 import UIKit
 
 struct KeyboardLift: ViewModifier {
-  let topLimit: CGFloat
   @State private var frame = CGRect.zero
   @State private var keyboardTop = CGFloat.infinity
 
   func body(content: Content) -> some View {
     content
+      .padding(.bottom, lift)
       .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { frame = $0 }
-      .offset(y: -lift)
       .onReceive(
         NotificationCenter.default.publisher(for: UIResponder.keyboardWillChangeFrameNotification)
       ) { note in
@@ -21,13 +20,12 @@ struct KeyboardLift: ViewModifier {
   }
 
   private var lift: CGFloat {
-    let covered = max(0, frame.maxY - keyboardTop)
-    return min(covered, max(0, frame.minY - topLimit))
+    max(0, frame.maxY - keyboardTop)
   }
 }
 
 extension View {
-  func liftsAboveKeyboard(keepingTopBelow topLimit: CGFloat) -> some View {
-    modifier(KeyboardLift(topLimit: topLimit))
+  func liftsAboveKeyboard() -> some View {
+    modifier(KeyboardLift())
   }
 }

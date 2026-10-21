@@ -73,7 +73,8 @@ struct TallyCard: View {
 extension TallyCard {
   func treatLine(_ treat: CollectedTreat) -> String {
     if treat.isTrail {
-      let treats = treat.friend.treat.many.capitalized
+      let many = treat.friend.treat.many
+      let treats = many.prefix(1).uppercased() + many.dropFirst()
       let goal = Levels.trailGoal(at: treat.friend.level - 1)
       return "\(treats) for \(treat.friend.name) · \(trail) of \(goal)"
     }

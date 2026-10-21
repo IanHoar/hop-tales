@@ -242,7 +242,7 @@ public struct OnboardingScreen: View {
         }
         .frame(maxWidth: 560)
         .frame(maxWidth: .infinity)
-        .liftsAboveKeyboard(keepingTopBelow: insets.top + 12)
+        .liftsAboveKeyboard()
         .padding(.top, top)
         .padding(.leading, room?.minX ?? 0)
         .padding(.trailing, room.map { proxy.size.width - $0.maxX } ?? 0)
