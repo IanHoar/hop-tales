@@ -211,6 +211,7 @@ public struct RootScreen: View {
             .offset(y: store.intro == nil || reduceMotion ? 0 : 80)
             .opacity(store.intro == nil ? 1 : 0)
         }
+        .accessibilityHidden(store.intro != nil)
       if let intro = store.scope(\.intro) {
         IntroScreen(store: intro)
           .transition(.opacity.animation(handover))

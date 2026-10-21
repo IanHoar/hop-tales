@@ -60,6 +60,7 @@ import World
 public struct JourneyMapScreen: View {
   static let spacing: CGFloat = 150
   static let inset: CGFloat = 110
+  static let disc: CGFloat = 90
 
   let store: StoreOf<JourneyMap>
 
@@ -82,6 +83,7 @@ public struct JourneyMapScreen: View {
           progressDot(points)
           ForEach(Friend.allCases, id: \.self) { friend in
             stopView(friend)
+              .frame(height: Self.disc, alignment: .top)
               .position(points[friend.level - 1])
           }
         }
@@ -160,7 +162,7 @@ public struct JourneyMapScreen: View {
           FriendSticker(friend, height: 70, isSilhouette: stop == .later)
             .opacity(stop == .later ? 0.4 : 1)
             .saturation(isGrey(stop) ? 0 : 1)
-            .padding(10)
+            .frame(width: Self.disc, height: Self.disc)
             .background {
               Circle()
                 .fill(Paper.paper)
@@ -225,6 +227,8 @@ public struct JourneyMapScreen: View {
 }
 
 struct Rosette: View {
+  static let ink = Color(hex: 0x3B2A20)
+
   let level: Int
 
   var body: some View {
@@ -232,7 +236,7 @@ struct Rosette: View {
       Sticker("collect-rosette", height: 38)
       Text("\(level)")
         .font(Typography.display(13))
-        .foregroundStyle(Paper.ink)
+        .foregroundStyle(Self.ink)
         .offset(y: -4)
     }
     .accessibilityHidden(true)

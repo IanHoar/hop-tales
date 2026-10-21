@@ -24,7 +24,7 @@ struct GrownUpsTests {
           SpeechClient(
             listen: { _, _ in AsyncStream { $0.finish() } },
             requestAuthorization: { _ in .authorized },
-            speak: { _, _ in },
+            speak: { _, _, _ in },
             voices: { Self.voices }
           )
         )
@@ -73,7 +73,7 @@ struct GrownUpsTests {
     let profiles = LockIsolated<[Profile]>([])
     let strictness = LockIsolated<WordMatcher.Strictness?>(nil)
     let sound = LockIsolated<Bool?>(nil)
-    let spoken = LockIsolated<[String?]>([])
+    let spoken = LockIsolated<[Spoken]>([])
     let voice = Self.voices[0].id
     let store = TestStore(initialState: Settings.State()) {
       Settings()
@@ -89,7 +89,11 @@ struct GrownUpsTests {
           SpeechClient(
             listen: { _, _ in AsyncStream { $0.finish() } },
             requestAuthorization: { _ in .authorized },
-            speak: { _, id in spoken.withValue { $0.append(id) } },
+            speak: { _, id, locale in
+              spoken.withValue {
+                $0.append(Spoken(voiceID: id, accent: locale.identifier(.bcp47)))
+              }
+            },
             voices: { Self.voices }
           )
         )
@@ -121,7 +125,8 @@ struct GrownUpsTests {
     #expect(sound.value == false)
 
     await store.send(.hearVoiceTapped)?.value
-    #expect(spoken.value == [voice, voice])
+    let british = Spoken(voiceID: voice, accent: "en-GB")
+    #expect(spoken.value == [british, british])
   }
 
   @Test func theNameIsSavedWhenTheGrownUpIsDone() {
@@ -198,4 +203,9 @@ struct GrownUpsTests {
       $0.settings?.profile.theme = .dark
     }
   }
+}
+
+private struct Spoken: Hashable, Sendable {
+  let voiceID: String?
+  let accent: String
 }

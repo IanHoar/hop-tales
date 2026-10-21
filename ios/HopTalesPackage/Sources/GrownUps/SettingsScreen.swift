@@ -166,7 +166,8 @@ import World
 
       case .hearVoiceTapped:
         let voice = state.profile.voiceID
-        store.addTask { await speechClient.speak(Settings.sample, voice) }
+        let locale = state.profile.accent.locale
+        store.addTask { await speechClient.speak(Settings.sample, voice, locale) }
 
       case let .nameChanged(name):
         state.childName = String(name.prefix(24))
@@ -198,7 +199,8 @@ import World
       case let .voicePicked(id):
         state.profile.voiceID = id
         save(state)
-        store.addTask { await speechClient.speak(Settings.sample, id) }
+        let locale = state.profile.accent.locale
+        store.addTask { await speechClient.speak(Settings.sample, id, locale) }
       }
     }
     .onMount { state in
