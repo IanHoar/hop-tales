@@ -91,7 +91,7 @@ struct FriendReveal: View {
         Sticker("collect-rosette", height: geometry.path(56))
         Text("\(friend.level)")
           .font(Typography.display(geometry.path(18)))
-          .foregroundStyle(Paper.ink)
+          .foregroundStyle(Color(hex: 0x3B2A20))
           .offset(y: -geometry.path(5))
       }
       .rotationEffect(.degrees(stage == .settled ? 8 : -40))

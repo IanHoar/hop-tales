@@ -221,7 +221,7 @@ public struct RootScreen: View {
     .background {
       if store.intro != nil { Color(hex: 0x1E2A4E).ignoresSafeArea() }
     }
-    .preferredColorScheme(store.theme.colorScheme)
+    .preferredColorScheme(store.intro == nil ? store.theme.colorScheme : .dark)
   }
 
   private var handover: Animation {
