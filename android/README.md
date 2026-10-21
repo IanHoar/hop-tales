@@ -91,11 +91,21 @@ rules change, change both. `WordMatcherTest` mirrors `WordMatcherTests` case for
 
 ## Profile and settings
 
-The first launch walks the grown-up through onboarding: the child's name, the microphone (explained
-before Android's prompt, which is asked for there and never on a story start again), the starting
-friend and sound buttons. There is no iCloud step. Answers are kept in `profile-draft.json` as they
-are given, so a closed app resumes where it left off, and the finished `Profile` is `profile.json`
-in `filesDir`, beside `progress.json`. The accent picks the recogniser and help-voice locale; the
+The first launch walks the grown-up through onboarding: Google backup (the Android counterpart of
+the iCloud step), the child's name, the microphone (explained before Android's prompt, which is
+asked for there and never on a story start again), the starting friend and sound buttons. Answers
+are kept in `profile-draft.json` as they are given, so a closed app resumes where it left off.
+
+Progress and the finished `Profile` live in SQLite, `databases/hoptales.db`, through the platform's
+`SQLiteOpenHelper` (no extra library; its version number carries the migrations). The tables and
+columns are the iOS ones from `Content/Database.swift` — `profiles`, `progress`, `storyProgress` —
+and `HopTalesDatabaseTest` builds the iOS statements next to ours and compares them column for
+column, so a change on one side fails until the other follows. Never drop or rename a table or
+column. The JSON columns are written the way Swift's `JSONEncoder` writes them (a dictionary keyed
+by an enum is a flat `[key, value, …]` array). Only `STRICT` is left off, since Android 12's SQLite
+predates it. `profiles.theme` exists for iOS and Android leaves it alone. The first launch after
+the update imports `progress.json` and `profile.json` and deletes them once the import has
+committed; a file that cannot be read stays where it is. The accent picks the recogniser and help-voice locale; the
 help voice is one of the engine's offline English voices, never a network one. Matching strictness,
 sound effects and whether the microphone was asked live in the `settings` shared preferences.
 
@@ -141,5 +151,21 @@ It is unsigned; sign it with the upload key when it goes to Play.
 ## Privacy
 
 Same rules as iOS: on-device recognition only, nothing recorded or sent, no analytics, no third-party
-SDKs. Auto Backup is off and the data extraction rules exclude everything from cloud backup until the
-grown-up opt-in exists on Android; a device-to-device transfer still carries progress.
+SDKs. The only copy that can leave the device is Android's own backup into the family's Google
+account, and only after a grown-up opts in, in onboarding or in Settings.
+
+`HopTalesBackupAgent` decides each backup pass (`BackupPlan`):
+
+- Opted in: the database and the `backup` preferences file, per `data_extraction_rules.xml`.
+- Never opted in: nothing. Android declines an empty backup, so no copy is made.
+- Opted in, then out: only the `backup` preferences file, which says "off". That replaces the
+  earlier copy, so the name and progress drop out of the Google account at the next pass.
+- Device-to-device transfer (setting up a new phone from the old one, cable or Wi-Fi): the database
+  and the choice, whatever the choice is, as before.
+
+On a new device, Android restores the backup when the app is installed, before it first opens, so
+the reader lands on Home with their name and progress; the microphone is asked for on the first
+story. What Android does not let us promise: when backups run (about once a day, idle, charging
+and on Wi-Fi), that the grown-up has backup turned on in Android's own settings, or when an old copy
+is removed if the device never backs up again. `adb shell bmgr backupnow com.hoptales.android`
+forces a pass for testing.

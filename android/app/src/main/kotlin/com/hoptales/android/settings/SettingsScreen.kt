@@ -83,6 +83,7 @@ class SettingsActions(
     val voicePicked: (String?) -> Unit = {},
     val hearVoice: () -> Unit = {},
     val soundToggled: (Boolean) -> Unit = {},
+    val backupToggled: (Boolean) -> Unit = {},
     val resetOnboarding: () -> Unit = {},
     val done: () -> Unit = {},
 )
@@ -109,6 +110,7 @@ fun SettingsScreen(key: String, onDone: () -> Unit) {
             voicePicked = model::voicePicked,
             hearVoice = model::hearVoice,
             soundToggled = model::soundToggled,
+            backupToggled = model::backupToggled,
             resetOnboarding = {
                 model.resetOnboarding()
                 onDone()
@@ -187,6 +189,7 @@ fun SettingsContent(state: SettingsState, actions: SettingsActions) {
                         onChange = actions.soundToggled,
                     )
                 }
+                Section("Backup") { BackupRow(state, actions.backupToggled) }
                 Section("Testing") {
                     PaperChip(height = 48.dp, onClick = actions.resetOnboarding) {
                         Text("Reset onboarding", style = LocalTypography.current.ui(15.sp), color = palette.ink)
@@ -333,6 +336,36 @@ private fun ReadingWith(friend: Friend, selected: Boolean, onClick: () -> Unit) 
                 Text(friend.friendName, style = type.display(19.sp), color = palette.ink)
                 Text("${friend.stage} · ${friend.examples.joinToString(", ")}", style = type.ui(14.sp), color = palette.muted)
             }
+        }
+    }
+}
+
+@Composable
+private fun BackupRow(state: SettingsState, onChange: (Boolean) -> Unit) {
+    val note = when {
+        state.backupOn ->
+            "Android backs up about once a day, while the device is charging and on Wi-Fi, if its own backup is on in the " +
+                "Settings app."
+
+        state.backupWasOn ->
+            "Backups have stopped. Android's next backup takes your reader's name and progress out of your Google account."
+
+        else -> null
+    }
+    PaperToggle(
+        "Back up to your Google account",
+        "Keeps your reader's name and progress safe for a new phone or tablet. It's stored in your own Google account. " +
+            "We never see it.",
+        checked = state.backupOn,
+        onChange = onChange,
+    ) {
+        if (note != null) {
+            Text(
+                note,
+                style = LocalTypography.current.ui(14.sp),
+                color = LocalPalette.current.muted,
+                modifier = Modifier.padding(top = 12.dp),
+            )
         }
     }
 }

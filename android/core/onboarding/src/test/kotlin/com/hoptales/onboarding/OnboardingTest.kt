@@ -13,6 +13,11 @@ class OnboardingTest {
     fun theGrownUpWalksThroughEveryStep() {
         val onboarding = Onboarding(region = "GB")
 
+        assertEquals(OnboardingStep.BACKUP, onboarding.state.step)
+        assertEquals(OnboardingNext.Stay, onboarding.primaryTapped())
+        onboarding.backupPicked(false)
+        assertEquals(OnboardingNext.Advanced, onboarding.primaryTapped())
+        assertEquals(OnboardingStep.NAME, onboarding.state.step)
         assertEquals(OnboardingNext.Stay, onboarding.primaryTapped())
         onboarding.nameChanged("Maya")
         assertEquals(OnboardingNext.Advanced, onboarding.primaryTapped())
@@ -40,6 +45,8 @@ class OnboardingTest {
     @Test
     fun eachStepWaitsForAnAnswer() {
         var state = OnboardingState()
+        assertFalse(state.canContinue(OnboardingStep.BACKUP))
+        assertTrue(state.copy(backup = false).canContinue(OnboardingStep.BACKUP))
         assertFalse(state.canContinue(OnboardingStep.NAME))
         state = state.copy(childName = "   ")
         assertFalse(state.canContinue(OnboardingStep.NAME))
@@ -73,9 +80,11 @@ class OnboardingTest {
         assertEquals(OnboardingStep.LISTENING, onboarding.state.step)
         assertTrue(onboarding.backTapped())
         assertEquals(OnboardingStep.NAME, onboarding.state.step)
+        assertTrue(onboarding.backTapped())
+        assertEquals(OnboardingStep.BACKUP, onboarding.state.step)
         assertTrue(onboarding.state.isFirstStep)
         assertFalse(onboarding.backTapped())
-        assertEquals(OnboardingStep.NAME, onboarding.state.step)
+        assertEquals(OnboardingStep.BACKUP, onboarding.state.step)
     }
 
     @Test
@@ -96,8 +105,11 @@ class OnboardingTest {
     @Test
     fun everyAnswerIsKeptAsADraft() {
         val onboarding = Onboarding()
+        onboarding.backupPicked(true)
+        assertEquals(ProfileDraft(backup = true, step = 1), onboarding.state.draft)
+        onboarding.primaryTapped()
         onboarding.nameChanged("Maya")
-        assertEquals(ProfileDraft(childName = "Maya", step = 1), onboarding.state.draft)
+        assertEquals(ProfileDraft(childName = "Maya", backup = true, step = 2), onboarding.state.draft)
     }
 
     @Test
@@ -107,13 +119,13 @@ class OnboardingTest {
         assertEquals(OnboardingStep.FRIEND, state.step)
         assertEquals("Maya", state.childName)
         assertEquals(Friend.FROG, state.startingFriend)
-        assertEquals(3, state.stepNumber)
-        assertEquals(4, state.stepCount)
+        assertEquals(4, state.stepNumber)
+        assertEquals(5, state.stepCount)
     }
 
     @Test
-    fun aDraftFromAnUnknownStepStartsAgainAtTheName() {
-        assertEquals(OnboardingStep.NAME, OnboardingState.resuming(ProfileDraft(childName = "Maya", step = 9)).step)
+    fun aDraftFromAnUnknownStepStartsAgainAtTheBeginning() {
+        assertEquals(OnboardingStep.BACKUP, OnboardingState.resuming(ProfileDraft(childName = "Maya", step = 9)).step)
     }
 
     @Test
@@ -123,10 +135,12 @@ class OnboardingTest {
             startingFriend = Friend.HARE,
             accent = Profile.Accent.AMERICAN,
             soundButtons = true,
+            backup = false,
             step = OnboardingStep.SOUND_BUTTONS.number,
         )
         val state = OnboardingState.resuming(draft)
         assertTrue(state.isComplete)
+        assertFalse(OnboardingState.resuming(draft.copy(backup = null)).isComplete)
         assertEquals(Profile("Maya", Friend.HARE, Profile.Accent.AMERICAN, soundButtons = true), state.profile("GB"))
         assertFalse(OnboardingState.resuming(draft.copy(soundButtons = null)).isComplete)
         assertFalse(OnboardingState.resuming(draft.copy(step = OnboardingStep.FRIEND.number)).isComplete)

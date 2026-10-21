@@ -94,6 +94,7 @@ class OnboardingActions(
     val nameChanged: (String) -> Unit = {},
     val friendPicked: (Friend) -> Unit = {},
     val soundButtonsPicked: (Boolean) -> Unit = {},
+    val backupPicked: (Boolean) -> Unit = {},
     val backTapped: () -> Unit = {},
     val primaryTapped: () -> Unit = {},
 )
@@ -115,6 +116,7 @@ fun OnboardingScreen(key: String) {
             nameChanged = model::nameChanged,
             friendPicked = model::friendPicked,
             soundButtonsPicked = model::soundButtonsPicked,
+            backupPicked = model::backupPicked,
             backTapped = model::backTapped,
             primaryTapped = {
                 if (model.primaryTapped() == OnboardingNext.RequestMicrophone) request.launch(Manifest.permission.RECORD_AUDIO)
@@ -205,6 +207,7 @@ private fun Header(state: OnboardingState, onBack: () -> Unit) {
 
 private val OnboardingStep.title: String
     get() = when (this) {
+        OnboardingStep.BACKUP -> "Back up to your Google account?"
         OnboardingStep.NAME -> "What should we call you?"
         OnboardingStep.LISTENING -> "Can Hop Tales use the microphone?"
         OnboardingStep.FRIEND -> "Who should your reader start with?"
@@ -213,6 +216,11 @@ private val OnboardingStep.title: String
 
 private val OnboardingStep.detail: String
     get() = when (this) {
+        OnboardingStep.BACKUP ->
+            "Setting Hop Tales up again on a new phone or tablet? Choose Yes and Android keeps your reader's name and " +
+                "progress in your own Google account backup, so they come back with the app. Only you can see it. We never " +
+                "do. You can change this later."
+
         OnboardingStep.NAME ->
             "A first name, a nickname or anything familiar is perfect. We use it to say hello, and it's never sent to us."
 
@@ -243,6 +251,8 @@ private fun StepPage(state: OnboardingState, actions: OnboardingActions) {
         Text(state.step.detail, style = type.ui(16.sp, FontWeight.Medium), color = palette.ink.copy(alpha = 0.85f))
         Box(Modifier.padding(top = 4.dp)) {
             when (state.step) {
+                OnboardingStep.BACKUP -> BackupChoices(state.backup, actions.backupPicked)
+
                 OnboardingStep.NAME -> NameField(state.childName, actions.nameChanged) {
                     if (state.primaryEnabled) actions.primaryTapped()
                 }
@@ -395,6 +405,23 @@ private fun SoundButtonChoices(selected: Boolean?, onPick: (Boolean) -> Unit) {
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             PaperChoice("Yes, show them", selected = selected == true, modifier = Modifier.weight(1f)) { onPick(true) }
             PaperChoice("No thanks", selected = selected == false, modifier = Modifier.weight(1f)) { onPick(false) }
+        }
+    }
+}
+
+@Composable
+private fun BackupChoices(selected: Boolean?, onPick: (Boolean) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            PaperChoice("Yes, back up", selected = selected == true, modifier = Modifier.weight(1f)) { onPick(true) }
+            PaperChoice("Not now", selected = selected == false, modifier = Modifier.weight(1f)) { onPick(false) }
+        }
+        if (selected == true) {
+            Text(
+                "Android's own backup needs to be on too. It's in the Settings app, under Backup.",
+                style = LocalTypography.current.ui(13.sp, FontWeight.Medium),
+                color = LocalPalette.current.muted,
+            )
         }
     }
 }

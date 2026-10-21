@@ -5,6 +5,7 @@ import com.hoptales.content.Profile
 import com.hoptales.content.ProfileDraft
 
 enum class OnboardingStep {
+    BACKUP,
     NAME,
     LISTENING,
     FRIEND,
@@ -21,12 +22,13 @@ enum class OnboardingStep {
 enum class Authorization { AUTHORIZED, DENIED, UNSUPPORTED }
 
 data class OnboardingState(
-    val step: OnboardingStep = OnboardingStep.NAME,
+    val step: OnboardingStep = OnboardingStep.entries.first(),
     val childName: String = "",
     val authorization: Authorization? = null,
     val startingFriend: Friend? = null,
     val accent: Profile.Accent? = null,
     val soundButtons: Boolean? = null,
+    val backup: Boolean? = null,
 ) {
     val stepNumber: Int get() = step.number
     val stepCount: Int get() = OnboardingStep.entries.size
@@ -52,10 +54,12 @@ data class OnboardingState(
             startingFriend = startingFriend,
             accent = accent,
             soundButtons = soundButtons,
+            backup = backup,
             step = step.number,
         )
 
     fun canContinue(from: OnboardingStep): Boolean = when (from) {
+        OnboardingStep.BACKUP -> backup != null
         OnboardingStep.NAME -> childName.isNotBlank()
         OnboardingStep.LISTENING -> authorization != null
         OnboardingStep.FRIEND -> startingFriend != null
@@ -71,11 +75,12 @@ data class OnboardingState(
 
     companion object {
         fun resuming(draft: ProfileDraft) = OnboardingState(
-            step = OnboardingStep.numbered(draft.step) ?: OnboardingStep.NAME,
+            step = OnboardingStep.numbered(draft.step) ?: OnboardingStep.entries.first(),
             childName = draft.childName,
             startingFriend = draft.startingFriend,
             accent = draft.accent,
             soundButtons = draft.soundButtons,
+            backup = draft.backup,
         )
     }
 }
@@ -98,6 +103,10 @@ class Onboarding(var state: OnboardingState = OnboardingState(), private val reg
 
     fun soundButtonsPicked(isOn: Boolean) {
         state = state.copy(soundButtons = isOn)
+    }
+
+    fun backupPicked(isOn: Boolean) {
+        state = state.copy(backup = isOn)
     }
 
     fun authorizationResolved(authorization: Authorization) {
