@@ -36,6 +36,7 @@ import com.hoptales.android.design.GearGlyph
 import com.hoptales.android.design.LocalPalette
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
+import com.hoptales.android.design.PaperChip
 import com.hoptales.android.design.StarChip
 import com.hoptales.android.design.paperChip
 import com.hoptales.android.design.pressable
