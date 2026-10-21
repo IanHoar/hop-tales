@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -54,22 +55,31 @@ import com.hoptales.android.design.pressable
 import kotlin.math.roundToInt
 
 @Composable
-fun DebugHear(word: String, onClick: () -> Unit) {
+fun DebugControls(word: String, readWord: () -> Unit, restOfSentence: () -> Unit) {
     val palette = LocalPalette.current
-    Box(
+    Row(
         Modifier
             .background(palette.ink.copy(alpha = 0.75f), RoundedCornerShape(14.dp))
             .padding(horizontal = 10.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Text(
-            "Hear “$word”",
-            style = LocalTypography.current.ui(13.sp),
-            color = palette.parchment,
-            modifier = Modifier
-                .pressable(onClick)
-                .background(palette.goldShade.copy(alpha = 0.9f), CircleShape)
-                .padding(horizontal = 12.dp, vertical = 8.dp),
-        )
+        DebugButton("Read “$word”", readWord)
+        DebugButton("Rest of sentence", restOfSentence)
+    }
+}
+
+@Composable
+private fun DebugButton(title: String, onClick: () -> Unit) {
+    val palette = LocalPalette.current
+    Box(
+        Modifier
+            .pressable(onClick)
+            .height(34.dp)
+            .background(palette.goldShade.copy(alpha = 0.9f), CircleShape)
+            .padding(horizontal = 12.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(title, style = LocalTypography.current.ui(13.sp), color = palette.parchment)
     }
 }
 

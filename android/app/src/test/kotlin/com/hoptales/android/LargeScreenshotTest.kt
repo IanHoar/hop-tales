@@ -247,7 +247,7 @@ class LargeScreenshotTest {
 
     private fun storyFinished(device: String) {
         show(dark = false, fold = null) { ReadingScreen(story = story, onDone = {}) }
-        val hear = compose.onNodeWithText("Hear “", substring = true)
+        val hear = compose.onNodeWithText("Read “", substring = true)
         while (hear.exists()) {
             hear.performClick()
             compose.waitForIdle()

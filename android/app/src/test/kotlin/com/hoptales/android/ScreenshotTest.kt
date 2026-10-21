@@ -356,7 +356,7 @@ class ScreenshotTest {
     private fun midPage(name: String, story: Story, words: Int = 3, dark: Boolean = false) {
         showReading(dark, story)
         repeat(words) {
-            compose.onNodeWithText("Hear “", substring = true).performClick()
+            compose.onNodeWithText("Read “", substring = true).performClick()
             compose.waitForIdle()
         }
         compose.onRoot().captureRoboImage(path(name, dark), options)
@@ -369,7 +369,7 @@ class ScreenshotTest {
     }
 
     private fun readToTheEnd() {
-        val hear = compose.onNodeWithText("Hear “", substring = true)
+        val hear = compose.onNodeWithText("Read “", substring = true)
         while (hear.exists()) {
             hear.performClick()
             compose.waitForIdle()
@@ -380,7 +380,7 @@ class ScreenshotTest {
         val story = app.library["meadow-walk"]!!
         showReading(dark, story)
         repeat(story.sentences.take(2).sumOf { it.words.size } + 1) {
-            compose.onNodeWithText("Hear “", substring = true).performClick()
+            compose.onNodeWithText("Read “", substring = true).performClick()
             compose.waitForIdle()
         }
         compose.onNodeWithContentDescription("Current word: spots", substring = true).performSemanticsAction(SemanticsActions.OnLongClick)
