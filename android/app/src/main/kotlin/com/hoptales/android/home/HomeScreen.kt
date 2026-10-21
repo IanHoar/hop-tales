@@ -34,9 +34,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hoptales.android.design.GearGlyph
 import com.hoptales.android.design.LocalPalette
+import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.PaperChip
 import com.hoptales.android.design.StarChip
+import com.hoptales.android.design.paperChip
+import com.hoptales.android.design.pressable
 import com.hoptales.android.world.Sticker
 import com.hoptales.content.Friend
 import com.hoptales.content.Progress
@@ -79,8 +82,15 @@ fun HomeScreen(
                     )
                     StarChip(progress.stars)
                     Spacer(Modifier.size(10.dp))
-                    PaperChip(Modifier.size(48.dp).semantics { contentDescription = "Settings for grown-ups" }, onClick = onGrownUps) {
-                        Box(contentAlignment = Alignment.Center) { GearGlyph(palette.ink) }
+                    Box(
+                        Modifier
+                            .size(48.dp)
+                            .semantics { contentDescription = "Settings for grown-ups" }
+                            .pressable(onGrownUps)
+                            .paperChip(CircleShape),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        GearGlyph(LocalPaper.current.ink)
                     }
                 }
             }
