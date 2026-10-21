@@ -62,13 +62,15 @@ foldable's outer and inner screens, and half open as a book and on a tabletop, w
 `FoldingFeature` published through `WindowLayoutInfoPublisherRule`. Those references live in
 `app/src/test/screenshots/large`.
 
-`FontScaleScreenshotTest` shoots home, the onboarding name step, settings and the story-finished panel
+`FontScaleScreenshotTest` shoots home (and a long name that shrinks to fit), the onboarding name step, settings and the story-finished panel
 at font scale 2.0, into `app/src/test/screenshots/font-scale`.
 
 ## Accessibility
 
 As on iOS, Fredoka UI text (`Typography.ui`) follows the system font size, while the words on the
-path, Fraunces titles and caps labels stay at their design size. "Remove animations" (animator
+path, Fraunces titles and caps labels stay at their design size. A one-line title too long for its
+space shrinks to fit (`FitText`, iOS's `minimumScaleFactor`) rather than being cut off, and the onboarding
+answer pairs stack when they don't fit side by side. "Remove animations" (animator
 duration scale 0) is read as Reduce Motion, and followed live while the app runs: the idle friend
 stands still, the clouds stop drifting, each word step crossfades over 0.2 s instead of panning, and
 props hold their layout. `AccessibilityTest` checks the TalkBack labels, headings and actions

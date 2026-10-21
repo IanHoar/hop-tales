@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hoptales.android.design.Deckle
+import com.hoptales.android.design.FitText
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.pressable
@@ -109,11 +110,11 @@ fun BookScreen(library: StoryLibrary, progress: Progress, friend: Friend, onFrie
                     if (storiesRead.isNotEmpty()) {
                         Section("Stories read", spacing = 8.dp) {
                             for (story in storiesRead) {
-                                Text(
+                                FitText(
                                     story.title,
                                     style = type.display(14.sp),
                                     color = paper.ink,
-                                    maxLines = 1,
+                                    minimumScale = 0.7f,
                                     modifier = Modifier
                                         .rotate(if (story.title.length % 2 == 0) -1.5f else 1.5f)
                                         .background(paper.shade, RoundedCornerShape(8.dp))
