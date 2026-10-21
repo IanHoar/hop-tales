@@ -6,9 +6,8 @@ import com.hoptales.content.StoryLibrary
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.io.File
 
-class ProgressStore(private val file: File, private val library: StoryLibrary) {
+class ProgressStore(private val database: HopTalesDatabase, private val library: StoryLibrary) {
     private val state = MutableStateFlow(read())
 
     val progress: StateFlow<Progress> = state.asStateFlow()
@@ -25,12 +24,12 @@ class ProgressStore(private val file: File, private val library: StoryLibrary) {
 
     fun save(progress: Progress) {
         state.value = progress
-        val scratch = File(file.parentFile, "${file.name}.tmp")
-        scratch.writeText(StoryLibrary.json.encodeToString(Progress.serializer(), progress))
-        scratch.renameTo(file)
+        runCatching {
+            database.writableDatabase.inTransaction { ProgressTable.write(this, progress, existing = ProgressTable.read(this)) }
+        }
     }
 
     private fun read(): Progress = runCatching {
-        StoryLibrary.json.decodeFromString(Progress.serializer(), file.readText()).restoringStoriesRead(library)
+        ProgressTable.read(database.readableDatabase).restoringStoriesRead(library)
     }.getOrDefault(Progress())
 }

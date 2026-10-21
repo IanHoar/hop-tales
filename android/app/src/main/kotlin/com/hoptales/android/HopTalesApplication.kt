@@ -1,6 +1,8 @@
 package com.hoptales.android
 
 import android.app.Application
+import com.hoptales.android.data.BackupChoice
+import com.hoptales.android.data.HopTalesDatabase
 import com.hoptales.android.data.ListeningPreferences
 import com.hoptales.android.data.ProfileStore
 import com.hoptales.android.data.ProgressStore
@@ -13,7 +15,6 @@ import com.hoptales.content.Phonics
 import com.hoptales.content.StoryLibrary
 import com.hoptales.content.StoryProps
 import com.hoptales.content.WardrobeLibrary
-import java.io.File
 
 class HopTalesApplication : Application() {
     val library: StoryLibrary by lazy {
@@ -31,8 +32,10 @@ class HopTalesApplication : Application() {
     val phonics: Phonics by lazy {
         Phonics.decode(assets.open("phonics.json").bufferedReader().use { it.readText() })
     }
-    val progressStore: ProgressStore by lazy { ProgressStore(File(filesDir, "progress.json"), library) }
-    val profileStore: ProfileStore by lazy { ProfileStore(filesDir) }
+    val database: HopTalesDatabase by lazy { HopTalesDatabase(this) }
+    val progressStore: ProgressStore by lazy { ProgressStore(database, library) }
+    val profileStore: ProfileStore by lazy { ProfileStore(database, filesDir) }
+    val backupChoice: BackupChoice by lazy { BackupChoice(this) }
     val listeningPreferences: ListeningPreferences by lazy { ListeningPreferences(this) }
     val speaker: Speaker by lazy { Speaker(this) }
     val listener: SpeechListener by lazy { SpeechListener(this) }

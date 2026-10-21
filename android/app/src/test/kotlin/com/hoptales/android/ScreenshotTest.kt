@@ -131,6 +131,10 @@ class ScreenshotTest {
 
     @Test fun listeningUnavailableDark() = listeningUnavailable(dark = true)
 
+    @Test fun onboardingBackupLight() = onboarding(OnboardingStep.BACKUP, dark = false)
+
+    @Test fun onboardingBackupDark() = onboarding(OnboardingStep.BACKUP, dark = true)
+
     @Test fun onboardingNameLight() = onboarding(OnboardingStep.NAME, dark = false)
 
     @Test fun onboardingNameDark() = onboarding(OnboardingStep.NAME, dark = true)
@@ -148,11 +152,11 @@ class ScreenshotTest {
     @Test fun onboardingSoundButtonsDark() = onboarding(OnboardingStep.SOUND_BUTTONS, dark = true)
 
     @Test
-    @Config(qualifiers = "w412dp-h1700dp-xhdpi")
+    @Config(qualifiers = "w412dp-h1960dp-xhdpi")
     fun settingsLight() = settings(dark = false)
 
     @Test
-    @Config(qualifiers = "w412dp-h1700dp-xhdpi")
+    @Config(qualifiers = "w412dp-h1960dp-xhdpi")
     fun settingsDark() = settings(dark = true)
 
     @Test fun introNight() = intro("intro-night", time = 0.0)
@@ -172,6 +176,7 @@ class ScreenshotTest {
     private fun onboarding(step: OnboardingStep, dark: Boolean) {
         val state = OnboardingState(
             step = step,
+            backup = true,
             childName = "Maya",
             startingFriend = Friend.HARE.takeIf { step >= OnboardingStep.FRIEND },
             soundButtons = true.takeIf { step >= OnboardingStep.SOUND_BUTTONS },
@@ -187,7 +192,13 @@ class ScreenshotTest {
         compose.setContent {
             HopTalesTheme(dark = dark) {
                 SettingsContent(
-                    SettingsState(childName = "Maya", profile = profile, journey = Journey.starting(Friend.HARE)),
+                    SettingsState(
+                        childName = "Maya",
+                        profile = profile,
+                        journey = Journey.starting(Friend.HARE),
+                        backupOn = true,
+                        backupWasOn = true,
+                    ),
                     SettingsActions(),
                 )
             }

@@ -50,6 +50,7 @@ data class ProfileDraft(
     val accent: Profile.Accent? = null,
     val voiceID: String? = null,
     val soundButtons: Boolean? = null,
+    val backup: Boolean? = null,
     val step: Int,
 )
 
