@@ -38,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -70,7 +71,15 @@ import com.hoptales.android.design.StarChip
 import com.hoptales.android.world.Art
 import com.hoptales.android.world.HareSheets
 import com.hoptales.android.world.MeadowLayer
+import com.hoptales.android.world.MeadowStars
+import com.hoptales.android.world.SkyArt
+import com.hoptales.android.world.SkyLayout
+import com.hoptales.android.world.SkyWeather
+import com.hoptales.android.world.StillDrops
 import com.hoptales.android.world.WorldStyle
+import com.hoptales.android.world.drawSky
+import com.hoptales.android.world.drawWeather
+import com.hoptales.android.world.rememberSkyLook
 import com.hoptales.content.Story
 import com.hoptales.reading.ReadingState
 import kotlinx.coroutines.delay
@@ -155,6 +164,16 @@ private fun PathStage(state: ReadingState, onWordTapped: () -> Unit) {
     val layers = remember(friend) {
         MeadowLayer.entries.associateWith { Art.image(context.assets, it.asset(friend)) ?: Art.image(context.assets, "${it.prefix}-day") }
     }
+    val skyArt = remember { SkyArt.load(context.assets) }
+    val look = rememberSkyLook(state.mood, still = reduceMotion)
+    val weather = remember { SkyWeather() }
+    var skyTime by remember { mutableDoubleStateOf(0.0) }
+    LaunchedEffect(state.mood) { weather.apply(state.mood, skyTime) }
+    LaunchedEffect(reduceMotion) {
+        if (reduceMotion) return@LaunchedEffect
+        val origin = withFrameNanos { it } - (skyTime * 1e9).toLong()
+        while (true) withFrameNanos { skyTime = (it - origin) / 1e9 }
+    }
     val hare = remember(friend) {
         val sheets = HareSheets.of(friend)
         HareArt(Art.image(context.assets, sheets.idle.asset), Art.image(context.assets, sheets.hop.asset), sheets)
@@ -194,6 +213,19 @@ private fun PathStage(state: ReadingState, onWordTapped: () -> Unit) {
             }
         }
 
+        val skyLayout = SkyLayout.of(geometry.meadow, geometry.height)
+        val stars = remember(skyLayout) { MeadowStars.field(skyLayout) }
+        val stillDrops = if (reduceMotion) remember(geometry) { StillDrops(geometry.width, geometry.height, geometry.density) } else null
+        Canvas(Modifier.fillMaxSize()) {
+            drawSky(look(), skyLayout, skyArt, stars, skyTime, still = reduceMotion)
+        }
+        Canvas(Modifier.fillMaxSize()) {
+            drawMeadow(layers, geometry.meadow, camera.value, look())
+        }
+        Canvas(Modifier.fillMaxSize()) {
+            drawWeather(look(), weather, skyTime, geometry.density, stillDrops)
+        }
+
         val currentStop = path.stop(state.sentenceIndex, state.wordIndex)
         Canvas(
             Modifier
@@ -209,10 +241,7 @@ private fun PathStage(state: ReadingState, onWordTapped: () -> Unit) {
                     }
                 },
         ) {
-            val cameraX = camera.value
-            drawSky(state.mood.sky)
-            drawMeadow(layers, geometry.meadow, cameraX, state.mood.sky)
-            drawWords(path, cameraX, state.sentenceIndex, state.wordIndex)
+            drawWords(path, camera.value, state.sentenceIndex, state.wordIndex)
         }
         Canvas(Modifier.fillMaxSize()) {
             val pose = motion.pose(now, reduceMotion)
