@@ -32,6 +32,7 @@ data class ReadingState(
     val bigWords: Set<WordRef> = emptySet(),
     val treat: StoryTreat? = null,
     val journeyMoments: List<JourneyMoment> = emptyList(),
+    val hasTriedItOn: Boolean = false,
 ) {
     sealed interface Completed {
         data class Sentence(val index: Int) : Completed
@@ -44,6 +45,8 @@ data class ReadingState(
     val currentWord: Word? get() = sentence?.words?.getOrNull(wordIndex)
     val nextWord: Word? get() = sentence?.words?.getOrNull(wordIndex + 1)
     val isFinished: Boolean get() = completed is Completed.Story
+
+    val endedASentence: Boolean get() = completionCount > 0 && completed is Completed.Sentence
 
     val tally: JourneyMoment.Tally? get() = journeyMoments.firstNotNullOfOrNull { it as? JourneyMoment.Tally }
 
@@ -189,7 +192,12 @@ class Reading(story: Story, strictness: Strictness = Strictness.GENTLE, bigWords
         return basket?.value ?: walked
     }
 
+    fun tryItOn() {
+        state = state.copy(hasTriedItOn = true)
+    }
+
     fun momentDismissed() {
+        state = state.copy(hasTriedItOn = false)
         val index = state.journeyMoments.indexOfFirst { it.isCallout }
         if (index < 0) return
         state = state.copy(journeyMoments = state.journeyMoments.filterIndexed { position, _ -> position != index })

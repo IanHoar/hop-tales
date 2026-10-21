@@ -28,7 +28,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.shadow.Shadow
@@ -44,7 +44,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.design.Deckle
-import com.hoptales.android.design.LocalPalette
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.PaperChip
@@ -104,7 +103,7 @@ fun TallyCard(tally: JourneyMoment.Tally, found: JourneyMoment.TreatFound?, modi
             }
         }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            FriendSticker(tally.next, 46.dp, isSilhouette = !reached)
+            FriendSticker(tally.next, 46.dp, Modifier.alpha(if (reached) 1f else 0.55f), isSilhouette = !reached)
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("The path to ${tally.next.friendName}", style = type.display(16.sp), color = paper.ink)
                 PathRibbon(if (tally.goal > 0) tally.total / tally.goal else 1.0)
@@ -143,9 +142,11 @@ fun treatLine(treat: CollectedTreat, trail: Int): String {
 
 @Composable
 fun PathRibbon(fill: Double, modifier: Modifier = Modifier) {
-    val palette = LocalPalette.current
-    Box(modifier.width(180.dp).height(12.dp).clip(CircleShape).background(palette.muted.copy(alpha = 0.22f))) {
-        Box(Modifier.fillMaxWidth(fill.coerceIn(0.0, 1.0).toFloat()).height(12.dp).background(palette.gold, CircleShape))
+    val paper = LocalPaper.current
+    val track = remember { Deckle(seed = 8, jitter = 1.2.dp, step = 6.dp) }
+    val filled = remember { Deckle(seed = 9, jitter = 1.2.dp, step = 6.dp) }
+    Box(modifier.width(180.dp).height(12.dp).background(paper.muted.copy(alpha = 0.22f), track)) {
+        Box(Modifier.fillMaxWidth(fill.coerceIn(0.0, 1.0).toFloat()).height(12.dp).background(paper.wash, filled))
     }
 }
 
@@ -157,10 +158,12 @@ fun CalloutCard(
     primary: () -> Unit,
     dismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    isDone: Boolean = false,
 ) {
     val type = LocalTypography.current
     val paper = LocalPaper.current
-    var opened by rememberSaveable(moment.toString()) { mutableStateOf(false) }
+    var tapped by rememberSaveable(moment.toString()) { mutableStateOf(false) }
+    val opened = tapped || isDone
     val waitsForOpening = moment is JourneyMoment.BasketFull && !opened
     val card = remember { Deckle(seed = 33, jitter = 2.6.dp, step = 10.dp) }
     Column(
@@ -179,13 +182,11 @@ fun CalloutCard(
 
             is JourneyMoment.NotYet -> FriendSticker(moment.friend, 120.dp)
 
-            is JourneyMoment.NewFriend -> FriendSticker(
-                moment.friend,
-                120.dp,
+            is JourneyMoment.NewFriend -> Box(
                 Modifier.clearAndSetSemantics { contentDescription = "${moment.friend.friendName}, your new friend" },
-            )
+            ) { FriendReveal(moment.friend) }
 
-            is JourneyMoment.BasketFull -> PresentReveal(moment.friend, item, opened) { opened = true }
+            is JourneyMoment.BasketFull -> PresentReveal(moment.friend, item, opened) { tapped = true }
 
             else -> Unit
         }
@@ -204,8 +205,18 @@ fun CalloutCard(
             if (waitsForOpening) {
                 Text("Tap the present to open it", style = type.ui(14.sp, FontWeight.SemiBold), color = paper.muted)
             } else {
-                secondary(moment)?.let { CardButton(it, filled = false, onClick = dismiss) }
-                CardButton(primaryTitle(moment), filled = true, onClick = if (leads) primary else dismiss)
+                if (!isDone) secondary(moment)?.let { CardButton(it, filled = false, onClick = dismiss) }
+                CardButton(
+                    if (isDone) "Done" else primaryTitle(moment),
+                    filled = true,
+                    onClick = if (leads &&
+                        !isDone
+                    ) {
+                        primary
+                    } else {
+                        dismiss
+                    },
+                )
             }
         }
     }
@@ -317,8 +328,23 @@ fun BasketChip(treat: StoryTreat, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun JourneyPanel(state: ReadingState, onStory: (Story) -> Unit, onTryItOn: (Friend) -> Unit, dismiss: () -> Unit) {
+fun JourneyPanel(state: ReadingState, onStory: (Story) -> Unit, onTryItOn: (Friend) -> Unit, isDone: Boolean, dismiss: () -> Unit) {
     val app = LocalContext.current.applicationContext as HopTalesApplication
+    Box(Modifier.fillMaxSize()) {
+        MomentCards(state, app, onStory, onTryItOn, isDone, dismiss)
+        if (state.callout is JourneyMoment.NewFriend) PaperConfetti(delayMillis = FriendReveal.CONFETTI_DELAY_MILLIS)
+    }
+}
+
+@Composable
+private fun MomentCards(
+    state: ReadingState,
+    app: HopTalesApplication,
+    onStory: (Story) -> Unit,
+    onTryItOn: (Friend) -> Unit,
+    isDone: Boolean,
+    dismiss: () -> Unit,
+) {
     BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding(), contentAlignment = Alignment.TopCenter) {
         val top = maxHeight * (PANEL_Y / PANEL_REFERENCE_HEIGHT)
         val callout = state.callout
@@ -337,6 +363,7 @@ fun JourneyPanel(state: ReadingState, onStory: (Story) -> Unit, onTryItOn: (Frie
                     },
                     dismiss = dismiss,
                     modifier = Modifier.padding(top = top),
+                    isDone = isDone,
                 )
             }
         } else if (tally != null) {

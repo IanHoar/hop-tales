@@ -1,9 +1,7 @@
 package com.hoptales.android.home
 
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,22 +15,35 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.shadow.Shadow
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hoptales.android.design.LocalPalette
+import com.hoptales.android.design.Deckle
+import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
+import com.hoptales.android.design.pressable
 import com.hoptales.android.world.FriendSticker
 import com.hoptales.android.world.Rosette
 import com.hoptales.android.world.TreatSticker
@@ -45,28 +56,29 @@ private const val GOLDEN_SLOTS = 5
 
 @Composable
 fun BookScreen(library: StoryLibrary, progress: Progress, friend: Friend, onFriend: (Friend) -> Unit, onDone: () -> Unit) {
-    val palette = LocalPalette.current
+    val paper = LocalPaper.current
     val type = LocalTypography.current
     val basket = progress.baskets[friend] ?: Basket()
     val storiesRead = library.stories(friend.level).filter(progress::isFinished)
-    Column(Modifier.fillMaxSize().background(palette.page)) {
+    val page = remember { Deckle(seed = 19, jitter = 3.dp, step = 14.dp) }
+    Column(Modifier.fillMaxSize().background(paper.page)) {
         SheetHeader("Collection book", onDone)
         Row(Modifier.fillMaxWidth().weight(1f)) {
-            Surface(
-                modifier = Modifier.weight(1f).padding(start = 20.dp, bottom = 30.dp),
-                shape = RoundedCornerShape(8.dp),
-                color = palette.paper,
-                border = BorderStroke(3.dp, palette.outline),
-                shadowElevation = 4.dp,
-            ) {
-                Column(Modifier.verticalScroll(rememberScrollState()).padding(22.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
+            Box(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+                Column(
+                    Modifier
+                        .padding(start = 20.dp, bottom = 30.dp)
+                        .fillMaxWidth()
+                        .dropShadow(page, Shadow(8.dp, paper.shadow, offset = DpOffset(0.dp, 5.dp)))
+                        .background(paper.paper, page)
+                        .padding(22.dp),
+                    verticalArrangement = Arrangement.spacedBy(18.dp),
+                ) {
                     Text(
                         "${friend.friendName}'s basket",
                         style = type.display(26.sp),
-                        color = palette.ink,
-                        modifier = Modifier.semantics {
-                            heading()
-                        },
+                        color = paper.ink,
+                        modifier = Modifier.semantics { heading() },
                     )
                     Row(
                         Modifier.clearAndSetSemantics { contentDescription = "${basket.total} ${friend.treat.many} found" },
@@ -80,8 +92,8 @@ fun BookScreen(library: StoryLibrary, progress: Progress, friend: Friend, onFrie
                             }
                         }
                         Column(Modifier.padding(start = 12.dp)) {
-                            Text("${basket.total}", style = type.display(38.sp), color = palette.ink)
-                            Text("${friend.treat.many} found", style = type.ui(15.sp, FontWeight.Medium), color = palette.muted)
+                            Text("${basket.total}", style = type.display(38.sp), color = paper.ink)
+                            Text("${friend.treat.many} found", style = type.ui(15.sp, FontWeight.Medium), color = paper.muted)
                         }
                     }
                     Section("Golden ${friend.treat.many}") {
@@ -95,16 +107,16 @@ fun BookScreen(library: StoryLibrary, progress: Progress, friend: Friend, onFrie
                         }
                     }
                     if (storiesRead.isNotEmpty()) {
-                        Section("Stories read") {
+                        Section("Stories read", spacing = 8.dp) {
                             for (story in storiesRead) {
                                 Text(
                                     story.title,
                                     style = type.display(14.sp),
-                                    color = palette.ink,
+                                    color = paper.ink,
                                     maxLines = 1,
                                     modifier = Modifier
                                         .rotate(if (story.title.length % 2 == 0) -1.5f else 1.5f)
-                                        .background(palette.parchmentLip.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                                        .background(paper.shade, RoundedCornerShape(8.dp))
                                         .padding(horizontal = 12.dp, vertical = 8.dp),
                                 )
                             }
@@ -117,18 +129,24 @@ fun BookScreen(library: StoryLibrary, progress: Progress, friend: Friend, onFrie
                     val met = tab in progress.journey.met
                     Box(
                         Modifier
-                            .size(56.dp)
-                            .background(
-                                if (tab == friend) palette.paper else palette.parchmentLip.copy(alpha = 0.6f),
-                                RoundedCornerShape(topEnd = 14.dp, bottomEnd = 14.dp),
-                            )
-                            .clickable(enabled = met) { onFriend(tab) }
+                            .pressable({ onFriend(tab) }, enabled = met)
                             .clearAndSetSemantics {
                                 contentDescription = if (met) "${tab.friendName}'s page" else "A friend at reading level ${tab.level}"
-                            },
+                            }
+                            .size(56.dp)
+                            .background(
+                                if (tab == friend) paper.paper else paper.shade,
+                                RoundedCornerShape(topEnd = 14.dp, bottomEnd = 14.dp),
+                            ),
                         contentAlignment = Alignment.Center,
                     ) {
-                        FriendSticker(tab, 38.dp, isSilhouette = !met)
+                        FriendSticker(
+                            tab,
+                            38.dp,
+                            Modifier.alpha(if (met) 1f else 0.35f),
+                            isSilhouette = !met,
+                            silhouette = paper.silhouette,
+                        )
                     }
                 }
             }
@@ -138,22 +156,30 @@ fun BookScreen(library: StoryLibrary, progress: Progress, friend: Friend, onFrie
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun Section(title: String, content: @Composable () -> Unit) {
+private fun Section(title: String, spacing: Dp = 10.dp, content: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(title, style = LocalTypography.current.display(18.sp), color = LocalPalette.current.ink)
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) { content() }
+        Text(title, style = LocalTypography.current.display(18.sp), color = LocalPaper.current.ink)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(spacing), verticalArrangement = Arrangement.spacedBy(spacing)) { content() }
     }
 }
 
 @Composable
 private fun Slot(filled: Boolean, art: @Composable () -> Unit) {
-    val palette = LocalPalette.current
-    Box(
-        Modifier
-            .size(width = 52.dp, height = 58.dp)
-            .then(if (filled) Modifier else Modifier.border(2.dp, palette.muted.copy(alpha = 0.5f), RoundedCornerShape(12.dp))),
-        contentAlignment = Alignment.Center,
-    ) {
-        if (filled) art()
+    val dash = LocalPaper.current.muted.copy(alpha = 0.5f)
+    Box(Modifier.size(width = 52.dp, height = 58.dp), contentAlignment = Alignment.Center) {
+        if (filled) {
+            art()
+        } else {
+            Canvas(Modifier.fillMaxSize()) {
+                val line = 2.dp.toPx()
+                drawRoundRect(
+                    dash,
+                    topLeft = Offset(line / 2, line / 2),
+                    size = Size(size.width - line, size.height - line),
+                    cornerRadius = CornerRadius(12.dp.toPx() - line / 2),
+                    style = Stroke(line, pathEffect = PathEffect.dashPathEffect(floatArrayOf(5.dp.toPx(), 4.dp.toPx()))),
+                )
+            }
+        }
     }
 }

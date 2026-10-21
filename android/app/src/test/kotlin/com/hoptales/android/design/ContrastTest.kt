@@ -10,22 +10,19 @@ import org.junit.Test
 class ContrastTest {
     private val palette = Palette.dark
     private val paper = Paper.dark
-    private val field = palette.field
-    private val chosen = palette.red.copy(alpha = 0.1f).compositeOver(palette.paper)
     private val storyRow = paper.rim.copy(alpha = 0.55f).compositeOver(paper.paper)
+    private val paperField = paper.rim.copy(alpha = 0.6f).compositeOver(paper.page)
+    private val sheetField = paper.rim.copy(alpha = 0.7f).compositeOver(paper.paper)
+    private val paperChosen = paper.red.copy(alpha = 0.1f).compositeOver(paper.page)
+    private val sheetChosen = paper.red.copy(alpha = 0.1f).compositeOver(paper.paper)
 
     private val pairs = listOf(
         Pair("ink on page", palette.ink to palette.page),
         Pair("ink on paper", palette.ink to palette.paper),
         Pair("ink on parchment", palette.ink to palette.parchment),
-        Pair("ink on a field", palette.ink to field),
-        Pair("ink on a chosen choice", palette.ink to chosen),
         Pair("muted on page", palette.muted to palette.page),
         Pair("muted on paper", palette.muted to palette.paper),
         Pair("muted on parchment", palette.muted to palette.parchment),
-        Pair("muted on a field", palette.muted to field),
-        Pair("muted on a chosen choice", palette.muted to chosen),
-        Pair("placeholder on a field", palette.faint to field),
         Pair("heard word", palette.heardText to palette.heardBg),
         Pair("paper ink on paper", paper.ink to paper.paper),
         Pair("paper ink on page", paper.ink to paper.page),
@@ -40,6 +37,17 @@ class ContrastTest {
         Pair("white on red", paper.onRed to paper.red),
         Pair("next tag", paper.ink to paper.wash),
         Pair("microphone allowed", paper.sageDeep to palette.paper),
+        Pair("microphone allowed on the sheet", paper.sageDeep to paper.paper),
+        Pair("step detail on the sheet", paper.ink.copy(alpha = 0.85f) to paper.paper),
+        Pair("paper ink on a paper field", paper.ink to paperField),
+        Pair("paper ink on a sheet field", paper.ink to sheetField),
+        Pair("paper ink on a chosen choice", paper.ink to paperChosen),
+        Pair("paper ink on a chosen sheet choice", paper.ink to sheetChosen),
+        Pair("paper muted on a paper field", paper.muted to paperField),
+        Pair("paper muted on a sheet field", paper.muted to sheetField),
+        Pair("paper muted on a chosen choice", paper.muted to paperChosen),
+        Pair("paper muted on a chosen sheet choice", paper.muted to sheetChosen),
+        Pair("paper muted on shade", paper.muted to paper.shade),
     )
 
     @Test

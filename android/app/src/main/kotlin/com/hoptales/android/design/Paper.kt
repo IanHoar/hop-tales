@@ -16,6 +16,7 @@ data class Paper(
     val washRing: Color,
     val muted: Color,
     val rim: Color,
+    val silhouette: Color,
     val redInk: Color,
 ) {
     val red = Color(0xFFB8423A)
@@ -35,6 +36,7 @@ data class Paper(
             washRing = Color(0xFFB8862E),
             muted = Color(0xFF736350),
             rim = Color(0xFFFFFFFF),
+            silhouette = Color(0x993C3C43),
             redInk = Color(0xFFB8423A),
         )
 
@@ -49,6 +51,7 @@ data class Paper(
             washRing = Color(0xFFD9A94A),
             muted = Color(0xFFC4BDD6),
             rim = Color(0xFF3A4674),
+            silhouette = Color(0x99EBEBF5),
             redInk = Color(0xFFF59A90),
         )
     }

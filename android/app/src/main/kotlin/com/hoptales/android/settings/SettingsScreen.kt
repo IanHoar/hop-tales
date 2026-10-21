@@ -49,23 +49,23 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.design.ChevronGlyph
 import com.hoptales.android.design.ChoiceSurface
-import com.hoptales.android.design.LocalPalette
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.PaperChip
 import com.hoptales.android.design.PaperChoice
 import com.hoptales.android.design.PaperToggle
 import com.hoptales.android.design.SpeakerGlyph
-import com.hoptales.android.design.field
-import com.hoptales.android.design.headingGroup
 import com.hoptales.android.design.paperChip
+import com.hoptales.android.design.paperField
 import com.hoptales.android.design.pressable
+import com.hoptales.android.home.SheetHeader
 import com.hoptales.android.world.FriendSticker
 import com.hoptales.android.world.SoundMarksExamples
 import com.hoptales.content.Friend
@@ -78,6 +78,7 @@ class SettingsActions(
     val nameSubmitted: () -> Unit = {},
     val friendPicked: (Friend) -> Unit = {},
     val accentPicked: (Profile.Accent) -> Unit = {},
+    val themePicked: (Profile.Theme) -> Unit = {},
     val strictnessPicked: (Strictness) -> Unit = {},
     val soundButtonsToggled: (Boolean) -> Unit = {},
     val voicePicked: (String?) -> Unit = {},
@@ -105,6 +106,7 @@ fun SettingsScreen(key: String, onDone: () -> Unit) {
             nameSubmitted = model::nameSubmitted,
             friendPicked = model::friendPicked,
             accentPicked = model::accentPicked,
+            themePicked = model::themePicked,
             strictnessPicked = model::strictnessPicked,
             soundButtonsToggled = model::soundButtonsToggled,
             voicePicked = model::voicePicked,
@@ -134,10 +136,10 @@ val Strictness.detail: String
 
 @Composable
 fun SettingsContent(state: SettingsState, actions: SettingsActions) {
-    val palette = LocalPalette.current
+    val paper = LocalPaper.current
     val insets = WindowInsets.safeDrawing.asPaddingValues()
-    Column(Modifier.fillMaxSize().background(palette.page).padding(top = insets.calculateTopPadding())) {
-        SettingsHeader(actions.done)
+    Column(Modifier.fillMaxSize().background(paper.page)) {
+        SheetHeader("Settings", actions.done)
         Box(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), contentAlignment = Alignment.TopCenter) {
             Column(
                 Modifier
@@ -154,13 +156,18 @@ fun SettingsContent(state: SettingsState, actions: SettingsActions) {
                     Text(
                         Phonics.STANDARD,
                         style = LocalTypography.current.ui(13.sp),
-                        color = palette.muted,
+                        color = paper.muted,
                         modifier = Modifier.padding(horizontal = 4.dp),
                     )
                 }
                 Section("Accent") {
                     for (accent in Profile.Accent.entries) {
                         PaperChoice(accent.accentName, selected = accent == state.profile.accent) { actions.accentPicked(accent) }
+                    }
+                }
+                Section("Theme") {
+                    for (theme in Profile.Theme.entries) {
+                        PaperChoice(theme.themeName, selected = theme == state.profile.theme) { actions.themePicked(theme) }
                     }
                 }
                 Section("Listening") {
@@ -192,25 +199,10 @@ fun SettingsContent(state: SettingsState, actions: SettingsActions) {
                 Section("Backup") { BackupRow(state, actions.backupToggled) }
                 Section("Testing") {
                     PaperChip(height = 48.dp, onClick = actions.resetOnboarding) {
-                        Text("Reset onboarding", style = LocalTypography.current.ui(15.sp), color = palette.ink)
+                        Text("Reset onboarding", style = LocalTypography.current.ui(15.sp), color = paper.ink)
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun SettingsHeader(onDone: () -> Unit) {
-    val palette = LocalPalette.current
-    val type = LocalTypography.current
-    Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-        PaperChip(Modifier.rotate(-2f).headingGroup(), height = 48.dp) {
-            Text("Settings", style = type.display(22.sp), color = palette.ink)
-        }
-        Spacer(Modifier.weight(1f))
-        PaperChip(height = 48.dp, onClick = onDone) {
-            Text("Done", style = type.display(17.sp), color = palette.ink)
         }
     }
 }
@@ -220,8 +212,8 @@ private fun Section(title: String, content: @Composable ColumnScope.() -> Unit) 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
             title.uppercase(),
-            style = LocalTypography.current.caps(13.sp),
-            color = LocalPalette.current.muted,
+            style = LocalTypography.current.ui(13.sp).copy(letterSpacing = 0.14.em),
+            color = LocalPaper.current.muted,
             modifier = Modifier.padding(horizontal = 4.dp).semantics {
                 heading()
                 contentDescription = title
@@ -231,20 +223,17 @@ private fun Section(title: String, content: @Composable ColumnScope.() -> Unit) 
     }
 }
 
-private fun Modifier.settingsField(background: Color, rim: Color) =
-    this.background(background, RoundedCornerShape(18.dp)).border(3.dp, rim, RoundedCornerShape(18.dp))
-
 @Composable
 private fun SettingsName(name: String, actions: SettingsActions) {
-    val palette = LocalPalette.current
+    val paper = LocalPaper.current
     val type = LocalTypography.current
     var wasFocused by remember { mutableStateOf(false) }
     BasicTextField(
         value = name,
         onValueChange = actions.nameChanged,
         singleLine = true,
-        textStyle = type.display(22.sp).copy(color = palette.ink),
-        cursorBrush = SolidColor(palette.ink),
+        textStyle = type.display(22.sp).copy(color = paper.ink),
+        cursorBrush = SolidColor(paper.ink),
         keyboardOptions = KeyboardOptions(
             capitalization = KeyboardCapitalization.Words,
             autoCorrectEnabled = false,
@@ -254,7 +243,7 @@ private fun SettingsName(name: String, actions: SettingsActions) {
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
-            .settingsField(palette.field, palette.parchmentLip)
+            .paperField()
             .onFocusChanged {
                 if (wasFocused && !it.isFocused) actions.nameSubmitted()
                 wasFocused = it.isFocused
@@ -262,7 +251,7 @@ private fun SettingsName(name: String, actions: SettingsActions) {
             .semantics { contentDescription = "Name or nickname" },
         decorationBox = { field ->
             Box(Modifier.padding(horizontal = 16.dp), contentAlignment = Alignment.CenterStart) {
-                if (name.isEmpty()) Text("Name or nickname", style = type.display(22.sp), color = palette.faint)
+                if (name.isEmpty()) Text("Name or nickname", style = type.display(22.sp), color = paper.muted)
                 field()
             }
         },
@@ -271,26 +260,27 @@ private fun SettingsName(name: String, actions: SettingsActions) {
 
 @Composable
 private fun VoiceRow(state: SettingsState, actions: SettingsActions) {
-    val palette = LocalPalette.current
+    val paper = LocalPaper.current
     val type = LocalTypography.current
     var open by remember { mutableStateOf(false) }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.weight(1f)) {
-            Surface(
-                onClick = { open = true },
-                modifier = Modifier.fillMaxWidth().height(56.dp).semantics { contentDescription = "Help voice, ${state.voiceName}" },
-                shape = RoundedCornerShape(18.dp),
-                color = palette.field,
-                border = BorderStroke(3.dp, palette.parchmentLip),
+            Row(
+                Modifier
+                    .semantics { contentDescription = "Help voice, ${state.voiceName}" }
+                    .pressable({ open = true })
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .paperField()
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Row(Modifier.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(state.voiceName, style = type.display(19.sp), color = palette.ink, modifier = Modifier.weight(1f))
-                    ChevronGlyph(palette.muted)
-                }
+                Text(state.voiceName, style = type.display(19.sp), color = paper.ink, modifier = Modifier.weight(1f))
+                ChevronGlyph(paper.muted)
             }
-            DropdownMenu(expanded = open, onDismissRequest = { open = false }, containerColor = palette.parchment) {
+            DropdownMenu(expanded = open, onDismissRequest = { open = false }, containerColor = paper.paper) {
                 DropdownMenuItem(
-                    text = { Text("Automatic", style = type.ui(16.sp), color = palette.ink) },
+                    text = { Text("Automatic", style = type.ui(16.sp), color = paper.ink) },
                     onClick = {
                         open = false
                         actions.voicePicked(null)
@@ -298,7 +288,7 @@ private fun VoiceRow(state: SettingsState, actions: SettingsActions) {
                 )
                 for (voice in state.voices) {
                     DropdownMenuItem(
-                        text = { Text(voice.name, style = type.ui(16.sp), color = palette.ink) },
+                        text = { Text(voice.name, style = type.ui(16.sp), color = paper.ink) },
                         onClick = {
                             open = false
                             actions.voicePicked(voice.id)
@@ -313,7 +303,7 @@ private fun VoiceRow(state: SettingsState, actions: SettingsActions) {
                 .size(56.dp)
                 .semantics { contentDescription = "Hear the help voice" }
                 .pressable(actions.hearVoice)
-                .paperChip(CircleShape),
+                .paperChip(CircleShape, rim = 3.dp),
             contentAlignment = Alignment.Center,
         ) {
             SpeakerGlyph(LocalPaper.current.ink)
@@ -323,7 +313,7 @@ private fun VoiceRow(state: SettingsState, actions: SettingsActions) {
 
 @Composable
 private fun ReadingWith(friend: Friend, selected: Boolean, onClick: () -> Unit) {
-    val palette = LocalPalette.current
+    val paper = LocalPaper.current
     val type = LocalTypography.current
     ChoiceSurface(
         selected = selected,
@@ -333,8 +323,8 @@ private fun ReadingWith(friend: Friend, selected: Boolean, onClick: () -> Unit) 
             Box(Modifier.width(56.dp), contentAlignment = Alignment.Center) { FriendSticker(friend, 52.dp) }
             Spacer(Modifier.width(14.dp))
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(friend.friendName, style = type.display(19.sp), color = palette.ink)
-                Text("${friend.stage} · ${friend.examples.joinToString(", ")}", style = type.ui(14.sp), color = palette.muted)
+                Text(friend.friendName, style = type.display(19.sp), color = paper.ink)
+                Text("${friend.stage} · ${friend.examples.joinToString(", ")}", style = type.ui(14.sp), color = paper.muted)
             }
         }
     }
@@ -363,7 +353,7 @@ private fun BackupRow(state: SettingsState, onChange: (Boolean) -> Unit) {
             Text(
                 note,
                 style = LocalTypography.current.ui(14.sp),
-                color = LocalPalette.current.muted,
+                color = LocalPaper.current.muted,
                 modifier = Modifier.padding(top = 12.dp),
             )
         }

@@ -14,11 +14,16 @@ import com.hoptales.content.treat
 import com.hoptales.content.wearing
 import com.hoptales.reading.Reading
 import com.hoptales.reading.ReadingState
+import com.hoptales.speech.ListenEnd
+import com.hoptales.speech.Relisten
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -42,10 +47,15 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
             treat = journey.treat(story),
         )
     }
-    val look: String? = app.progressStore.load().outfit(story.friend, app.wardrobe).firstOrNull()?.id
+    val look: StateFlow<String?> = app.progressStore.progress
+        .map { it.outfit(story.friend, app.wardrobe).firstOrNull()?.id }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, app.progressStore.load().outfit(story.friend, app.wardrobe).firstOrNull()?.id)
     private val mutableState = MutableStateFlow(reading.state)
     private val mutableListening = MutableStateFlow<Listening>(Listening.Waiting)
     private var listenJob: Job? = null
+    private var supportJob: Job? = null
+    private var listeningLocale: Locale? = null
+    private var hasCheckedSupport = false
     private var watchJob: Job? = null
     private var heardAt = SystemClock.elapsedRealtime()
     private var hasPermission = false
@@ -63,19 +73,29 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
                 mutableListening.value =
                     if (app.listeningPreferences.hasAskedForMicrophone) Listening.Denied else Listening.NeedsPermission
 
-            !app.listener.isAvailable -> mutableListening.value = Listening.Unsupported
-
             else -> {
-                mutableListening.value = Listening.Active
-                app.readingAudio.activate()
-                listen()
-                watchSilence()
+                supportJob?.cancel()
+                supportJob = viewModelScope.launch {
+                    if (!hasCheckedSupport) {
+                        listeningLocale = app.listener.listeningLocale(locale)
+                        hasCheckedSupport = true
+                    }
+                    if (!isStarted) return@launch
+                    if (listeningLocale == null) {
+                        mutableListening.value = Listening.Unsupported
+                        return@launch
+                    }
+                    mutableListening.value = Listening.Active
+                    listen()
+                    watchSilence()
+                }
             }
         }
     }
 
     fun stop() {
         isStarted = false
+        supportJob?.cancel()
         listenJob?.cancel()
         watchJob?.cancel()
         app.readingAudio.deactivate()
@@ -86,14 +106,16 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
         listenJob = viewModelScope.launch {
             while (isActive && !reading.state.isFinished) {
                 val biasing = reading.state.sentence?.words?.map { it.text }.orEmpty()
-                app.listener.listen(biasing, locale).collect { event ->
+                var end = ListenEnd.FINISHED
+                app.listener.listen(biasing, listeningLocale ?: locale).collect { event ->
                     when (event) {
                         is SpeechEvent.Partial -> heard(event.tokens, isFinal = false)
                         is SpeechEvent.Final -> heard(event.tokens, isFinal = true)
                         is SpeechEvent.Level -> Unit
+                        is SpeechEvent.Ended -> end = event.reason
                     }
                 }
-                delay(RELISTEN_AFTER_END_MILLIS)
+                delay(Relisten.after(end))
             }
             app.readingAudio.deactivate()
         }
@@ -129,7 +151,7 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
             reading.speechFinished()
             heardAt = SystemClock.elapsedRealtime()
             publish()
-            if (isStarted && hasPermission && app.listener.isAvailable) listen()
+            if (isStarted && hasPermission && listeningLocale != null) listen()
         }
     }
 
@@ -163,6 +185,8 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
         app.progressStore.update { progress ->
             progress.newestItem(friend, app.wardrobe)?.let { progress.wearing(it, friend, app.wardrobe) } ?: progress
         }
+        reading.tryItOn()
+        publish()
     }
 
     private fun sentenceChanged(before: ReadingState) {
@@ -186,9 +210,5 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
 
     override fun onCleared() {
         stop()
-    }
-
-    private companion object {
-        const val RELISTEN_AFTER_END_MILLIS = 150L
     }
 }

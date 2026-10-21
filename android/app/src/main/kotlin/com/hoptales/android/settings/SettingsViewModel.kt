@@ -65,6 +65,8 @@ class SettingsViewModel(private val app: HopTalesApplication) : ViewModel() {
 
     fun accentPicked(accent: Profile.Accent) = changeProfile { copy(accent = accent) }
 
+    fun themePicked(theme: Profile.Theme) = changeProfile { copy(theme = theme) }
+
     fun soundButtonsToggled(isOn: Boolean) = changeProfile { copy(soundButtons = isOn) }
 
     fun voicePicked(id: String?) {

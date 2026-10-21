@@ -1,5 +1,8 @@
 package com.hoptales.android.home
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.EaseOut
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,6 +32,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +48,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.shadow.Shadow
@@ -75,6 +80,8 @@ import com.hoptales.android.design.PaperStar
 import com.hoptales.android.design.headingGroup
 import com.hoptales.android.design.paperChip
 import com.hoptales.android.design.pressable
+import com.hoptales.android.design.rememberReducedMotion
+import com.hoptales.android.reading.swiftSpring
 import com.hoptales.android.world.FriendSticker
 import com.hoptales.android.world.IdleFriend
 import com.hoptales.android.world.MeadowBackdrop
@@ -96,6 +103,8 @@ import com.hoptales.content.newestItem
 import com.hoptales.content.outfit
 import com.hoptales.content.shelf
 import com.hoptales.content.startingStoryID
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.time.LocalTime
 
 @Composable
@@ -110,8 +119,11 @@ fun HomeScreen(
     onFriends: () -> Unit = {},
     onWardrobe: () -> Unit = {},
     onBook: () -> Unit = {},
+    entrance: Boolean = false,
+    covered: Boolean = false,
 ) {
     val paper = LocalPaper.current
+    val arrival = rememberArrival(entrance)
     val wardrobe = (LocalContext.current.applicationContext as HopTalesApplication).wardrobe
     val insets = WindowInsets.safeDrawing.asPaddingValues()
     val friend = progress.journey.activeFriend
@@ -133,7 +145,7 @@ fun HomeScreen(
         val framing = remember(landScale, pathCentre) {
             MeadowFraming { width, _, density -> MeadowLayout(width, landScale * density, pathCentre * density) }
         }
-        MeadowBackdrop(progress = 900f, world = friend, framing = framing)
+        MeadowBackdrop(progress = 900f, world = friend, framing = framing, live = !covered)
         if (standsAside) {
             val stage = HomeLayout.FRIEND_HEIGHT.dp * 2
             Box(
@@ -144,7 +156,13 @@ fun HomeScreen(
                     ).size(stage, HomeLayout.FRIEND_HEIGHT.dp),
                 contentAlignment = Alignment.BottomCenter,
             ) {
-                IdleFriend(friend, outfit.firstOrNull()?.id, HomeLayout.FRIEND_HEIGHT.dp)
+                IdleFriend(
+                    friend,
+                    outfit.firstOrNull()?.id,
+                    HomeLayout.FRIEND_HEIGHT.dp,
+                    Modifier.popsIn(arrival),
+                    shadow = paper.shadow,
+                )
             }
         }
         val scroll = rememberScrollState()
@@ -164,20 +182,37 @@ fun HomeScreen(
                         .onSizeChanged { sheetTop = it.height },
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    TopBar(greeting(hour, childName), onGrownUps, Modifier.padding(top = top + maxOf(8.dp, 20.dp - top)))
+                    TopBar(
+                        greeting(hour, childName),
+                        onGrownUps,
+                        Modifier.padding(top = top + maxOf(8.dp, 20.dp - top)).graphicsLayer {
+                            val shown = arrival.bar.value
+                            translationY = -HomeLayout.BAR_DROP.dp.toPx() * (1 - shown)
+                            alpha = shown.coerceIn(0f, 1f)
+                        },
+                    )
                     Spacer(Modifier.height(maxOf(0.dp, (screen * HomeLayout.SHEET_TOP).dp - top - 330.dp)))
                     IdleFriend(
                         friend,
                         outfit.firstOrNull()?.id,
                         HomeLayout.FRIEND_HEIGHT.dp,
-                        Modifier.alpha(if (standsAside) 0f else 1f),
+                        Modifier.alpha(if (standsAside) 0f else 1f).popsIn(arrival),
+                        shadow = paper.shadow,
                     )
                     Spacer(Modifier.height(14.dp))
-                    LevelChip(library, progress.journey, onJourney, Modifier.padding(horizontal = 28.dp))
+                    LevelChip(
+                        library,
+                        progress.journey,
+                        onJourney,
+                        Modifier.padding(horizontal = 28.dp).graphicsLayer { alpha = arrival.chip.value },
+                    )
                     Spacer(Modifier.height(18.dp))
                 }
                 Sheet(
-                    Modifier.padding(top = sheetTopDp).heightIn(min = fullHeight - sheetTopDp),
+                    Modifier
+                        .padding(top = sheetTopDp)
+                        .heightIn(min = fullHeight - sheetTopDp)
+                        .graphicsLayer { translationY = HomeLayout.SHEET_RISE.dp.toPx() * arrival.sheet.value },
                     bottomInset = bottom,
                 ) {
                     if (keepGoing != null) KeepGoingCard(keepGoing) { onStory(keepGoing.story) }
@@ -205,6 +240,56 @@ private object HomeLayout {
     const val FRIEND_HEIGHT = 170f
     const val COLUMN_WIDTH = 560f
     const val WIDE_LAYOUT = 760f
+    const val SHEET_RISE = 160f
+    const val BAR_DROP = 40f
+    const val FRIEND_FROM = 0.4f
+}
+
+private class Arrival(
+    val sheet: Animatable<Float, *>,
+    val friend: Animatable<Float, *>,
+    val bar: Animatable<Float, *>,
+    val chip: Animatable<Float, *>,
+)
+
+@Composable
+private fun rememberArrival(entrance: Boolean): Arrival {
+    val still = rememberReducedMotion()
+    val plays = remember { entrance && !still }
+    val arrival = remember {
+        Arrival(
+            Animatable(if (plays) 1f else 0f),
+            Animatable(if (plays) 0f else 1f),
+            Animatable(if (plays) 0f else 1f),
+            Animatable(if (plays) 0f else 1f),
+        )
+    }
+    LaunchedEffect(Unit) {
+        if (!plays) return@LaunchedEffect
+        launch { arrival.sheet.animateTo(0f, swiftSpring(0.7, 0.12)) }
+        launch {
+            delay(250)
+            arrival.friend.animateTo(1f, swiftSpring(0.5, 0.45))
+        }
+        launch {
+            delay(350)
+            arrival.chip.animateTo(1f, tween(400, easing = EaseOut))
+        }
+        launch {
+            delay(450)
+            arrival.bar.animateTo(1f, swiftSpring(0.55, 0.35))
+        }
+    }
+    return arrival
+}
+
+private fun Modifier.popsIn(arrival: Arrival) = graphicsLayer {
+    val shown = arrival.friend.value
+    val scale = HomeLayout.FRIEND_FROM + (1 - HomeLayout.FRIEND_FROM) * shown
+    scaleX = scale
+    scaleY = scale
+    alpha = shown.coerceIn(0f, 1f)
+    transformOrigin = TransformOrigin(0.5f, 1f)
 }
 
 @Composable
