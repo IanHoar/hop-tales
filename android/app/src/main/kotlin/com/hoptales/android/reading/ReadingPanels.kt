@@ -24,8 +24,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -41,8 +41,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hoptales.android.design.Deckle
 import com.hoptales.android.design.Glyphs
-import com.hoptales.android.design.InkButton
-import com.hoptales.android.design.InkKind
 import com.hoptales.android.design.LocalPalette
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
@@ -51,12 +49,9 @@ import com.hoptales.android.design.PaperLabel
 import com.hoptales.android.design.PaperQuietButton
 import com.hoptales.android.design.PaperStar
 import com.hoptales.android.design.Press
-import com.hoptales.android.design.bevel
-import com.hoptales.android.design.contentShadow
 import com.hoptales.android.design.headingGroup
 import com.hoptales.android.design.paperChip
 import com.hoptales.android.design.pressable
-import com.hoptales.android.design.rememberRimShadow
 import kotlin.math.roundToInt
 
 @Composable
@@ -91,97 +86,76 @@ private fun DebugButton(title: String, onClick: () -> Unit) {
 
 @Composable
 fun AskToListen(onAllow: () -> Unit) {
-    val palette = LocalPalette.current
-    val type = LocalTypography.current
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        PanelBackdrop(palette.duskRoot.copy(alpha = 0.55f))
-        val shape = RoundedCornerShape(32.dp)
-        val shadow = Shadow(17.dp, palette.duskShadow, offset = DpOffset(0.dp, 22.dp))
-        val rimShadow = rememberRimShadow(shape, 4.dp, shadow)
-        Column(
-            Modifier
-                .padding(24.dp)
-                .widthIn(max = 330.dp)
-                .dropShadow(shape, shadow)
-                .bevel(
-                    palette.parchment,
-                    palette.parchmentLip,
-                    shape,
-                    palette.outline,
-                    palette.highlight,
-                    4.dp,
-                    6.dp,
-                    9.dp,
-                    rimShadow = rimShadow,
-                )
-                .contentShadow(shadow)
-                .padding(28.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Icon(Glyphs.mic, null, tint = palette.muted, modifier = Modifier.size(44.dp))
-            Text("Read it out loud", style = type.display(26.sp), color = palette.ink, textAlign = TextAlign.Center)
-            Text(
-                "Hop Tales listens while you read so the hare can hop along. Listening happens on this " +
-                    "device — nothing is recorded or sent anywhere.",
-                style = type.ui(16.sp, FontWeight.Medium),
-                color = palette.muted,
-                textAlign = TextAlign.Center,
-            )
-            InkButton("Let's read", InkKind.PRIMARY, Modifier.fillMaxWidth().padding(top = 6.dp), onClick = onAllow)
-        }
-    }
+    PaperNotice(
+        icon = Glyphs.mic,
+        title = "Read it out loud",
+        body = "Hop Tales listens while you read so the hare can hop along. Listening happens on this " +
+            "device — nothing is recorded or sent anywhere.",
+        action = "Let's read",
+        actionIcon = Glyphs.book,
+        onAction = onAllow,
+    )
 }
 
 @Composable
 fun ListeningUnavailable(listening: Listening, onBack: () -> Unit) {
-    val palette = LocalPalette.current
-    val type = LocalTypography.current
     val denied = listening == Listening.Denied
+    PaperNotice(
+        icon = if (denied) Glyphs.micSlash else Glyphs.phoneSlash,
+        title = if (denied) "The microphone is off" else "This device can’t listen yet",
+        body = if (denied) {
+            "Hop Tales listens so it can hear you read. A grown-up can turn the microphone back on in Settings."
+        } else {
+            "Hop Tales listens on the device itself, and this one doesn’t support that. You can still read along together."
+        },
+        action = "Back to stories",
+        actionIcon = Glyphs.house,
+        onAction = onBack,
+    )
+}
+
+@Composable
+private fun PaperNotice(icon: ImageVector, title: String, body: String, action: String, actionIcon: ImageVector, onAction: () -> Unit) {
+    val paper = LocalPaper.current
+    val type = LocalTypography.current
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        PanelBackdrop(palette.duskRoot.copy(alpha = 0.55f))
-        val shape = RoundedCornerShape(32.dp)
-        val shadow = Shadow(17.dp, palette.duskShadow, offset = DpOffset(0.dp, 22.dp))
-        val rimShadow = rememberRimShadow(shape, 4.dp, shadow)
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(paper.night.copy(alpha = 0.45f))
+                .clearAndSetSemantics {}
+                .clickable(remember { MutableInteractionSource() }, indication = null, onClick = {}),
+        )
+        val card = remember { Deckle(seed = 53, jitter = 3.dp, step = 12.dp) }
         Column(
             Modifier
-                .padding(24.dp)
-                .widthIn(max = 330.dp)
-                .dropShadow(shape, shadow)
-                .bevel(
-                    palette.parchment,
-                    palette.parchmentLip,
-                    shape,
-                    palette.outline,
-                    palette.highlight,
-                    4.dp,
-                    6.dp,
-                    9.dp,
-                    rimShadow = rimShadow,
-                )
-                .contentShadow(shadow)
-                .padding(28.dp),
+                .padding(horizontal = 24.dp)
+                .widthIn(max = 340.dp)
+                .rotate(-1f)
+                .dropShadow(card, Shadow(12.dp, paper.shadow, offset = DpOffset(0.dp, 8.dp)))
+                .background(paper.paper, card)
+                .pointerInput(Unit) { detectTapGestures {} }
+                .padding(horizontal = 24.dp, vertical = 28.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            Icon(if (denied) Glyphs.micSlash else Glyphs.phoneSlash, null, tint = palette.muted, modifier = Modifier.size(44.dp))
+            Icon(icon, null, tint = paper.muted, modifier = Modifier.size(44.dp))
+            PaperLabel(Modifier.rotate(-2f).headingGroup(), seed = 17) {
+                Text(
+                    title,
+                    style = type.display(26.sp),
+                    color = paper.ink,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 18.dp, vertical = 8.dp),
+                )
+            }
             Text(
-                if (denied) "The microphone is off" else "This device can’t listen yet",
-                style = type.display(26.sp),
-                color = palette.ink,
+                body,
+                style = type.ui(16.sp, FontWeight.Medium),
+                color = paper.ink.copy(alpha = 0.85f),
                 textAlign = TextAlign.Center,
             )
-            Text(
-                if (denied) {
-                    "Hop Tales listens so it can hear you read. A grown-up can turn the microphone back on in Settings."
-                } else {
-                    "Hop Tales listens on the device itself, and this one doesn’t support that. You can still read along together."
-                },
-                style = type.ui(16.sp),
-                color = palette.muted,
-                textAlign = TextAlign.Center,
-            )
-            InkButton("Back to stories", InkKind.PRIMARY, Modifier.fillMaxWidth().padding(top = 6.dp), onClick = onBack)
+            PaperButton(action, Modifier.padding(top = 6.dp), icon = actionIcon, onClick = onAction)
         }
     }
 }
@@ -302,14 +276,3 @@ private fun Modifier.centredAt(y: Float) = layout { measurable, constraints ->
 }
 
 private const val STICKER_Y = 728f
-
-@Composable
-private fun PanelBackdrop(color: Color) {
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(color)
-            .clearAndSetSemantics {}
-            .clickable(remember { MutableInteractionSource() }, indication = null, onClick = {}),
-    )
-}
