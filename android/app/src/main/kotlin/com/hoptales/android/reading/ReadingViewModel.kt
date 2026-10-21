@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.speech.SpeechEvent
+import com.hoptales.content.Profile
 import com.hoptales.content.Story
 import com.hoptales.reading.Reading
 import com.hoptales.reading.ReadingState
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 sealed interface Listening {
     data object Waiting : Listening
@@ -25,7 +27,9 @@ sealed interface Listening {
 }
 
 class ReadingViewModel(story: Story, private val app: HopTalesApplication) : ViewModel() {
-    private val reading = Reading(story)
+    private val profile = app.profileStore.load() ?: Profile()
+    private val locale = Locale.forLanguageTag(profile.accent.tag)
+    private val reading = Reading(story, app.listeningPreferences.strictness)
     private val mutableState = MutableStateFlow(reading.state)
     private val mutableListening = MutableStateFlow<Listening>(Listening.Waiting)
     private var listenJob: Job? = null
@@ -42,7 +46,9 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
         hasPermission = permission
         isStarted = true
         when {
-            !permission -> mutableListening.value = Listening.NeedsPermission
+            !permission ->
+                mutableListening.value =
+                    if (app.listeningPreferences.hasAskedForMicrophone) Listening.Unavailable else Listening.NeedsPermission
 
             !app.listener.isAvailable -> mutableListening.value = Listening.Unavailable
 
@@ -67,7 +73,7 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
         listenJob = viewModelScope.launch {
             while (isActive && !reading.state.isFinished) {
                 val biasing = reading.state.sentence?.words?.map { it.text }.orEmpty()
-                app.listener.listen(biasing).collect { event ->
+                app.listener.listen(biasing, locale).collect { event ->
                     when (event) {
                         is SpeechEvent.Partial -> heard(event.tokens, isFinal = false)
                         is SpeechEvent.Final -> heard(event.tokens, isFinal = true)
@@ -118,7 +124,7 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
         publish()
         listenJob?.cancel()
         viewModelScope.launch {
-            app.speaker.speak(word)
+            app.speaker.speak(word, locale, profile.voiceID)
             delay(ReadingState.SETTLE_AFTER_SPEAKING_MILLIS)
             reading.speechFinished()
             heardAt = SystemClock.elapsedRealtime()

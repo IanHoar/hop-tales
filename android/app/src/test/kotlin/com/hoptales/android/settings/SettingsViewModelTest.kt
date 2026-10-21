@@ -1,0 +1,73 @@
+package com.hoptales.android.settings
+
+import com.hoptales.android.HopTalesApplication
+import com.hoptales.content.Friend
+import com.hoptales.content.Profile
+import com.hoptales.speech.Strictness
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
+
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [36])
+class SettingsViewModelTest {
+    private val app get() = RuntimeEnvironment.getApplication() as HopTalesApplication
+    private val maya = Profile("Maya", Friend.HARE)
+
+    @Before
+    fun saveAProfile() = app.profileStore.save(maya)
+
+    @After
+    fun forget() = app.profileStore.erase()
+
+    @Test
+    fun everySettingIsSavedAsItChanges() {
+        val model = SettingsViewModel(app)
+        model.accentPicked(Profile.Accent.BRITISH)
+        model.soundButtonsToggled(true)
+        model.strictnessPicked(Strictness.STANDARD)
+        model.soundToggled(false)
+
+        assertEquals(maya.copy(accent = Profile.Accent.BRITISH, soundButtons = true), app.profileStore.load())
+        assertEquals(Strictness.STANDARD, app.listeningPreferences.strictness)
+        assertFalse(app.soundPreference.isOn)
+        assertEquals(Strictness.STANDARD, SettingsViewModel(app).state.value.strictness)
+    }
+
+    @Test
+    fun theNameIsSavedWhenTheGrownUpIsDone() {
+        val model = SettingsViewModel(app)
+        model.nameChanged("  Mia ")
+        assertEquals("Maya", app.profileStore.load()?.childName)
+        model.done()
+        assertEquals("Mia", app.profileStore.load()?.childName)
+    }
+
+    @Test
+    fun anEmptyNameKeepsTheOldOne() {
+        val model = SettingsViewModel(app)
+        model.nameChanged("   ")
+        model.done()
+        assertEquals("Maya", app.profileStore.load()?.childName)
+    }
+
+    @Test
+    fun aLongNameIsCutShort() {
+        val model = SettingsViewModel(app)
+        model.nameChanged("A".repeat(40))
+        assertEquals(24, model.state.value.childName.length)
+    }
+
+    @Test
+    fun resettingOnboardingForgetsTheProfile() {
+        SettingsViewModel(app).resetOnboarding()
+        assertNull(app.profileStore.profile.value)
+    }
+}

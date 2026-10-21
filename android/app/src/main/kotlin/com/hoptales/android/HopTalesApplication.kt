@@ -1,6 +1,8 @@
 package com.hoptales.android
 
 import android.app.Application
+import com.hoptales.android.data.ListeningPreferences
+import com.hoptales.android.data.ProfileStore
 import com.hoptales.android.data.ProgressStore
 import com.hoptales.android.data.SoundPreference
 import com.hoptales.android.reading.ChordPlayer
@@ -19,6 +21,8 @@ class HopTalesApplication : Application() {
         StoryProps.decode(assets.open("props.json").bufferedReader().use { it.readText() })
     }
     val progressStore: ProgressStore by lazy { ProgressStore(File(filesDir, "progress.json")) }
+    val profileStore: ProfileStore by lazy { ProfileStore(filesDir) }
+    val listeningPreferences: ListeningPreferences by lazy { ListeningPreferences(this) }
     val speaker: Speaker by lazy { Speaker(this) }
     val listener: SpeechListener by lazy { SpeechListener(this) }
     val readingAudio: ReadingAudio by lazy { ReadingAudio(this) }
