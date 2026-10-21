@@ -50,7 +50,7 @@ fun Modifier.paperChip(shape: Shape, fill: Color = LocalPaper.current.paper, rim
         .border(rim, paper.rim, shape)
 }
 
-enum class Press { PLAIN, PAPER }
+enum class Press { PLAIN, PAPER, NONE }
 
 @Composable
 fun Modifier.pressable(onClick: () -> Unit, role: Role = Role.Button, enabled: Boolean = true, press: Press = Press.PLAIN): Modifier {
@@ -59,6 +59,7 @@ fun Modifier.pressable(onClick: () -> Unit, role: Role = Role.Button, enabled: B
     val feedback = when (press) {
         Press.PLAIN -> alpha(if (pressed) PLAIN_PRESSED_ALPHA else 1f)
         Press.PAPER -> scale(if (pressed) PAPER_PRESSED_SCALE else 1f)
+        Press.NONE -> this
     }
     return feedback.clickable(interaction, indication = null, enabled = enabled, role = role, onClick = onClick)
 }
