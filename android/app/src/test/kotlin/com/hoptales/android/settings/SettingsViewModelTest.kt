@@ -8,6 +8,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -63,6 +64,18 @@ class SettingsViewModelTest {
         val model = SettingsViewModel(app)
         model.nameChanged("A".repeat(40))
         assertEquals(24, model.state.value.childName.length)
+    }
+
+    @Test
+    fun backupIsOffUntilTheGrownUpTurnsItOn() {
+        val model = SettingsViewModel(app)
+        assertFalse(model.state.value.backupOn)
+        model.backupToggled(true)
+        assertTrue(app.backupChoice.isOn)
+        assertTrue(SettingsViewModel(app).state.value.backupOn)
+        model.backupToggled(false)
+        assertFalse(app.backupChoice.isOn)
+        assertTrue(model.state.value.backupWasOn)
     }
 
     @Test

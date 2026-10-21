@@ -51,6 +51,7 @@ android {
             all {
                 it.systemProperty("robolectric.pixelCopyRenderMode", "hardware")
                 it.jvmArgs("--add-opens=java.base/jdk.internal.access=ALL-UNNAMED")
+                it.systemProperty("hoptales.database", shared.resolve("Content/Database.swift").absolutePath)
             }
         }
     }
