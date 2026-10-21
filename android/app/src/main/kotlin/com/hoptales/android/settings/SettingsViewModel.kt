@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.speech.VoiceOption
+import com.hoptales.content.Friend
+import com.hoptales.content.Journey
 import com.hoptales.content.Profile
 import com.hoptales.speech.Strictness
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +21,10 @@ data class SettingsState(
     val strictness: Strictness = Strictness.GENTLE,
     val soundOn: Boolean = true,
     val voices: List<VoiceOption> = emptyList(),
+    val journey: Journey = Journey(),
 ) {
+    val readingFriends: List<Friend> get() = Friend.entries.filter { it in journey.met || it in Friend.starters }
+
     val voiceName: String get() = voices.firstOrNull { it.id == profile.voiceID }?.name ?: "Automatic"
 }
 
@@ -31,6 +36,7 @@ class SettingsViewModel(private val app: HopTalesApplication) : ViewModel() {
                 profile = profile,
                 strictness = app.listeningPreferences.strictness,
                 soundOn = app.soundPreference.isOn,
+                journey = app.progressStore.load().journey,
             )
         },
     )
@@ -47,6 +53,11 @@ class SettingsViewModel(private val app: HopTalesApplication) : ViewModel() {
     fun nameChanged(name: String) = mutableState.update { it.copy(childName = Profile.trimmedName(name)) }
 
     fun nameSubmitted() = save()
+
+    fun friendPicked(friend: Friend) {
+        app.progressStore.update { it.copy(journey = it.journey.grownUpMovedTo(friend)) }
+        mutableState.update { it.copy(journey = app.progressStore.load().journey) }
+    }
 
     fun accentPicked(accent: Profile.Accent) = changeProfile { copy(accent = accent) }
 

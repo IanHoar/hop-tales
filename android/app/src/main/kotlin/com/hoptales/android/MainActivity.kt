@@ -139,9 +139,15 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun finishAnsweredDraft(app: HopTalesApplication) {
-        if (app.profileStore.load() != null) return
+        app.profileStore.load()?.let {
+            app.progressStore.startJourney(it.startingFriend)
+            return
+        }
         val draft = app.profileStore.loadDraft()?.let(OnboardingState::resuming) ?: return
-        if (draft.isComplete) app.profileStore.save(draft.profile(Locale.getDefault().country))
+        if (!draft.isComplete) return
+        val profile = draft.profile(Locale.getDefault().country)
+        app.profileStore.save(profile)
+        app.progressStore.startJourney(profile.startingFriend)
     }
 }
 

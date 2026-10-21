@@ -200,6 +200,21 @@ class JourneyTest {
     }
 
     @Test
+    fun theJourneyStartsAtTheFriendChosenInOnboarding() {
+        val journey = Journey().startedWith(Friend.FROG)
+        assertEquals(Friend.FROG, journey.activeFriend)
+        assertEquals(Friend.FROG.level, journey.level)
+        assertEquals(setOf(Friend.BUNNY, Friend.HARE, Friend.FROG), journey.met)
+    }
+
+    @Test
+    fun startingAgainNeverTakesAJourneyBack() {
+        val ahead = Journey.starting(Friend.CRAB).copy(steps = 40.0)
+        assertEquals(ahead, ahead.startedWith(Friend.HARE))
+        assertEquals(ahead, ahead.startedWith(Friend.CRAB))
+    }
+
+    @Test
     fun aSavedJourneyCountsTheStoriesAlreadyFinished() {
         val journey = """
             {"level":1,"steps":40,"met":["bunny"],"activeFriend":"bunny","bigStoryAttempts":0,

@@ -155,7 +155,12 @@ class ScreenshotTest {
     private fun settings(dark: Boolean) {
         val profile = Profile("Maya", Friend.HARE, Profile.Accent.CANADIAN, soundButtons = true)
         compose.setContent {
-            HopTalesTheme(dark = dark) { SettingsContent(SettingsState(childName = "Maya", profile = profile), SettingsActions()) }
+            HopTalesTheme(dark = dark) {
+                SettingsContent(
+                    SettingsState(childName = "Maya", profile = profile, journey = Journey.starting(Friend.HARE)),
+                    SettingsActions(),
+                )
+            }
         }
         compose.onRoot().captureRoboImage(path("settings", dark), options)
     }

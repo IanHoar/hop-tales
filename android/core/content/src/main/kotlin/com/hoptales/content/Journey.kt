@@ -184,6 +184,8 @@ data class Journey(
 
     fun readingWith(friend: Friend): Journey = if (friend in met) copy(activeFriend = friend) else this
 
+    fun startedWith(friend: Friend): Journey = if (level < friend.level) starting(friend) else this
+
     fun grownUpMovedTo(friend: Friend): Journey = when {
         friend !in met && friend !in Friend.starters -> this
         friend.level > level -> starting(friend)
