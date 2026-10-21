@@ -37,7 +37,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -70,6 +70,7 @@ import com.hoptales.android.design.StarChip
 import com.hoptales.android.world.Art
 import com.hoptales.android.world.HareSheets
 import com.hoptales.android.world.MeadowLayer
+import com.hoptales.android.world.WorldStyle
 import com.hoptales.content.Story
 import com.hoptales.reading.ReadingState
 import kotlinx.coroutines.delay
@@ -163,30 +164,33 @@ private fun PathStage(state: ReadingState, onWordTapped: () -> Unit) {
         val density = LocalDensity.current
         val geometry = with(density) { PathGeometry(constraints.maxWidth.toFloat(), constraints.maxHeight.toFloat(), this.density) }
         val wordStyle = type.word(with(density) { geometry.path(PathGeometry.WORD_SIZE).toSp() })
-        val path = remember(state.story, geometry, wordStyle) { WordPath(state.story, geometry, measurer, wordStyle) }
+        val world = WorldStyle.of(friend)
+        val path = remember(state.story, geometry, wordStyle, world) { WordPath(state.story, geometry, measurer, wordStyle, world) }
         val target = path.camera(state.sentenceIndex, state.wordIndex)
         val camera = remember(path) { Animatable(target) }
-        var hop by remember { mutableStateOf<Hop?>(null) }
-        var now by remember { mutableLongStateOf(0L) }
+        var motion by remember { mutableStateOf(HareMotion()) }
+        var now by remember { mutableDoubleStateOf(0.0) }
 
-        LaunchedEffect(reduceMotion, hop) {
+        LaunchedEffect(reduceMotion, motion) {
             if (reduceMotion) return@LaunchedEffect
             while (true) {
-                val time = withFrameNanos { it }
+                val time = withFrameNanos { it } / 1e9
                 now = time
-                val hopping = hop?.let { time - it.startNanos < HOP_NANOS } ?: false
-                if (!hopping) delay(IDLE_FRAME_MILLIS)
+                val landing = motion.hop?.let { it.start + it.length } ?: 0.0
+                if (time >= landing) delay(IDLE_FRAME_MILLIS)
             }
         }
         LaunchedEffect(state.recognised) {
             val recognised = state.recognised ?: return@LaunchedEffect
-            hop = Hop(withFrameNanos { it }, carried = recognised.sentenceIndex != state.sentenceIndex)
+            if (reduceMotion) return@LaunchedEffect
+            motion = motion.jump(System.nanoTime() / 1e9, distance = 0f, carried = recognised.sentenceIndex != state.sentenceIndex)
         }
         LaunchedEffect(target) {
             if (reduceMotion) {
                 camera.snapTo(target)
             } else {
-                camera.animateTo(target, tween(PathGeometry.PAN_MILLIS, easing = CubicBezierEasing(0.45f, 0f, 0.3f, 1f)))
+                val rate = motion.hop?.rate ?: 1.0
+                camera.animateTo(target, tween((PathGeometry.PAN_MILLIS / rate).toInt(), easing = CubicBezierEasing(0.45f, 0f, 0.3f, 1f)))
             }
         }
 
@@ -211,12 +215,13 @@ private fun PathStage(state: ReadingState, onWordTapped: () -> Unit) {
             drawWords(path, cameraX, state.sentenceIndex, state.wordIndex)
         }
         Canvas(Modifier.fillMaxSize()) {
-            drawHare(hare, geometry, if (reduceMotion) 0L else now, if (reduceMotion) null else hop)
+            val pose = motion.pose(now, reduceMotion)
+            val lift = if (reduceMotion) 0f else motion.arc(now) * path.apex(motion.hop?.carried ?: false)
+            drawHare(hare, path, pose, lift)
         }
     }
 }
 
-private const val HOP_NANOS = (HareSheets.HOP_FRAMES / HareSheets.FPS * 1e9f).toLong()
 private const val IDLE_FRAME_MILLIS = (1_000f / IDLE_FPS).toLong()
 
 private fun Modifier.pointerInputTaps(
