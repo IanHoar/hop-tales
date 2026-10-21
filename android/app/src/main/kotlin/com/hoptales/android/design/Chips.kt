@@ -180,7 +180,7 @@ private fun IconLabel(text: String, icon: ImageVector?, colour: Color) {
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (icon != null) Icon(icon, contentDescription = null, tint = colour, modifier = Modifier.size(20.dp))
+        if (icon != null) Icon(icon, contentDescription = null, tint = colour, modifier = Modifier.size(24.dp))
         Text(text, style = LocalTypography.current.ui(18.sp), color = colour)
     }
 }

@@ -383,7 +383,7 @@ private fun MicrophoneNote(authorization: Authorization?) {
 private fun Note(text: String) {
     val paper = LocalPaper.current
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Icon(Glyphs.micOff, contentDescription = null, tint = paper.muted, modifier = Modifier.size(20.dp))
+        Icon(Glyphs.micSlash, contentDescription = null, tint = paper.muted, modifier = Modifier.size(20.dp))
         Text(text, style = LocalTypography.current.ui(15.sp, FontWeight.Medium), color = paper.ink)
     }
 }
