@@ -64,6 +64,17 @@ class FontScaleScreenshotTest {
     }
 
     @Test
+    fun homeLongName() {
+        val progress = Progress(stars = 12, journey = Journey.starting(Friend.HARE))
+        compose.setContent {
+            HopTalesTheme {
+                HomeScreen(library = app.library, progress = progress, onStory = {}, childName = "Maximiliana-Josephine", hour = 9)
+            }
+        }
+        capture("home-long-name")
+    }
+
+    @Test
     fun onboardingName() {
         compose.setContent {
             HopTalesTheme { OnboardingContent(OnboardingState(step = OnboardingStep.NAME, childName = "Maya"), OnboardingActions()) }
