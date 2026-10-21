@@ -39,7 +39,8 @@ way. Change `.editorconfig` rather than suppressing a rule in the code.
 
 ## Screenshot tests
 
-`ScreenshotTest` renders home, reading, the story-finished card and the stop dialog, light and dark,
+`ScreenshotTest` renders home, reading, the story-finished card, the stop dialog, each onboarding step and
+the grown-ups settings, light and dark,
 with Roborazzi on Robolectric — on the JVM, no emulator. The references live in
 `app/src/test/screenshots`; `verifyRoborazziDebug` fails when a render differs, and leaves the
 actual image and a diff in `app/build/outputs/roborazzi`. After a deliberate change, record again
@@ -49,15 +50,29 @@ hare stands still and the camera snaps.
 ## Layout
 
 ```
-app/            the Compose app: MainActivity, Home, Reading, design tokens, speech, persistence
+app/            the Compose app: MainActivity, Onboarding, Home, Reading, Settings, design tokens, speech, persistence
 core/content    Story, Sentence, Word, Friend, Progress, StoryLibrary — pure Kotlin
 core/speech     WordMatcher and PartialDebouncer — pure Kotlin, ported from SpeechRecognition
 core/reading    the reading state machine (Reading, ReadingState) — pure Kotlin
+core/onboarding the onboarding step flow (Onboarding, OnboardingState) — pure Kotlin
 ```
 
 The `core` modules are plain JVM modules so their tests run without an emulator. They are ports of
 the Swift modules of the same names, and their tests are ports of the Swift tests: when the Swift
 rules change, change both. `WordMatcherTest` mirrors `WordMatcherTests` case for case.
+
+## Profile and settings
+
+The first launch walks the grown-up through onboarding: the child's name, the microphone (explained
+before Android's prompt, which is asked for there and never on a story start again), the starting
+friend and sound buttons. There is no iCloud step. Answers are kept in `profile-draft.json` as they
+are given, so a closed app resumes where it left off, and the finished `Profile` is `profile.json`
+in `filesDir`, beside `progress.json`. The accent picks the recogniser and help-voice locale; the
+help voice is one of the engine's offline English voices, never a network one. Matching strictness,
+sound effects and whether the microphone was asked live in the `settings` shared preferences.
+
+The gear on Home opens Settings directly: there is nothing in it that costs money or leaves the app,
+so no parent gate yet (`docs/HANDOFF.md` §1.6).
 
 ## Shared content
 
