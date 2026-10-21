@@ -138,7 +138,7 @@ class SettingsViewModel(private val app: HopTalesApplication) : ViewModel() {
 
     private fun save() {
         val state = state.value
-        val profile = state.profile.copy(childName = state.childName.trim().ifEmpty { state.profile.childName })
+        val profile = state.profile.copy(childName = state.childName.trim())
         mutableState.update { it.copy(profile = profile) }
         app.profileStore.save(profile)
     }

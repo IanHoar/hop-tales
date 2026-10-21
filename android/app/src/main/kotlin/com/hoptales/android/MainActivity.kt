@@ -11,15 +11,19 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
@@ -227,7 +231,7 @@ private fun Destination(app: HopTalesApplication) {
     Box(Modifier.fillMaxSize()) {
         AnimatedContent(
             targetState = route,
-            transitionSpec = { fadeIn() togetherWith fadeOut() },
+            transitionSpec = { routeTransition(initialState, targetState) },
             modifier = Modifier.fillMaxSize().then(if (overlay != null) Modifier.clearAndSetSemantics {} else Modifier),
             label = "route",
         ) { target ->
@@ -368,6 +372,28 @@ private const val SCRIM_ALPHA = 0.25f
 private const val SHEET_FADE_MILLIS = 250
 private val SHEET_GAP = 10.dp
 private val SHEET_CORNER = 28.dp
+
+private fun routeTransition(from: Route, to: Route): ContentTransform {
+    val push = tween<IntOffset>(PUSH_MILLIS, easing = FastOutSlowInEasing)
+    return when {
+        to is Route.Reading -> slideInHorizontally(push) { it } togetherWith slideOutHorizontally(push) { -it / PARALLAX }
+
+        from is Route.Reading && to == Route.Home -> {
+            (
+                slideInHorizontally(push) {
+                    -it / PARALLAX
+                } togetherWith slideOutHorizontally(push) { it }
+                ).apply { targetContentZIndex = -1f }
+        }
+
+        else -> fadeIn(tween(HANDOFF_MILLIS, easing = IntroTimeline.easeInOut)) togetherWith
+            fadeOut(tween(HANDOFF_MILLIS, easing = IntroTimeline.easeInOut))
+    }
+}
+
+private const val PUSH_MILLIS = 350
+private const val PARALLAX = 3
+private const val HANDOFF_MILLIS = 450
 
 private sealed interface Route {
     data object Onboarding : Route

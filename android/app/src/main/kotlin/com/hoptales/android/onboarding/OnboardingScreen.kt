@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -92,7 +93,6 @@ import com.hoptales.android.world.FriendSticker
 import com.hoptales.android.world.IdleFriend
 import com.hoptales.android.world.MeadowBackdrop
 import com.hoptales.android.world.SoundMarksExamples
-import com.hoptales.android.world.Sticker
 import com.hoptales.content.Friend
 import com.hoptales.content.Phonics
 import com.hoptales.onboarding.Authorization
@@ -145,7 +145,7 @@ fun OnboardingContent(state: OnboardingState, actions: OnboardingActions) {
         val area = Size(maxWidth.value, maxHeight.value)
         val room = fold?.room(area)
         val top = maxOf(statusBar, (room?.top ?: 0f).dp) + 12.dp
-        val sheetHeight = minOf(maxHeight * 0.61f - top, room?.let { it.bottom.dp - top } ?: Dp.Infinity)
+        val sheetHeight = minOf(maxHeight * 0.61f, room?.let { it.bottom.dp - top } ?: Dp.Infinity)
         MeadowBackdrop()
         if (fold != null && !fold.runsAcross) StandingHare(fold.stage(area))
         Box(
@@ -362,8 +362,6 @@ private fun Note(text: String) {
     }
 }
 
-private val Friend.sticker: String get() = if (this == Friend.HARE) "hare-sit" else "friend-$key"
-
 @Composable
 private fun FriendChoices(selected: Friend?, onPick: (Friend) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -383,7 +381,9 @@ private fun FriendChoice(friend: Friend, isSelected: Boolean, onClick: () -> Uni
         label = "${friend.friendName}, ${friend.stage}. Words like ${friend.examples.joinToString(", ")}.",
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Sticker(friend.sticker, Modifier.size(58.dp))
+            Box(Modifier.width(58.dp), contentAlignment = Alignment.Center) {
+                FriendSticker(friend, 58.dp, Modifier.wrapContentWidth(unbounded = true))
+            }
             Spacer(Modifier.width(14.dp))
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Row(verticalAlignment = Alignment.Bottom) {

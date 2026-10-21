@@ -229,7 +229,7 @@ class ScreenshotTest {
     private fun intro(name: String, time: Double) {
         val art = IntroArt.load(app.assets)
         compose.setContent {
-            HopTalesTheme { IntroContent(art, time = { time }, fade = { 1f }, showsTitle = true) }
+            HopTalesTheme { IntroContent(art, time = { time }, showsTitle = true) }
         }
         compose.onRoot().captureRoboImage("src/test/screenshots/$name.png", options)
     }
