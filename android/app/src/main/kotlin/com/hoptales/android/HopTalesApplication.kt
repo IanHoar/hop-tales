@@ -8,11 +8,15 @@ import com.hoptales.android.speech.ReadingAudio
 import com.hoptales.android.speech.Speaker
 import com.hoptales.android.speech.SpeechListener
 import com.hoptales.content.StoryLibrary
+import com.hoptales.content.StoryProps
 import java.io.File
 
 class HopTalesApplication : Application() {
     val library: StoryLibrary by lazy {
         StoryLibrary.decode(assets.open("stories.json").bufferedReader().use { it.readText() })
+    }
+    val props: StoryProps by lazy {
+        StoryProps.decode(assets.open("props.json").bufferedReader().use { it.readText() })
     }
     val progressStore: ProgressStore by lazy { ProgressStore(File(filesDir, "progress.json")) }
     val speaker: Speaker by lazy { Speaker(this) }
