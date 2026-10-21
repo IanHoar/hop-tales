@@ -8,10 +8,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -51,12 +54,13 @@ import com.hoptales.content.outfit
 
 @Composable
 fun FriendsScreen(progress: Progress, wardrobe: WardrobeLibrary, onFriend: (Friend) -> Unit, onJourney: () -> Unit, onDone: () -> Unit) {
+    val navigationBar = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     Column(Modifier.fillMaxSize().background(LocalPaper.current.page)) {
         SheetHeader("Friends", onDone) { MapButton(onJourney) }
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier.fillMaxWidth().weight(1f),
-            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 30.dp),
+            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = navigationBar + 30.dp),
             horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {

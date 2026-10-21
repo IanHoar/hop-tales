@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -61,6 +64,7 @@ fun BookScreen(library: StoryLibrary, progress: Progress, friend: Friend, onFrie
     val type = LocalTypography.current
     val basket = progress.baskets[friend] ?: Basket()
     val storiesRead = library.stories(friend.level).filter(progress::isFinished)
+    val navigationBar = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val page = remember { Deckle(seed = 19, jitter = 3.dp, step = 14.dp) }
     Column(Modifier.fillMaxSize().background(paper.page)) {
         SheetHeader("Collection book", onDone)
@@ -68,7 +72,7 @@ fun BookScreen(library: StoryLibrary, progress: Progress, friend: Friend, onFrie
             Box(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
                 Column(
                     Modifier
-                        .padding(start = 20.dp, bottom = 30.dp)
+                        .padding(start = 20.dp, bottom = navigationBar + 30.dp)
                         .fillMaxWidth()
                         .dropShadow(page, Shadow(8.dp, paper.shadow, offset = DpOffset(0.dp, 5.dp)))
                         .background(paper.paper, page)
