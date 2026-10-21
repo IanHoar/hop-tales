@@ -5,7 +5,6 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.media.AudioManager
 import android.os.Bundle
-import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
@@ -37,6 +36,7 @@ import androidx.lifecycle.lifecycleScope
 import com.hoptales.android.design.FoldAware
 import com.hoptales.android.design.HopTalesTheme
 import com.hoptales.android.design.Metrics
+import com.hoptales.android.design.reducesMotion
 import com.hoptales.android.home.BookScreen
 import com.hoptales.android.home.FriendsScreen
 import com.hoptales.android.home.HomeScreen
@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
         volumeControlStream = AudioManager.STREAM_MUSIC
         val app = application as HopTalesApplication
         finishAnsweredDraft(app)
-        val reduceMotion = Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
+        val reduceMotion = reducesMotion()
         setContent {
             HopTalesTheme {
                 LaunchedEffect(introDone) { if (introDone) enableEdgeToEdge() }

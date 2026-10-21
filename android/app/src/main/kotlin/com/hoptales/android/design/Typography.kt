@@ -7,12 +7,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 
 @Immutable
-class Typography(assets: AssetManager) {
+class Typography(assets: AssetManager, private val density: Density = Density(1f)) {
     val wordFamily = FontFamily(Font("Fonts/YoungSerif-Regular.ttf", assets))
     val displayFamily = FontFamily(Font("Fonts/Fraunces-Bold.ttf", assets, FontWeight.Bold))
     val uiFamily = FontFamily(
@@ -21,14 +23,17 @@ class Typography(assets: AssetManager) {
         Font("Fonts/Fredoka-Bold.ttf", assets, FontWeight.Bold),
     )
 
-    fun word(size: TextUnit) = TextStyle(fontFamily = wordFamily, fontSize = size, letterSpacing = (-0.01).em)
+    fun fixed(size: TextUnit): TextUnit = with(density) { size.value.dp.toSp() }
 
-    fun display(size: TextUnit) = TextStyle(fontFamily = displayFamily, fontWeight = FontWeight.Bold, fontSize = size)
+    fun word(size: TextUnit) = TextStyle(fontFamily = wordFamily, fontSize = fixed(size), letterSpacing = (-0.01).em)
+
+    fun display(size: TextUnit) = TextStyle(fontFamily = displayFamily, fontWeight = FontWeight.Bold, fontSize = fixed(size))
 
     fun ui(size: TextUnit, weight: FontWeight = FontWeight.SemiBold) =
         TextStyle(fontFamily = uiFamily, fontWeight = weight, fontSize = size)
 
-    fun caps(size: TextUnit) = TextStyle(fontFamily = uiFamily, fontWeight = FontWeight.SemiBold, fontSize = size, letterSpacing = 0.16.em)
+    fun caps(size: TextUnit) =
+        TextStyle(fontFamily = uiFamily, fontWeight = FontWeight.SemiBold, fontSize = fixed(size), letterSpacing = 0.16.em)
 
     companion object {
         val body = 17.sp
