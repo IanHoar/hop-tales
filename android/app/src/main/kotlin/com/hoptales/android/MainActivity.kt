@@ -200,6 +200,7 @@ private fun Entry(
 private fun Destination(app: HopTalesApplication) {
     var storyID by rememberSaveable { mutableStateOf<String?>(null) }
     var sheet by rememberSaveable { mutableStateOf<String?>(null) }
+    var trying by rememberSaveable { mutableStateOf<String?>(null) }
     var isShowingSettings by rememberSaveable { mutableStateOf(false) }
     var visit by rememberSaveable { mutableIntStateOf(0) }
     val progress by app.progressStore.progress.collectAsStateWithLifecycle()
@@ -209,11 +210,18 @@ private fun Destination(app: HopTalesApplication) {
         else -> storyID?.let(app.library::get)?.let(Route::Reading) ?: Route.Home
     }
     val overlay = when {
+        route is Route.Reading -> trying
         route != Route.Home -> null
         isShowingSettings -> Sheet.SETTINGS
         else -> sheet
     }
-    BackHandler(enabled = overlay != null && overlay != Sheet.SETTINGS) { sheet = null }
+    val closeSheet: () -> Unit = {
+        if (route is Route.Reading) {
+            trying = null
+        } else {
+            sheet = null
+        }
+    }
     val friend = progress.journey.activeFriend
     Box(Modifier.fillMaxSize()) {
         AnimatedContent(
@@ -227,12 +235,15 @@ private fun Destination(app: HopTalesApplication) {
 
                 is Route.Reading -> ReadingScreen(
                     story = target.story,
-                    onDone = { storyID = null },
-                    onStory = { storyID = it.id },
-                    onTryItOn = {
+                    onDone = {
+                        trying = null
                         storyID = null
-                        sheet = Sheet.wardrobe(it)
                     },
+                    onStory = {
+                        trying = null
+                        storyID = it.id
+                    },
+                    onTryItOn = { trying = Sheet.wardrobe(it) },
                 )
 
                 Route.Home -> HomeScreen(
@@ -282,7 +293,7 @@ private fun Destination(app: HopTalesApplication) {
                         wardrobe = app.wardrobe,
                         onItem = { item -> app.progressStore.update { it.tapping(item, dressing, app.wardrobe) } },
                         onJustMe = { app.progressStore.update { it.undressing(dressing) } },
-                        onDone = { sheet = null },
+                        onDone = closeSheet,
                     )
                 }
 
@@ -295,6 +306,7 @@ private fun Destination(app: HopTalesApplication) {
                 )
             }
         }
+        BackHandler(enabled = overlay != null && overlay != Sheet.SETTINGS, onBack = closeSheet)
     }
 }
 
