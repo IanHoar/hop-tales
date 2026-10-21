@@ -19,9 +19,22 @@ android {
         versionName = "0.1.0"
     }
 
+    signingConfigs {
+        create("release") {
+            val store = providers.gradleProperty("HOPTALES_UPLOAD_STORE").orNull
+            if (store != null) {
+                storeFile = file(store)
+                storePassword = providers.gradleProperty("HOPTALES_UPLOAD_PASSWORD").get()
+                keyAlias = providers.gradleProperty("HOPTALES_UPLOAD_ALIAS").get()
+                keyPassword = providers.gradleProperty("HOPTALES_UPLOAD_PASSWORD").get()
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
