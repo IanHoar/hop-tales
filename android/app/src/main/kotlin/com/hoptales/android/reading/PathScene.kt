@@ -24,6 +24,8 @@ import com.hoptales.android.world.SpriteSheet
 import com.hoptales.android.world.WorldStyle
 import com.hoptales.content.Sky
 import com.hoptales.content.Story
+import com.hoptales.reading.HopTarget
+import com.hoptales.reading.PropStage
 import kotlin.math.min
 import kotlin.math.roundToInt
 
@@ -44,6 +46,7 @@ data class PathGeometry(val width: Float, val height: Float, val density: Float)
         const val FOCUS_X = 236f
         const val HARE_X = 96f
         const val HARE_FEET_BELOW_PATH = 30f
+        const val SIGN_FEET_ABOVE_PATH = 40f
         const val SITTING_HEIGHT = 124f
         const val HOPPING_HEIGHT = 116f
         const val WORD_APEX = 30f
@@ -64,7 +67,7 @@ class WordPath(
     measurer: TextMeasurer,
     style: TextStyle,
     val world: WorldStyle = WorldStyle.meadow,
-) {
+) : PropStage {
     val stops: List<Stop>
 
     init {
@@ -94,14 +97,28 @@ class WordPath(
         return last.centre + geometry.path(PathGeometry.OVERSHOOT) - geometry.path(PathGeometry.FOCUS_X)
     }
 
-    val hareX: Float get() = geometry.path(PathGeometry.HARE_X)
+    override val width: Float get() = geometry.width
 
-    val hareFeetY: Float
+    override fun path(value: Float): Float = geometry.path(value)
+
+    override fun stopCentre(target: HopTarget): Float? = stop(target.sentence, target.word)?.centre
+
+    override val hareX: Float get() = geometry.path(PathGeometry.HARE_X)
+
+    override val hareFeetY: Float
         get() = geometry.pathCentre + geometry.path(world.feetAbovePath?.let { -it } ?: PathGeometry.HARE_FEET_BELOW_PATH)
 
     fun apex(carried: Boolean): Float = geometry.path(if (carried) PathGeometry.SENTENCE_APEX else PathGeometry.WORD_APEX)
 
     fun hareHeight(hopping: Boolean): Float = geometry.path(if (hopping) PathGeometry.HOPPING_HEIGHT else PathGeometry.SITTING_HEIGHT)
+
+    override val sittingHeight: Float get() = hareHeight(hopping = false)
+
+    override val signFeetY: Float get() = geometry.pathCentre - geometry.path(PathGeometry.SIGN_FEET_ABOVE_PATH)
+
+    override val wordHeight: Float = stops.firstOrNull()?.layout?.size?.height?.toFloat() ?: 0f
+
+    override val wordY: Float get() = geometry.pathCentre + (0.5f - PathGeometry.RISE) * wordHeight
 
     fun wordCentreY(stop: Stop): Float = geometry.pathCentre + (0.5f - PathGeometry.RISE) * stop.layout.size.height
 
@@ -202,5 +219,4 @@ const val IDLE_FPS = 20f
 
 private val UNDERSTORY = Color(0xFF6E8B3D)
 
-private fun multiply(colour: Color, tint: Color) =
-    Color(colour.red * tint.red, colour.green * tint.green, colour.blue * tint.blue, colour.alpha)
+fun multiply(colour: Color, tint: Color) = Color(colour.red * tint.red, colour.green * tint.green, colour.blue * tint.blue, colour.alpha)

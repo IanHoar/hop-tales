@@ -81,7 +81,12 @@ import com.hoptales.android.world.drawSky
 import com.hoptales.android.world.drawWeather
 import com.hoptales.android.world.rememberSkyLook
 import com.hoptales.content.Story
+import com.hoptales.reading.HopTarget
+import com.hoptales.reading.PropCue
+import com.hoptales.reading.PropKey
+import com.hoptales.reading.PropTiming
 import com.hoptales.reading.ReadingState
+import com.hoptales.reading.StoryPropLayout
 import kotlinx.coroutines.delay
 
 @Composable
@@ -178,6 +183,22 @@ private fun PathStage(state: ReadingState, onWordTapped: () -> Unit) {
         val sheets = HareSheets.of(friend)
         HareArt(Art.image(context.assets, sheets.idle.asset), Art.image(context.assets, sheets.hop.asset), sheets)
     }
+    val props = (context.applicationContext as HopTalesApplication).props
+    val propArt = remember(state.story) { PropArt.load(context.assets, state.story, props) }
+    val position = HopTarget(state.sentenceIndex, state.wordIndex)
+    var cues by remember(state.story) { mutableStateOf(emptyMap<PropKey, PropCue>()) }
+    var cued by remember(state.story) { mutableStateOf<HopTarget?>(null) }
+    var propTime by remember { mutableDoubleStateOf(0.0) }
+    LaunchedEffect(state.story, position) {
+        val backward = cued?.let { position < it } ?: false
+        cues = PropTiming.cues(if (backward) emptyMap() else cues, state.story, position, System.nanoTime() / 1e9)
+        cued = position
+    }
+    val cueing = cues.isNotEmpty()
+    LaunchedEffect(reduceMotion, cueing) {
+        if (reduceMotion || !cueing) return@LaunchedEffect
+        while (true) withFrameNanos { propTime = it / 1e9 }
+    }
 
     BoxWithConstraints(Modifier.fillMaxSize().background(palette.page)) {
         val density = LocalDensity.current
@@ -224,6 +245,12 @@ private fun PathStage(state: ReadingState, onWordTapped: () -> Unit) {
         }
         Canvas(Modifier.fillMaxSize()) {
             drawWeather(look(), weather, skyTime, geometry.density, stillDrops)
+        }
+        val propLayout = remember(path, props, friend) { StoryPropLayout(path, state.story.sentences, props, friend) }
+        Canvas(Modifier.fillMaxSize()) {
+            val time = if (reduceMotion) null else propTime
+            val items = propLayout.items(position, camera.value, cues, time)
+            drawProps(items, propArt, time, geometry.path(1f), look().tint(MeadowLayer.NEAR), palette)
         }
 
         val currentStop = path.stop(state.sentenceIndex, state.wordIndex)
