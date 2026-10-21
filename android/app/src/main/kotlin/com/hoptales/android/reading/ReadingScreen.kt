@@ -15,12 +15,9 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
@@ -56,10 +53,10 @@ import com.hoptales.android.design.BackChip
 import com.hoptales.android.design.LocalPalette
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
-import com.hoptales.android.design.StarChip
 import com.hoptales.android.world.Art
 import com.hoptales.android.world.HareSheet
 import com.hoptales.android.world.HareSheets
+import com.hoptales.android.world.MeadowGround
 import com.hoptales.android.world.MeadowLayer
 import com.hoptales.android.world.MeadowStars
 import com.hoptales.android.world.SkyArt
@@ -131,30 +128,26 @@ fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {
     }
 
     Box(Modifier.fillMaxSize()) {
-        PathStage(state = state, wearing = model.look, onWordTapped = model::help)
+        PathStage(state = state, wearing = model.look, soundButtons = model.soundButtons, onWordTapped = model::help)
         Box(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 12.dp, vertical = 4.dp)) {
             BackChip(Modifier.align(Alignment.TopStart)) { if (model.backTapped()) onDone() }
-            if (!state.isFinished) StarChip(state.stars, Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp))
             AnimatedVisibility(
                 pickup != null,
-                Modifier.align(Alignment.TopEnd).padding(top = 64.dp, end = 4.dp),
+                Modifier.align(Alignment.TopEnd).padding(top = 8.dp, end = 4.dp),
                 enter = fadeIn(),
                 exit = fadeOut(),
             ) {
                 pickup?.let { BasketChip(it) }
             }
-            Column(
-                Modifier.align(Alignment.BottomCenter).padding(bottom = 12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                val word = state.currentWord
-                if (BuildConfig.DEBUG && word != null) DebugHear(word.text, model::skipWord)
-                if (!state.isFinished) MicPill(listening)
+            val word = state.currentWord
+            if (BuildConfig.DEBUG && word != null) {
+                Box(Modifier.align(Alignment.BottomCenter).padding(bottom = 6.dp)) { DebugHear(word.text, model::skipWord) }
             }
         }
-        if (listening == Listening.NeedsPermission) {
-            AskToListen { request.launch(Manifest.permission.RECORD_AUDIO) }
+        when (listening) {
+            Listening.NeedsPermission -> AskToListen { request.launch(Manifest.permission.RECORD_AUDIO) }
+            Listening.Denied, Listening.Unsupported -> ListeningUnavailable(listening, onBack = onDone)
+            else -> Unit
         }
         AnimatedVisibility(state.isFinished, enter = fadeIn(), exit = fadeOut()) {
             StoryFinished(
@@ -182,7 +175,7 @@ fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {
 }
 
 @Composable
-private fun PathStage(state: ReadingState, wearing: String?, onWordTapped: () -> Unit) {
+private fun PathStage(state: ReadingState, wearing: String?, soundButtons: Boolean, onWordTapped: () -> Unit) {
     val context = LocalContext.current
     val reduceMotion = remember {
         Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
@@ -196,6 +189,10 @@ private fun PathStage(state: ReadingState, wearing: String?, onWordTapped: () ->
         MeadowLayer.entries.associateWith { Art.image(context.assets, it.asset(friend)) ?: Art.image(context.assets, "${it.prefix}-day") }
     }
     val skyArt = remember { SkyArt.load(context.assets) }
+    val ground = remember(friend) {
+        val name = if (Art.image(context.assets, MeadowLayer.NEAR.asset(friend)) != null) MeadowLayer.NEAR.asset(friend) else "near-day"
+        MeadowGround.of(WorldStyle.of(friend), layers[MeadowLayer.NEAR], name)
+    }
     val look = rememberSkyLook(state.mood, still = reduceMotion)
     val weather = remember { SkyWeather() }
     var skyTime by remember { mutableDoubleStateOf(0.0) }
@@ -234,17 +231,21 @@ private fun PathStage(state: ReadingState, wearing: String?, onWordTapped: () ->
         val geometry = with(density) { PathGeometry(constraints.maxWidth.toFloat(), constraints.maxHeight.toFloat(), this.density) }
         val wordStyle = type.word(with(density) { geometry.path(PathGeometry.WORD_SIZE).toSp() })
         val world = WorldStyle.of(friend)
-        val path = remember(state.story, geometry, wordStyle, world) { WordPath(state.story, geometry, measurer, wordStyle, world) }
+        val phonics = (context.applicationContext as HopTalesApplication).phonics.takeIf { soundButtons }
+        val path = remember(state.story, geometry, wordStyle, world, phonics) {
+            WordPath(state.story, geometry, measurer, wordStyle, world, phonics)
+        }
         val target = path.camera(state.sentenceIndex, state.wordIndex)
         val camera = remember(path) { Animatable(target) }
         var motion by remember { mutableStateOf(HareMotion()) }
-        var bigHop by remember { mutableStateOf(false) }
         var now by remember { mutableDoubleStateOf(0.0) }
+        var bigHop by remember { mutableStateOf(false) }
+        val clock = remember { HopClock() }
 
         LaunchedEffect(reduceMotion, motion) {
             if (reduceMotion) return@LaunchedEffect
             while (true) {
-                val time = withFrameNanos { it } / 1e9
+                val time = clock.time(withFrameNanos { it } / 1e9)
                 now = time
                 val landing = motion.hop?.let { it.start + it.length } ?: 0.0
                 if (time >= landing) delay(IDLE_FRAME_MILLIS)
@@ -253,8 +254,10 @@ private fun PathStage(state: ReadingState, wearing: String?, onWordTapped: () ->
         LaunchedEffect(state.recognised) {
             val recognised = state.recognised ?: return@LaunchedEffect
             if (reduceMotion) return@LaunchedEffect
+            val start = System.nanoTime() / 1e9
             bigHop = state.isBig(recognised.sentenceIndex, recognised.wordIndex)
-            motion = motion.jump(System.nanoTime() / 1e9, distance = 0f, carried = recognised.sentenceIndex != state.sentenceIndex)
+            clock.began(start)
+            motion = motion.jump(start, distance = 0f, carried = recognised.sentenceIndex != state.sentenceIndex)
         }
         LaunchedEffect(target) {
             if (reduceMotion) {
@@ -272,7 +275,7 @@ private fun PathStage(state: ReadingState, wearing: String?, onWordTapped: () ->
             drawSky(look(), skyLayout, skyArt, stars, skyTime, still = reduceMotion)
         }
         Canvas(Modifier.fillMaxSize()) {
-            drawMeadow(layers, geometry.meadow, camera.value, look())
+            drawMeadow(layers, geometry.meadow, camera.value, look(), ground)
         }
         Canvas(Modifier.fillMaxSize()) {
             drawWeather(look(), weather, skyTime, geometry.density, stillDrops)
@@ -312,7 +315,7 @@ private fun PathStage(state: ReadingState, wearing: String?, onWordTapped: () ->
             } else {
                 motion.arc(now) * path.apex(motion.hop?.carried ?: false) * if (bigHop) PathMarks.BIG_WORD_LIFT else 1f
             }
-            drawHare(hare, path, pose, lift)
+            drawHare(hare, path, pose, lift, paper.shadow)
         }
     }
 }

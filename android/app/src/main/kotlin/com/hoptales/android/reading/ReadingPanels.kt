@@ -1,11 +1,5 @@
 package com.hoptales.android.reading
 
-import android.provider.Settings
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -15,10 +9,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,8 +24,6 @@ import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -55,71 +45,8 @@ import com.hoptales.android.design.PaperLabel
 import com.hoptales.android.design.PaperQuietButton
 import com.hoptales.android.design.StarChip
 import com.hoptales.android.design.bevel
-import com.hoptales.android.design.paperChip
 import com.hoptales.android.design.pressable
 import kotlin.math.roundToInt
-
-@Composable
-fun MicPill(listening: Listening, modifier: Modifier = Modifier) {
-    val paper = LocalPaper.current
-    val heard = listening as? Listening.Heard
-    val label = when (listening) {
-        Listening.Waiting, Listening.NeedsPermission -> "Getting ready…"
-        Listening.Unavailable -> "Tap the word to hear it"
-        Listening.Active -> "Say the word"
-        is Listening.Heard -> "Heard it — “${listening.word}”!"
-    }
-    Row(
-        modifier
-            .clearAndSetSemantics { contentDescription = heard?.let { "Heard ${it.word}" } ?: label }
-            .height(64.dp)
-            .paperChip(CircleShape, rim = 5.dp, shadow = 1.3f)
-            .padding(start = 12.dp, end = 22.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(
-            Modifier.size(40.dp).background(if (heard == null) paper.sage else paper.sageDeep, CircleShape),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(if (heard == null) Glyphs.mic else Glyphs.check, null, tint = paper.onRed, modifier = Modifier.size(22.dp))
-        }
-        if (listening == Listening.Active) LevelBars()
-        Text(
-            label,
-            style = LocalTypography.current.display(19.sp),
-            color = if (heard == null) paper.ink else paper.sageDeep,
-            maxLines = 1,
-        )
-    }
-}
-
-@Composable
-private fun LevelBars() {
-    val context = LocalContext.current
-    val still = remember { Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f }
-    val paper = LocalPaper.current
-    val transition = rememberInfiniteTransition(label = "bars")
-    Row(Modifier.height(20.dp), horizontalArrangement = Arrangement.spacedBy(3.5.dp), verticalAlignment = Alignment.Bottom) {
-        for ((index, resting) in BAR_HEIGHTS.withIndex()) {
-            val height = if (still) {
-                resting
-            } else {
-                transition.animateFloat(
-                    resting,
-                    BAR_PEAK,
-                    infiniteRepeatable(tween(BAR_PERIODS[index]), RepeatMode.Reverse),
-                    label = "bar$index",
-                ).value
-            }
-            Box(Modifier.width(6.dp).height(height.dp).background(paper.sageDeep, RoundedCornerShape(3.dp)))
-        }
-    }
-}
-
-private val BAR_HEIGHTS = listOf(7f, 14f, 9f, 17f, 6f)
-private val BAR_PERIODS = listOf(420, 550, 360, 480, 390)
-private const val BAR_PEAK = 19f
 
 @Composable
 fun DebugHear(word: String, onClick: () -> Unit) {
@@ -167,6 +94,45 @@ fun AskToListen(onAllow: () -> Unit) {
                 textAlign = TextAlign.Center,
             )
             InkButton("Let's read", InkKind.PRIMARY, Modifier.fillMaxWidth().padding(top = 6.dp), onClick = onAllow)
+        }
+    }
+}
+
+@Composable
+fun ListeningUnavailable(listening: Listening, onBack: () -> Unit) {
+    val palette = LocalPalette.current
+    val type = LocalTypography.current
+    val denied = listening == Listening.Denied
+    Box(Modifier.fillMaxSize().background(palette.duskRoot.copy(alpha = 0.55f)), contentAlignment = Alignment.Center) {
+        val shape = RoundedCornerShape(32.dp)
+        Column(
+            Modifier
+                .padding(24.dp)
+                .widthIn(max = 330.dp)
+                .dropShadow(shape, Shadow(17.dp, palette.duskShadow, offset = DpOffset(0.dp, 22.dp)))
+                .bevel(palette.parchment, palette.parchmentLip, shape, palette.outline, palette.highlight, 4.dp, 6.dp, 9.dp)
+                .padding(28.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Icon(if (denied) Glyphs.micOff else Glyphs.phoneOff, null, tint = palette.muted, modifier = Modifier.size(44.dp))
+            Text(
+                if (denied) "The microphone is off" else "This device can’t listen yet",
+                style = type.display(26.sp),
+                color = palette.ink,
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                if (denied) {
+                    "Hop Tales listens so it can hear you read. A grown-up can turn the microphone back on in Settings."
+                } else {
+                    "Hop Tales listens on the device itself, and this one doesn’t support that. You can still read along together."
+                },
+                style = type.ui(16.sp),
+                color = palette.muted,
+                textAlign = TextAlign.Center,
+            )
+            InkButton("Back to stories", InkKind.PRIMARY, Modifier.fillMaxWidth().padding(top = 6.dp), onClick = onBack)
         }
     }
 }

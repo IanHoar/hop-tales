@@ -28,10 +28,17 @@ import androidx.compose.ui.unit.sp
 import com.hoptales.android.world.Art
 import com.hoptales.android.world.HareSheet
 import com.hoptales.android.world.HareSheets
+import com.hoptales.android.world.MeadowGround
 import com.hoptales.android.world.MeadowLayer
 import com.hoptales.android.world.MeadowLayout
+import com.hoptales.android.world.MeadowUnderstory
 import com.hoptales.android.world.SkyLook
+import com.hoptales.android.world.SoundMarks
 import com.hoptales.android.world.WorldStyle
+import com.hoptales.android.world.drawGround
+import com.hoptales.android.world.drawSoundMarks
+import com.hoptales.content.Phonics
+import com.hoptales.content.SoundMark
 import com.hoptales.content.Story
 import com.hoptales.reading.HopTarget
 import com.hoptales.reading.PropStage
@@ -77,7 +84,15 @@ data class PathGeometry(val width: Float, val height: Float, val density: Float)
     }
 }
 
-data class Stop(val sentence: Int, val word: Int, val layout: TextLayoutResult, val centre: Float) {
+data class Stop(
+    val sentence: Int,
+    val word: Int,
+    val layout: TextLayoutResult,
+    val centre: Float,
+    val marks: List<SoundMark>? = null,
+    val edges: List<Float> = emptyList(),
+    val marksLeft: Float = 0f,
+) {
     val width: Float get() = layout.size.width.toFloat()
 }
 
@@ -87,7 +102,10 @@ class WordPath(
     measurer: TextMeasurer,
     style: TextStyle,
     val world: WorldStyle = WorldStyle.meadow,
+    phonics: Phonics? = null,
 ) : PropStage {
+    val wordSize: Float = geometry.path(PathGeometry.WORD_SIZE)
+
     val stops: List<Stop>
 
     init {
@@ -103,7 +121,10 @@ class WordPath(
                     val gap = if (index == 0) PathGeometry.SENTENCE_GAP else PathGeometry.GAP
                     previous.centre + previous.width / 2 + geometry.path(gap) + width / 2
                 }
-                stops += Stop(sentence, index, layout, centre)
+                val marks = phonics?.soundMarks(word.text)
+                val edges = if (marks == null) emptyList() else SoundMarks.edges(layout, word.leading.length, word.text.length)
+                val marksLeft = layout.getHorizontalPosition(word.leading.length, usePrimaryDirection = true)
+                stops += Stop(sentence, index, layout, centre, marks, edges, marksLeft)
             }
         }
         this.stops = stops
@@ -162,7 +183,13 @@ data class HareArt(val idle: ImageBitmap?, val hop: ImageBitmap?, val sheets: Ha
     fun image(sheet: HareSheet): ImageBitmap? = if (sheet == HareSheet.IDLE) idle else hop
 }
 
-fun DrawScope.drawMeadow(layers: Map<MeadowLayer, ImageBitmap?>, layout: MeadowLayout, cameraX: Float, look: SkyLook) {
+fun DrawScope.drawMeadow(
+    layers: Map<MeadowLayer, ImageBitmap?>,
+    layout: MeadowLayout,
+    cameraX: Float,
+    look: SkyLook,
+    ground: MeadowGround? = null,
+) {
     for (layer in MeadowLayer.entries) {
         val colour = look.tint(layer)
         val tint = if (colour == Color.White) null else ColorFilter.tint(colour, BlendMode.Modulate)
@@ -180,15 +207,8 @@ fun DrawScope.drawMeadow(layers: Map<MeadowLayer, ImageBitmap?>, layout: MeadowL
                 filterQuality = FilterQuality.Medium,
             )
         }
-        if (layer == MeadowLayer.NEAR) {
-            val bottom = top + height
-            if (bottom < size.height) {
-                drawRect(
-                    multiply(UNDERSTORY, look.tint(layer)),
-                    topLeft = Offset(0f, bottom - 1),
-                    size = Size(size.width, size.height - bottom + 1),
-                )
-            }
+        if (layer == MeadowLayer.NEAR && ground != null) {
+            drawGround(ground, top + height - MeadowUnderstory.TORN_EDGE.toPx(), width, offset, colour)
         }
     }
 }
@@ -207,9 +227,17 @@ fun DrawScope.drawWords(path: WordPath, cameraX: Float, sentence: Int, word: Int
         val height = stop.layout.size.height.toFloat()
         val frame = Rect(Offset(x - stop.width / 2, path.wordCentreY(stop) - height / 2), Size(stop.width, height))
         val scale = if (state == WordState.CURRENT) 1f else PathGeometry.SIDE_SCALE
+        val colour = if (path.world.chalk) state.chalk else state.ink
         lying(frame, scale) {
             if (state == WordState.READ) drawWash(frame.inflateHorizontally(overhang), blend)
-            drawText(stop.layout, color = if (path.world.chalk) state.chalk else state.ink, topLeft = frame.topLeft, blendMode = blend)
+            drawText(stop.layout, color = colour, topLeft = frame.topLeft, blendMode = blend)
+            if (stop.marks != null) {
+                val origin = Offset(
+                    frame.left + stop.marksLeft,
+                    frame.top + stop.layout.firstBaseline + path.wordSize * MARKS_BELOW_BASELINE,
+                )
+                drawSoundMarks(stop.marks, stop.edges, path.wordSize, colour.copy(alpha = colour.alpha * 0.8f), origin, blend)
+            }
         }
     }
 }
@@ -318,8 +346,21 @@ fun DrawScope.drawSigns(signs: Signposts, cameraX: Float, tint: Color) {
     }
 }
 
-fun DrawScope.drawHare(art: HareArt, path: WordPath, pose: HareMotion.Pose, lift: Float) {
+fun DrawScope.drawHare(art: HareArt, path: WordPath, pose: HareMotion.Pose, lift: Float, shadow: Color) {
     val hopping = pose.frame.sheet == HareSheet.HOP
+    val airborne = hopping && pose.frame.index in 2..5
+    val shadowSize = Size(path.geometry.path(if (airborne) 52f else 80f), path.geometry.path(14f))
+    val shadowCentre = Offset(path.hareX, path.hareFeetY)
+    drawOval(
+        Brush.radialGradient(
+            listOf(shadow.copy(alpha = minOf(1f, shadow.alpha * 1.6f)), shadow.copy(alpha = 0f)),
+            center = shadowCentre,
+            radius = path.geometry.path(40f),
+        ),
+        topLeft = shadowCentre - Offset(shadowSize.width / 2, shadowSize.height / 2),
+        size = shadowSize,
+        alpha = if (airborne) 0.45f else 1f,
+    )
     val sheet = art.sheets.of(pose.frame.sheet)
     val image = art.image(pose.frame.sheet) ?: art.idle ?: return
     val frame = pose.frame.index.coerceIn(0, sheet.frames - 1)
@@ -340,7 +381,7 @@ fun DrawScope.drawHare(art: HareArt, path: WordPath, pose: HareMotion.Pose, lift
 
 const val IDLE_FPS = 20f
 
-private val UNDERSTORY = Color(0xFF6E8B3D)
+private const val MARKS_BELOW_BASELINE = 0.075f
 private val WASH = Color(0xFFF7D774)
 private val WASH_REACH = 0.5f * sqrt(2f)
 private val SIGN_INK = Color(0xFF3B2A20)

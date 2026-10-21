@@ -14,7 +14,7 @@ data class WorldStyle(val feetAbovePath: Float? = null, val chalk: Boolean = fal
             Friend.GRASSHOPPER -> WorldStyle(ground = Color(0xFFC0B66D))
             Friend.CROW -> WorldStyle(feetAbovePath = 170f, chalk = true, ground = Color(0xFFB1934A))
             Friend.CAT -> WorldStyle(feetAbovePath = 170f, ground = Color(0xFFBFB46A))
-            else -> meadow
+            Friend.HARE -> meadow
         }
     }
 }
