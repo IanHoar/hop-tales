@@ -1,12 +1,17 @@
-# Builds and tests pull requests on GitHub Actions — the stand-in for Xcode Cloud's pull request
-# workflow, for when its free compute hours run out. Only one runner is live at a time:
+# Builds and tests every pull request on GitHub Actions: the iOS app on macOS, the Android app on
+# Linux, each only when its files change. "CI" is the one required check. It waits for both and
+# fails if either failed or was cancelled; a job skipped because its files didn't change counts as
+# passing.
 #
-#   scripts/ci-runner.sh github        this workflow tests PRs, and its check is required
-#   scripts/ci-runner.sh xcode-cloud   this job is skipped, and Xcode Cloud's check is required
+# The iOS job is the stand-in for Xcode Cloud's pull request workflow, for when its free compute
+# hours run out. Only one iOS runner is live at a time:
 #
-# Run it by hand from the Actions tab (workflow_dispatch) to try it whichever runner is live.
+#   scripts/ci-runner.sh github        the iOS job runs here, and "CI" is required
+#   scripts/ci-runner.sh xcode-cloud   the iOS job is skipped, and "CI" and Xcode Cloud's check are required
+#
+# Run it by hand from the Actions tab (workflow_dispatch) to build both apps on any branch.
 # docs/ci.md has the rest.
-name: Test
+name: CI
 
 on:
   push:
@@ -17,7 +22,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: test-${{ github.event.pull_request.number || github.ref }}
+  group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -29,17 +34,14 @@ env:
   DEVELOPER_DIR: /Applications/Xcode_27.1.app/Contents/Developer
 
 jobs:
-  # A required check that never reports blocks the merge, so the workflow always starts and this
-  # cheap Linux job decides whether the macOS job is needed. A job skipped by its `if` reports
-  # success, so a pull request that only touches android/ still satisfies the required "Test".
   changes:
     name: Changes
-    if: vars.CI_RUNNER == 'github' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read
     outputs:
       ios: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.ios == 'true' }}
+      android: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.android == 'true' }}
     steps:
       - uses: actions/checkout@v5
         if: github.event_name == 'push'
@@ -53,12 +55,18 @@ jobs:
             ios:
               - 'ios/**'
               - 'scripts/ci-setup.sh'
-              - '.github/workflows/test.yml'
+              - '.github/workflows/ci.yml'
+            android:
+              - 'android/**'
+              - 'ios/HopTalesPackage/Sources/Content/Resources/**'
+              - 'ios/HopTalesPackage/Sources/World/Resources/**'
+              - 'ios/HopTalesPackage/Sources/DesignSystem/Resources/**'
+              - '.github/workflows/ci.yml'
 
   test:
     name: Test
     needs: changes
-    if: needs.changes.outputs.ios == 'true'
+    if: needs.changes.outputs.ios == 'true' && (vars.CI_RUNNER == 'github' || github.event_name == 'workflow_dispatch')
     runs-on: xcode-27
     timeout-minutes: 45
     steps:
@@ -153,3 +161,43 @@ jobs:
             build/xcodebuild.log
             build/snapshots
           retention-days: 7
+
+  android:
+    name: Android
+    needs: changes
+    if: needs.changes.outputs.android == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: android
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v5
+      - name: Lint
+        run: ./gradlew ktlintCheck
+      - name: Test and build
+        run: ./gradlew test :app:verifyRoborazziDebug :app:assembleDebug
+      - name: Upload screenshot diffs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshot-diffs
+          path: android/app/build/outputs/roborazzi
+          if-no-files-found: ignore
+
+  ci:
+    name: CI
+    needs: [changes, test, android]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Every platform passed or had nothing to test
+        run: |
+          echo "changes: ${{ needs.changes.result }}, iOS: ${{ needs.test.result }}, Android: ${{ needs.android.result }}"
+          test "${{ needs.changes.result }}" = success
+          ! echo "${{ needs.test.result }} ${{ needs.android.result }}" | grep -qE 'failure|cancelled'

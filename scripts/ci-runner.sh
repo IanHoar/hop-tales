@@ -2,13 +2,14 @@
 # Switches which CI runner tests pull requests: GitHub Actions or Xcode Cloud.
 #
 #   scripts/ci-runner.sh              shows which runner is live
-#   scripts/ci-runner.sh github       GitHub Actions tests PRs; its "Test" check is required
-#   scripts/ci-runner.sh xcode-cloud  Xcode Cloud tests PRs; its "HopTales | Default" is required
+#   scripts/ci-runner.sh github       GitHub Actions tests iOS; "CI" is required
+#   scripts/ci-runner.sh xcode-cloud  Xcode Cloud tests iOS; "CI" and "HopTales | Default" are required
 #
 # Two things change together, so a merge is never blocked on a check nobody will post:
 #
-#   1. The CI_RUNNER repository variable, which .github/workflows/test.yml reads to run or skip.
-#   2. The required status check in the "main" ruleset.
+#   1. The CI_RUNNER repository variable, which the iOS job in .github/workflows/ci.yml reads to
+#      run or skip. Android always runs on GitHub Actions, and the "CI" gate always reports.
+#   2. The required status checks in the "main" ruleset.
 #
 # The third, turning Xcode Cloud's pull request workflow off or on, only App Store Connect can do,
 # so the script prints where. See docs/ci.md.
@@ -19,7 +20,7 @@ ruleset_name="main"
 
 xcode_cloud_check="HopTales | Default"
 xcode_cloud_app=117084
-github_check="Test"
+github_check="CI"
 github_actions_app=15368
 
 current() {
@@ -37,18 +38,18 @@ required_checks() {
 }
 
 require() {
-  context=$1
-  app=$2
   id=$(ruleset_id)
   gh api "repos/$repo/rulesets/$id" | python3 -c '
 import json, sys
 ruleset = json.load(sys.stdin)
-context, app = sys.argv[1], int(sys.argv[2])
+pairs = sys.argv[1:]
+checks = [
+    {"context": pairs[i], "integration_id": int(pairs[i + 1])}
+    for i in range(0, len(pairs), 2)
+]
 for rule in ruleset["rules"]:
     if rule["type"] == "required_status_checks":
-        rule["parameters"]["required_status_checks"] = [
-            {"context": context, "integration_id": app}
-        ]
+        rule["parameters"]["required_status_checks"] = checks
 print(json.dumps({
     "name": ruleset["name"],
     "target": ruleset["target"],
@@ -57,7 +58,7 @@ print(json.dumps({
     "rules": ruleset["rules"],
     "bypass_actors": ruleset.get("bypass_actors", []),
 }))
-' "$context" "$app" | gh api --method PUT "repos/$repo/rulesets/$id" --input - >/dev/null
+' "$@" | gh api --method PUT "repos/$repo/rulesets/$id" --input - >/dev/null
 }
 
 case "${1:-}" in
@@ -68,7 +69,7 @@ case "${1:-}" in
   github)
     gh variable set CI_RUNNER --repo "$repo" --body github
     require "$github_check" "$github_actions_app"
-    echo "GitHub Actions now tests pull requests, and \"$github_check\" is required on main."
+    echo "GitHub Actions now tests iOS, and \"$github_check\" is required on main."
     echo "Open pull requests pick it up on their next push."
     echo
     echo "Now disable Xcode Cloud's pull request workflow so it stops spending hours:"
@@ -77,8 +78,8 @@ case "${1:-}" in
     ;;
   xcode-cloud)
     gh variable set CI_RUNNER --repo "$repo" --body xcode-cloud
-    require "$xcode_cloud_check" "$xcode_cloud_app"
-    echo "Xcode Cloud now tests pull requests, and \"$xcode_cloud_check\" is required on main."
+    require "$github_check" "$github_actions_app" "$xcode_cloud_check" "$xcode_cloud_app"
+    echo "Xcode Cloud now tests iOS, and \"$github_check\" and \"$xcode_cloud_check\" are required on main."
     echo
     echo "Now enable Xcode Cloud's pull request workflow again:"
     echo "  App Store Connect → Hop Tales → Xcode Cloud → Manage Workflows → Default → Enable"
