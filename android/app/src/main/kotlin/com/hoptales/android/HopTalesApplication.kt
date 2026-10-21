@@ -2,6 +2,9 @@ package com.hoptales.android
 
 import android.app.Application
 import com.hoptales.android.data.ProgressStore
+import com.hoptales.android.data.SoundPreference
+import com.hoptales.android.reading.ChordPlayer
+import com.hoptales.android.speech.ReadingAudio
 import com.hoptales.android.speech.Speaker
 import com.hoptales.android.speech.SpeechListener
 import com.hoptales.content.StoryLibrary
@@ -14,4 +17,7 @@ class HopTalesApplication : Application() {
     val progressStore: ProgressStore by lazy { ProgressStore(File(filesDir, "progress.json")) }
     val speaker: Speaker by lazy { Speaker(this) }
     val listener: SpeechListener by lazy { SpeechListener(this) }
+    val readingAudio: ReadingAudio by lazy { ReadingAudio(this) }
+    val chord: ChordPlayer by lazy { ChordPlayer() }
+    val soundPreference: SoundPreference by lazy { SoundPreference(this) }
 }
