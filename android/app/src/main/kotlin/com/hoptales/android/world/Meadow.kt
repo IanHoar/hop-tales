@@ -1,24 +1,36 @@
 package com.hoptales.android.world
 
 import com.hoptales.content.Friend
+import kotlin.math.max
+import kotlin.math.min
 
-enum class MeadowLayer(val prefix: String, val pixelWidth: Float, val pixelHeight: Float, val speed: Float, val pathScale: Float) {
-    FAR("far", 5615f, 826f, 0.3f, 0.42f),
-    MID("mid", 4692f, 834f, 0.6f, 0.5f),
-    NEAR("near", 3555f, 834f, 1f, 0.74f),
+enum class MeadowLayer(
+    val prefix: String,
+    val pixelWidth: Float,
+    val pixelHeight: Float,
+    val speed: Float,
+    val pathScale: Float,
+    val anchor: Float,
+) {
+    FAR("far", 5615f, 826f, 0.3f, 0.42f, 986f),
+    MID("mid", 4692f, 834f, 0.6f, 0.5f, 848f),
+    NEAR("near", 3555f, 834f, 1f, 0.74f, 705f),
     ;
 
     fun asset(world: Friend): String = if (world == Friend.HARE) "$prefix-day" else "$prefix-${world.key}"
 }
 
-data class MeadowLayout(val width: Float, val pathScale: Float, val pathCentre: Float) {
-    fun scale(layer: MeadowLayer) = pathScale * layer.pathScale
+data class MeadowLayout(val width: Float, val pathScale: Float, val pathCentre: Float, val wideBottom: Float? = null) {
+    val isWide: Boolean get() = wideBottom != null
+
+    fun scale(layer: MeadowLayer) = if (isWide) SkyLayout.BASE_SCALE * pathScale else pathScale * layer.pathScale
 
     fun tileWidth(layer: MeadowLayer) = layer.pixelWidth * scale(layer)
 
     fun tileHeight(layer: MeadowLayer) = layer.pixelHeight * scale(layer)
 
     fun top(layer: MeadowLayer): Float {
+        wideBottom?.let { return it - layer.anchor * scale(layer) }
         val near = pathCentre - PATH_LINE * scale(MeadowLayer.NEAR)
         return when (layer) {
             MeadowLayer.FAR -> near - 52 * pathScale
@@ -42,5 +54,13 @@ data class MeadowLayout(val width: Float, val pathScale: Float, val pathCentre: 
 
     companion object {
         const val PATH_LINE = 440f
+        private const val WIDE_REFERENCE = 390f
+        private const val WIDE_GROWTH = 0.62f
+
+        fun wide(width: Float, height: Float, density: Float): MeadowLayout {
+            val k = max(1f, min(width, height) / density / WIDE_REFERENCE * WIDE_GROWTH) * density
+            val scale = SkyLayout.BASE_SCALE * k
+            return MeadowLayout(width, k, height - (MeadowLayer.NEAR.anchor - PATH_LINE) * scale, wideBottom = height)
+        }
     }
 }

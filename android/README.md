@@ -69,8 +69,9 @@ at font scale 2.0, into `app/src/test/screenshots/font-scale`.
 
 As on iOS, Fredoka UI text (`Typography.ui`) follows the system font size, while the words on the
 path, Fraunces titles and caps labels stay at their design size. "Remove animations" (animator
-duration scale 0) is read as Reduce Motion: the idle friend stands still, the camera and sky cut,
-and props hold their layout. `AccessibilityTest` checks the TalkBack labels, headings and actions
+duration scale 0) is read as Reduce Motion, and followed live while the app runs: the idle friend
+stands still, the clouds stop drifting, each word step crossfades over 0.2 s instead of panning, and
+props hold their layout. `AccessibilityTest` checks the TalkBack labels, headings and actions
 screen by screen, and `ContrastTest` holds the dark palettes to WCAG AA.
 
 ## Tablets and foldables
@@ -137,7 +138,7 @@ and they are committed. Re-run it when the iOS icon changes.
 from the same place, so a story added through `scripts/build-stories.py` reaches both apps.
 
 Art that Android does not draw yet is left out of the package by `ignoreAssetsPatterns` in
-`app/build.gradle.kts` — postcards and the land's `prop-*` scenery other than the signpost. The
+`app/build.gradle.kts` — the `postcard-*` art. The
 story props, companions and thought bubbles draw from `cast-*`, and the wardrobe from `look-*`
 (dressed stickers and sprite sheets), `wear-*` (the items), `looks.json` and `wardrobe.json`, so
 those ship. When a
