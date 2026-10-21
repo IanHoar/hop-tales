@@ -54,6 +54,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.design.ChevronGlyph
+import com.hoptales.android.design.ChoiceSurface
 import com.hoptales.android.design.LocalPalette
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
@@ -64,6 +65,7 @@ import com.hoptales.android.design.SpeakerGlyph
 import com.hoptales.android.design.field
 import com.hoptales.android.design.paperChip
 import com.hoptales.android.design.pressable
+import com.hoptales.android.world.FriendSticker
 import com.hoptales.android.world.SoundMarksExamples
 import com.hoptales.content.Friend
 import com.hoptales.content.Profile
@@ -72,6 +74,7 @@ import com.hoptales.speech.Strictness
 class SettingsActions(
     val nameChanged: (String) -> Unit = {},
     val nameSubmitted: () -> Unit = {},
+    val friendPicked: (Friend) -> Unit = {},
     val accentPicked: (Profile.Accent) -> Unit = {},
     val strictnessPicked: (Strictness) -> Unit = {},
     val soundButtonsToggled: (Boolean) -> Unit = {},
@@ -97,6 +100,7 @@ fun SettingsScreen(key: String, onDone: () -> Unit) {
         SettingsActions(
             nameChanged = model::nameChanged,
             nameSubmitted = model::nameSubmitted,
+            friendPicked = model::friendPicked,
             accentPicked = model::accentPicked,
             strictnessPicked = model::strictnessPicked,
             soundButtonsToggled = model::soundButtonsToggled,
@@ -139,6 +143,17 @@ fun SettingsContent(state: SettingsState, actions: SettingsActions) {
                 verticalArrangement = Arrangement.spacedBy(28.dp),
             ) {
                 Section("Reader") { SettingsName(state.childName, actions) }
+                Section("Reading with") {
+                    for (friend in state.readingFriends) {
+                        ReadingWith(friend, selected = friend == state.journey.activeFriend) { actions.friendPicked(friend) }
+                    }
+                    Text(
+                        Friend.PHONICS_STANDARD,
+                        style = LocalTypography.current.ui(13.sp),
+                        color = palette.muted,
+                        modifier = Modifier.padding(horizontal = 4.dp),
+                    )
+                }
                 Section("Accent") {
                     for (accent in Profile.Accent.entries) {
                         PaperChoice(accent.accentName, selected = accent == state.profile.accent) { actions.accentPicked(accent) }
@@ -175,7 +190,6 @@ fun SettingsContent(state: SettingsState, actions: SettingsActions) {
                         Text("Reset onboarding", style = LocalTypography.current.ui(15.sp), color = palette.ink)
                     }
                 }
-                Text(Friend.PHONICS_STANDARD, style = LocalTypography.current.ui(13.sp), color = palette.muted)
             }
         }
     }
@@ -295,6 +309,28 @@ private fun VoiceRow(state: SettingsState, actions: SettingsActions) {
             contentAlignment = Alignment.Center,
         ) {
             SpeakerGlyph(LocalPaper.current.ink)
+        }
+    }
+}
+
+@Composable
+private fun ReadingWith(friend: Friend, selected: Boolean, onClick: () -> Unit) {
+    val palette = LocalPalette.current
+    val type = LocalTypography.current
+    ChoiceSurface(
+        selected = selected,
+        modifier = Modifier.semantics(mergeDescendants = true) {
+            contentDescription = "${friend.friendName}, ${friend.stage}. Words like ${friend.examples.joinToString(", ")}."
+        },
+        onClick = onClick,
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.width(56.dp), contentAlignment = Alignment.Center) { FriendSticker(friend, 52.dp) }
+            Spacer(Modifier.width(14.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(friend.friendName, style = type.display(19.sp), color = palette.ink)
+                Text("${friend.stage} · ${friend.examples.joinToString(", ")}", style = type.ui(14.sp), color = palette.muted)
+            }
         }
     }
 }

@@ -5,8 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.speech.SpeechEvent
+import com.hoptales.content.Friend
 import com.hoptales.content.Profile
 import com.hoptales.content.Story
+import com.hoptales.content.newestItem
+import com.hoptales.content.outfit
+import com.hoptales.content.treat
+import com.hoptales.content.wearing
 import com.hoptales.reading.Reading
 import com.hoptales.reading.ReadingState
 import kotlinx.coroutines.Job
@@ -29,7 +34,15 @@ sealed interface Listening {
 class ReadingViewModel(story: Story, private val app: HopTalesApplication) : ViewModel() {
     private val profile = app.profileStore.load() ?: Profile()
     private val locale = Locale.forLanguageTag(profile.accent.tag)
-    private val reading = Reading(story, app.listeningPreferences.strictness)
+    private val reading = app.progressStore.load().journey.let { journey ->
+        Reading(
+            story,
+            app.listeningPreferences.strictness,
+            bigWords = journey.bigWords(story, app.library),
+            treat = journey.treat(story),
+        )
+    }
+    val look: String? = app.progressStore.load().outfit(story.friend, app.wardrobe).firstOrNull()?.id
     private val mutableState = MutableStateFlow(reading.state)
     private val mutableListening = MutableStateFlow<Listening>(Listening.Waiting)
     private var listenJob: Job? = null
@@ -155,8 +168,23 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
         if (isStarted) start(hasPermission)
     }
 
+    fun momentDismissed() {
+        reading.momentDismissed()
+        publish()
+    }
+
+    fun tryItOn(friend: Friend) {
+        app.progressStore.update { progress ->
+            progress.newestItem(friend, app.wardrobe)?.let { progress.wearing(it, friend, app.wardrobe) } ?: progress
+        }
+    }
+
     private fun sentenceChanged(before: ReadingState) {
         persist()
+        if (reading.state.isFinished) {
+            app.progressStore.update { reading.finishing(it, app.library) }
+            publish()
+        }
         if (reading.state.completionCount > before.completionCount && app.soundPreference.isOn) {
             viewModelScope.launch { app.chord.play() }
         }

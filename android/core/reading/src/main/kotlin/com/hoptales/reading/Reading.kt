@@ -1,10 +1,18 @@
 package com.hoptales.reading
 
+import com.hoptales.content.CollectedTreat
+import com.hoptales.content.JourneyMoment
+import com.hoptales.content.Levels
 import com.hoptales.content.Mood
 import com.hoptales.content.Progress
 import com.hoptales.content.Sentence
 import com.hoptales.content.Story
+import com.hoptales.content.StoryLibrary
+import com.hoptales.content.StoryResult
+import com.hoptales.content.StoryTreat
 import com.hoptales.content.Word
+import com.hoptales.content.WordRef
+import com.hoptales.content.collecting
 import com.hoptales.speech.PartialDebouncer
 import com.hoptales.speech.Strictness
 import com.hoptales.speech.WordMatcher
@@ -21,6 +29,9 @@ data class ReadingState(
     val isSpeaking: Boolean = false,
     val isConfirmingStop: Boolean = false,
     val strictness: Strictness = Strictness.GENTLE,
+    val bigWords: Set<WordRef> = emptySet(),
+    val treat: StoryTreat? = null,
+    val journeyMoments: List<JourneyMoment> = emptyList(),
 ) {
     sealed interface Completed {
         data class Sentence(val index: Int) : Completed
@@ -33,6 +44,14 @@ data class ReadingState(
     val currentWord: Word? get() = sentence?.words?.getOrNull(wordIndex)
     val nextWord: Word? get() = sentence?.words?.getOrNull(wordIndex + 1)
     val isFinished: Boolean get() = completed is Completed.Story
+
+    val tally: JourneyMoment.Tally? get() = journeyMoments.firstNotNullOfOrNull { it as? JourneyMoment.Tally }
+
+    val collectedTreat: JourneyMoment.TreatFound? get() = journeyMoments.firstNotNullOfOrNull { it as? JourneyMoment.TreatFound }
+
+    val callout: JourneyMoment? get() = journeyMoments.firstOrNull { it.isCallout }
+
+    fun isBig(sentence: Int, word: Int): Boolean = WordRef(sentence, word) in bigWords
 
     val wordsCompleted: Int
         get() = story.sentences.take(sentenceIndex).sumOf { it.words.size } + wordIndex
@@ -73,12 +92,14 @@ data class ReadingState(
     }
 }
 
-class Reading(story: Story, strictness: Strictness = Strictness.GENTLE) {
-    var state = ReadingState(story, strictness = strictness)
+class Reading(story: Story, strictness: Strictness = Strictness.GENTLE, bigWords: Set<WordRef> = emptySet(), treat: StoryTreat? = null) {
+    var state = ReadingState(story, strictness = strictness, bigWords = bigWords, treat = treat)
         private set
 
     private val debouncer = PartialDebouncer()
     private var savedStars = 0
+    private val wordsRead = mutableSetOf<WordRef>()
+    private val wordsHelped = mutableSetOf<WordRef>()
 
     fun heard(tokens: List<String>, isFinal: Boolean): WordMatcher.Match? {
         if (state.isSpeaking) return null
@@ -87,6 +108,7 @@ class Reading(story: Story, strictness: Strictness = Strictness.GENTLE) {
         val match = WordMatcher.match(eligible, current, state.nextWord, state.strictness) ?: return null
         val before = state
         val count = if (match.target == WordMatcher.Target.NEXT) 2 else 1
+        for (offset in 0 until count) wordsRead += WordRef(before.sentenceIndex, before.wordIndex + offset)
         state = state.advanced(count).copy(
             recognised = ReadingState.Recognised(
                 count = (before.recognised?.count ?: 0) + 1,
@@ -103,6 +125,7 @@ class Reading(story: Story, strictness: Strictness = Strictness.GENTLE) {
     fun helpRequested(): String? {
         val word = state.currentWord?.text ?: return null
         if (state.isSpeaking) return null
+        wordsHelped += WordRef(state.sentenceIndex, state.wordIndex)
         state = state.copy(usedHelp = true, isSpeaking = true)
         return word
     }
@@ -123,8 +146,10 @@ class Reading(story: Story, strictness: Strictness = Strictness.GENTLE) {
     }
 
     fun readAgain() {
-        state = ReadingState(state.story, strictness = state.strictness)
+        state = ReadingState(state.story, strictness = state.strictness, bigWords = state.bigWords, treat = state.treat)
         savedStars = 0
+        wordsRead.clear()
+        wordsHelped.clear()
         debouncer.reset()
     }
 
@@ -142,5 +167,31 @@ class Reading(story: Story, strictness: Strictness = Strictness.GENTLE) {
         )
         savedStars = state.stars
         return recorded
+    }
+
+    fun finishing(progress: Progress, library: StoryLibrary): Progress {
+        val helped = (wordsHelped intersect wordsRead).size
+        val helpRate = if (wordsRead.isEmpty()) 0.0 else helped.toDouble() / wordsRead.size
+        val collected = state.treat?.takeIf { it.word in wordsRead }?.let {
+            CollectedTreat(it.friend, it.isTrail, isGolden = !it.isTrail && helpRate <= Levels.GOLDEN_HELP_RATE)
+        }
+        val result = StoryResult(
+            storyID = state.story.id,
+            wordsRead = wordsRead.size,
+            bigWordsRead = (wordsRead intersect state.bigWords).size,
+            helpedWords = helped,
+            treat = collected,
+        )
+        val journey = progress.journey.recording(result, library)
+        val walked = progress.copy(journey = journey.value)
+        val basket = collected?.let(walked::collecting)
+        state = state.copy(journeyMoments = journey.moments + basket?.moments.orEmpty())
+        return basket?.value ?: walked
+    }
+
+    fun momentDismissed() {
+        val index = state.journeyMoments.indexOfFirst { it.isCallout }
+        if (index < 0) return
+        state = state.copy(journeyMoments = state.journeyMoments.filterIndexed { position, _ -> position != index })
     }
 }
