@@ -385,7 +385,7 @@ class ScreenshotTest {
         }
         compose.onNodeWithContentDescription("Current word: spots", substring = true).performSemanticsAction(SemanticsActions.OnLongClick)
         compose.mainClock.advanceTimeBy(ChallengeTip.SHOW_MILLIS * 2L)
-        compose.onNodeWithContentDescription("Challenge word", substring = true).assertExists()
+        compose.onNodeWithContentDescription("Challenge word. ", substring = true).assertExists()
         compose.onRoot().captureRoboImage(path("challenge-tip", dark), options)
     }
 

@@ -2,6 +2,8 @@ package com.hoptales.android
 
 import android.Manifest
 import android.provider.Settings
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -42,6 +44,8 @@ import com.hoptales.content.Progress
 import com.hoptales.onboarding.OnboardingState
 import com.hoptales.onboarding.OnboardingStep
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -197,6 +201,47 @@ class AccessibilityTest {
     }
 
     @Test
+    fun systemBackOnTheStopCardKeepsReading() {
+        var done = false
+        lateinit var back: OnBackPressedDispatcher
+        compose.setContent {
+            back = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+            HopTalesTheme { ReadingScreen(story = story, onDone = { done = true }) }
+        }
+        compose.waitForIdle()
+        compose.runOnUiThread { back.onBackPressed() }
+        compose.waitForIdle()
+        compose.onNodeWithText("Keep reading").assertExists()
+        compose.runOnUiThread { back.onBackPressed() }
+        compose.waitForIdle()
+        compose.onNodeWithText("Keep reading").assertDoesNotExist()
+        assertFalse(done)
+    }
+
+    @Test
+    fun systemBackWhenListeningIsUnavailableLeadsBack() {
+        shadowOf(app).denyPermissions(Manifest.permission.RECORD_AUDIO)
+        app.listeningPreferences.hasAskedForMicrophone = true
+        var done = false
+        lateinit var back: OnBackPressedDispatcher
+        compose.setContent {
+            back = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+            HopTalesTheme { ReadingScreen(story = story, onDone = { done = true }) }
+        }
+        compose.waitForIdle()
+        compose.runOnUiThread { back.onBackPressed() }
+        compose.waitForIdle()
+        assertTrue(done)
+        compose.onNodeWithText("Keep reading").assertDoesNotExist()
+    }
+
+    @Test
+    fun debugControlsAreHiddenFromTalkBack() {
+        showReading()
+        compose.onNodeWithText("Rest of sentence").assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.HideFromAccessibility))
+    }
+
+    @Test
     fun finishedPanelNamesTheStoryAndTheStars() {
         showReading()
         val hear = compose.onNodeWithText("Read “", substring = true)
@@ -209,6 +254,8 @@ class AccessibilityTest {
         compose.onNodeWithText("Done").assertHasClickAction()
         compose.onNodeWithText("Read it again").assertHasClickAction()
         compose.onNodeWithContentDescription(" steps. ", substring = true).assertExists()
+        compose.onNodeWithContentDescription("Current word", substring = true).assertDoesNotExist()
+        compose.onNodeWithContentDescription("Reading").assertDoesNotExist()
     }
 
     @Test
