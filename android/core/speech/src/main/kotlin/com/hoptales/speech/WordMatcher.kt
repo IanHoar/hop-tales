@@ -26,7 +26,14 @@ object WordMatcher {
     private val vowels = "aeiouy".toSet()
 
     private val voicing = mapOf(
-        't' to 'd', 'd' to 't', 'p' to 'b', 'b' to 'p', 'k' to 'g', 'g' to 'k', 's' to 'z', 'z' to 's',
+        't' to 'd',
+        'd' to 't',
+        'p' to 'b',
+        'b' to 'p',
+        'k' to 'g',
+        'g' to 'k',
+        's' to 'z',
+        'z' to 's',
     )
 
     private val spelledNumbers = mapOf(
@@ -43,12 +50,7 @@ object WordMatcher {
         .filter { it.isNotEmpty() }
         .map { spelledNumbers[it] ?: it }
 
-    fun match(
-        tokens: List<String>,
-        current: Word,
-        next: Word?,
-        strictness: Strictness = Strictness.GENTLE,
-    ): Match? {
+    fun match(tokens: List<String>, current: Word, next: Word?, strictness: Strictness = Strictness.GENTLE): Match? {
         val tail = tokens.takeLast(3)
         if (tail.isEmpty()) return null
 

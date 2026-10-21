@@ -4,6 +4,7 @@
 
 ```sh
 brew install swiftlint   # the hooks and the build both use it
+brew install ktlint      # the hook lints staged Kotlin with it (android/README.md)
 ./scripts/setup-git.sh   # commit template + hooks, once per clone
 open ios/HopTales.xcworkspace # not the .xcodeproj
 ```

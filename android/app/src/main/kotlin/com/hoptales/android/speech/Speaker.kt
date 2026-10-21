@@ -3,12 +3,12 @@ package com.hoptales.android.speech
 import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
-import java.util.Locale
-import java.util.UUID
-import kotlin.coroutines.resume
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
+import java.util.Locale
+import java.util.UUID
+import kotlin.coroutines.resume
 
 class Speaker(context: Context) {
     private val ready = CompletableDeferred<Boolean>()
@@ -23,6 +23,7 @@ class Speaker(context: Context) {
             object : UtteranceProgressListener() {
                 override fun onStart(utteranceId: String) = Unit
                 override fun onDone(utteranceId: String) = finish(utteranceId)
+
                 @Deprecated("Deprecated in Java")
                 override fun onError(utteranceId: String) = finish(utteranceId)
                 override fun onError(utteranceId: String, errorCode: Int) = finish(utteranceId)

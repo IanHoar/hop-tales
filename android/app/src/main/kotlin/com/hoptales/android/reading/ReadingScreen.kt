@@ -219,12 +219,7 @@ private fun PathStage(state: ReadingState, onWordTapped: () -> Unit) {
 private const val HOP_NANOS = (HareSheets.HOP_FRAMES / HareSheets.FPS * 1e9f).toLong()
 private const val IDLE_FRAME_MILLIS = (1_000f / IDLE_FPS).toLong()
 
-private fun Modifier.pointerInputTaps(
-    path: WordPath,
-    camera: Animatable<Float, *>,
-    state: ReadingState,
-    onWordTapped: () -> Unit,
-) =
+private fun Modifier.pointerInputTaps(path: WordPath, camera: Animatable<Float, *>, state: ReadingState, onWordTapped: () -> Unit) =
     pointerInput(path, state.sentenceIndex, state.wordIndex) {
         detectTapGestures { offset ->
             if (path.hit(offset, camera.value, state.sentenceIndex, state.wordIndex)) onWordTapped()

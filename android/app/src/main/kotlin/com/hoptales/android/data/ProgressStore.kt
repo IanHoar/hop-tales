@@ -2,10 +2,10 @@ package com.hoptales.android.data
 
 import com.hoptales.content.Progress
 import com.hoptales.content.StoryLibrary
-import java.io.File
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.io.File
 
 class ProgressStore(private val file: File) {
     private val state = MutableStateFlow(read())
