@@ -15,19 +15,17 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import com.hoptales.android.world.HareSheet
 import com.hoptales.android.world.HareSheets
-import com.hoptales.android.world.IdleMotion
 import com.hoptales.android.world.MeadowLayer
 import com.hoptales.android.world.MeadowLayout
-import com.hoptales.android.world.SpriteSheet
+import com.hoptales.android.world.WorldStyle
 import com.hoptales.android.world.layerTint
 import com.hoptales.android.world.skyColors
 import com.hoptales.content.Sky
 import com.hoptales.content.Story
-import kotlin.math.PI
 import kotlin.math.min
 import kotlin.math.roundToInt
-import kotlin.math.sin
 
 data class PathGeometry(val width: Float, val height: Float, val density: Float) {
     val isLarge: Boolean get() = min(width, height) / density >= 600f
@@ -60,7 +58,13 @@ data class Stop(val sentence: Int, val word: Int, val layout: TextLayoutResult, 
     val width: Float get() = layout.size.width.toFloat()
 }
 
-class WordPath(story: Story, val geometry: PathGeometry, measurer: TextMeasurer, style: TextStyle) {
+class WordPath(
+    story: Story,
+    val geometry: PathGeometry,
+    measurer: TextMeasurer,
+    style: TextStyle,
+    val world: WorldStyle = WorldStyle.meadow,
+) {
     val stops: List<Stop>
 
     init {
@@ -90,6 +94,15 @@ class WordPath(story: Story, val geometry: PathGeometry, measurer: TextMeasurer,
         return last.centre + geometry.path(PathGeometry.OVERSHOOT) - geometry.path(PathGeometry.FOCUS_X)
     }
 
+    val hareX: Float get() = geometry.path(PathGeometry.HARE_X)
+
+    val hareFeetY: Float
+        get() = geometry.pathCentre + geometry.path(world.feetAbovePath?.let { -it } ?: PathGeometry.HARE_FEET_BELOW_PATH)
+
+    fun apex(carried: Boolean): Float = geometry.path(if (carried) PathGeometry.SENTENCE_APEX else PathGeometry.WORD_APEX)
+
+    fun hareHeight(hopping: Boolean): Float = geometry.path(if (hopping) PathGeometry.HOPPING_HEIGHT else PathGeometry.SITTING_HEIGHT)
+
     fun wordCentreY(stop: Stop): Float = geometry.pathCentre + (0.5f - PathGeometry.RISE) * stop.layout.size.height
 
     fun hit(offset: Offset, cameraX: Float, sentence: Int, word: Int): Boolean {
@@ -108,9 +121,9 @@ enum class WordState(val ink: Color, val chalk: Color) {
     UPCOMING(Color(0x6B3B2A20), Color(0x73F4EFE4)),
 }
 
-data class HareArt(val idle: ImageBitmap?, val hop: ImageBitmap?, val sheets: HareSheets)
-
-data class Hop(val startNanos: Long, val carried: Boolean)
+data class HareArt(val idle: ImageBitmap?, val hop: ImageBitmap?, val sheets: HareSheets) {
+    fun image(sheet: HareSheet): ImageBitmap? = if (sheet == HareSheet.IDLE) idle else hop
+}
 
 fun DrawScope.drawSky(sky: Sky) {
     drawRect(Brush.verticalGradient(skyColors(sky)))
@@ -160,41 +173,30 @@ fun DrawScope.drawWords(path: WordPath, cameraX: Float, sentence: Int, word: Int
             else -> WordState.UPCOMING
         }
         val topLeft = Offset(x - stop.width / 2, path.wordCentreY(stop) - stop.layout.size.height / 2)
-        drawText(stop.layout, color = state.ink, topLeft = topLeft, shadow = Shadow(state.chalk, Offset.Zero, glow))
+        if (path.world.chalk) {
+            drawText(stop.layout, color = state.chalk, topLeft = topLeft, blendMode = BlendMode.Screen)
+        } else {
+            drawText(stop.layout, color = state.ink, topLeft = topLeft, shadow = Shadow(state.chalk, Offset.Zero, glow))
+        }
     }
 }
 
-fun DrawScope.drawHare(art: HareArt, geometry: PathGeometry, nowNanos: Long, hop: Hop?) {
-    val elapsed = hop?.let { (nowNanos - it.startNanos) / 1e9f } ?: Float.MAX_VALUE
-    val hopDuration = HareSheets.HOP_FRAMES / HareSheets.FPS
-    val hopping = elapsed in 0f..hopDuration && art.hop != null
-    val sheet: SpriteSheet
-    val image: ImageBitmap
-    val frame: Int
-    val height: Float
-    if (hopping) {
-        sheet = art.sheets.hop
-        image = art.hop
-        frame = (elapsed * HareSheets.FPS).toInt().coerceIn(0, sheet.frames - 1)
-        height = geometry.path(PathGeometry.HOPPING_HEIGHT)
-    } else {
-        sheet = art.sheets.idle
-        image = art.idle ?: return
-        frame = IdleMotion.frame(nowNanos / 1e9).coerceIn(0, sheet.frames - 1)
-        height = geometry.path(PathGeometry.SITTING_HEIGHT)
-    }
-    val (breathX, breathY) = if (hopping) 1f to 1f else IdleMotion.breathing(nowNanos / 1e9)
-    val scale = height / sheet.cellHeight
-    val apex = geometry.path(if (hop?.carried == true) PathGeometry.SENTENCE_APEX else PathGeometry.WORD_APEX)
-    val lift = if (hopping) sin(PI * (elapsed / hopDuration)).toFloat() * apex else 0f
-    val feetX = geometry.path(PathGeometry.HARE_X)
-    val feetY = geometry.pathCentre + geometry.path(PathGeometry.HARE_FEET_BELOW_PATH) - lift
+fun DrawScope.drawHare(art: HareArt, path: WordPath, pose: HareMotion.Pose, lift: Float) {
+    val hopping = pose.frame.sheet == HareSheet.HOP
+    val sheet = art.sheets.of(pose.frame.sheet)
+    val image = art.image(pose.frame.sheet) ?: art.idle ?: return
+    val frame = pose.frame.index.coerceIn(0, sheet.frames - 1)
+    val scale = path.hareHeight(hopping) / HareSheet.REST_HEIGHT * sheet.scale
+    val width = sheet.cellWidth * scale * pose.scaleX
+    val height = sheet.cellHeight * scale * pose.scaleY
+    val feetX = path.hareX + pose.x
+    val feetY = path.hareFeetY - lift
     drawImage(
         image = image,
         srcOffset = IntOffset(frame * sheet.cellWidth, 0),
         srcSize = IntSize(sheet.cellWidth, sheet.cellHeight),
-        dstOffset = IntOffset((feetX - sheet.feetX * scale * breathX).roundToInt(), (feetY - sheet.feetY * scale * breathY).roundToInt()),
-        dstSize = IntSize((sheet.cellWidth * scale * breathX).roundToInt(), (sheet.cellHeight * scale * breathY).roundToInt()),
+        dstOffset = IntOffset((feetX - width * sheet.anchorX).roundToInt(), (feetY - height * sheet.anchorY).roundToInt()),
+        dstSize = IntSize(width.roundToInt(), height.roundToInt()),
         filterQuality = FilterQuality.Medium,
     )
 }
