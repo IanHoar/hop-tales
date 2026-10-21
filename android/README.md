@@ -26,11 +26,14 @@ can only ask whether any on-device model exists, and if the check fails or takes
 own model is assumed). Where there is no English on-device model at all, or the microphone was turned
 off, a panel says so and leads back to the stories, as on iOS. As on iOS, a partial result that holds for 250 ms counts, a recogniser error waits
 1 s before listening again, losing audio focus restarts listening, and the focus is held for 3 s between
-sentences. The hint voice, unless a grown-up picked one, is the best offline voice for the accent. Debug builds show a "Hear …"
-button that stands in for a recognised word, like the DEBUG controls on iOS.
+sentences. The hint voice, unless a grown-up picked one, is the best offline voice for the accent. Debug builds show the DEBUG controls of iOS:
+"Read …" stands in for a recognised word, "Rest of sentence" reads to the end of the sentence, and
+a tap on the meadow moves on one word.
 
 As on iOS, a grown-up can turn on a speech log in Settings: one line per thing the recogniser hears
-(words only, never audio), kept in memory until the app closes, capped at 5,000 lines, and exported
+(words only, never audio), with the room's noise floor sampled every 0.5 s as iOS's `NoiseMeter` does
+it (the quietest tenth of the last 3 s, in 0.1 s blocks — on Android's `rmsdB` scale, so the numbers
+are not the iOS dBFS ones), kept in memory until the app closes, capped at 5,000 lines, and exported
 through the share sheet as a CSV in plain text. It never leaves the device unless the grown-up shares it.
 
 ## Style

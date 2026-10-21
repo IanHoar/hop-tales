@@ -102,7 +102,7 @@ class FontScaleScreenshotTest {
         val story = app.library.stories(Friend.HARE.level).first()
         compose.setContent { HopTalesTheme { ReadingScreen(story = story, onDone = {}) } }
         compose.waitForIdle()
-        val hear = compose.onNodeWithText("Hear “", substring = true)
+        val hear = compose.onNodeWithText("Read “", substring = true)
         while (hear.exists()) {
             hear.performClick()
             compose.waitForIdle()

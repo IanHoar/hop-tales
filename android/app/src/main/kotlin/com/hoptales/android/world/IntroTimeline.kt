@@ -18,7 +18,6 @@ object IntroTimeline {
     const val TITLE_OUT = 6.2
     const val ROUTE = 6.7
     const val REDUCED_ROUTE = 0.3
-    const val LAUNCH_FADE = 1.0
     const val TITLE_FADE = 0.6
     const val HANDOVER_MILLIS = 700
     const val REDUCED_HANDOVER_MILLIS = 300
@@ -31,8 +30,6 @@ object IntroTimeline {
     val handover: Easing = CubicBezierEasing(0.2f, 0.8f, 0.2f, 1f)
 
     fun route(reduceMotion: Boolean) = if (reduceMotion) REDUCED_ROUTE else ROUTE
-
-    fun launchFade(elapsed: Double): Float = easeOut.transform((elapsed / LAUNCH_FADE).coerceIn(0.0, 1.0).toFloat())
 }
 
 data class Step(val duration: Double, val to: Float? = null, val easing: Easing = LinearEasing)

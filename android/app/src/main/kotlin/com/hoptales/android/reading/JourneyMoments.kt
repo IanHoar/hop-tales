@@ -1,5 +1,16 @@
 package com.hoptales.android.reading
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -19,8 +30,8 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -30,6 +41,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -48,6 +61,7 @@ import com.hoptales.android.design.PaperChip
 import com.hoptales.android.design.Press
 import com.hoptales.android.design.paperChip
 import com.hoptales.android.design.pressable
+import com.hoptales.android.design.rememberReducedMotion
 import com.hoptales.android.world.FriendSticker
 import com.hoptales.android.world.Sticker
 import com.hoptales.android.world.TreatSticker
@@ -118,7 +132,7 @@ fun TallyCard(tally: JourneyMoment.Tally, found: JourneyMoment.TreatFound?, modi
                         } else {
                             "Read ${tally.storiesLeft} more stories to meet ${tally.next.friendName}"
                         },
-                        style = type.ui(13.sp),
+                        style = type.ui(13.sp, FontWeight.SemiBold),
                         color = paper.ink,
                     )
                 }
@@ -223,6 +237,12 @@ fun CalloutCard(
 
 @Composable
 private fun PresentReveal(friend: Friend, item: WardrobeItem?, opened: Boolean, open: () -> Unit) {
+    val reduceMotion = rememberReducedMotion()
+    val opening = remember { Animatable(if (opened) 1f else 0f) }
+    LaunchedEffect(opened) {
+        if (!opened) return@LaunchedEffect
+        if (reduceMotion) opening.snapTo(1f) else opening.animateTo(1f, swiftSpring(PRESENT_SECONDS, PRESENT_BOUNCE))
+    }
     Box(
         Modifier
             .height(120.dp)
@@ -230,11 +250,35 @@ private fun PresentReveal(friend: Friend, item: WardrobeItem?, opened: Boolean, 
             .semantics { contentDescription = if (opened) item?.name ?: "A present" else "A present. Double tap to open it." },
         contentAlignment = Alignment.Center,
     ) {
+        val shown = { opening.value.coerceIn(0f, 1f) }
         if (opened) {
-            Sticker("collect-present-open", Modifier.size(96.dp).offset(x = (-40).dp))
-            if (item != null) WearSticker(friend, item, 96.dp, 78.dp, Modifier.offset(x = 56.dp, y = (-24).dp))
-        } else {
-            Sticker("collect-present", Modifier.size(110.dp))
+            Sticker("collect-present-open", Modifier.size(96.dp).offset(x = (-40).dp).graphicsLayer { alpha = shown() })
+            if (item != null) {
+                WearSticker(
+                    friend,
+                    item,
+                    96.dp,
+                    78.dp,
+                    Modifier.offset(x = 56.dp, y = (-24).dp).graphicsLayer {
+                        val scale = PresentMotion.itemScale(opening.value)
+                        scaleX = scale
+                        scaleY = scale
+                        transformOrigin = TransformOrigin(0f, 1f)
+                        alpha = shown()
+                    },
+                )
+            }
+        }
+        if (opening.value < 1f) {
+            Sticker(
+                "collect-present",
+                Modifier.size(110.dp).graphicsLayer {
+                    val scale = PresentMotion.closedScale(opening.value)
+                    scaleX = scale
+                    scaleY = scale
+                    alpha = 1f - shown()
+                },
+            )
         }
     }
 }
@@ -305,24 +349,25 @@ private fun secondary(moment: JourneyMoment): String? = when (moment) {
 }
 
 @Composable
-fun BasketChip(treat: StoryTreat, modifier: Modifier = Modifier) {
+fun BasketChip(treat: StoryTreat, geometry: PathGeometry, modifier: Modifier = Modifier) {
     val paper = LocalPaper.current
+    fun path(value: Float) = (geometry.path(value) / geometry.density).dp
     Row(
         modifier
             .clearAndSetSemantics { contentDescription = "You found a ${treat.friend.treat.one}." }
-            .height(42.dp)
-            .paperChip(CircleShape, rim = 3.dp)
-            .padding(horizontal = 12.dp),
+            .height(path(42f))
+            .paperChip(CircleShape, rim = path(3f))
+            .padding(horizontal = path(12f)),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalArrangement = Arrangement.spacedBy(path(6f)),
     ) {
         if (treat.isTrail) {
-            FriendSticker(treat.friend, 28.dp, isSilhouette = true)
+            FriendSticker(treat.friend, path(28f), Modifier.alpha(TRAIL_ALPHA), isSilhouette = true)
         } else {
-            Sticker("collect-basket", Modifier.size(28.dp))
+            Sticker("collect-basket", Modifier.size(path(28f)))
         }
-        TreatSticker(treat.friend, 22.dp)
-        Text("+1", style = LocalTypography.current.display(16.sp), color = paper.ink)
+        TreatSticker(treat.friend, path(22f))
+        Text("+1", style = LocalTypography.current.display((geometry.path(16f) / geometry.density).sp), color = paper.ink)
     }
 }
 
@@ -346,30 +391,58 @@ private fun MomentCards(
 ) {
     BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding(), contentAlignment = Alignment.TopCenter) {
         val top = maxHeight * (PANEL_Y / PANEL_REFERENCE_HEIGHT)
-        val callout = state.callout
-        val tally = state.tally
-        if (callout != null) {
-            val item = callout.unlockedItem(app.wardrobe)
-            val story = callout.story(app.library)
-            key(callout) {
-                CalloutCard(
-                    moment = callout,
-                    item = item,
-                    leads = story != null || item != null,
-                    primary = {
-                        story?.let(onStory)
-                        if (callout is JourneyMoment.BasketFull) onTryItOn(callout.friend)
-                    },
-                    dismiss = dismiss,
-                    modifier = Modifier.padding(top = top),
-                    isDone = isDone,
-                )
+        val moment = state.callout ?: state.tally
+        AnimatedContent(
+            moment,
+            Modifier.padding(top = top),
+            transitionSpec = {
+                val timing = tween<Float>(MOMENT_MILLIS, easing = EaseInOut)
+                val enter = fadeIn(timing) + if (targetState is JourneyMoment.Tally) EnterTransition.None else scaleIn(timing, CALLOUT_FROM)
+                val exit =
+                    fadeOut(timing) + if (initialState is JourneyMoment.Tally) ExitTransition.None else scaleOut(timing, CALLOUT_FROM)
+                enter togetherWith exit
+            },
+            contentAlignment = Alignment.TopCenter,
+            label = "moment",
+        ) { shown ->
+            when (shown) {
+                null -> Unit
+
+                is JourneyMoment.Tally -> TallyCard(shown, state.collectedTreat)
+
+                else -> {
+                    val item = shown.unlockedItem(app.wardrobe)
+                    val story = shown.story(app.library)
+                    CalloutCard(
+                        moment = shown,
+                        item = item,
+                        leads = story != null || item != null,
+                        primary = {
+                            story?.let(onStory)
+                            if (shown is JourneyMoment.BasketFull) onTryItOn(shown.friend)
+                        },
+                        dismiss = dismiss,
+                        isDone = isDone,
+                    )
+                }
             }
-        } else if (tally != null) {
-            TallyCard(tally, state.collectedTreat, Modifier.padding(top = top))
         }
     }
 }
 
+object PresentMotion {
+    const val ITEM_FROM = 0.2f
+    const val CLOSED_TO = 1.1f
+
+    fun itemScale(opening: Float): Float = ITEM_FROM + (1 - ITEM_FROM) * opening
+
+    fun closedScale(opening: Float): Float = 1 + (CLOSED_TO - 1) * opening.coerceIn(0f, 1f)
+}
+
+private const val PRESENT_SECONDS = 0.5
+private const val PRESENT_BOUNCE = 0.4
+private const val TRAIL_ALPHA = 0.6f
+private const val MOMENT_MILLIS = 300
+private const val CALLOUT_FROM = 0.9f
 private const val PANEL_Y = 110f
 private const val PANEL_REFERENCE_HEIGHT = 844f

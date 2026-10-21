@@ -177,6 +177,11 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
         if (reading.state.sentenceIndex != before.sentenceIndex) sentenceChanged(before)
     }
 
+    fun readRestOfSentence() {
+        val words = reading.state.sentence?.words ?: return
+        repeat(words.size - reading.state.wordIndex) { skipWord() }
+    }
+
     fun backTapped(): Boolean = reading.backTapped().also { publish() }
 
     fun keepReading() {
