@@ -16,6 +16,7 @@ data class Paper(
     val washRing: Color,
     val muted: Color,
     val rim: Color,
+    val redInk: Color,
 ) {
     val red = Color(0xFFB8423A)
     val onRed = Color(0xFFFFFFFF)
@@ -34,6 +35,7 @@ data class Paper(
             washRing = Color(0xFFB8862E),
             muted = Color(0xFF9C8B78),
             rim = Color(0xFFFFFFFF),
+            redInk = Color(0xFFB8423A),
         )
 
         val dark = Paper(
@@ -45,8 +47,9 @@ data class Paper(
             sageDeep = Color(0xFF8FAE7A),
             wash = Color(0xFF7A6326),
             washRing = Color(0xFFD9A94A),
-            muted = Color(0xFFA8A0BE),
+            muted = Color(0xFFC4BDD6),
             rim = Color(0xFF3A4674),
+            redInk = Color(0xFFF59A90),
         )
     }
 }

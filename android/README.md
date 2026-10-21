@@ -55,6 +55,17 @@ foldable's outer and inner screens, and half open as a book and on a tabletop, w
 `FoldingFeature` published through `WindowLayoutInfoPublisherRule`. Those references live in
 `app/src/test/screenshots/large`.
 
+`FontScaleScreenshotTest` shoots home, the onboarding name step, settings and the story-finished panel
+at font scale 2.0, into `app/src/test/screenshots/font-scale`.
+
+## Accessibility
+
+As on iOS, Fredoka UI text (`Typography.ui`) follows the system font size, while the words on the
+path, Fraunces titles and caps labels stay at their design size. "Remove animations" (animator
+duration scale 0) is read as Reduce Motion: the idle friend stands still, the camera and sky cut,
+and props hold their layout. `AccessibilityTest` checks the TalkBack labels, headings and actions
+screen by screen, and `ContrastTest` holds the dark palettes to WCAG AA.
+
 ## Tablets and foldables
 
 `Metrics.forScreen` picks the reading layout as iOS does: the iPad numbers when the window is at

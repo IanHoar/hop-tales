@@ -61,7 +61,7 @@ fun SoundMarksExamples(size: Float = 30f, modifier: Modifier = Modifier) {
                 if (marks != null) {
                     val edges = SoundMarks.edges(measurer.measure(word, style), 0, word.length)
                     Canvas(Modifier.size(with(density) { edges.last().toDp() }, SoundMarks.height(size).dp)) {
-                        drawSoundMarks(marks, edges, size.sp.toPx(), paper.ink.copy(alpha = 0.8f))
+                        drawSoundMarks(marks, edges, size.dp.toPx(), paper.ink.copy(alpha = 0.8f))
                     }
                 }
             }

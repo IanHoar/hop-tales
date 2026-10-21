@@ -26,12 +26,12 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.Paper
@@ -61,7 +61,7 @@ fun IntroScreen(art: IntroArt?, reduceMotion: Boolean, onFinished: () -> Unit, m
         showsTitle = !reduceMotion,
         modifier = modifier
             .clickable(remember { MutableInteractionSource() }, indication = null) { finish() }
-            .semantics {
+            .clearAndSetSemantics {
                 contentDescription = "Hop Tales"
                 heading()
             },
@@ -85,7 +85,6 @@ private fun IntroTitle(frame: () -> IntroFrame) {
         val layout = IntroLayout(constraints.maxWidth.toFloat(), constraints.maxHeight.toFloat(), density.density)
         val k = layout.titleK
         val typography = LocalTypography.current
-        fun points(value: Float): TextUnit = with(density) { value.dp.toSp() }
         CompositionLocalProvider(LocalPaper provides Paper.light) {
             Column(
                 Modifier
@@ -102,14 +101,14 @@ private fun IntroTitle(frame: () -> IntroFrame) {
                 PaperLabel(Modifier.rotate(-2f), seed = 28) {
                     Text(
                         "Hop Tales",
-                        style = typography.display(points(46 * k)),
+                        style = typography.display((46 * k).sp),
                         color = Paper.light.ink,
                         modifier = Modifier.padding(start = Dp(28 * k), end = Dp(28 * k), top = Dp(12 * k), bottom = Dp(16 * k)),
                     )
                 }
                 Text(
                     "a read-aloud adventure",
-                    style = typography.word(points(17 * minOf(1.5f, k))),
+                    style = typography.word((17 * minOf(1.5f, k)).sp),
                     color = Paper.light.ink.copy(alpha = 0.85f),
                 )
             }

@@ -2,7 +2,6 @@ package com.hoptales.android.reading
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -41,6 +40,7 @@ import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
@@ -53,6 +53,7 @@ import com.hoptales.android.design.BackChip
 import com.hoptales.android.design.LocalPalette
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
+import com.hoptales.android.design.rememberReducedMotion
 import com.hoptales.android.world.Art
 import com.hoptales.android.world.HareSheet
 import com.hoptales.android.world.HareSheets
@@ -111,9 +112,7 @@ fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {
         if (state.completionCount > 0) haptics.performHapticFeedback(HapticFeedbackType.Confirm)
     }
 
-    val reduceMotion = remember {
-        Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
-    }
+    val reduceMotion = rememberReducedMotion()
     var pickup by remember { mutableStateOf<StoryTreat?>(null) }
     var passed by remember { mutableStateOf(HopTarget(state.sentenceIndex, state.wordIndex)) }
     LaunchedEffect(state.sentenceIndex, state.wordIndex) {
@@ -177,9 +176,7 @@ fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {
 @Composable
 private fun PathStage(state: ReadingState, wearing: String?, soundButtons: Boolean, onWordTapped: () -> Unit) {
     val context = LocalContext.current
-    val reduceMotion = remember {
-        Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
-    }
+    val reduceMotion = rememberReducedMotion()
     val palette = LocalPalette.current
     val paper = LocalPaper.current
     val type = LocalTypography.current
@@ -229,7 +226,7 @@ private fun PathStage(state: ReadingState, wearing: String?, soundButtons: Boole
     BoxWithConstraints(Modifier.fillMaxSize().background(palette.page)) {
         val density = LocalDensity.current
         val geometry = with(density) { PathGeometry(constraints.maxWidth.toFloat(), constraints.maxHeight.toFloat(), this.density) }
-        val wordStyle = type.word(with(density) { geometry.path(PathGeometry.WORD_SIZE).toSp() })
+        val wordStyle = type.word((geometry.path(PathGeometry.WORD_SIZE) / density.density).sp)
         val world = WorldStyle.of(friend)
         val phonics = (context.applicationContext as HopTalesApplication).phonics.takeIf { soundButtons }
         val path = remember(state.story, geometry, wordStyle, world, phonics) {
@@ -287,7 +284,8 @@ private fun PathStage(state: ReadingState, wearing: String?, soundButtons: Boole
             drawProps(items, propArt, time, geometry.path(1f), look().tint(MeadowLayer.NEAR), paper)
         }
 
-        val signs = remember(path, type) { Signposts(context.assets, path, measurer, type.displayFamily, state.story.title) }
+        val signs =
+            remember(path, type, density) { Signposts(context.assets, path, measurer, type.displayFamily, state.story.title, density) }
         val currentStop = path.stop(state.sentenceIndex, state.wordIndex)
         Canvas(
             Modifier

@@ -8,13 +8,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 
 @Composable
 fun HopTalesTheme(dark: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val palette = if (dark) Palette.dark else Palette.light
     val paper = if (dark) Paper.dark else Paper.light
     val assets = LocalContext.current.assets
-    val typography = remember(assets) { Typography(assets) }
+    val density = LocalDensity.current
+    val typography = remember(assets, density) { Typography(assets, density) }
     val colors = if (dark) {
         darkColorScheme(primary = palette.teal, background = palette.page, surface = palette.parchment, onSurface = palette.ink)
     } else {
