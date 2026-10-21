@@ -13,14 +13,20 @@ import com.github.takahirom.roborazzi.RoborazziOptions
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.github.takahirom.roborazzi.captureScreenRoboImage
 import com.hoptales.android.design.HopTalesTheme
+import com.hoptales.android.home.BookScreen
+import com.hoptales.android.home.FriendsScreen
 import com.hoptales.android.home.HomeScreen
+import com.hoptales.android.home.JourneyMapScreen
+import com.hoptales.android.home.WardrobeScreen
 import com.hoptales.android.onboarding.OnboardingActions
 import com.hoptales.android.onboarding.OnboardingContent
 import com.hoptales.android.reading.ReadingScreen
 import com.hoptales.android.settings.SettingsActions
 import com.hoptales.android.settings.SettingsContent
 import com.hoptales.android.settings.SettingsState
+import com.hoptales.content.Basket
 import com.hoptales.content.Friend
+import com.hoptales.content.Journey
 import com.hoptales.content.Profile
 import com.hoptales.content.Progress
 import com.hoptales.content.Story
@@ -48,13 +54,38 @@ class ScreenshotTest {
 
     @Before
     fun freezeMotion() {
+        app.progressStore.save(Progress())
         Settings.Global.putFloat(app.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 0f)
         shadowOf(app).grantPermissions(Manifest.permission.RECORD_AUDIO)
     }
 
-    @Test fun homeLight() = home(dark = false)
+    @Test fun homeFirstRunLight() = home("home-first-run", Progress(), dark = false)
 
-    @Test fun homeDark() = home(dark = true)
+    @Test fun homeFirstRunDark() = home("home-first-run", Progress(), dark = true)
+
+    @Test fun homeMidwayLight() = home("home-midway", midway, dark = false)
+
+    @Test fun homeMidwayDark() = home("home-midway", midway, dark = true)
+
+    @Test fun basketFullLight() = basketFull(dark = false)
+
+    @Test fun basketFullDark() = basketFull(dark = true)
+
+    @Test fun journeyMapLight() = journeyMap(dark = false)
+
+    @Test fun journeyMapDark() = journeyMap(dark = true)
+
+    @Test fun friendsLight() = friends(dark = false)
+
+    @Test fun friendsDark() = friends(dark = true)
+
+    @Test fun wardrobeLight() = wardrobe(dark = false)
+
+    @Test fun wardrobeDark() = wardrobe(dark = true)
+
+    @Test fun bookLight() = book(dark = false)
+
+    @Test fun bookDark() = book(dark = true)
 
     @Test fun readingLight() = reading(dark = false)
 
@@ -129,14 +160,68 @@ class ScreenshotTest {
         compose.onRoot().captureRoboImage(path("settings", dark), options)
     }
 
-    private fun home(dark: Boolean) {
-        val progress = Progress(stars = 12, completedSentences = mapOf(story.id to story.sentences.size))
+    private val midway = Progress(
+        stars = 56,
+        completedSentences = mapOf("meadow-walk" to 6, "golden-hour" to 3),
+        journey = Journey.starting(Friend.HARE),
+    )
+
+    private fun home(name: String, progress: Progress, dark: Boolean) {
         compose.setContent {
             HopTalesTheme(dark = dark) {
                 HomeScreen(library = app.library, progress = progress, onStory = {}, childName = "Maya", hour = 9)
             }
         }
-        compose.onRoot().captureRoboImage(path("home", dark), options)
+        compose.onRoot().captureRoboImage(path(name, dark), options)
+    }
+
+    private fun basketFull(dark: Boolean) {
+        app.progressStore.save(Progress(baskets = mapOf(Friend.HARE to Basket(inBasket = 3))))
+        storyFinished(dark, name = "basket-full")
+    }
+
+    private fun journeyMap(dark: Boolean) {
+        val journey = Journey.starting(Friend.HARE).copy(steps = 150.0)
+        compose.setContent {
+            HopTalesTheme(dark = dark) { JourneyMapScreen(app.library, journey, onFriend = {}, onBigStory = {}, onDone = {}) }
+        }
+        compose.onRoot().captureRoboImage(path("journey-map", dark), options)
+    }
+
+    private fun friends(dark: Boolean) {
+        val progress = Progress(
+            journey = Journey.starting(Friend.HARE).copy(steps = 164.0),
+            baskets = mapOf(Friend.HARE to Basket(total = 64)),
+        )
+        compose.setContent {
+            HopTalesTheme(dark = dark) { FriendsScreen(progress, app.wardrobe, onFriend = {}, onJourney = {}, onDone = {}) }
+        }
+        compose.onRoot().captureRoboImage(path("friends", dark), options)
+    }
+
+    private fun wardrobe(dark: Boolean) {
+        val worn = app.wardrobe.items(Friend.BUNNY)[1]
+        val progress = Progress(
+            journey = Journey.starting(Friend.FROG),
+            baskets = mapOf(Friend.BUNNY to Basket(filled = 3)),
+            outfits = mapOf(Friend.BUNNY to mapOf(worn.slot to worn.id)),
+        )
+        compose.setContent {
+            HopTalesTheme(dark = dark) { WardrobeScreen(Friend.BUNNY, progress, app.wardrobe, onItem = {}, onJustMe = {}, onDone = {}) }
+        }
+        compose.onRoot().captureRoboImage(path("wardrobe", dark), options)
+    }
+
+    private fun book(dark: Boolean) {
+        val progress = Progress(
+            completedSentences = mapOf("golden-hour" to 6, "skip-and-frog" to 6),
+            journey = Journey.starting(Friend.HARE),
+            baskets = mapOf(Friend.HARE to Basket(total = 64, golden = 3)),
+        )
+        compose.setContent {
+            HopTalesTheme(dark = dark) { BookScreen(app.library, progress, Friend.HARE, onFriend = {}, onDone = {}) }
+        }
+        compose.onRoot().captureRoboImage(path("book", dark), options)
     }
 
     private fun reading(dark: Boolean) {
@@ -155,14 +240,14 @@ class ScreenshotTest {
         compose.onRoot().captureRoboImage(path(name, dark), options)
     }
 
-    private fun storyFinished(dark: Boolean) {
+    private fun storyFinished(dark: Boolean, name: String = "story-finished") {
         showReading(dark)
         val hear = compose.onNodeWithText("Hear “", substring = true)
         while (hear.exists()) {
             hear.performClick()
             compose.waitForIdle()
         }
-        compose.onRoot().captureRoboImage(path("story-finished", dark), options)
+        compose.onRoot().captureRoboImage(path(name, dark), options)
     }
 
     @OptIn(ExperimentalRoborazziApi::class)
