@@ -6,7 +6,8 @@ plugins {
 
 val shared = rootDir.resolve("../ios/HopTalesPackage/Sources")
 val wardrobe = listOf("look-*", "wear-*", "looks.json", "wardrobe.json")
-val notYetOnAndroid = listOf("postcard-*", "prop-*", "hare-front-sit.*")
+val sceneryProps = listOf("bush", "fence", "flowers", "mushrooms", "oak").map { "prop-$it.*" }
+val notYetOnAndroid = listOf("postcard-*", "hare-front-sit.*") + sceneryProps
 
 android {
     namespace = "com.hoptales.android"
@@ -65,6 +66,7 @@ dependencies {
     implementation(project(":core:reading"))
     implementation(project(":core:onboarding"))
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)

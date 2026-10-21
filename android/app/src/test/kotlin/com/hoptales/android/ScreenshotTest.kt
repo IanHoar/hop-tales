@@ -80,6 +80,10 @@ class ScreenshotTest {
 
     @Test fun stopReadingDark() = stopReading(dark = true)
 
+    @Test fun askToListenLight() = askToListen(dark = false)
+
+    @Test fun askToListenDark() = askToListen(dark = true)
+
     @Test fun onboardingNameLight() = onboarding(OnboardingStep.NAME, dark = false)
 
     @Test fun onboardingNameDark() = onboarding(OnboardingStep.NAME, dark = true)
@@ -164,9 +168,15 @@ class ScreenshotTest {
     @OptIn(ExperimentalRoborazziApi::class)
     private fun stopReading(dark: Boolean) {
         showReading(dark)
-        compose.onNodeWithContentDescription("Back").performClick()
+        compose.onNodeWithContentDescription("Back to stories").performClick()
         compose.waitForIdle()
         captureScreenRoboImage(path("stop-reading", dark), options)
+    }
+
+    private fun askToListen(dark: Boolean) {
+        shadowOf(app).denyPermissions(Manifest.permission.RECORD_AUDIO)
+        showReading(dark)
+        compose.onRoot().captureRoboImage(path("ask-to-listen", dark), options)
     }
 
     private fun showReading(dark: Boolean, story: Story = this.story) {

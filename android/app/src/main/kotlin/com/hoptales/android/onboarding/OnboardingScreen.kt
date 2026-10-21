@@ -65,7 +65,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hoptales.android.HopTalesApplication
-import com.hoptales.android.design.ChevronGlyph
+import com.hoptales.android.design.BackChip
 import com.hoptales.android.design.ChoiceSurface
 import com.hoptales.android.design.LocalPalette
 import com.hoptales.android.design.LocalTypography
@@ -163,17 +163,7 @@ private fun Header(state: OnboardingState, onBack: () -> Unit) {
     Box(Modifier.fillMaxWidth().height(44.dp), contentAlignment = Alignment.Center) {
         ProgressPills(current = state.stepNumber - 1, count = state.stepCount)
         if (!state.isFirstStep) {
-            Surface(
-                onClick = onBack,
-                modifier = Modifier.align(Alignment.CenterStart).offset(x = (-12).dp).size(44.dp).semantics {
-                    contentDescription = "Back"
-                },
-                color = palette.paper,
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Box(Modifier.rotate(90f)) { ChevronGlyph(palette.ink, 20.dp) }
-                }
-            }
+            BackChip(Modifier.align(Alignment.CenterStart).offset(x = (-4).dp), description = "Back", onClick = onBack)
         }
     }
 }
