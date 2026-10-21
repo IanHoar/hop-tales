@@ -147,6 +147,40 @@ fun PaperToggle(title: String, detail: String, checked: Boolean, onChange: (Bool
 }
 
 @Composable
+fun PaperToggleField(
+    title: String,
+    detail: String,
+    checked: Boolean,
+    onChange: (Boolean) -> Unit,
+    below: @Composable ColumnScope.() -> Unit,
+) {
+    val paper = LocalPaper.current
+    val type = LocalTypography.current
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .paperField()
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        Row(
+            Modifier
+                .semantics(mergeDescendants = true) { toggleableState = ToggleableState(checked) }
+                .pressable({ onChange(!checked) }, Role.Switch),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(title, style = type.display(20.sp), color = paper.ink)
+                Text(detail, style = type.ui(15.sp), color = paper.muted)
+            }
+            Spacer(Modifier.width(12.dp))
+            PaperSwitch(checked)
+        }
+        below()
+    }
+}
+
+@Composable
 fun ProgressPills(current: Int, count: Int, modifier: Modifier = Modifier) {
     Row(
         modifier.semantics(mergeDescendants = true) { contentDescription = "Step ${current + 1} of $count" },

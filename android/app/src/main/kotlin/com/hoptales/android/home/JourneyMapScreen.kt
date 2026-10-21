@@ -3,7 +3,6 @@ package com.hoptales.android.home
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -45,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
+import com.hoptales.android.design.pressable
 import com.hoptales.android.world.FriendSticker
 import com.hoptales.android.world.Rosette
 import com.hoptales.content.Friend
@@ -153,7 +153,7 @@ private fun StopView(friend: Friend, stop: JourneyStop, onClick: () -> Unit) {
     }
     Column(
         Modifier
-            .clickable(enabled = stop.isTappable, onClick = onClick)
+            .pressable(onClick, enabled = stop.isTappable)
             .clearAndSetSemantics {
                 contentDescription = label(friend, stop)
                 if (stop.isTappable) role = Role.Button

@@ -47,6 +47,7 @@ import com.hoptales.android.design.PaperButton
 import com.hoptales.android.design.PaperChip
 import com.hoptales.android.design.PaperLabel
 import com.hoptales.android.design.PaperQuietButton
+import com.hoptales.android.design.Press
 import com.hoptales.android.design.StarChip
 import com.hoptales.android.design.bevel
 import com.hoptales.android.design.headingGroup
@@ -158,7 +159,7 @@ fun StoryFinished(title: String, stars: Int, readAgain: () -> Unit, done: () -> 
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                PaperChip(height = 48.dp, rim = 4.dp, onClick = readAgain) {
+                PaperChip(height = 48.dp, rim = 4.dp, press = Press.PLAIN, onClick = readAgain) {
                     Icon(Glyphs.again, null, tint = paper.ink, modifier = Modifier.size(19.dp))
                     Text("Read it again", style = type.display(18.sp), color = paper.ink)
                 }
@@ -168,7 +169,7 @@ fun StoryFinished(title: String, stars: Int, readAgain: () -> Unit, done: () -> 
                 Modifier
                     .size(236.dp, 56.dp)
                     .semantics { traversalIndex = -1f }
-                    .pressable(done)
+                    .pressable(done, press = Press.PAPER)
                     .dropShadow(CircleShape, Shadow(5.dp, paper.shadow, offset = DpOffset(0.dp, 4.dp)))
                     .background(paper.rim, CircleShape)
                     .padding(4.dp)

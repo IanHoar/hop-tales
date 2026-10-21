@@ -49,24 +49,34 @@ fun Modifier.paperChip(shape: Shape, fill: Color = LocalPaper.current.paper, rim
         .border(rim, paper.rim, shape)
 }
 
+enum class Press { PLAIN, PAPER }
+
 @Composable
-fun Modifier.pressable(onClick: () -> Unit, role: Role = Role.Button, enabled: Boolean = true): Modifier {
+fun Modifier.pressable(onClick: () -> Unit, role: Role = Role.Button, enabled: Boolean = true, press: Press = Press.PLAIN): Modifier {
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
-    return scale(if (pressed) 0.97f else 1f).clickable(interaction, indication = null, enabled = enabled, role = role, onClick = onClick)
+    val feedback = when (press) {
+        Press.PLAIN -> alpha(if (pressed) PLAIN_PRESSED_ALPHA else 1f)
+        Press.PAPER -> scale(if (pressed) PAPER_PRESSED_SCALE else 1f)
+    }
+    return feedback.clickable(interaction, indication = null, enabled = enabled, role = role, onClick = onClick)
 }
+
+private const val PLAIN_PRESSED_ALPHA = 0.75f
+private const val PAPER_PRESSED_SCALE = 0.97f
 
 @Composable
 fun PaperChip(
     modifier: Modifier = Modifier,
     height: Dp = 42.dp,
     rim: Dp = 3.dp,
+    press: Press = Press.PAPER,
     onClick: (() -> Unit)? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
     Row(
         modifier
-            .then(if (onClick != null) Modifier.pressable(onClick) else Modifier)
+            .then(if (onClick != null) Modifier.pressable(onClick, press = press) else Modifier)
             .height(height)
             .paperChip(CircleShape, rim = rim)
             .padding(horizontal = 16.dp),
@@ -132,7 +142,7 @@ fun PaperButton(text: String, modifier: Modifier = Modifier, icon: ImageVector? 
             .fillMaxWidth()
             .height(56.dp)
             .alpha(if (enabled) 1f else 0.5f)
-            .pressable(onClick, enabled = enabled)
+            .pressable(onClick, enabled = enabled, press = Press.PAPER)
             .dropShadow(shape, Shadow(5.dp, paper.shadow, offset = DpOffset(0.dp, 4.dp)))
             .background(paper.rim, shape)
             .padding(4.dp)
@@ -149,7 +159,7 @@ fun PaperQuietButton(text: String, modifier: Modifier = Modifier, icon: ImageVec
         modifier
             .fillMaxWidth()
             .height(56.dp)
-            .pressable(onClick)
+            .pressable(onClick, press = Press.PAPER)
             .paperChip(RoundedCornerShape(28.dp)),
         contentAlignment = Alignment.Center,
     ) {

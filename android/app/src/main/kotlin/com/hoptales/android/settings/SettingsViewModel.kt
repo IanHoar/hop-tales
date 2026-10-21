@@ -30,7 +30,7 @@ data class SettingsState(
 ) {
     val readingFriends: List<Friend> get() = Friend.entries.filter { it in journey.met || it in Friend.starters }
 
-    val voiceName: String get() = voices.firstOrNull { it.id == profile.voiceID }?.label ?: "Automatic"
+    val voiceName: String get() = voices.firstOrNull { it.id == profile.voiceID }?.name ?: "Automatic"
 }
 
 class SettingsViewModel(private val app: HopTalesApplication) : ViewModel() {

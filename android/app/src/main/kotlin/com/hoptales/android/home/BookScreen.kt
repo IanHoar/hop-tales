@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -36,7 +38,6 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -108,20 +109,7 @@ fun BookScreen(library: StoryLibrary, progress: Progress, friend: Friend, onFrie
                         }
                     }
                     if (storiesRead.isNotEmpty()) {
-                        Section("Stories read", spacing = 8.dp) {
-                            for (story in storiesRead) {
-                                FitText(
-                                    story.title,
-                                    style = type.display(14.sp),
-                                    color = paper.ink,
-                                    minimumScale = 0.7f,
-                                    modifier = Modifier
-                                        .rotate(if (story.title.length % 2 == 0) -1.5f else 1.5f)
-                                        .background(paper.shade, RoundedCornerShape(8.dp))
-                                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                                )
-                            }
-                        }
+                        Section("Stories read", flow = false) { Stamps(storiesRead.map { it.title }) }
                     }
                 }
             }
@@ -157,12 +145,49 @@ fun BookScreen(library: StoryLibrary, progress: Progress, friend: Friend, onFrie
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun Section(title: String, spacing: Dp = 10.dp, content: @Composable () -> Unit) {
+private fun Section(title: String, flow: Boolean = true, content: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(title, style = LocalTypography.current.display(18.sp), color = LocalPaper.current.ink)
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(spacing), verticalArrangement = Arrangement.spacedBy(spacing)) { content() }
+        if (flow) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) { content() }
+        } else {
+            content()
+        }
     }
 }
+
+@Composable
+private fun Stamps(titles: List<String>) {
+    val paper = LocalPaper.current
+    val type = LocalTypography.current
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val columns = maxOf(1, ((maxWidth + STAMP_SPACING) / (STAMP_MIN_WIDTH + STAMP_SPACING)).toInt())
+        val width = (maxWidth - STAMP_SPACING * (columns - 1)) / columns
+        Column(verticalArrangement = Arrangement.spacedBy(STAMP_SPACING)) {
+            for (row in titles.chunked(columns)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(STAMP_SPACING), verticalAlignment = Alignment.CenterVertically) {
+                    for (title in row) {
+                        Box(Modifier.width(width)) {
+                            FitText(
+                                title,
+                                style = type.display(14.sp),
+                                color = paper.ink,
+                                minimumScale = 0.7f,
+                                modifier = Modifier
+                                    .rotate(if (title.length % 2 == 0) -1.5f else 1.5f)
+                                    .background(paper.shade, RoundedCornerShape(8.dp))
+                                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+private val STAMP_MIN_WIDTH = 130.dp
+private val STAMP_SPACING = 8.dp
 
 @Composable
 private fun Slot(filled: Boolean, art: @Composable () -> Unit) {
