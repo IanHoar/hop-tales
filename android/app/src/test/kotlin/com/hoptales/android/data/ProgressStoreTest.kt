@@ -7,6 +7,7 @@ import com.hoptales.content.Friend
 import com.hoptales.content.Journey
 import com.hoptales.content.Progress
 import com.hoptales.content.Slot
+import com.hoptales.content.StoryLibrary
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -73,6 +74,43 @@ class ProgressStoreTest {
     fun startingAJourneyIsSaved() {
         store().startJourney(Friend.CRAB)
         assertEquals(Friend.CRAB, store().load().journey.activeFriend)
+    }
+
+    @Test
+    fun aResetJourneyStaysResetNextLaunch() {
+        val story = app.library.stories(Journey().level).first()
+        val finished = Progress(
+            completedSentences = mapOf(story.id to story.sentences.size),
+            journey = Journey(storiesRead = setOf(story.id)),
+        )
+        store().save(finished)
+        store().save(finished.copy(journey = Journey()))
+        assertEquals(emptySet<String>(), store().load().journey.storiesRead)
+    }
+
+    @Test
+    fun aJourneySavedBeforeStoriesReadCountsTheStoriesAlreadyFinished() {
+        val story = app.library.stories(Journey().level).first()
+        store().save(Progress(completedSentences = mapOf(story.id to story.sentences.size)))
+        val journey = """
+            {"level":1,"steps":0,"met":["bunny"],"activeFriend":"bunny","bigStoryAttempts":0,
+            "trail":0,"storiesReadWell":0,"recentHelpRates":[],"cleanStreak":0}
+        """.trimIndent()
+        database.writableDatabase.execSQL(
+            """INSERT INTO "progress" ("id", "stars", "journey", "baskets", "outfits") VALUES (?, 0, ?, '[]', '[]')""",
+            arrayOf(ProgressTable.ONLY, journey),
+        )
+        assertEquals(setOf(story.id), store().load().journey.storiesRead)
+    }
+
+    @Test
+    fun aProgressFileFromBeforeTheDatabaseCountsTheStoriesAlreadyFinished() {
+        val story = app.library.stories(Journey().level).first()
+        val legacy = folder.newFolder("files")
+        val progress = Progress(completedSentences = mapOf(story.id to story.sentences.size))
+        File(legacy, "progress.json").writeText(StoryLibrary.json.encodeToString(Progress.serializer(), progress))
+        val database = HopTalesDatabase(app, File(folder.root, "legacy.db").path, legacy, app.library)
+        assertEquals(setOf(story.id), ProgressStore(database, app.library).load().journey.storiesRead)
     }
 
     private fun changes(db: SQLiteDatabase) = db.rawQuery("SELECT total_changes()", null).use {
