@@ -9,6 +9,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import com.hoptales.content.Profile
 
 @Composable
 fun HopTalesTheme(dark: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
@@ -25,4 +26,9 @@ fun HopTalesTheme(dark: Boolean = isSystemInDarkTheme(), content: @Composable ()
     CompositionLocalProvider(LocalPalette provides palette, LocalPaper provides paper, LocalTypography provides typography) {
         MaterialTheme(colorScheme = colors, content = content)
     }
+}
+
+@Composable
+fun HopTalesTheme(theme: Profile.Theme, content: @Composable () -> Unit) {
+    HopTalesTheme(dark = theme.isDark(isSystemInDarkTheme()), content = content)
 }

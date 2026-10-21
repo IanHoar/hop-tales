@@ -28,7 +28,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.shadow.Shadow
@@ -44,7 +44,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.design.Deckle
-import com.hoptales.android.design.LocalPalette
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.PaperChip
@@ -104,7 +103,7 @@ fun TallyCard(tally: JourneyMoment.Tally, found: JourneyMoment.TreatFound?, modi
             }
         }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            FriendSticker(tally.next, 46.dp, isSilhouette = !reached)
+            FriendSticker(tally.next, 46.dp, Modifier.alpha(if (reached) 1f else 0.55f), isSilhouette = !reached)
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("The path to ${tally.next.friendName}", style = type.display(16.sp), color = paper.ink)
                 PathRibbon(if (tally.goal > 0) tally.total / tally.goal else 1.0)
@@ -143,9 +142,11 @@ fun treatLine(treat: CollectedTreat, trail: Int): String {
 
 @Composable
 fun PathRibbon(fill: Double, modifier: Modifier = Modifier) {
-    val palette = LocalPalette.current
-    Box(modifier.width(180.dp).height(12.dp).clip(CircleShape).background(palette.muted.copy(alpha = 0.22f))) {
-        Box(Modifier.fillMaxWidth(fill.coerceIn(0.0, 1.0).toFloat()).height(12.dp).background(palette.gold, CircleShape))
+    val paper = LocalPaper.current
+    val track = remember { Deckle(seed = 8, jitter = 1.2.dp, step = 6.dp) }
+    val filled = remember { Deckle(seed = 9, jitter = 1.2.dp, step = 6.dp) }
+    Box(modifier.width(180.dp).height(12.dp).background(paper.muted.copy(alpha = 0.22f), track)) {
+        Box(Modifier.fillMaxWidth(fill.coerceIn(0.0, 1.0).toFloat()).height(12.dp).background(paper.wash, filled))
     }
 }
 

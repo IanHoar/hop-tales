@@ -20,7 +20,7 @@ object ProfileTable {
     const val ONLY = "profile"
 
     fun read(db: SQLiteDatabase): Profile? = db.rawQuery(
-        """SELECT "childName", "startingFriend", "accent", "voiceID", "soundButtons" FROM "profiles" WHERE "id" = ?""",
+        """SELECT "childName", "startingFriend", "accent", "voiceID", "soundButtons", "theme" FROM "profiles" WHERE "id" = ?""",
         arrayOf(ONLY),
     ).use { row ->
         if (!row.moveToFirst()) return null
@@ -30,6 +30,7 @@ object ProfileTable {
             accent = Profile.Accent.entries.firstOrNull { it.tag == row.getString(2) } ?: Profile.Accent.CANADIAN,
             voiceID = if (row.isNull(3)) null else row.getString(3),
             soundButtons = row.getInt(4) != 0,
+            theme = Profile.Theme.of(row.getString(5)),
         )
     }
 
@@ -37,14 +38,15 @@ object ProfileTable {
         if (read(db) == profile) return
         db.execSQL(
             """
-            INSERT INTO "profiles" ("id", "childName", "startingFriend", "accent", "voiceID", "soundButtons")
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO "profiles" ("id", "childName", "startingFriend", "accent", "voiceID", "soundButtons", "theme")
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT ("id") DO UPDATE SET
               "childName" = excluded."childName",
               "startingFriend" = excluded."startingFriend",
               "accent" = excluded."accent",
               "voiceID" = excluded."voiceID",
-              "soundButtons" = excluded."soundButtons"
+              "soundButtons" = excluded."soundButtons",
+              "theme" = excluded."theme"
             """.trimIndent(),
             arrayOf<Any?>(
                 ONLY,
@@ -53,6 +55,7 @@ object ProfileTable {
                 profile.accent.tag,
                 profile.voiceID,
                 if (profile.soundButtons) 1 else 0,
+                profile.theme.raw,
             ),
         )
     }

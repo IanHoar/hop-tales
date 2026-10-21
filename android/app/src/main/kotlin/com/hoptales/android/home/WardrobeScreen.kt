@@ -1,10 +1,17 @@
 package com.hoptales.android.home
 
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,26 +24,32 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hoptales.android.design.LocalPalette
+import com.hoptales.android.design.Deckle
+import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
+import com.hoptales.android.design.pressable
 import com.hoptales.android.world.DressedFriend
 import com.hoptales.android.world.WearSticker
 import com.hoptales.content.Friend
@@ -49,6 +62,9 @@ import com.hoptales.content.outfit
 
 private val TILE = 82.dp
 
+private const val OUTFIT_DAMPING = 0.7f
+private const val OUTFIT_STIFFNESS = 322f
+
 @Composable
 fun WardrobeScreen(
     friend: Friend,
@@ -58,13 +74,14 @@ fun WardrobeScreen(
     onJustMe: () -> Unit,
     onDone: () -> Unit,
 ) {
-    val palette = LocalPalette.current
+    val paper = LocalPaper.current
     val type = LocalTypography.current
     val items = wardrobe.items(friend)
     val outfit = progress.outfit(friend, wardrobe)
     val newest = progress.newestItem(friend, wardrobe)
-    Column(Modifier.fillMaxSize().background(palette.page)) {
-        SheetHeader("${friend.friendName}'s wardrobe", onDone)
+    val stage = remember { Deckle(seed = 14, jitter = 3.dp, step = 14.dp) }
+    Column(Modifier.fillMaxSize().background(paper.page)) {
+        PlainSheetHeader("${friend.friendName}'s wardrobe", 24.sp, onDone)
         LazyVerticalGrid(
             columns = GridCells.Adaptive(TILE + 12.dp),
             modifier = Modifier.fillMaxWidth().weight(1f),
@@ -77,16 +94,25 @@ fun WardrobeScreen(
                     Modifier
                         .padding(bottom = 6.dp)
                         .fillMaxWidth()
-                        .background(palette.parchmentLip.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
+                        .background(paper.shade, stage)
                         .padding(vertical = 18.dp),
                     contentAlignment = Alignment.Center,
                 ) {
-                    DressedFriend(friend, outfit, 200.dp)
+                    AnimatedContent(
+                        targetState = outfit,
+                        transitionSpec = {
+                            fadeIn(spring(OUTFIT_DAMPING, OUTFIT_STIFFNESS)) togetherWith
+                                fadeOut(spring(OUTFIT_DAMPING, OUTFIT_STIFFNESS)) using
+                                SizeTransform(clip = false) { _, _ -> spring(OUTFIT_DAMPING, OUTFIT_STIFFNESS, IntSize(1, 1)) }
+                        },
+                        contentAlignment = Alignment.Center,
+                        label = "outfit",
+                    ) { worn -> DressedFriend(friend, worn, 200.dp) }
                 }
             }
             item {
                 Tile(isSelected = outfit.isEmpty(), isLocked = false, label = "Just me, nothing on", onClick = onJustMe) {
-                    Text("Just me", style = type.display(15.sp), color = palette.ink)
+                    Text("Just me", style = type.display(15.sp), color = paper.ink)
                 }
             }
             items(items, key = { it.id }) { item ->
@@ -103,18 +129,18 @@ fun WardrobeScreen(
                         Text(
                             "new",
                             style = type.ui(11.sp),
-                            color = palette.onTeal,
+                            color = paper.onRed,
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
                                 .padding(6.dp)
-                                .background(palette.red, CircleShape)
+                                .background(paper.red, CircleShape)
                                 .padding(horizontal = 6.dp, vertical = 2.dp),
                         )
                     }
                     if (!unlocked) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Padlock(palette.ink.copy(alpha = 0.8f))
-                            Text("Basket $basket", style = type.ui(11.sp), color = palette.ink.copy(alpha = 0.8f))
+                            Padlock(paper.ink.copy(alpha = 0.8f))
+                            Text("Basket $basket", style = type.ui(11.sp), color = paper.ink.copy(alpha = 0.8f))
                         }
                     }
                 }
@@ -146,30 +172,38 @@ private fun Padlock(colour: Color) {
 }
 
 @Composable
-private fun Tile(
+private fun Tile(isSelected: Boolean, isLocked: Boolean, label: String, onClick: () -> Unit, content: @Composable BoxScope.() -> Unit) {
+    val shape = RoundedCornerShape(16.dp)
+    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { TileFace(isSelected, isLocked, label, onClick, shape, content) }
+}
+
+@Composable
+private fun TileFace(
     isSelected: Boolean,
     isLocked: Boolean,
     label: String,
     onClick: () -> Unit,
-    content: @Composable androidx.compose.foundation.layout.BoxScope.() -> Unit,
+    shape: RoundedCornerShape,
+    content: @Composable BoxScope.() -> Unit,
 ) {
-    val palette = LocalPalette.current
-    Surface(
-        onClick = onClick,
-        modifier = Modifier.size(TILE).clearAndSetSemantics {
-            contentDescription = label
-            selected = isSelected
-            role = Role.Button
-            onClick {
-                onClick()
-                true
+    val paper = LocalPaper.current
+    Box(
+        Modifier
+            .clearAndSetSemantics {
+                contentDescription = label
+                selected = isSelected
+                role = Role.Button
+                onClick {
+                    onClick()
+                    true
+                }
             }
-        },
-        shape = RoundedCornerShape(16.dp),
-        color = if (isLocked) palette.parchmentLip.copy(alpha = 0.6f) else palette.paper,
-        border = BorderStroke(if (isSelected) 4.dp else 2.dp, if (isSelected) palette.red else palette.outline),
-        shadowElevation = 2.dp,
-    ) {
-        Box(contentAlignment = Alignment.Center, content = content)
-    }
+            .pressable(onClick)
+            .size(TILE)
+            .dropShadow(shape, Shadow(3.dp, paper.shadow.copy(alpha = paper.shadow.alpha * 0.5f), offset = DpOffset(0.dp, 2.dp)))
+            .background(if (isLocked) paper.shade else paper.paper, shape)
+            .border(if (isSelected) 4.dp else 2.dp, if (isSelected) paper.red else paper.rim, shape),
+        contentAlignment = Alignment.Center,
+        content = content,
+    )
 }

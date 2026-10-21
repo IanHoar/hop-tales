@@ -113,12 +113,28 @@ class HopTalesDatabaseTest {
     fun aThemeChosenOnIOSSurvivesAnAndroidSave() {
         val db = database().writableDatabase
         db.execSQL("""INSERT INTO "profiles" ("id", "childName", "theme") VALUES ('profile', 'Maya', 'dark')""")
-        ProfileTable.write(db, Profile("Mia"))
+        val saved = ProfileTable.read(db)!!
+        assertEquals(Profile.Theme.DARK, saved.theme)
+        ProfileTable.write(db, saved.copy(childName = "Mia"))
         db.rawQuery("""SELECT "theme", "childName" FROM "profiles"""", null).use {
             it.moveToFirst()
             assertEquals("dark", it.getString(0))
             assertEquals("Mia", it.getString(1))
         }
+    }
+
+    @Test
+    fun aThemeIsWrittenWithTheIOSRawValues() {
+        val db = database().writableDatabase
+        for (theme in Profile.Theme.entries) {
+            ProfileTable.write(db, Profile("Maya", theme = theme))
+            db.rawQuery("""SELECT "theme" FROM "profiles"""", null).use {
+                it.moveToFirst()
+                assertEquals(theme.raw, it.getString(0))
+            }
+            assertEquals(theme, ProfileTable.read(db)!!.theme)
+        }
+        assertEquals(listOf("device", "light", "dark"), Profile.Theme.entries.map { it.raw })
     }
 
     private fun iosStatements(): List<String> {

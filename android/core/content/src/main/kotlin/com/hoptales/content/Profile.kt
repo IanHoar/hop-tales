@@ -9,8 +9,32 @@ data class Profile(
     val startingFriend: Friend = Friend.BUNNY,
     val accent: Accent = Accent.CANADIAN,
     val voiceID: String? = null,
+    val theme: Theme = Theme.DEVICE,
     val soundButtons: Boolean = false,
 ) {
+    @Serializable
+    enum class Theme(val raw: String, val themeName: String) {
+        @SerialName("device")
+        DEVICE("device", "Match device"),
+
+        @SerialName("light")
+        LIGHT("light", "Light"),
+
+        @SerialName("dark")
+        DARK("dark", "Dark"),
+        ;
+
+        fun isDark(deviceIsDark: Boolean): Boolean = when (this) {
+            DEVICE -> deviceIsDark
+            LIGHT -> false
+            DARK -> true
+        }
+
+        companion object {
+            fun of(raw: String?): Theme = entries.firstOrNull { it.raw == raw } ?: DEVICE
+        }
+    }
+
     @Serializable
     enum class Accent(val tag: String, val accentName: String) {
         @SerialName("en-CA")
