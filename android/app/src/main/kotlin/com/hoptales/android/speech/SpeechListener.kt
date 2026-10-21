@@ -8,10 +8,10 @@ import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import com.hoptales.speech.WordMatcher
-import java.util.Locale
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import java.util.Locale
 
 sealed interface SpeechEvent {
     data class Partial(val tokens: List<String>) : SpeechEvent
@@ -69,9 +69,8 @@ class SpeechListener(private val context: Context) {
         }
     }
 
-    private fun tokens(bundle: Bundle): List<String>? =
-        bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-            ?.firstOrNull()
-            ?.let(WordMatcher::normalize)
-            ?.takeIf { it.isNotEmpty() }
+    private fun tokens(bundle: Bundle): List<String>? = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+        ?.firstOrNull()
+        ?.let(WordMatcher::normalize)
+        ?.takeIf { it.isNotEmpty() }
 }
