@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,7 +16,6 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -60,6 +60,7 @@ private val MAP_HEIGHT = SPACING * (Friend.entries.size - 1) + INSET * 2
 @Composable
 fun JourneyMapScreen(library: StoryLibrary, journey: Journey, onFriend: (Friend) -> Unit, onBigStory: (Story) -> Unit, onDone: () -> Unit) {
     val paper = LocalPaper.current
+    val navigationBar = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     Column(Modifier.fillMaxSize().background(paper.page)) {
         PlainSheetHeader("Your journey", 26.sp, onDone, vertical = 10.dp)
         BoxWithConstraints(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState(Int.MAX_VALUE))) {
@@ -67,7 +68,7 @@ fun JourneyMapScreen(library: StoryLibrary, journey: Journey, onFriend: (Friend)
             val points = Friend.entries.indices.map { index ->
                 Pair(width * if (index % 2 == 0) 0.32f else 0.68f, MAP_HEIGHT - INSET - SPACING * index)
             }
-            Box(Modifier.fillMaxWidth().height(MAP_HEIGHT).windowInsetsPadding(WindowInsets.navigationBars)) {
+            Box(Modifier.fillMaxWidth().padding(bottom = navigationBar).height(MAP_HEIGHT)) {
                 Trail(points, journey, library)
                 for (friend in Friend.entries) {
                     val (x, y) = points[friend.level - 1]

@@ -14,8 +14,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -79,13 +82,14 @@ fun WardrobeScreen(
     val items = wardrobe.items(friend)
     val outfit = progress.outfit(friend, wardrobe)
     val newest = progress.newestItem(friend, wardrobe)
+    val navigationBar = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val stage = remember { Deckle(seed = 14, jitter = 3.dp, step = 14.dp) }
     Column(Modifier.fillMaxSize().background(paper.page)) {
         PlainSheetHeader("${friend.friendName}'s wardrobe", 24.sp, onDone)
         LazyVerticalGrid(
             columns = AdaptiveCells(TILE, TILE + 20.dp),
             modifier = Modifier.fillMaxWidth().weight(1f),
-            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 30.dp),
+            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = navigationBar + 30.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
