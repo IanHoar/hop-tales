@@ -1,5 +1,4 @@
 import Content
-import CoreImage
 import SpriteKit
 
 public enum IntroTimeline {
@@ -17,6 +16,14 @@ public enum IntroTimeline {
 }
 
 public final class IntroScene: SKScene {
+  static let desaturation = """
+    void main() {
+      vec4 color = SKDefaultShading();
+      float grey = dot(color.rgb, vec3(0.2125, 0.7154, 0.0721));
+      gl_FragColor = vec4(mix(vec3(grey), color.rgb, u_saturation), color.a);
+    }
+    """
+
   let night = SKSpriteNode()
   let dawn = SKSpriteNode()
   let day = SKSpriteNode()
@@ -27,7 +34,9 @@ public final class IntroScene: SKScene {
     SKSpriteNode(texture: MeadowArt.texture("sky-cloud-2")),
     SKSpriteNode(texture: MeadowArt.texture("sky-cloud-3"))
   ]
-  let land = SKEffectNode()
+  let land = SKNode()
+  let saturation = SKUniform(name: "u_saturation", float: Float(IntroLayout.nightSaturation))
+  private lazy var desaturated = SKShader(source: Self.desaturation, uniforms: [saturation])
   let layers = MeadowLayer.allCases.map { TiledLayer($0) }
   let hareFront = SKSpriteNode(texture: MeadowArt.texture("hare-front-sit"))
   let hareSide = SKSpriteNode(texture: MeadowArt.texture(Friend.hare.startingLook ?? "hare-sit"))
@@ -83,11 +92,6 @@ public final class IntroScene: SKScene {
       addChild(cloud)
     }
     for layer in layers { land.addChild(layer) }
-    land.filter = CIFilter(
-      name: "CIColorControls",
-      parameters: [kCIInputSaturationKey: IntroLayout.nightSaturation]
-    )
-    land.shouldEnableEffects = true
     addChild(land)
     hareRun.texture = hopTextures.first
     for hare in [hareFront, hareSide, hareRun] {
@@ -183,6 +187,7 @@ public final class IntroScene: SKScene {
   private func placeLand() {
     for layer in layers {
       layer.layout(layout.meadow, world: .hare, tint: IntroLayout.dimLand)
+      layer.shade(desaturated)
       layer.scroll(layout.meadow, progress: layout.progress(of: layer.layer))
     }
     land.position.y = -layout.landDrop
@@ -281,14 +286,14 @@ extension IntroScene {
     lift.timingMode = .easeInEaseOut
     land.run(after(start, lift))
     let length = IntroTimeline.sunriseLength
-    let saturation = SKAction.customAction(withDuration: length) { node, time in
+    let saturate = SKAction.customAction(withDuration: length) { [saturation] _, time in
       let progress = time / CGFloat(IntroTimeline.sunriseLength)
       let value = IntroLayout.nightSaturation + (1 - IntroLayout.nightSaturation) * progress
-      (node as? SKEffectNode)?.filter?.setValue(value, forKey: kCIInputSaturationKey)
+      saturation.floatValue = Float(value)
     }
     land.run(after(start, .sequence([
-      saturation,
-      .run { [weak land] in land?.shouldEnableEffects = false }
+      saturate,
+      .run { [weak self] in self?.layers.forEach { $0.shade(nil) } }
     ])))
     for (index, layer) in layers.enumerated() {
       layer.run(after(start + 0.12 * Double(index), .run { [weak layer] in
