@@ -1,5 +1,6 @@
 package com.hoptales.android
 
+import android.media.AudioManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,6 +22,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        volumeControlStream = AudioManager.STREAM_MUSIC
         val app = application as HopTalesApplication
         setContent {
             HopTalesTheme {

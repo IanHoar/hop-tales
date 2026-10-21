@@ -48,6 +48,7 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
 
             else -> {
                 if (mutableListening.value !is Listening.Heard) mutableListening.value = Listening.Active
+                app.readingAudio.activate()
                 listen()
                 watchSilence()
             }
@@ -58,6 +59,7 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
         isStarted = false
         listenJob?.cancel()
         watchJob?.cancel()
+        app.readingAudio.deactivate()
     }
 
     private fun listen() {
@@ -74,6 +76,7 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
                 }
                 delay(RELISTEN_AFTER_END_MILLIS)
             }
+            app.readingAudio.deactivate()
         }
     }
 
@@ -96,7 +99,7 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
         publish()
         val word = before.currentWord?.text ?: match.token
         showHeard(word)
-        if (reading.state.sentenceIndex != before.sentenceIndex) persist()
+        if (reading.state.sentenceIndex != before.sentenceIndex) sentenceChanged(before)
     }
 
     private fun showHeard(word: String) {
@@ -126,11 +129,11 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
 
     fun skipWord() {
         val word = reading.state.currentWord?.text ?: return
-        val before = reading.state.sentenceIndex
+        val before = reading.state
         reading.skipWord()
         publish()
         showHeard(word)
-        if (reading.state.sentenceIndex != before) persist()
+        if (reading.state.sentenceIndex != before.sentenceIndex) sentenceChanged(before)
     }
 
     fun backTapped(): Boolean = reading.backTapped().also { publish() }
@@ -144,6 +147,13 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
         reading.readAgain()
         publish()
         if (isStarted) start(hasPermission)
+    }
+
+    private fun sentenceChanged(before: ReadingState) {
+        persist()
+        if (reading.state.completionCount > before.completionCount && app.soundPreference.isOn) {
+            viewModelScope.launch { app.chord.play() }
+        }
     }
 
     private fun persist() {
