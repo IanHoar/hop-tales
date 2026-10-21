@@ -52,9 +52,11 @@ import com.hoptales.android.design.PaperQuietButton
 import com.hoptales.android.design.PaperStar
 import com.hoptales.android.design.Press
 import com.hoptales.android.design.bevel
+import com.hoptales.android.design.contentShadow
 import com.hoptales.android.design.headingGroup
 import com.hoptales.android.design.paperChip
 import com.hoptales.android.design.pressable
+import com.hoptales.android.design.rememberRimShadow
 import kotlin.math.roundToInt
 
 @Composable
@@ -94,12 +96,25 @@ fun AskToListen(onAllow: () -> Unit) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         PanelBackdrop(palette.duskRoot.copy(alpha = 0.55f))
         val shape = RoundedCornerShape(32.dp)
+        val shadow = Shadow(17.dp, palette.duskShadow, offset = DpOffset(0.dp, 22.dp))
+        val rimShadow = rememberRimShadow(shape, 4.dp, shadow)
         Column(
             Modifier
                 .padding(24.dp)
                 .widthIn(max = 330.dp)
-                .dropShadow(shape, Shadow(17.dp, palette.duskShadow, offset = DpOffset(0.dp, 22.dp)))
-                .bevel(palette.parchment, palette.parchmentLip, shape, palette.outline, palette.highlight, 4.dp, 6.dp, 9.dp)
+                .dropShadow(shape, shadow)
+                .bevel(
+                    palette.parchment,
+                    palette.parchmentLip,
+                    shape,
+                    palette.outline,
+                    palette.highlight,
+                    4.dp,
+                    6.dp,
+                    9.dp,
+                    rimShadow = rimShadow,
+                )
+                .contentShadow(shadow)
                 .padding(28.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -126,12 +141,25 @@ fun ListeningUnavailable(listening: Listening, onBack: () -> Unit) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         PanelBackdrop(palette.duskRoot.copy(alpha = 0.55f))
         val shape = RoundedCornerShape(32.dp)
+        val shadow = Shadow(17.dp, palette.duskShadow, offset = DpOffset(0.dp, 22.dp))
+        val rimShadow = rememberRimShadow(shape, 4.dp, shadow)
         Column(
             Modifier
                 .padding(24.dp)
                 .widthIn(max = 330.dp)
-                .dropShadow(shape, Shadow(17.dp, palette.duskShadow, offset = DpOffset(0.dp, 22.dp)))
-                .bevel(palette.parchment, palette.parchmentLip, shape, palette.outline, palette.highlight, 4.dp, 6.dp, 9.dp)
+                .dropShadow(shape, shadow)
+                .bevel(
+                    palette.parchment,
+                    palette.parchmentLip,
+                    shape,
+                    palette.outline,
+                    palette.highlight,
+                    4.dp,
+                    6.dp,
+                    9.dp,
+                    rimShadow = rimShadow,
+                )
+                .contentShadow(shadow)
                 .padding(28.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp),

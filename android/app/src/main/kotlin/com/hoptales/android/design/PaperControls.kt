@@ -25,9 +25,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.dropShadow
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.addOutline
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -58,9 +61,26 @@ fun Modifier.paperField(
     val paper = LocalPaper.current
     val colour = if (selected) paper.red.copy(alpha = 0.1f) else paper.rim.copy(alpha = fill)
     val shadow = Shadow(shadowRadius, paper.shadow.copy(alpha = paper.shadow.alpha * shadowOpacity), offset = DpOffset(0.dp, shadowY))
-    return dropShadow(shape, shadow)
-        .background(colour.compositeOver(base), shape)
-        .border(3.dp, if (selected) paper.red else paper.rim, shape)
+    val rim = if (selected) paper.red else paper.rim
+    val shapeShadow = rememberShadow(shape, shadow)
+    val fillShadow =
+        rememberShadow(shape, Shadow(shadowRadius, shadow.color.copy(alpha = shadow.color.alpha * colour.alpha), offset = shadow.offset))
+    val rimShadow = rememberRimShadow(shape, 3.dp, shadow)
+    return drawBehind {
+        val path = Path().apply { addOutline(shape.createOutline(size, layoutDirection, this@drawBehind)) }
+        drawShadow(shapeShadow)
+        clipPath(path) {
+            drawRect(base)
+            drawShadow(fillShadow)
+            drawRect(colour)
+        }
+    }
+        .border(3.dp, rim, shape)
+        .drawWithContent {
+            drawContent()
+            drawShadow(rimShadow)
+        }
+        .contentShadow(shadow)
 }
 
 @Composable
@@ -155,7 +175,7 @@ fun PaperToggleField(
         Row(
             Modifier
                 .semantics(mergeDescendants = true) { toggleableState = ToggleableState(checked) }
-                .pressable({ onChange(!checked) }, Role.Switch),
+                .pressable({ onChange(!checked) }, Role.Switch, press = Press.NONE),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {

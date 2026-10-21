@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.addOutline
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -42,6 +43,7 @@ fun Modifier.bevel(
     lipHeight: Dp? = null,
     highlightInset: Dp = 16.dp,
     pressed: Boolean = false,
+    rimShadow: Painter? = null,
 ): Modifier = offset(y = if (pressed) drop - 1.dp else 0.dp).drawWithContent {
     val path = Path().apply { addOutline(shape.createOutline(size, layoutDirection, this@drawWithContent)) }
     val border = border.toPx()
@@ -59,6 +61,7 @@ fun Modifier.bevel(
         )
     }
     drawContent()
+    if (rimShadow != null) drawShadow(rimShadow)
     clipPath(path) { drawPath(path, outline, style = Stroke(border * 2)) }
 }
 
