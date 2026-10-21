@@ -321,7 +321,11 @@ private fun LaterFriends(modifier: Modifier = Modifier) {
     val palette = LocalPalette.current
     val type = LocalTypography.current
     val later = Friend.entries.filter { it !in Friend.starters }
-    Column(modifier.fillMaxWidth().semantics(mergeDescendants = true) {}, horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        modifier.fillMaxWidth().semantics(mergeDescendants = true) {},
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.Bottom) {
             for (friend in later) {
                 val art = rememberArt(friend.sticker) ?: continue
@@ -334,7 +338,6 @@ private fun LaterFriends(modifier: Modifier = Modifier) {
                 )
             }
         }
-        Spacer(Modifier.height(6.dp))
         Text(
             "${later.size} more friends join as your reader gets stronger",
             style = type.ui(13.sp, FontWeight.Medium),
