@@ -90,6 +90,8 @@ class SettingsActions(
     val speechLogExported: () -> Unit = {},
     val speechLogCleared: () -> Unit = {},
     val resetOnboarding: () -> Unit = {},
+    val resetJourney: () -> Unit = {},
+    val unlockEverything: () -> Unit = {},
     val done: () -> Unit = {},
 )
 
@@ -121,6 +123,8 @@ fun SettingsScreen(key: String, onDone: () -> Unit) {
             speechLogToggled = model::speechLogToggled,
             speechLogExported = { app.speechLog.shareIntent(context)?.let(context::startActivity) },
             speechLogCleared = model::speechLogCleared,
+            resetJourney = model::resetJourney,
+            unlockEverything = model::unlockEverything,
             resetOnboarding = {
                 model.resetOnboarding()
                 onDone()
@@ -209,6 +213,12 @@ fun SettingsContent(state: SettingsState, actions: SettingsActions) {
                 Section("Testing") {
                     PaperChip(height = 48.dp, onClick = actions.resetOnboarding) {
                         Text("Reset onboarding", style = LocalTypography.current.ui(15.sp), color = paper.ink)
+                    }
+                    PaperChip(height = 48.dp, onClick = actions.resetJourney) {
+                        Text("Reset reading journey", style = LocalTypography.current.ui(15.sp), color = paper.ink)
+                    }
+                    PaperChip(height = 48.dp, onClick = actions.unlockEverything) {
+                        Text("Unlock everything", style = LocalTypography.current.ui(15.sp), color = paper.ink)
                     }
                 }
             }

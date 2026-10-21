@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.speech.VoiceOption
+import com.hoptales.content.Basket
 import com.hoptales.content.Friend
 import com.hoptales.content.Journey
 import com.hoptales.content.Profile
@@ -114,6 +115,21 @@ class SettingsViewModel(private val app: HopTalesApplication) : ViewModel() {
     fun done() = save()
 
     fun resetOnboarding() = app.profileStore.erase()
+
+    fun resetJourney() {
+        app.progressStore.update { it.copy(journey = Journey.starting(state.value.profile.startingFriend), baskets = emptyMap()) }
+        mutableState.update { it.copy(journey = app.progressStore.load().journey) }
+    }
+
+    fun unlockEverything() {
+        app.progressStore.update { progress ->
+            val baskets = Friend.entries.associateWith { friend ->
+                (progress.baskets[friend] ?: Basket()).copy(filled = app.wardrobe.items(friend).size)
+            }
+            progress.copy(journey = Journey.everything, baskets = baskets)
+        }
+        mutableState.update { it.copy(journey = app.progressStore.load().journey) }
+    }
 
     private fun changeProfile(change: Profile.() -> Profile) {
         mutableState.update { it.copy(profile = it.profile.change()) }

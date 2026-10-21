@@ -198,15 +198,15 @@ class ScreenshotTest {
     @Test fun onboardingSoundButtonsDark() = onboarding(OnboardingStep.SOUND_BUTTONS, dark = true)
 
     @Test
-    @Config(qualifiers = "w412dp-h2400dp-xhdpi")
+    @Config(qualifiers = "w412dp-h2540dp-xhdpi")
     fun settingsLight() = settings(dark = false)
 
     @Test
-    @Config(qualifiers = "w412dp-h2400dp-xhdpi")
+    @Config(qualifiers = "w412dp-h2540dp-xhdpi")
     fun settingsDark() = settings(dark = true)
 
     @Test
-    @Config(qualifiers = "w412dp-h2400dp-notnight-xhdpi")
+    @Config(qualifiers = "w412dp-h2540dp-notnight-xhdpi")
     fun settingsThemeDarkOnALightDevice() {
         val profile = Profile("Maya", Friend.HARE, theme = Profile.Theme.DARK)
         compose.setContent {
