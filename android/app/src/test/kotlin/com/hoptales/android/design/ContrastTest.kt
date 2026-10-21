@@ -11,6 +11,10 @@ class ContrastTest {
     private val palette = Palette.dark
     private val paper = Paper.dark
     private val storyRow = paper.rim.copy(alpha = 0.55f).compositeOver(paper.paper)
+    private val paperField = paper.rim.copy(alpha = 0.6f).compositeOver(paper.page)
+    private val sheetField = paper.rim.copy(alpha = 0.7f).compositeOver(paper.paper)
+    private val paperChosen = paper.red.copy(alpha = 0.1f).compositeOver(paper.page)
+    private val sheetChosen = paper.red.copy(alpha = 0.1f).compositeOver(paper.paper)
 
     private val pairs = listOf(
         Pair("ink on page", palette.ink to palette.page),
@@ -33,6 +37,17 @@ class ContrastTest {
         Pair("white on red", paper.onRed to paper.red),
         Pair("next tag", paper.ink to paper.wash),
         Pair("microphone allowed", paper.sageDeep to palette.paper),
+        Pair("microphone allowed on the sheet", paper.sageDeep to paper.paper),
+        Pair("step detail on the sheet", paper.ink.copy(alpha = 0.85f) to paper.paper),
+        Pair("paper ink on a paper field", paper.ink to paperField),
+        Pair("paper ink on a sheet field", paper.ink to sheetField),
+        Pair("paper ink on a chosen choice", paper.ink to paperChosen),
+        Pair("paper ink on a chosen sheet choice", paper.ink to sheetChosen),
+        Pair("paper muted on a paper field", paper.muted to paperField),
+        Pair("paper muted on a sheet field", paper.muted to sheetField),
+        Pair("paper muted on a chosen choice", paper.muted to paperChosen),
+        Pair("paper muted on a chosen sheet choice", paper.muted to sheetChosen),
+        Pair("paper muted on shade", paper.muted to paper.shade),
     )
 
     @Test
