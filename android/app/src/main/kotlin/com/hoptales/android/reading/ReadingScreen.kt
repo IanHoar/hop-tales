@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
@@ -44,6 +45,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -83,7 +86,9 @@ import kotlinx.coroutines.delay
 fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {}, onTryItOn: (Friend) -> Unit = {}) {
     val context = LocalContext.current
     val app = context.applicationContext as HopTalesApplication
-    val model: ReadingViewModel = viewModel(key = story.id) { ReadingViewModel(story, app) }
+    val owner = remember { ReadingOwner() }
+    DisposableEffect(owner) { onDispose { owner.viewModelStore.clear() } }
+    val model: ReadingViewModel = viewModel(owner) { ReadingViewModel(story, app) }
     val state by model.state.collectAsStateWithLifecycle()
     val listening by model.listening.collectAsStateWithLifecycle()
     var permission by remember {
@@ -320,3 +325,7 @@ private fun Modifier.pointerInputTaps(path: WordPath, camera: Animatable<Float, 
             if (path.hit(offset, camera.value, state.sentenceIndex, state.wordIndex)) onWordTapped()
         }
     }
+
+private class ReadingOwner : ViewModelStoreOwner {
+    override val viewModelStore = ViewModelStore()
+}
