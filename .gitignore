@@ -46,3 +46,7 @@ __pycache__/
 # Apple skills exported by `xcrun agent skills export`; regenerate locally
 xcode-skills/
 .claude/skills/
+
+# Android signing keys stay out of the repo
+*.jks
+*.keystore
