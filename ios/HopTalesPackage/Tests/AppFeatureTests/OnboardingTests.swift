@@ -15,7 +15,7 @@ struct OnboardingTests {
   nonisolated static let speech = SpeechClient(
     listen: { _, _ in AsyncStream { $0.finish() } },
     requestAuthorization: { _ in .authorized },
-    speak: { _, _ in }
+    speak: { _, _, _ in }
   )
 
   @Test func aFirstRunOpensOnboarding() {

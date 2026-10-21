@@ -21,14 +21,14 @@ public struct SpeechClient: Sendable {
     @Sendable (_ contextualStrings: [String], _ locale: Locale) async throws -> AsyncStream<Event>
   public var requestAuthorization: @Sendable (_ locale: Locale) async -> Authorization
   public var isAuthorized: @Sendable () -> Bool
-  public var speak: @Sendable (_ word: String, _ voiceID: String?) async -> Void
+  public var speak: @Sendable (_ word: String, _ voiceID: String?, _ locale: Locale) async -> Void
   public var voices: @Sendable () -> [Voice]
 
   public init(
     listen: @escaping @Sendable ([String], Locale) async throws -> AsyncStream<Event>,
     requestAuthorization: @escaping @Sendable (Locale) async -> Authorization,
     isAuthorized: @escaping @Sendable () -> Bool = { false },
-    speak: @escaping @Sendable (String, String?) async -> Void,
+    speak: @escaping @Sendable (String, String?, Locale) async -> Void,
     voices: @escaping @Sendable () -> [Voice] = { [] }
   ) {
     self.listen = listen
@@ -50,7 +50,9 @@ extension SpeechClient: DependencyKey {
         listen: { _, _ in AsyncStream { $0.finish() } },
         requestAuthorization: { _ in .authorized },
         isAuthorized: { true },
-        speak: { word, voice in await Speaker.shared.speak(word, voiceID: voice) },
+        speak: { word, voice, locale in
+          await Speaker.shared.speak(word, voiceID: voice, locale: locale)
+        },
         voices: { Speaker.voices() }
       )
     #else
@@ -61,7 +63,9 @@ extension SpeechClient: DependencyKey {
         },
         requestAuthorization: { locale in await LiveSpeechRecognizer.authorization(for: locale) },
         isAuthorized: { LiveSpeechRecognizer.isAuthorized },
-        speak: { word, voice in await Speaker.shared.speak(word, voiceID: voice) },
+        speak: { word, voice, locale in
+          await Speaker.shared.speak(word, voiceID: voice, locale: locale)
+        },
         voices: { Speaker.voices() }
       )
     #endif
@@ -70,7 +74,7 @@ extension SpeechClient: DependencyKey {
   public static let testValue = SpeechClient(
     listen: { _, _ in AsyncStream { $0.finish() } },
     requestAuthorization: { _ in .authorized },
-    speak: { _, _ in }
+    speak: { _, _, _ in }
   )
 }
 

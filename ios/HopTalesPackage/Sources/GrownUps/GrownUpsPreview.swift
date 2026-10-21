@@ -26,7 +26,7 @@ struct SettingsPreview: View {
       $0[SpeechClient.self] = SpeechClient(
         listen: { _, _ in AsyncStream { $0.finish() } },
         requestAuthorization: { _ in .authorized },
-        speak: { _, _ in },
+        speak: { _, _, _ in },
         voices: {
           [Voice(id: "samantha", name: "Samantha", language: "en-US")]
         }

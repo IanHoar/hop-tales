@@ -309,6 +309,8 @@ struct PathScene: View {
   private var treatOnPath: some View {
     if let treat, let next = treatStop(treat) {
       TreatSticker(friend: treat.friend, height: geometry.path(44))
+        .colorMultiply(tint)
+        .animation(.easeInOut(duration: MeadowScene.moodCrossfade), value: tint)
         .rotationEffect(.degrees(-24))
         .position(
           x: next.centre - cameraX - geometry.path(WordPath.treatBeforeWord),
