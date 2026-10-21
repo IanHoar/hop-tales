@@ -38,7 +38,7 @@ class HopTalesApplication : Application() {
     val backupChoice: BackupChoice by lazy { BackupChoice(this) }
     val listeningPreferences: ListeningPreferences by lazy { ListeningPreferences(this) }
     val speaker: Speaker by lazy { Speaker(this) }
-    val listener: SpeechListener by lazy { SpeechListener(this) }
+    val listener: SpeechListener by lazy { SpeechListener(this, readingAudio) }
     val readingAudio: ReadingAudio by lazy { ReadingAudio(this) }
     val chord: ChordPlayer by lazy { ChordPlayer() }
     val soundPreference: SoundPreference by lazy { SoundPreference(this) }
