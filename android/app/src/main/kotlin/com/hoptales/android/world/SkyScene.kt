@@ -112,7 +112,15 @@ private fun DrawScope.drawArt(
     )
 }
 
-fun DrawScope.drawSky(look: SkyLook, layout: SkyLayout, art: SkyArt, stars: List<MeadowStar>, time: Double, still: Boolean) {
+fun DrawScope.drawSky(
+    look: SkyLook,
+    layout: SkyLayout,
+    art: SkyArt,
+    stars: List<MeadowStar>,
+    time: Double,
+    still: Boolean,
+    postcard: Boolean = false,
+) {
     drawRect(Brush.verticalGradient(0f to look.gradient[0], GRADIENT_MIDDLE to look.gradient[1], 1f to look.gradient[2]))
     if (look.stars > 0f) {
         for (star in stars) {
@@ -123,7 +131,14 @@ fun DrawScope.drawSky(look: SkyLook, layout: SkyLayout, art: SkyArt, stars: List
     art["sky-moon"]?.let { drawArt(it, layout.moonX, layout.moonY, layout.moonWidth, layout.moonHeight, look.moon) }
     art["sky-sun"]?.let { sun ->
         val height = layout.sunWidth * sun.height / sun.width
-        drawArt(sun, layout.width * SkyLayout.SUN_X, layout.sunCentreY(height, look.sunDrop), layout.sunWidth, height, look.sun)
+        drawArt(
+            sun,
+            layout.width * SkyLayout.SUN_X,
+            layout.sunCentreY(if (postcard) layout.sunWidth else height, look.sunDrop),
+            layout.sunWidth,
+            height,
+            look.sun,
+        )
     }
     for (cloud in if (still) SkyCloud.still else SkyCloud.drifting) {
         val image = art[cloud.asset] ?: continue
