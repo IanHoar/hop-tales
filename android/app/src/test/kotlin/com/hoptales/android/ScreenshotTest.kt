@@ -18,12 +18,15 @@ import com.hoptales.android.home.FriendsScreen
 import com.hoptales.android.home.HomeScreen
 import com.hoptales.android.home.JourneyMapScreen
 import com.hoptales.android.home.WardrobeScreen
+import com.hoptales.android.intro.IntroContent
 import com.hoptales.android.onboarding.OnboardingActions
 import com.hoptales.android.onboarding.OnboardingContent
 import com.hoptales.android.reading.ReadingScreen
 import com.hoptales.android.settings.SettingsActions
 import com.hoptales.android.settings.SettingsContent
 import com.hoptales.android.settings.SettingsState
+import com.hoptales.android.world.IntroArt
+import com.hoptales.android.world.IntroTimeline
 import com.hoptales.content.Basket
 import com.hoptales.content.Friend
 import com.hoptales.content.Journey
@@ -138,6 +141,20 @@ class ScreenshotTest {
     @Test
     @Config(qualifiers = "w412dp-h1700dp-xhdpi")
     fun settingsDark() = settings(dark = true)
+
+    @Test fun introNight() = intro("intro-night", time = 0.0)
+
+    @Test fun introSunrise() = intro("intro-sunrise", time = IntroTimeline.SUNRISE + IntroTimeline.SUNRISE_LENGTH / 2)
+
+    @Test fun introTitle() = intro("intro-title", time = 5.2)
+
+    private fun intro(name: String, time: Double) {
+        val art = IntroArt.load(app.assets)
+        compose.setContent {
+            HopTalesTheme { IntroContent(art, time = { time }, fade = { 1f }, showsTitle = true) }
+        }
+        compose.onRoot().captureRoboImage("src/test/screenshots/$name.png", options)
+    }
 
     private fun onboarding(step: OnboardingStep, dark: Boolean) {
         val state = OnboardingState(

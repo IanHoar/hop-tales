@@ -39,10 +39,11 @@ way. Change `.editorconfig` rather than suppressing a rule in the code.
 
 ## Screenshot tests
 
-`ScreenshotTest` renders home (first run and midway), reading, the microphone ask, a story prop, a
-companion, a thought bubble, the story-finished panel with its tally, a full basket, the stop card,
-the journey map, friends, the wardrobe, the collection book, each onboarding step and the grown-ups
-settings, light and dark, with Roborazzi on Robolectric — on the JVM, no emulator. The references live in
+`ScreenshotTest` renders the intro at night, mid-sunrise and with its title, home (first run and
+midway), reading, the microphone ask, a story prop, a companion, a thought bubble, the
+story-finished panel with its tally, a full basket, the stop card, the journey map, friends, the
+wardrobe, the collection book, each onboarding step and the grown-ups settings, light and dark,
+with Roborazzi on Robolectric — on the JVM, no emulator. The references live in
 `app/src/test/screenshots`; `verifyRoborazziDebug` fails when a render differs, and leaves the
 actual image and a diff in `app/build/outputs/roborazzi`. After a deliberate change, record again
 and commit the new PNGs with the change. Motion is frozen (the animator scale is set to 0), so the
@@ -51,7 +52,7 @@ hare stands still and the camera snaps.
 ## Layout
 
 ```
-app/            the Compose app: MainActivity, Onboarding, Home, Reading, Settings, design tokens, speech, persistence
+app/            the Compose app: MainActivity, Intro, Onboarding, Home, Reading, Settings, design tokens, speech, persistence
 core/content    Story, Sentence, Word, Friend, Progress, StoryLibrary — pure Kotlin
 core/speech     WordMatcher and PartialDebouncer — pure Kotlin, ported from SpeechRecognition
 core/reading    the reading state machine (Reading, ReadingState) — pure Kotlin
