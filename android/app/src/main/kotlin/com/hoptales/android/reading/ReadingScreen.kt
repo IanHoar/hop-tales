@@ -9,6 +9,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.EaseIn
+import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -38,7 +39,11 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
@@ -83,6 +88,7 @@ import com.hoptales.android.world.WorldStyle
 import com.hoptales.android.world.drawSky
 import com.hoptales.android.world.drawWeather
 import com.hoptales.android.world.rememberSkyLook
+import com.hoptales.android.world.rememberSkyTime
 import com.hoptales.content.Friend
 import com.hoptales.content.Story
 import com.hoptales.content.StoryTreat
@@ -188,13 +194,8 @@ private fun PathStage(state: ReadingState, wearing: String?, soundButtons: Boole
     }
     val look = rememberSkyLook(state.mood, still = reduceMotion)
     val weather = remember { SkyWeather() }
-    var skyTime by remember { mutableDoubleStateOf(0.0) }
+    val skyTime by rememberSkyTime(running = !reduceMotion)
     LaunchedEffect(state.mood) { weather.apply(state.mood, skyTime) }
-    LaunchedEffect(reduceMotion) {
-        if (reduceMotion) return@LaunchedEffect
-        val origin = withFrameNanos { it } - (skyTime * 1e9).toLong()
-        while (true) withFrameNanos { skyTime = (it - origin) / 1e9 }
-    }
     val hare = remember(friend, wearing) {
         val sheets = HareSheets.of(friend)
         fun sheet(sheet: HareSheet) = wearing?.let { Art.image(context.assets, sheets.dressed(friend, it, sheet)) }
@@ -234,6 +235,8 @@ private fun PathStage(state: ReadingState, wearing: String?, soundButtons: Boole
         var now by remember { mutableDoubleStateOf(0.0) }
         var bigHop by remember { mutableStateOf(false) }
         val clock = remember { HopClock() }
+        var still by remember(path) { mutableStateOf<StillStep?>(null) }
+        var settled by remember(path) { mutableStateOf(position) }
 
         LaunchedEffect(reduceMotion, motion) {
             if (reduceMotion) return@LaunchedEffect
@@ -253,8 +256,20 @@ private fun PathStage(state: ReadingState, wearing: String?, soundButtons: Boole
             motion = motion.jump(start, distance = 0f, carried = recognised.sentenceIndex != state.sentenceIndex)
         }
         LaunchedEffect(target) {
+            still = null
+            val from = StillStep(camera.value, settled)
+            settled = position
             if (reduceMotion) {
                 camera.snapTo(target)
+                if (from.cameraX == target) return@LaunchedEffect
+                still = from
+                val start = withFrameNanos { it }
+                while (true) {
+                    val elapsed = (withFrameNanos { it } - start) / 1e6f / StillStep.CROSSFADE_MILLIS
+                    if (elapsed >= 1f) break
+                    still = from.copy(fade = EaseInOut.transform(elapsed))
+                }
+                still = null
             } else {
                 val rate = motion.hop?.rate ?: 1.0
                 camera.animateTo(target, tween((PathGeometry.PAN_MILLIS / rate).toInt(), easing = CubicBezierEasing(0.45f, 0f, 0.3f, 1f)))
@@ -268,7 +283,7 @@ private fun PathStage(state: ReadingState, wearing: String?, soundButtons: Boole
             drawSky(look(), skyLayout, skyArt, stars, skyTime, still = reduceMotion)
         }
         Canvas(Modifier.fillMaxSize()) {
-            drawMeadow(layers, geometry.meadow, camera.value, look(), ground)
+            crossfading(still) { cameraX, _ -> drawMeadow(layers, geometry.meadow, cameraX ?: camera.value, look(), ground) }
         }
         Canvas(Modifier.fillMaxSize()) {
             drawWeather(look(), weather, skyTime, geometry.density, stillDrops)
@@ -276,8 +291,10 @@ private fun PathStage(state: ReadingState, wearing: String?, soundButtons: Boole
         val propLayout = remember(path, props, friend) { StoryPropLayout(path, state.story.sentences, props, friend) }
         Canvas(Modifier.fillMaxSize()) {
             val time = if (reduceMotion) null else propTime
-            val items = propLayout.items(position, camera.value, cues, time)
-            drawProps(items, propArt, time, geometry.path(1f), look().tint(MeadowLayer.NEAR), paper)
+            crossfading(still) { cameraX, from ->
+                val items = propLayout.items(from ?: position, cameraX ?: camera.value, cues, time)
+                drawProps(items, propArt, time, geometry.path(1f), look().tint(MeadowLayer.NEAR), paper)
+            }
         }
 
         val signs =
@@ -339,13 +356,16 @@ private fun PathStage(state: ReadingState, wearing: String?, soundButtons: Boole
                         }
                     },
             ) {
-                drawSigns(signs, camera.value, look().tint(MeadowLayer.NEAR))
                 val wordNow = if (reduceMotion) null else wordClock
-                drawWords(path, camera.value, wordMarks, { state.isBig(it.sentence, it.word) }) { stop ->
-                    val target = HopTarget(stop.sentence, stop.word)
-                    WordMotion.look(target, isChallenge(target), move, speech, wordNow)
+                crossfading(still) { stepX, _ ->
+                    val cameraX = stepX ?: camera.value
+                    drawSigns(signs, cameraX, look().tint(MeadowLayer.NEAR))
+                    drawWords(path, cameraX, wordMarks, { state.isBig(it.sentence, it.word) }) { stop ->
+                        val target = HopTarget(stop.sentence, stop.word)
+                        WordMotion.look(target, isChallenge(target), move, speech, wordNow)
+                    }
+                    drawTreatOnPath(path, marks, cameraX, state, look().tint(MeadowLayer.NEAR))
                 }
-                drawTreatOnPath(path, marks, camera.value, state, look().tint(MeadowLayer.NEAR))
             }
         }
         Canvas(Modifier.fillMaxSize()) {
@@ -440,6 +460,28 @@ private fun PickupLayer(state: ReadingState, geometry: PathGeometry, reduceMotio
             BasketChip(treat)
         }
     }
+}
+
+private data class StillStep(val cameraX: Float, val position: HopTarget, val fade: Float = 0f) {
+    companion object {
+        const val CROSSFADE_MILLIS = 200f
+    }
+}
+
+private fun DrawScope.crossfading(step: StillStep?, block: DrawScope.(cameraX: Float?, position: HopTarget?) -> Unit) {
+    if (step == null) {
+        block(null, null)
+        return
+    }
+    faded(1 - step.fade) { block(step.cameraX, step.position) }
+    faded(step.fade) { block(null, null) }
+}
+
+private fun DrawScope.faded(alpha: Float, block: DrawScope.() -> Unit) {
+    if (alpha <= 0f) return
+    drawIntoCanvas { it.saveLayer(Rect(Offset.Zero, size), Paint().apply { this.alpha = alpha }) }
+    block()
+    drawIntoCanvas { it.restore() }
 }
 
 private fun Modifier.centredOn(point: () -> Offset) = layout { measurable, constraints ->
