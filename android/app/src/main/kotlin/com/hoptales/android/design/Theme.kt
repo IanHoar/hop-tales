@@ -12,6 +12,7 @@ import androidx.compose.ui.platform.LocalContext
 @Composable
 fun HopTalesTheme(dark: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val palette = if (dark) Palette.dark else Palette.light
+    val paper = if (dark) Paper.dark else Paper.light
     val assets = LocalContext.current.assets
     val typography = remember(assets) { Typography(assets) }
     val colors = if (dark) {
@@ -19,7 +20,7 @@ fun HopTalesTheme(dark: Boolean = isSystemInDarkTheme(), content: @Composable ()
     } else {
         lightColorScheme(primary = palette.teal, background = palette.page, surface = palette.parchment, onSurface = palette.ink)
     }
-    CompositionLocalProvider(LocalPalette provides palette, LocalTypography provides typography) {
+    CompositionLocalProvider(LocalPalette provides palette, LocalPaper provides paper, LocalTypography provides typography) {
         MaterialTheme(colorScheme = colors, content = content)
     }
 }

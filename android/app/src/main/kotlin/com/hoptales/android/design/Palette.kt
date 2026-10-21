@@ -18,6 +18,7 @@ data class Palette(
     val heardText: Color,
     val paperChip: Color,
     val paperRim: Color,
+    val highlight: Color,
 ) {
     val red = Color(0xFFDB2A2E)
     val gold = Color(0xFFF6BB3E)
@@ -30,6 +31,8 @@ data class Palette(
     val pillText = Color(0xFF7A4A0C)
     val done = Color(0xFF8BD06A)
     val paperShadow = Color(0x423C2814)
+    val duskRoot = Color(0xFF1B1738)
+    val duskShadow = Color(0x520C0A1E)
 
     companion object {
         val light = Palette(
@@ -45,6 +48,7 @@ data class Palette(
             heardText = Color(0xFF1D1A2C),
             paperChip = Color(0xFFFBF4E4),
             paperRim = Color(0xFFFFFFFF),
+            highlight = Color(0xD9FFFFFF),
         )
 
         val dark = Palette(
@@ -60,6 +64,7 @@ data class Palette(
             heardText = Color(0xFFE4F6D2),
             paperChip = Color(0xFF25305A),
             paperRim = Color(0xFF3A4674),
+            highlight = Color(0x29FFFFFF),
         )
     }
 }

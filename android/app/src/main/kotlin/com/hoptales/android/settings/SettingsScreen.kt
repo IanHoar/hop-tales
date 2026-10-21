@@ -168,13 +168,8 @@ fun SettingsContent(state: SettingsState, actions: SettingsActions) {
                     )
                 }
                 Section("Testing") {
-                    PaperChip(onClick = actions.resetOnboarding) {
-                        Text(
-                            "Reset onboarding",
-                            style = LocalTypography.current.ui(15.sp),
-                            color = palette.ink,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                        )
+                    PaperChip(height = 48.dp, onClick = actions.resetOnboarding) {
+                        Text("Reset onboarding", style = LocalTypography.current.ui(15.sp), color = palette.ink)
                     }
                 }
                 Text(Friend.PHONICS_STANDARD, style = LocalTypography.current.ui(13.sp), color = palette.muted)
@@ -188,21 +183,12 @@ private fun SettingsHeader(onDone: () -> Unit) {
     val palette = LocalPalette.current
     val type = LocalTypography.current
     Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-        PaperChip(Modifier.rotate(-2f).semantics { heading() }) {
-            Box(contentAlignment = Alignment.Center) {
-                Text(
-                    "Settings",
-                    style = type.display(22.sp),
-                    color = palette.ink,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                )
-            }
+        PaperChip(Modifier.rotate(-2f).semantics { heading() }, height = 48.dp) {
+            Text("Settings", style = type.display(22.sp), color = palette.ink)
         }
         Spacer(Modifier.weight(1f))
-        PaperChip(onClick = onDone) {
-            Box(contentAlignment = Alignment.Center) {
-                Text("Done", style = type.display(17.sp), color = palette.ink, modifier = Modifier.padding(horizontal = 16.dp))
-            }
+        PaperChip(height = 48.dp, onClick = onDone) {
+            Text("Done", style = type.display(17.sp), color = palette.ink)
         }
     }
 }

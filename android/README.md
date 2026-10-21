@@ -39,9 +39,9 @@ way. Change `.editorconfig` rather than suppressing a rule in the code.
 
 ## Screenshot tests
 
-`ScreenshotTest` renders home, reading, a story prop, a companion, a thought bubble, the
-story-finished card, the stop dialog, each onboarding step and the grown-ups settings, light and dark,
-with Roborazzi on Robolectric — on the JVM, no emulator. The references live in
+`ScreenshotTest` renders home, reading, the microphone ask, a story prop, a companion, a thought
+bubble, the story-finished chips, the stop card, each onboarding step and the grown-ups settings,
+light and dark, with Roborazzi on Robolectric — on the JVM, no emulator. The references live in
 `app/src/test/screenshots`; `verifyRoborazziDebug` fails when a render differs, and leaves the
 actual image and a diff in `app/build/outputs/roborazzi`. After a deliberate change, record again
 and commit the new PNGs with the change. Motion is frozen (the animator scale is set to 0), so the
@@ -84,12 +84,17 @@ The app does not copy any content or art. Its assets come straight from the iOS 
 | `ios/HopTalesPackage/Sources/World/Resources` | the world layers, characters and props (WebP, PNG) |
 | `ios/HopTalesPackage/Sources/DesignSystem/Resources` | `Fonts/` — Young Serif, Fraunces, Fredoka |
 
+The launcher icon is the one exception: `scripts/render-android-icon.py` renders the adaptive icon's
+foreground, background and monochrome layers from `ios/HopTales/AppIcon.icon` into `res/mipmap-*`,
+and they are committed. Re-run it when the iOS icon changes.
+
 `app/build.gradle.kts` adds those folders as asset directories, and the JVM tests read `stories.json`
 from the same place, so a story added through `scripts/build-stories.py` reaches both apps.
 
 Art that Android does not draw yet is left out of the package by `ignoreAssetsPatterns` in
 `app/build.gradle.kts` — the wardrobe (`look-*`, `wear-*`), postcards and the land's `prop-*`
-scenery. The story props, companions and thought bubbles draw from `cast-*`, so that ships. When a
+scenery other than the signpost. The story props, companions and thought bubbles draw from `cast-*`,
+so that ships. When a
 feature starts drawing one of those families, take its pattern off the list, or `Art.image` quietly
 returns null. WebP and PNG are stored as they are, since deflating them saves well under 2%; JSON,
 fonts and text are compressed.
