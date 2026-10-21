@@ -102,7 +102,7 @@ fun ReadingScreen(story: Story, onDone: () -> Unit) {
     }
 
     Box(Modifier.fillMaxSize()) {
-        PathStage(state = state, onWordTapped = model::help)
+        PathStage(state = state, soundButtons = model.soundButtons, onWordTapped = model::help)
         Box(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 12.dp, vertical = 4.dp)) {
             BackChip(Modifier.align(Alignment.TopStart)) { if (model.backTapped()) onDone() }
             val word = state.currentWord
@@ -130,7 +130,7 @@ fun ReadingScreen(story: Story, onDone: () -> Unit) {
 }
 
 @Composable
-private fun PathStage(state: ReadingState, onWordTapped: () -> Unit) {
+private fun PathStage(state: ReadingState, soundButtons: Boolean, onWordTapped: () -> Unit) {
     val context = LocalContext.current
     val reduceMotion = remember {
         Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
@@ -179,7 +179,10 @@ private fun PathStage(state: ReadingState, onWordTapped: () -> Unit) {
         val geometry = with(density) { PathGeometry(constraints.maxWidth.toFloat(), constraints.maxHeight.toFloat(), this.density) }
         val wordStyle = type.word(with(density) { geometry.path(PathGeometry.WORD_SIZE).toSp() })
         val world = WorldStyle.of(friend)
-        val path = remember(state.story, geometry, wordStyle, world) { WordPath(state.story, geometry, measurer, wordStyle, world) }
+        val phonics = (context.applicationContext as HopTalesApplication).phonics.takeIf { soundButtons }
+        val path = remember(state.story, geometry, wordStyle, world, phonics) {
+            WordPath(state.story, geometry, measurer, wordStyle, world, phonics)
+        }
         val target = path.camera(state.sentenceIndex, state.wordIndex)
         val camera = remember(path) { Animatable(target) }
         var motion by remember { mutableStateOf(HareMotion()) }

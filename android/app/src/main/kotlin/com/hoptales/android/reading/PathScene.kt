@@ -31,7 +31,11 @@ import com.hoptales.android.world.HareSheets
 import com.hoptales.android.world.MeadowLayer
 import com.hoptales.android.world.MeadowLayout
 import com.hoptales.android.world.SkyLook
+import com.hoptales.android.world.SoundMarks
 import com.hoptales.android.world.WorldStyle
+import com.hoptales.android.world.drawSoundMarks
+import com.hoptales.content.Phonics
+import com.hoptales.content.SoundMark
 import com.hoptales.content.Story
 import com.hoptales.reading.HopTarget
 import com.hoptales.reading.PropStage
@@ -77,7 +81,15 @@ data class PathGeometry(val width: Float, val height: Float, val density: Float)
     }
 }
 
-data class Stop(val sentence: Int, val word: Int, val layout: TextLayoutResult, val centre: Float) {
+data class Stop(
+    val sentence: Int,
+    val word: Int,
+    val layout: TextLayoutResult,
+    val centre: Float,
+    val marks: List<SoundMark>? = null,
+    val edges: List<Float> = emptyList(),
+    val marksLeft: Float = 0f,
+) {
     val width: Float get() = layout.size.width.toFloat()
 }
 
@@ -87,7 +99,10 @@ class WordPath(
     measurer: TextMeasurer,
     style: TextStyle,
     val world: WorldStyle = WorldStyle.meadow,
+    phonics: Phonics? = null,
 ) : PropStage {
+    val wordSize: Float = geometry.path(PathGeometry.WORD_SIZE)
+
     val stops: List<Stop>
 
     init {
@@ -103,7 +118,10 @@ class WordPath(
                     val gap = if (index == 0) PathGeometry.SENTENCE_GAP else PathGeometry.GAP
                     previous.centre + previous.width / 2 + geometry.path(gap) + width / 2
                 }
-                stops += Stop(sentence, index, layout, centre)
+                val marks = phonics?.soundMarks(word.text)
+                val edges = if (marks == null) emptyList() else SoundMarks.edges(layout, word.leading.length, word.text.length)
+                val marksLeft = layout.getHorizontalPosition(word.leading.length, usePrimaryDirection = true)
+                stops += Stop(sentence, index, layout, centre, marks, edges, marksLeft)
             }
         }
         this.stops = stops
@@ -207,9 +225,17 @@ fun DrawScope.drawWords(path: WordPath, cameraX: Float, sentence: Int, word: Int
         val height = stop.layout.size.height.toFloat()
         val frame = Rect(Offset(x - stop.width / 2, path.wordCentreY(stop) - height / 2), Size(stop.width, height))
         val scale = if (state == WordState.CURRENT) 1f else PathGeometry.SIDE_SCALE
+        val colour = if (path.world.chalk) state.chalk else state.ink
         lying(frame, scale) {
             if (state == WordState.READ) drawWash(frame.inflateHorizontally(overhang), blend)
-            drawText(stop.layout, color = if (path.world.chalk) state.chalk else state.ink, topLeft = frame.topLeft, blendMode = blend)
+            drawText(stop.layout, color = colour, topLeft = frame.topLeft, blendMode = blend)
+            if (stop.marks != null) {
+                val origin = Offset(
+                    frame.left + stop.marksLeft,
+                    frame.top + stop.layout.firstBaseline + path.wordSize * MARKS_BELOW_BASELINE,
+                )
+                drawSoundMarks(stop.marks, stop.edges, path.wordSize, colour.copy(alpha = colour.alpha * 0.8f), origin, blend)
+            }
         }
     }
 }
@@ -340,6 +366,7 @@ fun DrawScope.drawHare(art: HareArt, path: WordPath, pose: HareMotion.Pose, lift
 
 const val IDLE_FPS = 20f
 
+private const val MARKS_BELOW_BASELINE = 0.075f
 private val UNDERSTORY = Color(0xFF6E8B3D)
 private val WASH = Color(0xFFF7D774)
 private val WASH_REACH = 0.5f * sqrt(2f)

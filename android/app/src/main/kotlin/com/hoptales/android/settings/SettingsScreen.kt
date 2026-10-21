@@ -66,6 +66,7 @@ import com.hoptales.android.design.paperChip
 import com.hoptales.android.design.pressable
 import com.hoptales.android.world.SoundMarksExamples
 import com.hoptales.content.Friend
+import com.hoptales.content.Phonics
 import com.hoptales.content.Profile
 import com.hoptales.speech.Strictness
 
@@ -175,7 +176,7 @@ fun SettingsContent(state: SettingsState, actions: SettingsActions) {
                         Text("Reset onboarding", style = LocalTypography.current.ui(15.sp), color = palette.ink)
                     }
                 }
-                Text(Friend.PHONICS_STANDARD, style = LocalTypography.current.ui(13.sp), color = palette.muted)
+                Text(Phonics.STANDARD, style = LocalTypography.current.ui(13.sp), color = palette.muted)
             }
         }
     }

@@ -38,6 +38,7 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
     private var hasPermission = false
     private var isStarted = false
 
+    val soundButtons: Boolean get() = profile.soundButtons
     val state: StateFlow<ReadingState> = mutableState.asStateFlow()
     val listening: StateFlow<Listening> = mutableListening.asStateFlow()
 

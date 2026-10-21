@@ -40,8 +40,6 @@ enum class Friend(
     companion object {
         val starters = listOf(BUNNY, HARE, FROG)
 
-        const val PHONICS_STANDARD = "Reading levels are based on the UFLI Foundations phonics sequence."
-
         fun at(level: Int): Friend = entries[level.coerceIn(1, entries.size) - 1]
     }
 }

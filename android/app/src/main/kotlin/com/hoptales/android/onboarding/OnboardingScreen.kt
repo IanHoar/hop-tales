@@ -78,6 +78,7 @@ import com.hoptales.android.world.SoundMarksExamples
 import com.hoptales.android.world.Sticker
 import com.hoptales.android.world.rememberArt
 import com.hoptales.content.Friend
+import com.hoptales.content.Phonics
 import com.hoptales.onboarding.Authorization
 import com.hoptales.onboarding.OnboardingNext
 import com.hoptales.onboarding.OnboardingState
@@ -344,7 +345,7 @@ private fun LaterFriends(modifier: Modifier = Modifier) {
             color = palette.muted,
             textAlign = TextAlign.Center,
         )
-        Text(Friend.PHONICS_STANDARD, style = type.ui(12.sp), color = palette.muted, textAlign = TextAlign.Center)
+        Text(Phonics.STANDARD, style = type.ui(12.sp), color = palette.muted, textAlign = TextAlign.Center)
     }
 }
 
