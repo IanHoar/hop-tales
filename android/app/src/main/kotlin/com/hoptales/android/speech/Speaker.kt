@@ -41,7 +41,7 @@ class Speaker(context: Context) {
     }
 
     suspend fun voices(): List<VoiceOption> {
-        if (!ready.await()) return emptyList()
+        if (!isReady()) return emptyList()
         return offlineVoices()
             .groupBy { it.locale.displayCountry.ifEmpty { it.locale.displayLanguage } }
             .toSortedMap()
@@ -65,13 +65,13 @@ class Speaker(context: Context) {
     }
 
     suspend fun speak(word: String, locale: Locale = Locale.getDefault(), voiceID: String? = null) {
-        if (!ready.await()) return
+        if (!isReady()) return
         val voices = offlineVoices()
         val voice = voiceID?.let { id -> voices.firstOrNull { it.name == id } } ?: bestVoice(voices, locale)
         if (voice != null) engine.voice = voice else engine.language = locale
         engine.setSpeechRate(RATE)
         val id = UUID.randomUUID().toString()
-        withTimeoutOrNull(TIMEOUT_MILLIS) {
+        withTimeoutOrNull(fallbackMillis(word)) {
             suspendCancellableCoroutine { continuation ->
                 synchronized(pending) { pending[id] = { if (continuation.isActive) continuation.resume(Unit) } }
                 continuation.invokeOnCancellation {
@@ -83,10 +83,18 @@ class Speaker(context: Context) {
         }
     }
 
+    private suspend fun isReady(): Boolean = withTimeoutOrNull(READY_TIMEOUT_MILLIS) { ready.await() } ?: false
+
     fun shutdown() = engine.shutdown()
 
-    private companion object {
-        const val RATE = 0.8f
-        const val TIMEOUT_MILLIS = 5_000L
+    companion object {
+        private const val RATE = 0.8f
+        const val READY_TIMEOUT_MILLIS = 2_000L
+        const val FALLBACK_BASE_MILLIS = 1_500L
+        const val FALLBACK_PER_LETTER_MILLIS = 150L
+        const val FALLBACK_MAX_MILLIS = 5_000L
+
+        fun fallbackMillis(word: String): Long =
+            (FALLBACK_BASE_MILLIS + FALLBACK_PER_LETTER_MILLIS * word.length).coerceAtMost(FALLBACK_MAX_MILLIS)
     }
 }
