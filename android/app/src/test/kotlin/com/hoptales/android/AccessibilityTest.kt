@@ -199,7 +199,7 @@ class AccessibilityTest {
     @Test
     fun finishedPanelNamesTheStoryAndTheStars() {
         showReading()
-        val hear = compose.onNodeWithText("Hear “", substring = true)
+        val hear = compose.onNodeWithText("Read “", substring = true)
         while (hear.exists()) {
             hear.performClick()
             compose.waitForIdle()

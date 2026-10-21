@@ -288,11 +288,13 @@ private fun DrawScope.drawBigWord(word: Rect, size: Float, look: WordLook, marks
     val starHeight = size * 0.42f
     val star = marks.star
     if (star != null && look.star > 0f) {
-        val width = starHeight * star.width / star.height
+        val height = starHeight * look.starScale
+        val width = height * star.width / star.height
+        val centreY = word.top - size * 0.5f + starHeight / 2
         drawImage(
             star,
-            dstOffset = IntOffset((word.center.x - width / 2).roundToInt(), (word.top - size * 0.5f).roundToInt()),
-            dstSize = IntSize(width.roundToInt(), starHeight.roundToInt()),
+            dstOffset = IntOffset((word.center.x - width / 2).roundToInt(), (centreY - height / 2).roundToInt()),
+            dstSize = IntSize(width.roundToInt(), height.roundToInt()),
             alpha = look.star,
             filterQuality = FilterQuality.Medium,
         )
