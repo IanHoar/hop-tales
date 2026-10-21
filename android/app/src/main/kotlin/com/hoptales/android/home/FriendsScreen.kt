@@ -24,13 +24,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hoptales.android.design.LocalPalette
+import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.world.DressedFriend
 import com.hoptales.android.world.FriendSticker
@@ -76,6 +80,11 @@ private fun FriendCard(friend: Friend, progress: Progress, wardrobe: WardrobeLib
         modifier = Modifier.fillMaxWidth().heightIn(min = 200.dp).clearAndSetSemantics {
             contentDescription = label
             selected = isReading
+            role = Role.Button
+            onClick {
+                onClick()
+                true
+            }
         },
         shape = RoundedCornerShape(20.dp),
         color = palette.paper,
@@ -102,10 +111,10 @@ private fun FriendCard(friend: Friend, progress: Progress, wardrobe: WardrobeLib
                     Text(
                         tag,
                         style = type.ui(12.sp),
-                        color = if (isReading) palette.onTeal else palette.onAccent,
+                        color = if (isReading) LocalPaper.current.onRed else LocalPaper.current.ink,
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .background(if (isReading) palette.red else palette.gold, CircleShape)
+                            .background(if (isReading) LocalPaper.current.red else LocalPaper.current.wash, CircleShape)
                             .padding(horizontal = 8.dp, vertical = 3.dp),
                     )
                 }

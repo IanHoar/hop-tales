@@ -63,6 +63,7 @@ import com.hoptales.android.design.PaperChoice
 import com.hoptales.android.design.PaperToggle
 import com.hoptales.android.design.SpeakerGlyph
 import com.hoptales.android.design.field
+import com.hoptales.android.design.headingGroup
 import com.hoptales.android.design.paperChip
 import com.hoptales.android.design.pressable
 import com.hoptales.android.world.FriendSticker
@@ -204,7 +205,7 @@ private fun SettingsHeader(onDone: () -> Unit) {
     val palette = LocalPalette.current
     val type = LocalTypography.current
     Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-        PaperChip(Modifier.rotate(-2f).semantics { heading() }, height = 48.dp) {
+        PaperChip(Modifier.rotate(-2f).headingGroup(), height = 48.dp) {
             Text("Settings", style = type.display(22.sp), color = palette.ink)
         }
         Spacer(Modifier.weight(1f))
@@ -221,7 +222,10 @@ private fun Section(title: String, content: @Composable ColumnScope.() -> Unit) 
             title.uppercase(),
             style = LocalTypography.current.caps(13.sp),
             color = LocalPalette.current.muted,
-            modifier = Modifier.padding(horizontal = 4.dp).semantics { heading() },
+            modifier = Modifier.padding(horizontal = 4.dp).semantics {
+                heading()
+                contentDescription = title
+            },
         )
         content()
     }
@@ -323,9 +327,6 @@ private fun ReadingWith(friend: Friend, selected: Boolean, onClick: () -> Unit) 
     val type = LocalTypography.current
     ChoiceSurface(
         selected = selected,
-        modifier = Modifier.semantics(mergeDescendants = true) {
-            contentDescription = "${friend.friendName}, ${friend.stage}. Words like ${friend.examples.joinToString(", ")}."
-        },
         onClick = onClick,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {

@@ -22,9 +22,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.TextUnit
 import com.hoptales.android.design.Metrics
 import com.hoptales.android.world.Art
 import com.hoptales.android.world.HareSheet
@@ -288,8 +289,8 @@ private fun DrawScope.drawWash(frame: Rect, blend: BlendMode) {
     }
 }
 
-class Signposts(assets: AssetManager, path: WordPath, measurer: TextMeasurer, family: FontFamily, title: String) {
-    private val density = path.geometry.density
+class Signposts(assets: AssetManager, path: WordPath, measurer: TextMeasurer, family: FontFamily, title: String, density: Density) {
+    private val fixedSp: (Float) -> TextUnit = { px -> with(density) { px.toSp() } }
     val image: ImageBitmap? = Art.image(assets, "prop-signpost")
     val height = path.geometry.path(PathGeometry.SIGN_HEIGHT)
     val width = height * (image?.let { it.width.toFloat() / it.height } ?: 0.8f)
@@ -307,9 +308,9 @@ class Signposts(assets: AssetManager, path: WordPath, measurer: TextMeasurer, fa
             val style = TextStyle(
                 fontFamily = family,
                 fontWeight = FontWeight.Bold,
-                fontSize = (size * scale / density).sp,
+                fontSize = fixedSp(size * scale),
                 textAlign = TextAlign.Center,
-                lineHeight = (size * scale * SIGN_LEADING / density).sp,
+                lineHeight = fixedSp(size * scale * SIGN_LEADING),
             )
             val layout = measurer.measure(
                 text,

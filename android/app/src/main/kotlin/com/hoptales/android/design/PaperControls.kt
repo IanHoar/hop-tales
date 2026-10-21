@@ -26,6 +26,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
@@ -49,18 +50,35 @@ fun PaperChoice(title: String, selected: Boolean, modifier: Modifier = Modifier,
 }
 
 @Composable
-fun ChoiceSurface(selected: Boolean, modifier: Modifier = Modifier, onClick: (() -> Unit)?, content: @Composable ColumnScope.() -> Unit) {
+fun ChoiceSurface(
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)?,
+    label: String? = null,
+    role: Role = Role.Button,
+    content: @Composable ColumnScope.() -> Unit,
+) {
     val palette = LocalPalette.current
     val shape = RoundedCornerShape(18.dp)
     val color = if (selected) palette.red.copy(alpha = 0.1f).compositeOver(palette.paper) else palette.field
     val border = BorderStroke(3.dp, if (selected) palette.red else palette.parchmentLip)
     val body: @Composable () -> Unit = {
-        Column(Modifier.padding(horizontal = 16.dp, vertical = 14.dp), verticalArrangement = Arrangement.spacedBy(2.dp), content = content)
+        Column(
+            Modifier
+                .padding(horizontal = 16.dp, vertical = 14.dp)
+                .then(if (label != null) Modifier.clearAndSetSemantics {} else Modifier),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+            content = content,
+        )
     }
     if (onClick != null) {
         Surface(
             onClick = onClick,
-            modifier = modifier.fillMaxWidth().semantics { this.selected = selected },
+            modifier = modifier.fillMaxWidth().semantics {
+                this.selected = selected
+                this.role = role
+                if (label != null) contentDescription = label
+            },
             shape = shape,
             color = color,
             border = border,
@@ -78,11 +96,9 @@ fun PaperToggle(title: String, detail: String, checked: Boolean, onChange: (Bool
     val type = LocalTypography.current
     ChoiceSurface(
         selected = false,
-        modifier = Modifier.semantics(mergeDescendants = true) {
-            role = Role.Switch
-            toggleableState = ToggleableState(checked)
-        },
+        modifier = Modifier.semantics(mergeDescendants = true) { toggleableState = ToggleableState(checked) },
         onClick = { onChange(!checked) },
+        role = Role.Switch,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {

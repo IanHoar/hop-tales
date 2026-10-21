@@ -72,12 +72,13 @@ import com.hoptales.android.design.BackChip
 import com.hoptales.android.design.ChoiceSurface
 import com.hoptales.android.design.LocalFold
 import com.hoptales.android.design.LocalPalette
+import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.PaperButton
 import com.hoptales.android.design.PaperChoice
 import com.hoptales.android.design.ProgressPills
 import com.hoptales.android.design.field
-import com.hoptales.android.world.DressedFriend
+import com.hoptales.android.world.IdleFriend
 import com.hoptales.android.world.MeadowBackdrop
 import com.hoptales.android.world.SoundMarksExamples
 import com.hoptales.android.world.Sticker
@@ -189,7 +190,7 @@ private fun StandingHare(stage: Rect) {
             .size((height * 2).dp, height.dp),
         contentAlignment = Alignment.BottomCenter,
     ) {
-        DressedFriend(Friend.HARE, emptyList(), height.dp)
+        IdleFriend(Friend.HARE, null, height.dp)
     }
 }
 
@@ -240,7 +241,12 @@ private fun StepPage(state: OnboardingState, actions: OnboardingActions) {
     val palette = LocalPalette.current
     val type = LocalTypography.current
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Text("STEP ${state.stepNumber} OF ${state.stepCount}", style = type.caps(13.sp), color = palette.muted)
+        Text(
+            "STEP ${state.stepNumber} OF ${state.stepCount}",
+            style = type.caps(13.sp),
+            color = palette.muted,
+            modifier = Modifier.semantics { contentDescription = "Step ${state.stepNumber} of ${state.stepCount}" },
+        )
         Text(state.step.title, style = type.display(28.sp), color = palette.ink, modifier = Modifier.semantics { heading() })
         Text(state.step.detail, style = type.ui(16.sp, FontWeight.Medium), color = palette.ink.copy(alpha = 0.85f))
         Box(Modifier.padding(top = 4.dp)) {
@@ -305,9 +311,9 @@ private fun MicrophoneNote(authorization: Authorization?) {
         )
 
         Authorization.AUTHORIZED -> Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("✓", style = type.ui(20.sp, FontWeight.Bold), color = palette.teal)
+            Text("✓", style = type.ui(20.sp, FontWeight.Bold), color = LocalPaper.current.sageDeep)
             Spacer(Modifier.width(8.dp))
-            Text("Microphone allowed.", style = type.ui(16.sp), color = palette.teal)
+            Text("Microphone allowed.", style = type.ui(16.sp), color = LocalPaper.current.sageDeep)
         }
 
         Authorization.DENIED -> Note(
@@ -340,10 +346,8 @@ private fun FriendChoice(friend: Friend, isSelected: Boolean, onClick: () -> Uni
     val type = LocalTypography.current
     ChoiceSurface(
         selected = isSelected,
-        modifier = Modifier.semantics(mergeDescendants = true) {
-            contentDescription = "${friend.friendName}, ${friend.stage}. Words like ${friend.examples.joinToString(", ")}."
-        },
         onClick = onClick,
+        label = "${friend.friendName}, ${friend.stage}. Words like ${friend.examples.joinToString(", ")}.",
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Sticker(friend.sticker, Modifier.size(58.dp))
