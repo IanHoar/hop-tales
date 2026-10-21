@@ -9,8 +9,11 @@ Needs JDK 17 or later (Android Studio's bundled JBR works) and the Android SDK w
 
 ```sh
 cd android
-./gradlew test                 # JVM tests for the shared logic: content, matching, reading
-./gradlew :app:installDebug    # build and install on a running emulator or device
+./gradlew test                         # JVM tests: content, matching, reading, and the screenshots
+./gradlew ktlintCheck                  # lint every Kotlin file; ktlintFormat fixes most of it
+./gradlew :app:verifyRoborazziDebug    # compare the screenshots with the committed references
+./gradlew :app:recordRoborazziDebug    # re-record the references after a deliberate UI change
+./gradlew :app:installDebug            # build and install on a running emulator or device
 ```
 
 `local.properties` (ignored) holds `sdk.dir`; Android Studio writes it for you.
@@ -19,6 +22,29 @@ Speech recognition is on-device only — `SpeechRecognizer.createOnDeviceSpeechR
 network recogniser — so the app needs Android 12 (API 31) or later. Where the device has no on-device
 model, the mic pill says so and tapping the word still speaks it. Debug builds show a "Hear …"
 button that stands in for a recognised word, like the DEBUG controls on iOS.
+
+## Style
+
+ktlint is the house style, configured in `android/.editorconfig` (IntelliJ IDEA style, trailing
+commas allowed, lines up to 140). The `pre-commit` hook lints staged `android/**/*.kt` and `.kts`
+files the way it runs SwiftLint on Swift, so install the CLI once:
+
+```sh
+brew install ktlint
+./gradlew ktlintFormat && git add -u    # fixes most of what the hook reports
+```
+
+Without the CLI the hook warns and lets the commit through; CI runs `./gradlew ktlintCheck` either
+way. Change `.editorconfig` rather than suppressing a rule in the code.
+
+## Screenshot tests
+
+`ScreenshotTest` renders home, reading, the story-finished card and the stop dialog, light and dark,
+with Roborazzi on Robolectric — on the JVM, no emulator. The references live in
+`app/src/test/screenshots`; `verifyRoborazziDebug` fails when a render differs, and leaves the
+actual image and a diff in `app/build/outputs/roborazzi`. After a deliberate change, record again
+and commit the new PNGs with the change. Motion is frozen (the animator scale is set to 0), so the
+hare stands still and the camera snaps.
 
 ## Layout
 

@@ -1,24 +1,27 @@
 #!/bin/sh
-# Lints the Swift files you are about to commit.
+# Lints the Swift and Kotlin files you are about to commit.
 #
 # Installed by ./scripts/setup-git.sh. To bypass once: git commit --no-verify
 set -eu
 
-staged=$(git diff --cached --name-only --diff-filter=ACM -- 'ios/*.swift' | sed 's|^ios/||')
-[ -n "$staged" ] || exit 0
+root=$(git rev-parse --show-toplevel)
+failed=0
 
-if ! command -v swiftlint >/dev/null; then
-  echo "  ! swiftlint is not installed, so staged Swift files were not linted."
-  echo "    brew install swiftlint"
-  exit 0
-fi
+lint_swift() {
+  staged=$(git diff --cached --name-only --diff-filter=ACM -- 'ios/*.swift' | sed 's|^ios/||')
+  [ -n "$staged" ] || return 0
 
-# --force-exclude so the config's excluded paths still apply when files are passed by name.
-# --strict because the config decides what matters: if a rule is on, it blocks.
-# The config lives in ios/, beside the Xcode project whose build phase also reads it.
-cd "$(git rev-parse --show-toplevel)/ios"
-if ! echo "$staged" | xargs swiftlint lint --quiet --strict --force-exclude; then
-  cat >&2 <<'MESSAGE'
+  if ! command -v swiftlint >/dev/null; then
+    echo "  ! swiftlint is not installed, so staged Swift files were not linted."
+    echo "    brew install swiftlint"
+    return 0
+  fi
+
+  # --force-exclude so the config's excluded paths still apply when files are passed by name.
+  # --strict because the config decides what matters: if a rule is on, it blocks.
+  # The config lives in ios/, beside the Xcode project whose build phase also reads it.
+  if ! (cd "$root/ios" && echo "$staged" | xargs swiftlint lint --quiet --strict --force-exclude); then
+    cat >&2 <<'MESSAGE'
 
   ✗ SwiftLint found problems in the files you are committing.
 
@@ -29,5 +32,37 @@ if ! echo "$staged" | xargs swiftlint lint --quiet --strict --force-exclude; the
     To commit anyway: git commit --no-verify
 
 MESSAGE
-  exit 1
-fi
+    return 1
+  fi
+}
+
+lint_kotlin() {
+  staged=$(git diff --cached --name-only --diff-filter=ACM -- 'android/*.kt' 'android/*.kts' | sed 's|^android/||')
+  [ -n "$staged" ] || return 0
+
+  if ! command -v ktlint >/dev/null; then
+    echo "  ! ktlint is not installed, so staged Kotlin files were not linted."
+    echo "    brew install ktlint"
+    return 0
+  fi
+
+  # Run from android/ so ktlint reads android/.editorconfig, the same rules ./gradlew ktlintCheck uses.
+  if ! (cd "$root/android" && echo "$staged" | xargs ktlint --relative); then
+    cat >&2 <<'MESSAGE'
+
+  ✗ ktlint found problems in the files you are committing.
+
+    Most are fixable automatically:
+
+        (cd android && ./gradlew ktlintFormat) && git add -u
+
+    To commit anyway: git commit --no-verify
+
+MESSAGE
+    return 1
+  fi
+}
+
+lint_swift || failed=1
+lint_kotlin || failed=1
+exit "$failed"

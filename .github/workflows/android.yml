@@ -1,6 +1,8 @@
-# Builds the Android app and runs its JVM tests, on Linux. The workflow starts on every pull
-# request so "Android" can be a required check; the build itself is skipped, which reports
-# success, unless the pull request touches android/ or the content and art it reads from ios/.
+# Lints, builds and tests the Android app on Linux: ktlint, the JVM tests, and the Roborazzi
+# screenshot tests against the references in app/src/test/screenshots. The workflow starts on
+# every pull request so "Android" can be a required check; the build itself is skipped, which
+# reports success, unless the pull request touches android/ or the content and art it reads
+# from ios/.
 name: Android
 
 on:
@@ -52,5 +54,14 @@ jobs:
           distribution: temurin
           java-version: 21
       - uses: gradle/actions/setup-gradle@v5
+      - name: Lint
+        run: ./gradlew ktlintCheck
       - name: Test and build
-        run: ./gradlew test :app:assembleDebug
+        run: ./gradlew test :app:verifyRoborazziDebug :app:assembleDebug
+      - name: Upload screenshot diffs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshot-diffs
+          path: android/app/build/outputs/roborazzi
+          if-no-files-found: ignore

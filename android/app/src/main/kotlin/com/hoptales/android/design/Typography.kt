@@ -28,8 +28,7 @@ class Typography(assets: AssetManager) {
     fun ui(size: TextUnit, weight: FontWeight = FontWeight.SemiBold) =
         TextStyle(fontFamily = uiFamily, fontWeight = weight, fontSize = size)
 
-    fun caps(size: TextUnit) =
-        TextStyle(fontFamily = uiFamily, fontWeight = FontWeight.SemiBold, fontSize = size, letterSpacing = 0.16.em)
+    fun caps(size: TextUnit) = TextStyle(fontFamily = uiFamily, fontWeight = FontWeight.SemiBold, fontSize = size, letterSpacing = 0.16.em)
 
     companion object {
         val body = 17.sp

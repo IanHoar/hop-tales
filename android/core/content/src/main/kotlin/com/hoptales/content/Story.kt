@@ -5,26 +5,39 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class Sky {
-    @SerialName("day") DAY,
-    @SerialName("golden") GOLDEN,
-    @SerialName("dusk") DUSK,
-    @SerialName("night") NIGHT,
+    @SerialName("day")
+    DAY,
+
+    @SerialName("golden")
+    GOLDEN,
+
+    @SerialName("dusk")
+    DUSK,
+
+    @SerialName("night")
+    NIGHT,
 }
 
 @Serializable
 enum class Weather {
-    @SerialName("clear") CLEAR,
-    @SerialName("clouds") CLOUDS,
-    @SerialName("storm") STORM,
-    @SerialName("rain") RAIN,
-    @SerialName("snow") SNOW,
+    @SerialName("clear")
+    CLEAR,
+
+    @SerialName("clouds")
+    CLOUDS,
+
+    @SerialName("storm")
+    STORM,
+
+    @SerialName("rain")
+    RAIN,
+
+    @SerialName("snow")
+    SNOW,
 }
 
 @Serializable
-data class Mood(
-    val sky: Sky = Sky.DAY,
-    val weather: Weather = Weather.CLEAR,
-)
+data class Mood(val sky: Sky = Sky.DAY, val weather: Weather = Weather.CLEAR)
 
 @Serializable
 data class Word(
@@ -46,9 +59,14 @@ data class StoryEvent(
 ) {
     @Serializable
     enum class Place {
-        @SerialName("ground") GROUND,
-        @SerialName("near") NEAR,
-        @SerialName("sky") SKY,
+        @SerialName("ground")
+        GROUND,
+
+        @SerialName("near")
+        NEAR,
+
+        @SerialName("sky")
+        SKY,
     }
 }
 

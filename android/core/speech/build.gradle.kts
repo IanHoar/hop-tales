@@ -18,7 +18,6 @@ dependencies {
     testImplementation(libs.junit)
 }
 
-
 tasks.test {
     systemProperty("hoptales.resources", rootDir.resolve("../ios/HopTalesPackage/Sources/Content/Resources").absolutePath)
 }
