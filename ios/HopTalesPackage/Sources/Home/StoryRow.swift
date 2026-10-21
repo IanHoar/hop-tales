@@ -72,7 +72,7 @@ struct StoryRow: View {
     case .unread:
       Text("New")
         .font(Typography.ui(13))
-        .foregroundStyle(Paper.red)
+        .foregroundStyle(Paper.redInk)
         .padding(.trailing, 4)
     }
   }
