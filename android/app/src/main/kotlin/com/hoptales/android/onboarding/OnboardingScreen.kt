@@ -60,6 +60,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -80,6 +81,7 @@ import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.design.ChoicePair
 import com.hoptales.android.design.ChoiceSurface
 import com.hoptales.android.design.Deckle
+import com.hoptales.android.design.EaseOut
 import com.hoptales.android.design.Glyphs
 import com.hoptales.android.design.LocalFold
 import com.hoptales.android.design.LocalPaper
@@ -135,12 +137,16 @@ fun OnboardingScreen(key: String) {
     )
 }
 
+private const val STEP_MILLIS = 350
+private val STEP_SLIDE = 18.dp
+
 @Composable
 fun OnboardingContent(state: OnboardingState, actions: OnboardingActions) {
     val paper = LocalPaper.current
     val statusBar = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val fold = LocalFold.current
+    val slide = with(LocalDensity.current) { STEP_SLIDE.roundToPx() }
     BoxWithConstraints(Modifier.background(paper.page)) {
         val area = Size(maxWidth.value, maxHeight.value)
         val room = fold?.room(area)
@@ -179,8 +185,11 @@ fun OnboardingContent(state: OnboardingState, actions: OnboardingActions) {
                         AnimatedContent(
                             targetState = state.step,
                             transitionSpec = {
-                                (slideInHorizontally(tween(350)) { 18 } + fadeIn(tween(350))) togetherWith
-                                    fadeOut(tween(200))
+                                (
+                                    slideInHorizontally(tween(STEP_MILLIS, easing = EaseOut)) { slide } +
+                                        fadeIn(tween(STEP_MILLIS, easing = EaseOut))
+                                    ) togetherWith
+                                    fadeOut(tween(STEP_MILLIS, easing = EaseOut))
                             },
                             modifier = Modifier.verticalScroll(rememberScrollState()),
                             label = "step",
@@ -308,7 +317,7 @@ fun NameField(name: String, onChange: (String) -> Unit, onSubmit: () -> Unit) {
             textStyle = type.display(22.sp).copy(color = paper.ink),
             cursorBrush = SolidColor(paper.ink),
             keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.Words,
+                capitalization = KeyboardCapitalization.Sentences,
                 autoCorrectEnabled = false,
                 imeAction = ImeAction.Done,
             ),
@@ -316,7 +325,14 @@ fun NameField(name: String, onChange: (String) -> Unit, onSubmit: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(54.dp)
-                .paperField(base = paper.paper, fill = 0.7f, shape = RoundedCornerShape(16.dp))
+                .paperField(
+                    base = paper.paper,
+                    fill = 0.7f,
+                    shape = RoundedCornerShape(16.dp),
+                    shadowOpacity = 0.4f,
+                    shadowRadius = 2.dp,
+                    shadowY = 1.dp,
+                )
                 .semantics { contentDescription = "Name or nickname" },
             decorationBox = { field ->
                 Box(Modifier.padding(horizontal = 16.dp), contentAlignment = Alignment.CenterStart) { field() }

@@ -37,11 +37,13 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 val EaseInOut = CubicBezierEasing(0.42f, 0f, 0.58f, 1f)
+val EaseOut = CubicBezierEasing(0f, 0f, 0.58f, 1f)
 
 @Composable
 fun Modifier.paperField(
@@ -49,10 +51,14 @@ fun Modifier.paperField(
     base: Color = LocalPaper.current.page,
     fill: Float = 0.6f,
     shape: RoundedCornerShape = RoundedCornerShape(18.dp),
+    shadowOpacity: Float = 0.5f,
+    shadowRadius: Dp = 3.dp,
+    shadowY: Dp = 2.dp,
 ): Modifier {
     val paper = LocalPaper.current
     val colour = if (selected) paper.red.copy(alpha = 0.1f) else paper.rim.copy(alpha = fill)
-    return dropShadow(shape, Shadow(3.dp, paper.shadow.copy(alpha = paper.shadow.alpha * 0.5f), offset = DpOffset(0.dp, 2.dp)))
+    val shadow = Shadow(shadowRadius, paper.shadow.copy(alpha = paper.shadow.alpha * shadowOpacity), offset = DpOffset(0.dp, shadowY))
+    return dropShadow(shape, shadow)
         .background(colour.compositeOver(base), shape)
         .border(3.dp, if (selected) paper.red else paper.rim, shape)
 }
@@ -125,25 +131,8 @@ fun PaperSwitch(checked: Boolean) {
 }
 
 @Composable
-fun PaperToggle(title: String, detail: String, checked: Boolean, onChange: (Boolean) -> Unit, extra: @Composable () -> Unit = {}) {
-    val paper = LocalPaper.current
-    val type = LocalTypography.current
-    ChoiceSurface(
-        selected = false,
-        modifier = Modifier.semantics(mergeDescendants = true) { toggleableState = ToggleableState(checked) },
-        onClick = { onChange(!checked) },
-        role = Role.Switch,
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(title, style = type.display(20.sp), color = paper.ink)
-                Text(detail, style = type.ui(15.sp), color = paper.muted)
-            }
-            Spacer(Modifier.width(12.dp))
-            PaperSwitch(checked)
-        }
-        extra()
-    }
+fun PaperToggle(title: String, detail: String, checked: Boolean, onChange: (Boolean) -> Unit) {
+    PaperToggleField(title, detail, checked, onChange) {}
 }
 
 @Composable
