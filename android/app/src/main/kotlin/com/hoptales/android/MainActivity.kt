@@ -11,24 +11,41 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -50,6 +67,7 @@ import com.hoptales.android.world.IntroArt
 import com.hoptales.android.world.IntroLayout
 import com.hoptales.android.world.IntroTimeline
 import com.hoptales.content.Friend
+import com.hoptales.content.Profile
 import com.hoptales.content.Story
 import com.hoptales.content.tapping
 import com.hoptales.content.undressing
@@ -80,8 +98,17 @@ class MainActivity : ComponentActivity() {
         finishAnsweredDraft(app)
         val reduceMotion = reducesMotion()
         setContent {
-            HopTalesTheme {
-                LaunchedEffect(introDone) { if (introDone) enableEdgeToEdge() }
+            val profile by app.profileStore.profile.collectAsStateWithLifecycle()
+            val dark = (profile?.theme ?: Profile.Theme.DEVICE).isDark(isSystemInDarkTheme())
+            HopTalesTheme(dark = dark) {
+                LaunchedEffect(introDone, dark) {
+                    if (introDone) {
+                        enableEdgeToEdge(
+                            SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { dark },
+                            SystemBarStyle.auto(LIGHT_SCRIM, DARK_SCRIM) { dark },
+                        )
+                    }
+                }
                 FoldAware {
                     Entry(
                         introArt = introArt,
@@ -125,6 +152,8 @@ class MainActivity : ComponentActivity() {
     private companion object {
         const val INTRO_DONE = "introDone"
         const val SPLASH_FADE_MILLIS = 300L
+        val LIGHT_SCRIM = Color.argb(0xE6, 0xFF, 0xFF, 0xFF)
+        val DARK_SCRIM = Color.argb(0x80, 0x1B, 0x1B, 0x1B)
     }
 }
 
@@ -177,33 +206,56 @@ private fun Destination(app: HopTalesApplication) {
     val profile by app.profileStore.profile.collectAsStateWithLifecycle()
     val route = when {
         profile == null -> Route.Onboarding
-        isShowingSettings -> Route.Settings
-        else -> storyID?.let(app.library::get)?.let(Route::Reading) ?: sheet?.let(Route::Sheet) ?: Route.Home
+        else -> storyID?.let(app.library::get)?.let(Route::Reading) ?: Route.Home
     }
-    BackHandler(enabled = route is Route.Sheet) { sheet = null }
-    AnimatedContent(
-        targetState = route,
-        transitionSpec = { fadeIn() togetherWith fadeOut() },
-        label = "route",
-    ) { target ->
-        val friend = progress.journey.activeFriend
-        when (target) {
-            Route.Onboarding -> OnboardingScreen(key = "onboarding-$visit")
+    val overlay = when {
+        route != Route.Home -> null
+        isShowingSettings -> Sheet.SETTINGS
+        else -> sheet
+    }
+    BackHandler(enabled = overlay != null && overlay != Sheet.SETTINGS) { sheet = null }
+    val friend = progress.journey.activeFriend
+    Box(Modifier.fillMaxSize()) {
+        AnimatedContent(
+            targetState = route,
+            transitionSpec = { fadeIn() togetherWith fadeOut() },
+            modifier = Modifier.fillMaxSize().then(if (overlay != null) Modifier.clearAndSetSemantics {} else Modifier),
+            label = "route",
+        ) { target ->
+            when (target) {
+                Route.Onboarding -> OnboardingScreen(key = "onboarding-$visit")
 
-            Route.Settings -> SettingsScreen(key = "settings-$visit", onDone = { isShowingSettings = false })
+                is Route.Reading -> ReadingScreen(
+                    story = target.story,
+                    onDone = { storyID = null },
+                    onStory = { storyID = it.id },
+                    onTryItOn = {
+                        storyID = null
+                        sheet = Sheet.wardrobe(it)
+                    },
+                )
 
-            is Route.Reading -> ReadingScreen(
-                story = target.story,
-                onDone = { storyID = null },
-                onStory = { storyID = it.id },
-                onTryItOn = {
-                    storyID = null
-                    sheet = Sheet.wardrobe(it)
-                },
-            )
+                Route.Home -> HomeScreen(
+                    library = app.library,
+                    progress = progress,
+                    onStory = { storyID = it.id },
+                    childName = profile?.childName,
+                    onGrownUps = {
+                        visit += 1
+                        isShowingSettings = true
+                    },
+                    onJourney = { sheet = Sheet.JOURNEY },
+                    onFriends = { sheet = Sheet.FRIENDS },
+                    onWardrobe = { sheet = Sheet.wardrobe(friend) },
+                    onBook = { sheet = Sheet.book(friend) },
+                )
+            }
+        }
+        SheetOverlay(overlay) { target ->
+            when {
+                target == Sheet.SETTINGS -> SettingsScreen(key = "settings-$visit", onDone = { isShowingSettings = false })
 
-            is Route.Sheet -> when {
-                target.sheet == Sheet.JOURNEY -> JourneyMapScreen(
+                target == Sheet.JOURNEY -> JourneyMapScreen(
                     library = app.library,
                     journey = progress.journey,
                     onFriend = { tapped -> app.progressStore.update { it.copy(journey = it.journey.readingWith(tapped)) } },
@@ -214,7 +266,7 @@ private fun Destination(app: HopTalesApplication) {
                     onDone = { sheet = null },
                 )
 
-                target.sheet == Sheet.FRIENDS -> FriendsScreen(
+                target == Sheet.FRIENDS -> FriendsScreen(
                     progress = progress,
                     wardrobe = app.wardrobe,
                     onFriend = { tapped -> app.progressStore.update { it.copy(journey = it.journey.readingWith(tapped)) } },
@@ -222,8 +274,8 @@ private fun Destination(app: HopTalesApplication) {
                     onDone = { sheet = null },
                 )
 
-                target.sheet.startsWith(Sheet.WARDROBE) -> {
-                    val dressing = Sheet.friend(target.sheet) ?: friend
+                target.startsWith(Sheet.WARDROBE) -> {
+                    val dressing = Sheet.friend(target) ?: friend
                     WardrobeScreen(
                         friend = dressing,
                         progress = progress,
@@ -237,39 +289,73 @@ private fun Destination(app: HopTalesApplication) {
                 else -> BookScreen(
                     library = app.library,
                     progress = progress,
-                    friend = Sheet.friend(target.sheet) ?: friend,
+                    friend = Sheet.friend(target) ?: friend,
                     onFriend = { sheet = Sheet.book(it) },
                     onDone = { sheet = null },
                 )
             }
-
-            Route.Home -> HomeScreen(
-                library = app.library,
-                progress = progress,
-                onStory = { storyID = it.id },
-                childName = profile?.childName,
-                onGrownUps = {
-                    visit += 1
-                    isShowingSettings = true
-                },
-                onJourney = { sheet = Sheet.JOURNEY },
-                onFriends = { sheet = Sheet.FRIENDS },
-                onWardrobe = { sheet = Sheet.wardrobe(friend) },
-                onBook = { sheet = Sheet.book(friend) },
-            )
         }
     }
 }
 
+@Composable
+private fun SheetOverlay(sheet: String?, content: @Composable (String) -> Unit) {
+    val scrim by animateFloatAsState(if (sheet != null) SCRIM_ALPHA else 0f, tween(SHEET_FADE_MILLIS), label = "scrim")
+    if (scrim > 0f) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(ComposeColor.Black.copy(alpha = scrim))
+                .then(
+                    if (sheet != null) {
+                        Modifier.clickable(remember { MutableInteractionSource() }, indication = null, onClick = {})
+                    } else {
+                        Modifier
+                    },
+                ),
+        )
+    }
+    val slide =
+        spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow, visibilityThreshold = IntOffset(1, 1))
+    AnimatedContent(
+        targetState = sheet,
+        transitionSpec = {
+            when {
+                initialState == null -> slideInVertically(slide) { it } togetherWith ExitTransition.None
+                targetState == null -> EnterTransition.None togetherWith slideOutVertically(slide) { it }
+                else -> fadeIn(tween(SHEET_FADE_MILLIS)) togetherWith fadeOut(tween(SHEET_FADE_MILLIS))
+            }
+        },
+        modifier = Modifier.fillMaxSize(),
+        label = "sheet",
+    ) { target ->
+        if (target == null) {
+            Box(Modifier.fillMaxSize())
+        } else {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .windowInsetsPadding(WindowInsets.statusBars)
+                    .padding(top = SHEET_GAP)
+                    .clip(RoundedCornerShape(topStart = SHEET_CORNER, topEnd = SHEET_CORNER)),
+            ) { content(target) }
+        }
+    }
+}
+
+private const val SCRIM_ALPHA = 0.25f
+private const val SHEET_FADE_MILLIS = 250
+private val SHEET_GAP = 10.dp
+private val SHEET_CORNER = 28.dp
+
 private sealed interface Route {
     data object Onboarding : Route
     data object Home : Route
-    data object Settings : Route
     data class Reading(val story: Story) : Route
-    data class Sheet(val sheet: String) : Route
 }
 
 private object Sheet {
+    const val SETTINGS = "settings"
     const val JOURNEY = "journey"
     const val FRIENDS = "friends"
     const val WARDROBE = "wardrobe:"

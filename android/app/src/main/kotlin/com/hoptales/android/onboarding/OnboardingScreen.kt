@@ -12,7 +12,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -30,29 +29,35 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
@@ -61,28 +66,32 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hoptales.android.HopTalesApplication
-import com.hoptales.android.design.BackChip
 import com.hoptales.android.design.ChoiceSurface
+import com.hoptales.android.design.Deckle
+import com.hoptales.android.design.Glyphs
 import com.hoptales.android.design.LocalFold
-import com.hoptales.android.design.LocalPalette
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.PaperButton
 import com.hoptales.android.design.PaperChoice
 import com.hoptales.android.design.ProgressPills
-import com.hoptales.android.design.field
+import com.hoptales.android.design.paperField
+import com.hoptales.android.design.pressable
+import com.hoptales.android.world.FriendSticker
 import com.hoptales.android.world.IdleFriend
 import com.hoptales.android.world.MeadowBackdrop
 import com.hoptales.android.world.SoundMarksExamples
 import com.hoptales.android.world.Sticker
-import com.hoptales.android.world.rememberArt
 import com.hoptales.content.Friend
 import com.hoptales.content.Phonics
 import com.hoptales.onboarding.Authorization
@@ -127,11 +136,11 @@ fun OnboardingScreen(key: String) {
 
 @Composable
 fun OnboardingContent(state: OnboardingState, actions: OnboardingActions) {
-    val palette = LocalPalette.current
+    val paper = LocalPaper.current
     val statusBar = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val fold = LocalFold.current
-    BoxWithConstraints(Modifier.background(palette.page)) {
+    BoxWithConstraints(Modifier.background(paper.page)) {
         val area = Size(maxWidth.value, maxHeight.value)
         val room = fold?.room(area)
         val top = maxOf(statusBar, (room?.top ?: 0f).dp) + 12.dp
@@ -149,12 +158,15 @@ fun OnboardingContent(state: OnboardingState, actions: OnboardingActions) {
                 .imePadding()
                 .align(Alignment.BottomCenter),
         ) {
-            Surface(
-                modifier = Modifier.widthIn(max = 560.dp).fillMaxWidth().heightIn(min = sheetHeight),
-                shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-                color = palette.paper,
-                border = BorderStroke(3.dp, palette.outline),
-                shadowElevation = 10.dp,
+            val sheet = remember { SheetEdge(Deckle(seed = 21, jitter = 3.dp, step = 16.dp), overhang = 12.dp) }
+            Box(
+                Modifier
+                    .widthIn(max = 560.dp)
+                    .fillMaxWidth()
+                    .heightIn(min = sheetHeight)
+                    .dropShadow(sheet, Shadow(10.dp, paper.shadow, offset = DpOffset(0.dp, (-4).dp)))
+                    .background(paper.paper, sheet),
+                propagateMinConstraints = true,
             ) {
                 Column(
                     Modifier.padding(start = 24.dp, end = 24.dp, top = 22.dp, bottom = maxOf(bottom, 16.dp) + 8.dp),
@@ -196,13 +208,28 @@ private fun StandingHare(stage: Rect) {
 
 @Composable
 private fun Header(state: OnboardingState, onBack: () -> Unit) {
-    val palette = LocalPalette.current
-    Box(Modifier.fillMaxWidth().height(44.dp), contentAlignment = Alignment.Center) {
+    val paper = LocalPaper.current
+    Box(Modifier.fillMaxWidth().height(24.dp), contentAlignment = Alignment.Center) {
         ProgressPills(current = state.stepNumber - 1, count = state.stepCount)
         if (!state.isFirstStep) {
-            BackChip(Modifier.align(Alignment.CenterStart).offset(x = (-4).dp), description = "Back", onClick = onBack)
+            Box(
+                Modifier
+                    .align(Alignment.CenterStart)
+                    .offset(x = (-12).dp)
+                    .requiredSize(44.dp)
+                    .semantics { contentDescription = "Back" }
+                    .pressable(onBack),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(Glyphs.chevronLeft, contentDescription = null, tint = paper.ink, modifier = Modifier.size(22.dp))
+            }
         }
     }
+}
+
+private class SheetEdge(private val edge: Shape, private val overhang: Dp) : Shape {
+    override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline =
+        edge.createOutline(Size(size.width, size.height + with(density) { overhang.toPx() }), layoutDirection, density)
 }
 
 private val OnboardingStep.title: String
@@ -238,17 +265,17 @@ private val OnboardingStep.detail: String
 
 @Composable
 private fun StepPage(state: OnboardingState, actions: OnboardingActions) {
-    val palette = LocalPalette.current
+    val paper = LocalPaper.current
     val type = LocalTypography.current
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Text(
             "STEP ${state.stepNumber} OF ${state.stepCount}",
-            style = type.caps(13.sp),
-            color = palette.muted,
+            style = type.caps(13.sp).copy(letterSpacing = 1.sp),
+            color = paper.muted,
             modifier = Modifier.semantics { contentDescription = "Step ${state.stepNumber} of ${state.stepCount}" },
         )
-        Text(state.step.title, style = type.display(28.sp), color = palette.ink, modifier = Modifier.semantics { heading() })
-        Text(state.step.detail, style = type.ui(16.sp, FontWeight.Medium), color = palette.ink.copy(alpha = 0.85f))
+        Text(state.step.title, style = type.display(28.sp), color = paper.ink, modifier = Modifier.semantics { heading() })
+        Text(state.step.detail, style = type.ui(16.sp, FontWeight.Medium), color = paper.ink.copy(alpha = 0.85f))
         Box(Modifier.padding(top = 4.dp)) {
             when (state.step) {
                 OnboardingStep.BACKUP -> BackupChoices(state.backup, actions.backupPicked)
@@ -269,17 +296,16 @@ private fun StepPage(state: OnboardingState, actions: OnboardingActions) {
 
 @Composable
 fun NameField(name: String, onChange: (String) -> Unit, onSubmit: () -> Unit) {
-    val palette = LocalPalette.current
+    val paper = LocalPaper.current
     val type = LocalTypography.current
-    val shape = RoundedCornerShape(16.dp)
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Name or nickname", style = type.ui(14.sp), color = palette.muted)
+        Text("Name or nickname", style = type.ui(14.sp), color = paper.muted)
         BasicTextField(
             value = name,
             onValueChange = onChange,
             singleLine = true,
-            textStyle = type.display(22.sp).copy(color = palette.ink),
-            cursorBrush = SolidColor(palette.ink),
+            textStyle = type.display(22.sp).copy(color = paper.ink),
+            cursorBrush = SolidColor(paper.ink),
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Words,
                 autoCorrectEnabled = false,
@@ -289,8 +315,7 @@ fun NameField(name: String, onChange: (String) -> Unit, onSubmit: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(54.dp)
-                .background(palette.field, shape)
-                .border(3.dp, palette.parchmentLip, shape)
+                .paperField(base = paper.paper, fill = 0.7f, shape = RoundedCornerShape(16.dp))
                 .semantics { contentDescription = "Name or nickname" },
             decorationBox = { field ->
                 Box(Modifier.padding(horizontal = 16.dp), contentAlignment = Alignment.CenterStart) { field() }
@@ -301,19 +326,21 @@ fun NameField(name: String, onChange: (String) -> Unit, onSubmit: () -> Unit) {
 
 @Composable
 private fun MicrophoneNote(authorization: Authorization?) {
-    val palette = LocalPalette.current
+    val paper = LocalPaper.current
     val type = LocalTypography.current
     when (authorization) {
         null -> Text(
             "Android will ask you to allow the microphone.",
             style = type.ui(13.sp, FontWeight.Medium),
-            color = palette.muted,
+            color = paper.muted,
         )
 
         Authorization.AUTHORIZED -> Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("✓", style = type.ui(20.sp, FontWeight.Bold), color = LocalPaper.current.sageDeep)
+            Box(Modifier.size(22.dp).background(paper.sage, CircleShape), contentAlignment = Alignment.Center) {
+                Icon(Glyphs.check, contentDescription = null, tint = paper.onRed, modifier = Modifier.size(15.dp))
+            }
             Spacer(Modifier.width(8.dp))
-            Text("Microphone allowed.", style = type.ui(16.sp), color = LocalPaper.current.sageDeep)
+            Text("Microphone allowed.", style = type.ui(16.sp), color = paper.sageDeep)
         }
 
         Authorization.DENIED -> Note(
@@ -327,7 +354,11 @@ private fun MicrophoneNote(authorization: Authorization?) {
 
 @Composable
 private fun Note(text: String) {
-    Text(text, style = LocalTypography.current.ui(15.sp, FontWeight.Medium), color = LocalPalette.current.ink)
+    val paper = LocalPaper.current
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Icon(Glyphs.micOff, contentDescription = null, tint = paper.muted, modifier = Modifier.size(20.dp))
+        Text(text, style = LocalTypography.current.ui(15.sp, FontWeight.Medium), color = paper.ink)
+    }
 }
 
 private val Friend.sticker: String get() = if (this == Friend.HARE) "hare-sit" else "friend-$key"
@@ -342,10 +373,11 @@ private fun FriendChoices(selected: Friend?, onPick: (Friend) -> Unit) {
 
 @Composable
 private fun FriendChoice(friend: Friend, isSelected: Boolean, onClick: () -> Unit) {
-    val palette = LocalPalette.current
+    val paper = LocalPaper.current
     val type = LocalTypography.current
     ChoiceSurface(
         selected = isSelected,
+        base = paper.paper,
         onClick = onClick,
         label = "${friend.friendName}, ${friend.stage}. Words like ${friend.examples.joinToString(", ")}.",
     ) {
@@ -354,11 +386,11 @@ private fun FriendChoice(friend: Friend, isSelected: Boolean, onClick: () -> Uni
             Spacer(Modifier.width(14.dp))
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Row(verticalAlignment = Alignment.Bottom) {
-                    Text(friend.friendName, style = type.display(19.sp), color = palette.ink, modifier = Modifier.alignByBaseline())
+                    Text(friend.friendName, style = type.display(19.sp), color = paper.ink, modifier = Modifier.alignByBaseline())
                     Spacer(Modifier.width(8.dp))
-                    Text(friend.stage, style = type.ui(14.sp), color = palette.muted, modifier = Modifier.alignByBaseline())
+                    Text(friend.stage, style = type.ui(14.sp), color = paper.muted, modifier = Modifier.alignByBaseline())
                 }
-                Text(friend.examples.joinToString(" · "), style = type.word(18.sp), color = palette.ink.copy(alpha = 0.85f))
+                Text(friend.examples.joinToString(" · "), style = type.word(18.sp), color = paper.ink.copy(alpha = 0.85f))
             }
         }
     }
@@ -366,7 +398,7 @@ private fun FriendChoice(friend: Friend, isSelected: Boolean, onClick: () -> Uni
 
 @Composable
 private fun LaterFriends(modifier: Modifier = Modifier) {
-    val palette = LocalPalette.current
+    val paper = LocalPaper.current
     val type = LocalTypography.current
     val later = Friend.entries.filter { it !in Friend.starters }
     Column(
@@ -376,35 +408,32 @@ private fun LaterFriends(modifier: Modifier = Modifier) {
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.Bottom) {
             for (friend in later) {
-                val art = rememberArt(friend.sticker) ?: continue
-                Image(
-                    art,
-                    contentDescription = null,
-                    modifier = Modifier.height(34.dp).alpha(0.45f),
-                    contentScale = ContentScale.Fit,
-                    colorFilter = ColorFilter.tint(palette.ink),
-                )
+                FriendSticker(friend, 34.dp, Modifier.alpha(0.45f), isSilhouette = true, silhouette = paper.silhouette)
             }
         }
         Text(
             "${later.size} more friends join as your reader gets stronger",
             style = type.ui(13.sp, FontWeight.Medium),
-            color = palette.muted,
+            color = paper.muted,
             textAlign = TextAlign.Center,
         )
-        Text(Phonics.STANDARD, style = type.ui(12.sp), color = palette.muted, textAlign = TextAlign.Center)
+        Text(Phonics.STANDARD, style = type.ui(12.sp), color = paper.muted, textAlign = TextAlign.Center)
     }
 }
 
 @Composable
 private fun SoundButtonChoices(selected: Boolean?, onPick: (Boolean) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        ChoiceSurface(selected = false, onClick = null) {
+        ChoiceSurface(selected = false, base = LocalPaper.current.paper, onClick = null) {
             SoundMarksExamples(modifier = Modifier.padding(vertical = 14.dp))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            PaperChoice("Yes, show them", selected = selected == true, modifier = Modifier.weight(1f)) { onPick(true) }
-            PaperChoice("No thanks", selected = selected == false, modifier = Modifier.weight(1f)) { onPick(false) }
+            PaperChoice("Yes, show them", selected = selected == true, modifier = Modifier.weight(1f), base = LocalPaper.current.paper) {
+                onPick(true)
+            }
+            PaperChoice("No thanks", selected = selected == false, modifier = Modifier.weight(1f), base = LocalPaper.current.paper) {
+                onPick(false)
+            }
         }
     }
 }
@@ -413,14 +442,18 @@ private fun SoundButtonChoices(selected: Boolean?, onPick: (Boolean) -> Unit) {
 private fun BackupChoices(selected: Boolean?, onPick: (Boolean) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            PaperChoice("Yes, back up", selected = selected == true, modifier = Modifier.weight(1f)) { onPick(true) }
-            PaperChoice("Not now", selected = selected == false, modifier = Modifier.weight(1f)) { onPick(false) }
+            PaperChoice("Yes, back up", selected = selected == true, modifier = Modifier.weight(1f), base = LocalPaper.current.paper) {
+                onPick(true)
+            }
+            PaperChoice("Not now", selected = selected == false, modifier = Modifier.weight(1f), base = LocalPaper.current.paper) {
+                onPick(false)
+            }
         }
         if (selected == true) {
             Text(
                 "Android's own backup needs to be on too. It's in the Settings app, under Backup.",
                 style = LocalTypography.current.ui(13.sp, FontWeight.Medium),
-                color = LocalPalette.current.muted,
+                color = LocalPaper.current.muted,
             )
         }
     }
