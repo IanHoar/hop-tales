@@ -43,6 +43,9 @@ data class SpriteSheet(
 data class HareSheets(val idle: SpriteSheet, val hop: SpriteSheet) {
     fun of(sheet: HareSheet): SpriteSheet = if (sheet == HareSheet.IDLE) idle else hop
 
+    fun dressed(friend: Friend, look: String, sheet: HareSheet): String =
+        "look-${friend.key}-$look-${if (sheet == HareSheet.IDLE) "idle" else "hop"}"
+
     companion object {
         val hare = HareSheets(
             SpriteSheet.idle("hare-idle-frames", 260 to 373, 142f to 361f),

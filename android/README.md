@@ -74,8 +74,9 @@ The app does not copy any content or art. Its assets come straight from the iOS 
 from the same place, so a story added through `scripts/build-stories.py` reaches both apps.
 
 Art that Android does not draw yet is left out of the package by `ignoreAssetsPatterns` in
-`app/build.gradle.kts` — the wardrobe (`look-*`, `wear-*`), postcards and the land's `prop-*`
-scenery. The story props, companions and thought bubbles draw from `cast-*`, so that ships. When a
+`app/build.gradle.kts` — postcards and the land's `prop-*` scenery. The story props, companions and
+thought bubbles draw from `cast-*`, and the wardrobe from `look-*` (dressed stickers and sprite
+sheets), `wear-*` (the items), `looks.json` and `wardrobe.json`, so those ship. When a
 feature starts drawing one of those families, take its pattern off the list, or `Art.image` quietly
 returns null. WebP and PNG are stored as they are, since deflating them saves well under 2%; JSON,
 fonts and text are compressed.

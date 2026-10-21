@@ -69,6 +69,7 @@ import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.PaperChip
 import com.hoptales.android.design.StarChip
 import com.hoptales.android.world.Art
+import com.hoptales.android.world.HareSheet
 import com.hoptales.android.world.HareSheets
 import com.hoptales.android.world.MeadowLayer
 import com.hoptales.android.world.MeadowStars
@@ -80,7 +81,12 @@ import com.hoptales.android.world.WorldStyle
 import com.hoptales.android.world.drawSky
 import com.hoptales.android.world.drawWeather
 import com.hoptales.android.world.rememberSkyLook
+import com.hoptales.content.Friend
+import com.hoptales.content.JourneyMoment
 import com.hoptales.content.Story
+import com.hoptales.content.StoryTreat
+import com.hoptales.content.WordRef
+import com.hoptales.content.unlockedItem
 import com.hoptales.reading.HopTarget
 import com.hoptales.reading.PropCue
 import com.hoptales.reading.PropKey
@@ -90,7 +96,7 @@ import com.hoptales.reading.StoryPropLayout
 import kotlinx.coroutines.delay
 
 @Composable
-fun ReadingScreen(story: Story, onDone: () -> Unit) {
+fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {}, onTryItOn: (Friend) -> Unit = {}) {
     val context = LocalContext.current
     val app = context.applicationContext as HopTalesApplication
     val model: ReadingViewModel = viewModel(key = story.id) { ReadingViewModel(story, app) }
@@ -118,11 +124,30 @@ fun ReadingScreen(story: Story, onDone: () -> Unit) {
         if (state.completionCount > 0) haptics.performHapticFeedback(HapticFeedbackType.Confirm)
     }
 
+    val reduceMotion = remember {
+        Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
+    }
+    var pickup by remember { mutableStateOf<StoryTreat?>(null) }
+    var passed by remember { mutableStateOf(HopTarget(state.sentenceIndex, state.wordIndex)) }
+    LaunchedEffect(state.sentenceIndex, state.wordIndex) {
+        val old = passed
+        passed = HopTarget(state.sentenceIndex, state.wordIndex)
+        val treat = state.treat ?: return@LaunchedEffect
+        if (reduceMotion || passed <= old || WordRef(old.sentence, old.word) != treat.word) return@LaunchedEffect
+        delay(PathMarks.PICKUP_DELAY_MILLIS)
+        pickup = treat
+        delay(PathMarks.BASKET_HOLD_MILLIS)
+        pickup = null
+    }
+
     Box(Modifier.fillMaxSize()) {
-        PathStage(state = state, onWordTapped = model::help)
+        PathStage(state = state, wearing = model.look, onWordTapped = model::help)
         Box(Modifier.fillMaxSize().safeDrawingPadding().padding(16.dp)) {
             BackChip(Modifier.align(Alignment.TopStart)) { if (model.backTapped()) onDone() }
             StarChip(state.stars, Modifier.align(Alignment.TopEnd))
+            AnimatedVisibility(pickup != null, Modifier.align(Alignment.TopEnd).padding(top = 64.dp), enter = fadeIn(), exit = fadeOut()) {
+                pickup?.let { BasketChip(it) }
+            }
             Column(Modifier.align(Alignment.BottomCenter), horizontalAlignment = Alignment.CenterHorizontally) {
                 if (BuildConfig.DEBUG && state.currentWord != null) {
                     PaperChip(onClick = model::skipWord) {
@@ -142,12 +167,34 @@ fun ReadingScreen(story: Story, onDone: () -> Unit) {
             AskToListen { request.launch(Manifest.permission.RECORD_AUDIO) }
         }
         AnimatedVisibility(state.isFinished, enter = fadeIn(), exit = fadeOut()) {
-            StoryFinished(
-                title = story.title,
-                stars = (state.completed as? ReadingState.Completed.Story)?.stars ?: state.stars,
-                readAgain = model::readAgain,
-                done = onDone,
-            )
+            val callout = state.callout
+            if (callout != null) {
+                val item = callout.unlockedItem(app.wardrobe)
+                PaperCard {
+                    CalloutCard(
+                        moment = callout,
+                        item = item,
+                        leads = callout.story(app.library) != null || item != null,
+                        primary = {
+                            callout.story(app.library)?.let(onStory)
+                            if (callout is JourneyMoment.BasketFull) {
+                                model.tryItOn(callout.friend)
+                                onTryItOn(callout.friend)
+                            }
+                        },
+                        dismiss = model::momentDismissed,
+                    )
+                }
+            } else {
+                StoryFinished(
+                    title = story.title,
+                    stars = (state.completed as? ReadingState.Completed.Story)?.stars ?: state.stars,
+                    readAgain = model::readAgain,
+                    done = onDone,
+                ) {
+                    state.tally?.let { TallyCard(it, state.collectedTreat) }
+                }
+            }
         }
     }
 
@@ -157,7 +204,7 @@ fun ReadingScreen(story: Story, onDone: () -> Unit) {
 }
 
 @Composable
-private fun PathStage(state: ReadingState, onWordTapped: () -> Unit) {
+private fun PathStage(state: ReadingState, wearing: String?, onWordTapped: () -> Unit) {
     val context = LocalContext.current
     val reduceMotion = remember {
         Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
@@ -179,10 +226,13 @@ private fun PathStage(state: ReadingState, onWordTapped: () -> Unit) {
         val origin = withFrameNanos { it } - (skyTime * 1e9).toLong()
         while (true) withFrameNanos { skyTime = (it - origin) / 1e9 }
     }
-    val hare = remember(friend) {
+    val hare = remember(friend, wearing) {
         val sheets = HareSheets.of(friend)
-        HareArt(Art.image(context.assets, sheets.idle.asset), Art.image(context.assets, sheets.hop.asset), sheets)
+        fun sheet(sheet: HareSheet) = wearing?.let { Art.image(context.assets, sheets.dressed(friend, it, sheet)) }
+            ?: Art.image(context.assets, sheets.of(sheet).asset)
+        HareArt(sheet(HareSheet.IDLE), sheet(HareSheet.HOP), sheets)
     }
+    val marks = remember(state.story, state.treat) { MarkArt.load(context.assets, state.treat) }
     val props = (context.applicationContext as HopTalesApplication).props
     val propArt = remember(state.story) { PropArt.load(context.assets, state.story, props) }
     val position = HopTarget(state.sentenceIndex, state.wordIndex)
@@ -209,6 +259,7 @@ private fun PathStage(state: ReadingState, onWordTapped: () -> Unit) {
         val target = path.camera(state.sentenceIndex, state.wordIndex)
         val camera = remember(path) { Animatable(target) }
         var motion by remember { mutableStateOf(HareMotion()) }
+        var bigHop by remember { mutableStateOf(false) }
         var now by remember { mutableDoubleStateOf(0.0) }
 
         LaunchedEffect(reduceMotion, motion) {
@@ -223,6 +274,7 @@ private fun PathStage(state: ReadingState, onWordTapped: () -> Unit) {
         LaunchedEffect(state.recognised) {
             val recognised = state.recognised ?: return@LaunchedEffect
             if (reduceMotion) return@LaunchedEffect
+            bigHop = state.isBig(recognised.sentenceIndex, recognised.wordIndex)
             motion = motion.jump(System.nanoTime() / 1e9, distance = 0f, carried = recognised.sentenceIndex != state.sentenceIndex)
         }
         LaunchedEffect(target) {
@@ -269,10 +321,16 @@ private fun PathStage(state: ReadingState, onWordTapped: () -> Unit) {
                 },
         ) {
             drawWords(path, camera.value, state.sentenceIndex, state.wordIndex)
+            drawBigWords(path, marks, camera.value, state)
+            drawTreatOnPath(path, marks, camera.value, state, look().tint(MeadowLayer.NEAR))
         }
         Canvas(Modifier.fillMaxSize()) {
             val pose = motion.pose(now, reduceMotion)
-            val lift = if (reduceMotion) 0f else motion.arc(now) * path.apex(motion.hop?.carried ?: false)
+            val lift = if (reduceMotion) {
+                0f
+            } else {
+                motion.arc(now) * path.apex(motion.hop?.carried ?: false) * if (bigHop) PathMarks.BIG_WORD_LIFT else 1f
+            }
             drawHare(hare, path, pose, lift)
         }
     }
@@ -376,10 +434,11 @@ private fun AskToListen(onAllow: () -> Unit) {
 }
 
 @Composable
-private fun StoryFinished(title: String, stars: Int, readAgain: () -> Unit, done: () -> Unit) {
+private fun StoryFinished(title: String, stars: Int, readAgain: () -> Unit, done: () -> Unit, journey: @Composable () -> Unit = {}) {
     val palette = LocalPalette.current
     val type = LocalTypography.current
     PaperCard {
+        journey()
         Text("You read", style = type.caps(13.sp), color = palette.muted)
         Text(title, style = type.display(28.sp), color = palette.ink, textAlign = TextAlign.Center)
         StarChip(stars)
