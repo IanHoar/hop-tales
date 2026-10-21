@@ -65,6 +65,21 @@ class ReadingTest {
         assertEquals(0, reading.state.wordIndex)
     }
 
+    @Test fun eachHearingIsLabelledForTheSpeechLog() {
+        val reading = Reading(story)
+        reading.heard(listOf("the"), isFinal = false)
+        assertEquals(Heard.WAITING, reading.lastHeard)
+        reading.read("dog")
+        assertEquals(Heard.NONE, reading.lastHeard)
+        reading.read("the")
+        assertEquals(Heard.CURRENT, reading.lastHeard)
+        reading.read("sat")
+        assertEquals(Heard.NEXT, reading.lastHeard)
+        reading.helpRequested()
+        reading.read("the")
+        assertEquals(Heard.SPEAKING, reading.lastHeard)
+    }
+
     @Test fun askingToHearAWordTwiceOverDoesNotStack() {
         val reading = Reading(story)
         assertEquals("The", reading.helpRequested())
