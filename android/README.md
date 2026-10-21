@@ -39,7 +39,7 @@ way. Change `.editorconfig` rather than suppressing a rule in the code.
 
 ## Screenshot tests
 
-`ScreenshotTest` renders home, reading, the microphone ask, a story prop, a companion, a thought
+`ScreenshotTest` renders the intro at night, mid-sunrise and with its title, home, reading, the microphone ask, a story prop, a companion, a thought
 bubble, the story-finished chips, the stop card, each onboarding step and the grown-ups settings,
 light and dark, with Roborazzi on Robolectric — on the JVM, no emulator. The references live in
 `app/src/test/screenshots`; `verifyRoborazziDebug` fails when a render differs, and leaves the
@@ -50,7 +50,7 @@ hare stands still and the camera snaps.
 ## Layout
 
 ```
-app/            the Compose app: MainActivity, Onboarding, Home, Reading, Settings, design tokens, speech, persistence
+app/            the Compose app: MainActivity, Intro, Onboarding, Home, Reading, Settings, design tokens, speech, persistence
 core/content    Story, Sentence, Word, Friend, Progress, StoryLibrary — pure Kotlin
 core/speech     WordMatcher and PartialDebouncer — pure Kotlin, ported from SpeechRecognition
 core/reading    the reading state machine (Reading, ReadingState) — pure Kotlin
@@ -92,8 +92,8 @@ and they are committed. Re-run it when the iOS icon changes.
 from the same place, so a story added through `scripts/build-stories.py` reaches both apps.
 
 Art that Android does not draw yet is left out of the package by `ignoreAssetsPatterns` in
-`app/build.gradle.kts` — the wardrobe (`look-*`, `wear-*`), postcards and the land's `prop-*`
-scenery other than the signpost. The story props, companions and thought bubbles draw from `cast-*`,
+`app/build.gradle.kts` — the wardrobe (`look-*`, `wear-*`) except the hare's scarf and scarf hop
+sheet that the intro draws, postcards and the land's `prop-*` scenery other than the signpost. The story props, companions and thought bubbles draw from `cast-*`,
 so that ships. When a
 feature starts drawing one of those families, take its pattern off the list, or `Art.image` quietly
 returns null. WebP and PNG are stored as they are, since deflating them saves well under 2%; JSON,
