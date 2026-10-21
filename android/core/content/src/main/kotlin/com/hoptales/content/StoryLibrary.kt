@@ -3,6 +3,8 @@ package com.hoptales.content
 import kotlinx.serialization.json.Json
 
 class StoryLibrary(val all: List<Story>) {
+    val levels: Levels by lazy { Levels(this) }
+
     operator fun get(id: String): Story? = all.firstOrNull { it.id == id }
 
     fun stories(level: Int): List<Story> = all.filter { it.level == level && !it.isBigStory }

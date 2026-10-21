@@ -11,6 +11,7 @@ import com.hoptales.android.speech.Speaker
 import com.hoptales.android.speech.SpeechListener
 import com.hoptales.content.StoryLibrary
 import com.hoptales.content.StoryProps
+import com.hoptales.content.WardrobeLibrary
 import java.io.File
 
 class HopTalesApplication : Application() {
@@ -20,7 +21,13 @@ class HopTalesApplication : Application() {
     val props: StoryProps by lazy {
         StoryProps.decode(assets.open("props.json").bufferedReader().use { it.readText() })
     }
-    val progressStore: ProgressStore by lazy { ProgressStore(File(filesDir, "progress.json")) }
+    val wardrobe: WardrobeLibrary by lazy {
+        WardrobeLibrary.decode(
+            assets.open("wardrobe.json").bufferedReader().use { it.readText() },
+            assets.open("looks.json").bufferedReader().use { it.readText() },
+        )
+    }
+    val progressStore: ProgressStore by lazy { ProgressStore(File(filesDir, "progress.json"), library) }
     val profileStore: ProfileStore by lazy { ProfileStore(filesDir) }
     val listeningPreferences: ListeningPreferences by lazy { ListeningPreferences(this) }
     val speaker: Speaker by lazy { Speaker(this) }

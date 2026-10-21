@@ -46,6 +46,7 @@ class OnboardingViewModel(private val app: HopTalesApplication, hasMicrophone: B
         val next = onboarding.primaryTapped()
         if (next is OnboardingNext.Finished) {
             app.profileStore.save(next.profile)
+            app.progressStore.startJourney(next.profile.startingFriend)
         } else {
             publish()
         }
