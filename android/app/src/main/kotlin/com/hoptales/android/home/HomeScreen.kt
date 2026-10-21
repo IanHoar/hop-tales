@@ -27,21 +27,33 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hoptales.android.design.GearGlyph
 import com.hoptales.android.design.LocalPalette
 import com.hoptales.android.design.LocalTypography
+import com.hoptales.android.design.PaperChip
 import com.hoptales.android.design.StarChip
 import com.hoptales.android.world.Sticker
 import com.hoptales.content.Friend
 import com.hoptales.content.Progress
 import com.hoptales.content.Story
 import com.hoptales.content.StoryLibrary
+import com.hoptales.content.greeting
+import java.time.LocalTime
 
 @Composable
-fun HomeScreen(library: StoryLibrary, progress: Progress, onStory: (Story) -> Unit) {
+fun HomeScreen(
+    library: StoryLibrary,
+    progress: Progress,
+    onStory: (Story) -> Unit,
+    childName: String? = null,
+    hour: Int = LocalTime.now().hour,
+    onGrownUps: () -> Unit = {},
+) {
     val palette = LocalPalette.current
     val type = LocalTypography.current
     val insets = WindowInsets.safeDrawing.asPaddingValues()
@@ -58,8 +70,18 @@ fun HomeScreen(library: StoryLibrary, progress: Progress, onStory: (Story) -> Un
         ) {
             item {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Hop Tales", style = type.display(34.sp), color = palette.ink, modifier = Modifier.weight(1f))
+                    Text(
+                        greeting(hour, childName),
+                        style = type.display(30.sp),
+                        color = palette.ink,
+                        maxLines = 2,
+                        modifier = Modifier.weight(1f).semantics { heading() },
+                    )
                     StarChip(progress.stars)
+                    Spacer(Modifier.size(10.dp))
+                    PaperChip(Modifier.size(48.dp).semantics { contentDescription = "Settings for grown-ups" }, onClick = onGrownUps) {
+                        Box(contentAlignment = Alignment.Center) { GearGlyph(palette.ink) }
+                    }
                 }
             }
             for (friend in Friend.entries) {

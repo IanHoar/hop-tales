@@ -26,8 +26,21 @@ enum class Friend(
 
     val level: Int get() = ordinal + 1
 
+    val stage: String
+        get() = when (this) {
+            BUNNY -> "Short vowels"
+            HARE -> "Digraphs and blends"
+            FROG -> "Magic e"
+            CROW -> "Endings and ar, or, er"
+            CAT -> "Vowel teams"
+            CRAB -> "Silent letters"
+            GRASSHOPPER -> "Longer words"
+        }
+
     companion object {
         val starters = listOf(BUNNY, HARE, FROG)
+
+        const val PHONICS_STANDARD = "Reading levels are based on the UFLI Foundations phonics sequence."
 
         fun at(level: Int): Friend = entries[level.coerceIn(1, entries.size) - 1]
     }
