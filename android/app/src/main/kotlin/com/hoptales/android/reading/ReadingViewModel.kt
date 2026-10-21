@@ -163,6 +163,8 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
         app.progressStore.update { progress ->
             progress.newestItem(friend, app.wardrobe)?.let { progress.wearing(it, friend, app.wardrobe) } ?: progress
         }
+        reading.tryItOn()
+        publish()
     }
 
     private fun sentenceChanged(before: ReadingState) {

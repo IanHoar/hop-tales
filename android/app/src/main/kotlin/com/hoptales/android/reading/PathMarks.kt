@@ -7,7 +7,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.unit.IntOffset
@@ -31,40 +30,44 @@ object PathMarks {
     const val BIG_WORD_LIFT = 1.4f
     const val TREAT_BEFORE_WORD = 128f
     const val TREAT_HEIGHT = 44f
-    const val PICKUP_DELAY_MILLIS = 6_000L / 24
-    const val BASKET_HOLD_MILLIS = 1_800L
+    const val PICKUP_FRAMES = 6
+    const val PICKUP_DELAY = PICKUP_FRAMES / HareMotion.FPS
+    const val PICKUP_TILT = -24f
+    const val PICKUP_SHRINK = 0.6f
+    const val FLIGHT_SECONDS = 0.6
+    const val FLIGHT_BOUNCE = 0.25
+    const val CHIP_DELAY = 0.5
+    const val CHIP_SECONDS = 0.2
+    const val CHIP_FROM = 0.8f
+    const val BASKET_HOLD = 1.2
+    const val HIDE_AFTER = FLIGHT_SECONDS + BASKET_HOLD
+    const val HIDE_SECONDS = 0.4
+    const val CHIP_X_FROM_RIGHT = 92f
+    const val CHIP_Y = 96f
+    const val PICKUP_X = PathGeometry.HARE_X + 12f
+    const val PICKUP_BELOW_PATH = PathGeometry.HARE_FEET_BELOW_PATH + 4f
     val wash = Color(0xFFF7D774)
 }
 
-fun DrawScope.drawBigWords(path: WordPath, art: MarkArt, cameraX: Float, state: ReadingState) {
-    if (state.bigWords.isEmpty()) return
-    val position = HopTarget(state.sentenceIndex, state.wordIndex)
-    val size = path.geometry.path(PathGeometry.WORD_SIZE)
-    for (stop in path.stops) {
-        if (!state.isBig(stop.sentence, stop.word)) continue
-        val x = stop.centre - cameraX
-        if (x + stop.width < 0 || x - stop.width > this.size.width) continue
-        val top = path.wordCentreY(stop) - stop.layout.size.height / 2
-        val bottom = top + stop.layout.size.height
-        val read = HopTarget(stop.sentence, stop.word) < position
-        val dot = size * 0.07f
-        val underline = bottom - size * 0.12f
-        var dotX = x - stop.width / 2 + size * 0.05f
-        while (dotX <= x + stop.width / 2 - size * 0.05f) {
-            drawLine(PathMarks.wash, Offset(dotX, underline), Offset(dotX + 1, underline), strokeWidth = dot, cap = StrokeCap.Round)
-            dotX += size * 0.16f + dot
-        }
-        val star = art.star ?: continue
-        if (read) continue
-        val height = size * 0.42f
-        val width = height * star.width / star.height
-        drawImage(
-            star,
-            dstOffset = IntOffset((x - width / 2).roundToInt(), (top - size * 0.5f).roundToInt()),
-            dstSize = IntSize(width.roundToInt(), height.roundToInt()),
-            filterQuality = FilterQuality.Medium,
-        )
-    }
+data class PickupFrame(val x: Float, val y: Float, val rotation: Float, val scale: Float, val alpha: Float)
+
+object Pickup {
+    fun frame(start: Offset, chip: Offset, landed: Float): PickupFrame = PickupFrame(
+        x = start.x + (chip.x - start.x) * landed,
+        y = start.y + (chip.y - start.y) * landed,
+        rotation = PathMarks.PICKUP_TILT - PathMarks.PICKUP_TILT * landed,
+        scale = 1 + (PathMarks.PICKUP_SHRINK - 1) * landed,
+        alpha = (1 - landed).coerceIn(0f, 1f),
+    )
+
+    fun start(geometry: PathGeometry): Offset =
+        Offset(geometry.path(PathMarks.PICKUP_X), geometry.pathCentre + geometry.path(PathMarks.PICKUP_BELOW_PATH))
+
+    fun chip(geometry: PathGeometry): Offset =
+        Offset(geometry.width - geometry.path(PathMarks.CHIP_X_FROM_RIGHT), geometry.y(PathMarks.CHIP_Y))
+
+    fun passed(treat: StoryTreat?, from: HopTarget, to: HopTarget): StoryTreat? =
+        treat?.takeIf { to > from && it.word.sentence == from.sentence && it.word.word == from.word }
 }
 
 fun DrawScope.drawTreatOnPath(path: WordPath, art: MarkArt, cameraX: Float, state: ReadingState, tint: Color) {

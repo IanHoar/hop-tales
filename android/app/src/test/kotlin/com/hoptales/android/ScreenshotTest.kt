@@ -2,12 +2,14 @@ package com.hoptales.android
 
 import android.Manifest
 import android.provider.Settings
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
 import com.github.takahirom.roborazzi.RoborazziOptions
 import com.github.takahirom.roborazzi.captureRoboImage
@@ -21,6 +23,7 @@ import com.hoptales.android.home.WardrobeScreen
 import com.hoptales.android.intro.IntroContent
 import com.hoptales.android.onboarding.OnboardingActions
 import com.hoptales.android.onboarding.OnboardingContent
+import com.hoptales.android.reading.ChallengeTip
 import com.hoptales.android.reading.ReadingScreen
 import com.hoptales.android.settings.SettingsActions
 import com.hoptales.android.settings.SettingsContent
@@ -118,6 +121,22 @@ class ScreenshotTest {
     @Test fun storyFinishedLight() = storyFinished(dark = false)
 
     @Test fun storyFinishedDark() = storyFinished(dark = true)
+
+    @Test fun bigWordLight() = moment("big-word", "meadow-walk", sentence = 2, word = 1, dark = false)
+
+    @Test fun bigWordDark() = moment("big-word", "meadow-walk", sentence = 2, word = 1, dark = true)
+
+    @Test fun challengeTipLight() = challengeTip(dark = false)
+
+    @Test fun challengeTipDark() = challengeTip(dark = true)
+
+    @Test fun triedItOnLight() = triedItOn(dark = false)
+
+    @Test fun triedItOnDark() = triedItOn(dark = true)
+
+    @Test fun newFriendLight() = newFriend(dark = false)
+
+    @Test fun newFriendDark() = newFriend(dark = true)
 
     @Test fun stopReadingLight() = stopReading(dark = false)
 
@@ -287,14 +306,46 @@ class ScreenshotTest {
         compose.onRoot().captureRoboImage(path(name, dark), options)
     }
 
-    private fun storyFinished(dark: Boolean, name: String = "story-finished") {
-        showReading(dark)
+    private fun storyFinished(dark: Boolean, name: String = "story-finished", story: Story = this.story) {
+        showReading(dark, story)
+        readToTheEnd()
+        compose.onRoot().captureRoboImage(path(name, dark), options)
+    }
+
+    private fun readToTheEnd() {
         val hear = compose.onNodeWithText("Hear “", substring = true)
         while (hear.exists()) {
             hear.performClick()
             compose.waitForIdle()
         }
-        compose.onRoot().captureRoboImage(path(name, dark), options)
+    }
+
+    private fun challengeTip(dark: Boolean) {
+        val story = app.library["meadow-walk"]!!
+        showReading(dark, story)
+        repeat(story.sentences.take(2).sumOf { it.words.size } + 1) {
+            compose.onNodeWithText("Hear “", substring = true).performClick()
+            compose.waitForIdle()
+        }
+        compose.onNodeWithContentDescription("Current word: spots", substring = true).performSemanticsAction(SemanticsActions.OnLongClick)
+        compose.mainClock.advanceTimeBy(ChallengeTip.SHOW_MILLIS * 2L)
+        compose.onNodeWithContentDescription("Challenge word", substring = true).assertExists()
+        compose.onRoot().captureRoboImage(path("challenge-tip", dark), options)
+    }
+
+    private fun triedItOn(dark: Boolean) {
+        app.progressStore.save(Progress(baskets = mapOf(Friend.HARE to Basket(inBasket = 3))))
+        showReading(dark)
+        readToTheEnd()
+        compose.onNodeWithContentDescription("A present. Double tap to open it.").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Try it on").performClick()
+        compose.waitForIdle()
+        compose.onRoot().captureRoboImage(path("tried-it-on", dark), options)
+    }
+
+    private fun newFriend(dark: Boolean) {
+        storyFinished(dark, name = "new-friend", story = app.library["skip-big-story"]!!)
     }
 
     @OptIn(ExperimentalRoborazziApi::class)

@@ -10,7 +10,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.nativeCanvas
@@ -56,6 +58,8 @@ data class PathGeometry(val width: Float, val height: Float, val density: Float)
 
     fun path(value: Float) = value * pathScale
 
+    fun y(value: Float) = height * value / if (isLarge) 834f else 844f
+
     val meadow: MeadowLayout get() = MeadowLayout(width, pathScale, pathCentre)
 
     companion object {
@@ -92,6 +96,7 @@ data class Stop(
     val marks: List<SoundMark>? = null,
     val edges: List<Float> = emptyList(),
     val marksLeft: Float = 0f,
+    val wordRight: Float = layout.size.width.toFloat(),
 ) {
     val width: Float get() = layout.size.width.toFloat()
 }
@@ -124,7 +129,8 @@ class WordPath(
                 val marks = phonics?.soundMarks(word.text)
                 val edges = if (marks == null) emptyList() else SoundMarks.edges(layout, word.leading.length, word.text.length)
                 val marksLeft = layout.getHorizontalPosition(word.leading.length, usePrimaryDirection = true)
-                stops += Stop(sentence, index, layout, centre, marks, edges, marksLeft)
+                val wordRight = layout.getHorizontalPosition(word.leading.length + word.text.length, usePrimaryDirection = true)
+                stops += Stop(sentence, index, layout, centre, marks, edges, marksLeft, wordRight)
             }
         }
         this.stops = stops
@@ -213,24 +219,22 @@ fun DrawScope.drawMeadow(
     }
 }
 
-fun DrawScope.drawWords(path: WordPath, cameraX: Float, sentence: Int, word: Int) {
+class WordMarks(val star: ImageBitmap?, val plusFive: TextLayoutResult?, val ink: Color)
+
+fun DrawScope.drawWords(path: WordPath, cameraX: Float, marks: WordMarks?, isBig: (Stop) -> Boolean, look: (Stop) -> WordLook) {
     val overhang = path.geometry.path(PathGeometry.WASH_OVERHANG)
     val blend = if (path.world.chalk) BlendMode.Screen else BlendMode.Multiply
     for (stop in path.stops) {
         val x = stop.centre - cameraX
         if (x + stop.width < 0 || x - stop.width > size.width) continue
-        val state = when {
-            stop.sentence < sentence || (stop.sentence == sentence && stop.word < word) -> WordState.READ
-            stop.sentence == sentence && stop.word == word -> WordState.CURRENT
-            else -> WordState.UPCOMING
-        }
+        val look = look(stop)
         val height = stop.layout.size.height.toFloat()
         val frame = Rect(Offset(x - stop.width / 2, path.wordCentreY(stop) - height / 2), Size(stop.width, height))
-        val scale = if (state == WordState.CURRENT) 1f else PathGeometry.SIDE_SCALE
-        val colour = if (path.world.chalk) state.chalk else state.ink
-        lying(frame, scale) {
-            if (state == WordState.READ) drawWash(frame.inflateHorizontally(overhang), blend)
-            drawText(stop.layout, color = colour, topLeft = frame.topLeft, blendMode = blend)
+        val word = Rect(frame.left + stop.marksLeft, frame.top, frame.left + stop.wordRight, frame.bottom)
+        val colour = if (path.world.chalk) look.chalk else look.ink
+        lying(frame, look.scale) {
+            if (look.wash > 0f) drawWash(word.inflateHorizontally(overhang), blend, look.wash)
+            drawWord(stop, frame, word, colour, blend)
             if (stop.marks != null) {
                 val origin = Offset(
                     frame.left + stop.marksLeft,
@@ -238,8 +242,63 @@ fun DrawScope.drawWords(path: WordPath, cameraX: Float, sentence: Int, word: Int
                 )
                 drawSoundMarks(stop.marks, stop.edges, path.wordSize, colour.copy(alpha = colour.alpha * 0.8f), origin, blend)
             }
+            if (marks != null && isBig(stop)) drawBigWord(word, path.wordSize, look, marks)
         }
     }
+}
+
+private fun DrawScope.drawWord(stop: Stop, frame: Rect, word: Rect, colour: Color, blend: BlendMode) {
+    val faded = colour.copy(alpha = colour.alpha * WordMotion.PUNCTUATION_ALPHA)
+    val top = frame.top - frame.height
+    val bottom = frame.bottom + frame.height
+    val reach = frame.width
+    for ((range, tint) in listOf(
+        (frame.left - reach)..word.left to faded,
+        word.left..word.right to colour,
+        word.right..(frame.right + reach) to faded,
+    )) {
+        if (range.endInclusive <= range.start) continue
+        clipRect(range.start, top, range.endInclusive, bottom) {
+            drawText(stop.layout, color = tint, topLeft = frame.topLeft, blendMode = blend)
+        }
+    }
+}
+
+private fun DrawScope.drawBigWord(word: Rect, size: Float, look: WordLook, marks: WordMarks) {
+    val dot = size * 0.07f
+    val underline = word.bottom - size * 0.12f - dot / 2
+    val left = word.left + size * 0.05f
+    val right = word.right - size * 0.05f
+    if (look.solidUnderline) {
+        drawLine(PathMarks.wash, Offset(left, underline), Offset(right, underline), strokeWidth = dot, cap = StrokeCap.Round)
+    } else {
+        var dotX = left
+        while (dotX <= right) {
+            drawLine(PathMarks.wash, Offset(dotX, underline), Offset(dotX + 1, underline), strokeWidth = dot, cap = StrokeCap.Round)
+            dotX += size * 0.16f + dot
+        }
+    }
+    val starHeight = size * 0.42f
+    val star = marks.star
+    if (star != null && look.star > 0f) {
+        val width = starHeight * star.width / star.height
+        drawImage(
+            star,
+            dstOffset = IntOffset((word.center.x - width / 2).roundToInt(), (word.top - size * 0.5f).roundToInt()),
+            dstSize = IntSize(width.roundToInt(), starHeight.roundToInt()),
+            alpha = look.star,
+            filterQuality = FilterQuality.Medium,
+        )
+    }
+    val plus = marks.plusFive ?: return
+    if (look.pop <= 0f) return
+    val centreY = word.top - size * 0.5f + starHeight / 2 - size * look.rise
+    drawText(
+        plus,
+        color = marks.ink,
+        topLeft = Offset(word.center.x - plus.size.width / 2f, centreY - plus.size.height / 2f),
+        alpha = look.pop,
+    )
 }
 
 private fun DrawScope.lying(frame: Rect, scale: Float, block: DrawScope.() -> Unit) {
@@ -270,7 +329,7 @@ private fun DrawScope.lying(frame: Rect, scale: Float, block: DrawScope.() -> Un
 
 private fun Rect.inflateHorizontally(amount: Float) = Rect(left - amount, top, right + amount, bottom)
 
-private fun DrawScope.drawWash(frame: Rect, blend: BlendMode) {
+private fun DrawScope.drawWash(frame: Rect, blend: BlendMode, alpha: Float) {
     val stops = arrayOf(0f to WASH.copy(alpha = 0.95f), 0.52f to WASH.copy(alpha = 0.7f), 0.72f to WASH.copy(alpha = 0f))
     withTransform({ scale(frame.width / frame.height, 1f, frame.center) }) {
         val square = Rect(frame.center, frame.height / 2)
@@ -278,6 +337,7 @@ private fun DrawScope.drawWash(frame: Rect, blend: BlendMode) {
             Brush.radialGradient(*stops, center = frame.center, radius = frame.height * WASH_REACH),
             topLeft = square.topLeft,
             size = square.size,
+            alpha = alpha,
             blendMode = blend,
         )
     }

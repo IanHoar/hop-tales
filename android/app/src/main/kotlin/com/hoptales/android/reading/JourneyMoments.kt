@@ -156,10 +156,12 @@ fun CalloutCard(
     primary: () -> Unit,
     dismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    isDone: Boolean = false,
 ) {
     val type = LocalTypography.current
     val paper = LocalPaper.current
-    var opened by rememberSaveable(moment.toString()) { mutableStateOf(false) }
+    var tapped by rememberSaveable(moment.toString()) { mutableStateOf(false) }
+    val opened = tapped || isDone
     val waitsForOpening = moment is JourneyMoment.BasketFull && !opened
     val card = remember { Deckle(seed = 33, jitter = 2.6.dp, step = 10.dp) }
     Column(
@@ -176,8 +178,8 @@ fun CalloutCard(
         when (moment) {
             is JourneyMoment.BigStoryReady -> FriendSticker(moment.friend, 120.dp)
             is JourneyMoment.NotYet -> FriendSticker(moment.friend, 120.dp)
-            is JourneyMoment.NewFriend -> FriendSticker(moment.friend, 120.dp)
-            is JourneyMoment.BasketFull -> PresentReveal(moment.friend, item, opened) { opened = true }
+            is JourneyMoment.NewFriend -> FriendReveal(moment.friend)
+            is JourneyMoment.BasketFull -> PresentReveal(moment.friend, item, opened) { tapped = true }
             else -> Unit
         }
         Text(title(moment), style = type.display(22.sp), color = paper.ink, textAlign = TextAlign.Center)
@@ -195,8 +197,18 @@ fun CalloutCard(
             if (waitsForOpening) {
                 Text("Tap the present to open it", style = type.ui(14.sp, FontWeight.SemiBold), color = paper.muted)
             } else {
-                secondary(moment)?.let { CardButton(it, filled = false, onClick = dismiss) }
-                CardButton(primaryTitle(moment), filled = true, onClick = if (leads) primary else dismiss)
+                if (!isDone) secondary(moment)?.let { CardButton(it, filled = false, onClick = dismiss) }
+                CardButton(
+                    if (isDone) "Done" else primaryTitle(moment),
+                    filled = true,
+                    onClick = if (leads &&
+                        !isDone
+                    ) {
+                        primary
+                    } else {
+                        dismiss
+                    },
+                )
             }
         }
     }
@@ -308,8 +320,23 @@ fun BasketChip(treat: StoryTreat, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun JourneyPanel(state: ReadingState, onStory: (Story) -> Unit, onTryItOn: (Friend) -> Unit, dismiss: () -> Unit) {
+fun JourneyPanel(state: ReadingState, onStory: (Story) -> Unit, onTryItOn: (Friend) -> Unit, isDone: Boolean, dismiss: () -> Unit) {
     val app = LocalContext.current.applicationContext as HopTalesApplication
+    Box(Modifier.fillMaxSize()) {
+        MomentCards(state, app, onStory, onTryItOn, isDone, dismiss)
+        if (state.callout is JourneyMoment.NewFriend) PaperConfetti(delayMillis = FriendReveal.CONFETTI_DELAY_MILLIS)
+    }
+}
+
+@Composable
+private fun MomentCards(
+    state: ReadingState,
+    app: HopTalesApplication,
+    onStory: (Story) -> Unit,
+    onTryItOn: (Friend) -> Unit,
+    isDone: Boolean,
+    dismiss: () -> Unit,
+) {
     BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding(), contentAlignment = Alignment.TopCenter) {
         val top = maxHeight * (PANEL_Y / PANEL_REFERENCE_HEIGHT)
         val callout = state.callout
@@ -328,6 +355,7 @@ fun JourneyPanel(state: ReadingState, onStory: (Story) -> Unit, onTryItOn: (Frie
                     },
                     dismiss = dismiss,
                     modifier = Modifier.padding(top = top),
+                    isDone = isDone,
                 )
             }
         } else if (tally != null) {

@@ -9,9 +9,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.EaseIn
+import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -21,23 +25,33 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
@@ -63,6 +77,7 @@ import com.hoptales.android.world.SkyArt
 import com.hoptales.android.world.SkyLayout
 import com.hoptales.android.world.SkyWeather
 import com.hoptales.android.world.StillDrops
+import com.hoptales.android.world.TreatSticker
 import com.hoptales.android.world.WorldStyle
 import com.hoptales.android.world.drawSky
 import com.hoptales.android.world.drawWeather
@@ -70,7 +85,6 @@ import com.hoptales.android.world.rememberSkyLook
 import com.hoptales.content.Friend
 import com.hoptales.content.Story
 import com.hoptales.content.StoryTreat
-import com.hoptales.content.WordRef
 import com.hoptales.reading.HopTarget
 import com.hoptales.reading.PropCue
 import com.hoptales.reading.PropKey
@@ -78,6 +92,8 @@ import com.hoptales.reading.PropTiming
 import com.hoptales.reading.ReadingState
 import com.hoptales.reading.StoryPropLayout
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @Composable
 fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {}, onTryItOn: (Friend) -> Unit = {}) {
@@ -108,37 +124,13 @@ fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {
         if (state.recognised != null) haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
     }
     LaunchedEffect(state.completionCount) {
-        if (state.completionCount > 0) haptics.performHapticFeedback(HapticFeedbackType.Confirm)
-    }
-
-    val reduceMotion = remember {
-        Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
-    }
-    var pickup by remember { mutableStateOf<StoryTreat?>(null) }
-    var passed by remember { mutableStateOf(HopTarget(state.sentenceIndex, state.wordIndex)) }
-    LaunchedEffect(state.sentenceIndex, state.wordIndex) {
-        val old = passed
-        passed = HopTarget(state.sentenceIndex, state.wordIndex)
-        val treat = state.treat ?: return@LaunchedEffect
-        if (reduceMotion || passed <= old || WordRef(old.sentence, old.word) != treat.word) return@LaunchedEffect
-        delay(PathMarks.PICKUP_DELAY_MILLIS)
-        pickup = treat
-        delay(PathMarks.BASKET_HOLD_MILLIS)
-        pickup = null
+        if (state.endedASentence) haptics.performHapticFeedback(HapticFeedbackType.Confirm)
     }
 
     Box(Modifier.fillMaxSize()) {
         PathStage(state = state, wearing = model.look, soundButtons = model.soundButtons, onWordTapped = model::help)
         Box(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 12.dp, vertical = 4.dp)) {
             BackChip(Modifier.align(Alignment.TopStart)) { if (model.backTapped()) onDone() }
-            AnimatedVisibility(
-                pickup != null,
-                Modifier.align(Alignment.TopEnd).padding(top = 8.dp, end = 4.dp),
-                enter = fadeIn(),
-                exit = fadeOut(),
-            ) {
-                pickup?.let { BasketChip(it) }
-            }
             val word = state.currentWord
             if (BuildConfig.DEBUG && word != null) {
                 Box(Modifier.align(Alignment.BottomCenter).padding(bottom = 6.dp)) { DebugHear(word.text, model::skipWord) }
@@ -149,7 +141,7 @@ fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {
             Listening.Denied, Listening.Unsupported -> ListeningUnavailable(listening, onBack = onDone)
             else -> Unit
         }
-        AnimatedVisibility(state.isFinished, enter = fadeIn(), exit = fadeOut()) {
+        AnimatedVisibility(state.isFinished, enter = finishedFade, exit = fadeOut()) {
             StoryFinished(
                 title = story.title,
                 stars = (state.completed as? ReadingState.Completed.Story)?.stars ?: state.stars,
@@ -157,7 +149,7 @@ fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {
                 done = onDone,
             )
         }
-        AnimatedVisibility(state.isFinished, enter = fadeIn(), exit = fadeOut()) {
+        AnimatedVisibility(state.isFinished, enter = finishedFade, exit = fadeOut()) {
             JourneyPanel(
                 state,
                 onStory = onStory,
@@ -165,6 +157,7 @@ fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {
                     model.tryItOn(friend)
                     onTryItOn(friend)
                 },
+                isDone = state.hasTriedItOn,
                 dismiss = model::momentDismissed,
             )
         }
@@ -289,24 +282,70 @@ private fun PathStage(state: ReadingState, wearing: String?, soundButtons: Boole
 
         val signs = remember(path, type) { Signposts(context.assets, path, measurer, type.displayFamily, state.story.title) }
         val currentStop = path.stop(state.sentenceIndex, state.wordIndex)
-        Canvas(
-            Modifier
-                .fillMaxSize()
-                .pointerInputTaps(path, camera, state, onWordTapped)
-                .semantics {
-                    contentDescription = state.wordCardLabel
-                    if (currentStop != null) {
-                        onClick(label = "Hear the word") {
-                            onWordTapped()
-                            true
+        val plusFive = remember(measurer, type, path) {
+            measurer.measure("+5", type.display(with(density) { (path.wordSize * PLUS_FIVE_SIZE).toSp() }))
+        }
+        val wordMarks = WordMarks(marks.star, plusFive, paper.ink)
+        val moves = remember(state.story) { WordMoves(position, state.isSpeaking) }
+        val move = moves.moved(position, System.nanoTime() / 1e9)
+        val speech = moves.spoke(state.isSpeaking, System.nanoTime() / 1e9)
+        var wordClock by remember { mutableDoubleStateOf(0.0) }
+        LaunchedEffect(move, speech, reduceMotion) {
+            if (reduceMotion) return@LaunchedEffect
+            while (true) {
+                withFrameNanos { }
+                val time = System.nanoTime() / 1e9
+                wordClock = time
+                if (WordMotion.isSettled(move, speech, time)) break
+            }
+        }
+        var tip by remember(state.story) { mutableStateOf<ChallengeTipState?>(null) }
+        var tips by remember { mutableLongStateOf(0L) }
+        val explain: (HopTarget) -> Unit = { target ->
+            tips += 1
+            tip = ChallengeTipState(target, tips)
+        }
+        LaunchedEffect(tip) {
+            if (tip == null) return@LaunchedEffect
+            delay(ChallengeTip.HOLD_MILLIS)
+            tip = null
+        }
+        val isChallenge: (HopTarget) -> Boolean = { state.isBig(it.sentence, it.word) }
+        val viewConfiguration = LocalViewConfiguration.current
+        val pressing = remember(viewConfiguration) {
+            object : ViewConfiguration by viewConfiguration {
+                override val longPressTimeoutMillis: Long get() = ChallengeTip.LONG_PRESS_MILLIS
+            }
+        }
+        CompositionLocalProvider(LocalViewConfiguration provides pressing) {
+            Canvas(
+                Modifier
+                    .fillMaxSize()
+                    .wordPresses(path, camera, position, isChallenge, onWordTapped, explain)
+                    .semantics {
+                        contentDescription = state.wordCardLabel
+                        if (currentStop != null) {
+                            onClick(label = "Hear the word") {
+                                onWordTapped()
+                                true
+                            }
+                            if (isChallenge(position)) {
+                                onLongClick(label = ChallengeTip.TITLE) {
+                                    explain(position)
+                                    true
+                                }
+                            }
                         }
-                    }
-                },
-        ) {
-            drawSigns(signs, camera.value, look().tint(MeadowLayer.NEAR))
-            drawWords(path, camera.value, state.sentenceIndex, state.wordIndex)
-            drawBigWords(path, marks, camera.value, state)
-            drawTreatOnPath(path, marks, camera.value, state, look().tint(MeadowLayer.NEAR))
+                    },
+            ) {
+                drawSigns(signs, camera.value, look().tint(MeadowLayer.NEAR))
+                val wordNow = if (reduceMotion) null else wordClock
+                drawWords(path, camera.value, wordMarks, { state.isBig(it.sentence, it.word) }) { stop ->
+                    val target = HopTarget(stop.sentence, stop.word)
+                    WordMotion.look(target, isChallenge(target), move, speech, wordNow)
+                }
+                drawTreatOnPath(path, marks, camera.value, state, look().tint(MeadowLayer.NEAR))
+            }
         }
         Canvas(Modifier.fillMaxSize()) {
             val pose = motion.pose(now, reduceMotion)
@@ -317,17 +356,126 @@ private fun PathStage(state: ReadingState, wearing: String?, soundButtons: Boole
             }
             drawHare(hare, path, pose, lift, paper.shadow)
         }
+        PickupLayer(state, geometry, reduceMotion)
+        var shownTip by remember { mutableStateOf<ChallengeTipState?>(null) }
+        if (tip != null) shownTip = tip
+        AnimatedVisibility(
+            tip != null,
+            Modifier.centredOn {
+                val stop = shownTip?.let { path.stop(it.target.sentence, it.target.word) } ?: return@centredOn Offset.Zero
+                Offset(
+                    ChallengeTip.x(stop.centre - camera.value, geometry.width, geometry),
+                    path.wordCentreY(stop) - stop.layout.size.height - geometry.path(ChallengeTip.ABOVE_WORD),
+                )
+            },
+            enter = fadeIn(tween(ChallengeTip.SHOW_MILLIS, easing = EaseOut)) +
+                scaleIn(tween(ChallengeTip.SHOW_MILLIS, easing = EaseOut), ChallengeTip.FROM_SCALE, TransformOrigin(0.5f, 1f)),
+            exit = fadeOut(tween(ChallengeTip.HIDE_MILLIS, easing = EaseIn)) +
+                scaleOut(tween(ChallengeTip.HIDE_MILLIS, easing = EaseIn), ChallengeTip.FROM_SCALE, TransformOrigin(0.5f, 1f)),
+        ) {
+            ChallengeTipCard(geometry)
+        }
     }
 }
 
-private const val IDLE_FRAME_MILLIS = (1_000f / IDLE_FPS).toLong()
-
-private fun Modifier.pointerInputTaps(path: WordPath, camera: Animatable<Float, *>, state: ReadingState, onWordTapped: () -> Unit) =
-    pointerInput(path, state.sentenceIndex, state.wordIndex) {
-        detectTapGestures { offset ->
-            if (path.hit(offset, camera.value, state.sentenceIndex, state.wordIndex)) onWordTapped()
+@Composable
+private fun PickupLayer(state: ReadingState, geometry: PathGeometry, reduceMotion: Boolean) {
+    val density = LocalDensity.current
+    var pickup by remember { mutableStateOf<StoryTreat?>(null) }
+    var showsBasket by remember { mutableStateOf(false) }
+    val landed = remember { Animatable(0f) }
+    val leaving = remember { Animatable(1f) }
+    val position = HopTarget(state.sentenceIndex, state.wordIndex)
+    var passed by remember { mutableStateOf(position) }
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(position) {
+        val old = passed
+        passed = position
+        if (reduceMotion) return@LaunchedEffect
+        val treat = Pickup.passed(state.treat, old, position) ?: return@LaunchedEffect
+        scope.launch {
+            delay((PathMarks.PICKUP_DELAY * 1_000).toLong())
+            pickup = treat
+            landed.snapTo(0f)
+            leaving.snapTo(1f)
+            launch { landed.animateTo(1f, swiftSpring(PathMarks.FLIGHT_SECONDS, PathMarks.FLIGHT_BOUNCE)) }
+            delay((PathMarks.CHIP_DELAY * 1_000).toLong())
+            showsBasket = true
+            delay(((PathMarks.HIDE_AFTER - PathMarks.CHIP_DELAY) * 1_000).toLong())
+            leaving.animateTo(0f, tween((PathMarks.HIDE_SECONDS * 1_000).toInt(), easing = EaseIn))
+            pickup = null
+            showsBasket = false
         }
     }
+    val start = Pickup.start(geometry)
+    val chip = Pickup.chip(geometry)
+    Box(Modifier.fillMaxSize()) {
+        val treat = pickup ?: return@Box
+        val height = with(density) { geometry.path(PathMarks.TREAT_HEIGHT).toDp() }
+        TreatSticker(
+            treat.friend,
+            height,
+            Modifier
+                .centredOn { Pickup.frame(start, chip, landed.value).let { Offset(it.x, it.y) } }
+                .graphicsLayer {
+                    val frame = Pickup.frame(start, chip, landed.value)
+                    rotationZ = frame.rotation
+                    scaleX = frame.scale
+                    scaleY = frame.scale
+                    alpha = frame.alpha * leaving.value
+                },
+        )
+        AnimatedVisibility(
+            showsBasket,
+            Modifier.centredOn { chip }.graphicsLayer {
+                alpha = leaving.value
+                scaleX = PathMarks.CHIP_FROM + (1 - PathMarks.CHIP_FROM) * leaving.value
+                scaleY = scaleX
+            },
+            enter = fadeIn(tween((PathMarks.CHIP_SECONDS * 1_000).toInt(), easing = EaseOut)) +
+                scaleIn(tween((PathMarks.CHIP_SECONDS * 1_000).toInt(), easing = EaseOut), PathMarks.CHIP_FROM),
+            exit = fadeOut(tween(0)),
+        ) {
+            BasketChip(treat)
+        }
+    }
+}
+
+private fun Modifier.centredOn(point: () -> Offset) = layout { measurable, constraints ->
+    val placeable = measurable.measure(constraints.copy(minWidth = 0, minHeight = 0))
+    layout(constraints.maxWidth, constraints.maxHeight) {
+        val centre = point()
+        placeable.place((centre.x - placeable.width / 2f).roundToInt(), (centre.y - placeable.height / 2f).roundToInt())
+    }
+}
+
+private val finishedFade = fadeIn(tween(FINISHED_FADE_MILLIS, delayMillis = PathGeometry.PAN_MILLIS, easing = EaseOut))
+
+private const val FINISHED_FADE_MILLIS = 400
+private const val PLUS_FIVE_SIZE = 0.4f
+private const val IDLE_FRAME_MILLIS = (1_000f / IDLE_FPS).toLong()
+
+private fun Modifier.wordPresses(
+    path: WordPath,
+    camera: Animatable<Float, *>,
+    position: HopTarget,
+    isChallenge: (HopTarget) -> Boolean,
+    onWordTapped: () -> Unit,
+    explain: (HopTarget) -> Unit,
+) = pointerInput(path, position) {
+    fun respond(press: WordPress, offset: Offset) {
+        val target = path.pressed(offset, camera.value, position, isChallenge) ?: return
+        when (val response = ChallengeTip.respond(press, target, position, isChallenge(target))) {
+            WordResponse.Hear -> onWordTapped()
+            is WordResponse.Explain -> explain(response.target)
+            null -> Unit
+        }
+    }
+    detectTapGestures(
+        onLongPress = { respond(WordPress.LONG_PRESS, it) },
+        onTap = { respond(WordPress.TAP, it) },
+    )
+}
 
 private class ReadingOwner : ViewModelStoreOwner {
     override val viewModelStore = ViewModelStore()

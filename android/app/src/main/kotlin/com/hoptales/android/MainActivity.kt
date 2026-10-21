@@ -10,6 +10,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -23,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -153,6 +155,7 @@ private fun Entry(
 private fun Destination(app: HopTalesApplication) {
     var storyID by rememberSaveable { mutableStateOf<String?>(null) }
     var sheet by rememberSaveable { mutableStateOf<String?>(null) }
+    var trying by rememberSaveable { mutableStateOf<String?>(null) }
     var isShowingSettings by rememberSaveable { mutableStateOf(false) }
     var visit by rememberSaveable { mutableIntStateOf(0) }
     val progress by app.progressStore.progress.collectAsStateWithLifecycle()
@@ -174,15 +177,38 @@ private fun Destination(app: HopTalesApplication) {
 
             Route.Settings -> SettingsScreen(key = "settings-$visit", onDone = { isShowingSettings = false })
 
-            is Route.Reading -> ReadingScreen(
-                story = target.story,
-                onDone = { storyID = null },
-                onStory = { storyID = it.id },
-                onTryItOn = {
-                    storyID = null
-                    sheet = Sheet.wardrobe(it)
-                },
-            )
+            is Route.Reading -> Box(Modifier.fillMaxSize()) {
+                val dressing = trying?.let(Sheet::friend)
+                Box(if (dressing == null) Modifier else Modifier.clearAndSetSemantics {}) {
+                    ReadingScreen(
+                        story = target.story,
+                        onDone = {
+                            trying = null
+                            storyID = null
+                        },
+                        onStory = {
+                            trying = null
+                            storyID = it.id
+                        },
+                        onTryItOn = { trying = Sheet.wardrobe(it) },
+                    )
+                }
+                var shown by remember { mutableStateOf(dressing) }
+                if (dressing != null) shown = dressing
+                AnimatedVisibility(dressing != null, enter = fadeIn(), exit = fadeOut()) {
+                    BackHandler { trying = null }
+                    shown?.let { friend ->
+                        WardrobeScreen(
+                            friend = friend,
+                            progress = progress,
+                            wardrobe = app.wardrobe,
+                            onItem = { item -> app.progressStore.update { it.tapping(item, friend, app.wardrobe) } },
+                            onJustMe = { app.progressStore.update { it.undressing(friend) } },
+                            onDone = { trying = null },
+                        )
+                    }
+                }
+            }
 
             is Route.Sheet -> when {
                 target.sheet == Sheet.JOURNEY -> JourneyMapScreen(
