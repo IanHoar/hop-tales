@@ -1,72 +1,95 @@
 # Subscriptions — plan
 
-The written plan for #27. Nothing here is built yet; each section under **Build order** becomes its
-own issue. Product rules 5 and 6 in `docs/HANDOFF.md` §1 still hold: no data leaves the device, and a
-parent gate guards anything that costs money.
+The written plan for #27, now with the owner's decisions in. Nothing here is built yet; each step
+under **Build order** is its own issue, and each lands on iOS and Android in one pull request.
+Product rules 5 and 6 in `docs/HANDOFF.md` §1 still hold: no data leaves the device, and a parent
+gate guards anything that costs money.
 
 ## The shape in one paragraph
 
-**Hop Tales Plus** is one auto-renewing subscription group with a monthly and a yearly plan. The
-yearly plan has a 7-day free trial. **The Meadow Walk** is free forever, with no account and no
-trial clock. Every other story, and every story added later, needs Plus. A child who reaches a
-locked story sees an "ask a grown-up" card with no price and nothing to buy. Only a grown-up who
-passes the parent gate ever sees the paywall. Progress and stars are never taken away. StoreKit 2
-does all of it on the device, with no server of ours.
+**Hop Tales Plus** is one auto-renewing subscription with a monthly and a yearly plan. The yearly
+plan has a 7-day free trial. **Every Level 1 story** is free forever, with no account and no trial
+clock. Every story above Level 1, and every story added later above Level 1, needs Plus. A child
+who reaches a locked story sees an "Ask a grown-up" card with no price and nothing to buy. Only a
+grown-up who passes the parent gate ever sees the paywall. Progress and stars are never taken away.
+StoreKit 2 on iOS and Google Play Billing on Android do all of it on the device, with no server of
+ours.
 
 ## 1. What is free and what is paid
 
 | | Free | Plus |
 |---|---|---|
-| The Meadow Walk, read and re-read | ✓ | ✓ |
-| Every other story, now and future | | ✓ |
+| Every Level 1 story, read and re-read | ✓ | ✓ |
+| Every story above Level 1, now and future | | ✓ |
 | Speech, help, stars, moods, settings | ✓ | ✓ |
+| Friends and wardrobe looks earned by reading | ✓ | ✓ |
 | Play on the TV (AirPlay) | ✓ | ✓ |
 | iPad | ✓ | ✓ |
 
-- **One free story, fixed as The Meadow Walk.** A free story that depends on the reading level
-  picked in onboarding is the friendlier idea. But resetting onboarding would then hand out a
-  different free story each time, and with four stories that is the whole library.
-- **The TV isn't paywalled.** It's the feature that sells the app on the living-room floor, and
-  it costs us nothing to give away.
+- **The free tier is Level 1, not one named story.** The rule is `story.level == 1` in
+  `stories.json`, so it covers the four Level 1 stories today (The Meadow Walk, Bob and the Bug,
+  The Big Nap, Bob and the Mud) and any Level 1 story added later. It doesn't depend on the friend
+  picked in onboarding, so resetting onboarding never hands out a different free shelf.
 - **No feature ever sits behind the paywall**, only stories. The reading loop is the same for
   everyone, so a free child never meets a lesser version of the game.
+- **The TV isn't paywalled.** It's the feature that sells the app on the living-room floor, and
+  it costs us nothing to give away.
+- **Cosmetics are never sold.** Friends, wardrobe looks and treats are earned by reading, for free
+  and Plus children alike. There is no shop and no in-app currency (`docs/DESIGN-HANDOFF-FRIENDS.md`
+  rule 5 still holds).
+- **The journey keeps going.** A free child who reads well enough at Level 1 still meets the next
+  friend. That friend's stories show the locked card, and the four Level 1 stories stay open.
+- **A starting friend above Level 1.** Onboarding offers Bob, Skip and Oggy (Levels 1–3). If the
+  grown-up picks Skip or Oggy and then starts with the free stories, the friend is kept, the
+  friend's own stories show the locked card, and Home offers the Level 1 stories to read.
 
 ### Introductory offer
 
-- A **7-day free trial on the yearly plan only**, introductory offer type *free trial*. A week
-  covers a few bedtimes, which is enough to find out whether the child likes it.
+- A **7-day free trial on the yearly plan only**. A week covers a few bedtimes, which is enough to
+  find out whether the child likes it.
 - The monthly plan has no trial, so the paywall has an obvious default.
-- StoreKit decides who is eligible (`Product.SubscriptionInfo.isEligibleForIntroOffer`), and the
-  paywall only mentions the trial when the grown-up is eligible.
+- The store decides who is eligible, and the paywall only mentions the trial when the grown-up is:
+  - iOS: `Product.SubscriptionInfo.isEligibleForIntroOffer`.
+  - Android: Play only returns the trial offer in `ProductDetails.subscriptionOfferDetails` to an
+    account that is eligible for it.
+- **No lifetime unlock.** Two plans, one trial, nothing else to choose between.
 
 ## 2. Products and prices
 
-One subscription group, `hop_tales_plus`, so a grown-up can switch plans without double-paying.
-
-| Reference name | Product ID | Type | Price (USD tier) | Trial |
+| Plan | iOS product ID | Android (Play) | Price (USD) | Trial |
 |---|---|---|---|---|
-| Plus Monthly | `com.hoptales.plus.monthly` | Auto-renewable, 1 month | $4.99 | — |
-| Plus Yearly | `com.hoptales.plus.yearly` | Auto-renewable, 1 year | $29.99 | 7 days free |
+| Plus Monthly | `com.hoptales.plus.monthly` | `hop_tales_plus`, base plan `monthly` | $4.99 / month | — |
+| Plus Yearly | `com.hoptales.plus.yearly` | `hop_tales_plus`, base plan `yearly` | $29.99 / year | 7 days free |
 
+- **iOS.** One subscription group, reference name `hop_tales_plus`, holding the two products, so
+  a grown-up can switch plans without double-paying.
+- **Android.** One subscription product, `hop_tales_plus`, with two auto-renewing base plans,
+  `monthly` and `yearly`. The yearly base plan carries one offer, `yearly-free-trial`: a single
+  free phase of 7 days, for new customers who have never had this subscription.
+- **Why the IDs differ.** Apple has no base plans, so each plan is its own product. Play groups
+  the plans under one product, which is the same shape as Apple's subscription group. Both apps
+  map their store's IDs onto one shared `PlusPlan` (`monthly`, `yearly`) in the shared logic, and
+  nothing else in the app sees a store ID.
 - **Base storefront.** The account's primary language is English (Canada). Either Canada or the
-  US works as the base price, and App Store Connect equalises the rest.
-- **Why these prices.** The big children's reading subscriptions sit at about $10–13 a month (from
-  memory, so check before launch). Hop Tales has a far smaller library, so it should look like
+  US works as the base price, and both consoles convert the rest. Check the converted prices
+  before launch; round them by hand where they land awkwardly.
+- **Why these prices.** The big children's reading subscriptions sit at about $10–13 a month
+  (from memory, so check before launch). Hop Tales has a smaller library, so it should look like
   an easy yes.
   - Yearly works out at $2.50 a month, half the monthly price, and is the plan the paywall leads
     with.
-- **Revenue share.** Enrol in the App Store Small Business Program, which cuts Apple's commission
-  from 30% to 15%. A subscription also drops to 15% after a subscriber's first year.
-- **Maybe later: a lifetime unlock.** A non-consumable at about $59.99 suits parents who dislike
-  subscriptions. Leave it out of v1 so there are only two choices. If it's added, it lives outside
-  the subscription group, and entitlement is "any active Plus plan *or* lifetime".
+- **Revenue share.**
+  - Apple: enrol in the App Store Small Business Program, which cuts the commission from 30% to
+    15%.
+  - Google: Play's service fee for subscriptions is 15% from the first day.
 
 ### A lapsed subscriber keeps everything they earned
 
-- Stars, per-story progress and finished sentences stay in `ProgressStore`, untouched.
+- Stars, per-story progress, finished sentences, friends met and wardrobe looks stay in
+  `ProgressStore`, untouched.
 - Plus stories go back to the locked card. The card still shows the story's standing ("You read 4
   of 6"), so resubscribing picks up exactly where the child left off.
-- The Meadow Walk and all settings keep working.
+- Every Level 1 story and all settings keep working.
 - Nothing is ever deleted because a subscription ended.
 
 ## 3. The paywall and what a child sees
@@ -74,43 +97,59 @@ One subscription group, `hop_tales_plus`, so a grown-up can switch plans without
 A child must never be able to act on a purchase prompt.
 
 **The locked story card (child-facing).** A Plus story on Home shows a small paper padlock
-sticker. Tapping it opens a card with the story's art and title, "This story is part of Hop Tales
-Plus", and one button: **Ask a grown-up**. The card has no price, no trial wording and no buy
-button.
+sticker. Tapping it opens a card with the story's art and title, the story's standing when it has
+one ("You read 4 of 6"), "This story is part of Hop Tales Plus", and one button: **Ask a
+grown-up**. The card has no price, no trial wording and no buy button.
 
 **The parent gate.** Ask a grown-up opens the gate from rule 6:
 - It's a times-table question in words ("What is seven times eight?") with a number pad.
 - It's never a press-and-hold.
 - A wrong answer draws a new question, with no lockout and no failure state for the child.
-- The gate is one shared component. The paywall, Restore, Manage subscription and any future
-  outside link all go through it.
+- The gate is one shared component on each app. The paywall, Restore, Manage subscription, Request
+  a refund and any future outside link all go through it.
+- Neither app has the gate yet: rule 6 says it comes with the first purchase or outside link, and
+  this is that. Build step 2 adds it.
 
-**The paywall (grown-up-facing, behind the gate).** Use StoreKit's `SubscriptionStoreView` for the
-`hop_tales_plus` group, styled as a paper sheet over the meadow:
-- It shows the plans, the trial terms, auto-renewal wording, and links to Terms of Use and the
-  Privacy Policy, which App Review requires for subscriptions.
-- It includes Restore purchases (`.storeButton(.visible, for: .restorePurchases)`).
-- Using Apple's view instead of a custom one keeps the required disclosures correct as the rules
-  change.
+**The paywall (grown-up-facing, behind the gate).**
+- **iOS.** StoreKit's `SubscriptionStoreView` for the `hop_tales_plus` group, styled as a paper
+  sheet over the meadow.
+  - It shows the plans, the trial terms, auto-renewal wording, and links to Terms of Use and the
+    Privacy Policy, which App Review requires for subscriptions.
+  - It includes Restore purchases (`.storeButton(.visible, for: .restorePurchases)`).
+  - Using Apple's view instead of a custom one keeps the required disclosures correct as the rules
+    change.
+- **Android.** A Compose sheet drawn in the same paper style, listing the two base plans from
+  `queryProductDetailsAsync`, with the yearly plan first and the trial named only when Play
+  returned the offer. Buying calls `launchBillingFlow` with the plan's offer token, and Play draws
+  its own purchase sheet over it.
+  - The sheet carries the plan prices, the trial terms, "renews automatically until cancelled,
+    cancel any time in Google Play", and links to the Terms of Use and the Privacy Policy.
+- **Both.** The yearly plan leads, and its button says "Start 7-day free trial" when the grown-up
+  is eligible. The content rhythm (section 7) is the line under the title: why Plus is worth
+  keeping.
 
 **Where the paywall can be reached:**
 1. The locked story card, then the gate.
 2. **Grown-ups (settings)**, in a new "Hop Tales Plus" section:
-   - The status, in plain words: "Plus, renews 3 March" or "Free".
-   - Subscribe, Restore purchases, Manage subscription (`showManageSubscriptions`) and Request a
-     refund (`beginRefundRequest`).
+   - The status, in plain words: "Plus, renews 3 March", "Plus, free trial until 9 March" or
+     "Free: the Level 1 stories".
+   - Subscribe, Restore purchases, Manage subscription and Request a refund.
+   - What subscribers get: every story above Level 1 and the content rhythm.
    - The rest of Settings still opens without the gate. Only this section's buttons ask first.
-3. **The end of onboarding**, a soft offer:
-   - After the microphone step, a card says "Start with The Meadow Walk", with a secondary "See
-     Hop Tales Plus" that goes through the gate.
-   - The free path is the big button.
+3. **The end of onboarding**, once:
+   - After the last onboarding step, a paper card offers Plus. The trial is the primary button,
+     "Start with the free stories" is a clear secondary, and either is one tap.
+   - It goes through the gate before the store's purchase sheet, like every other purchase.
    - Onboarding is filled in by a grown-up, so this is the one moment they're guaranteed to be
-     holding the phone.
+     holding the phone. It never comes back on its own; resetting onboarding (a grown-up action)
+     shows it again.
 
 **Never:** a paywall mid-story, on launch, after the intro, or anywhere a child can reach it by
-tapping. There are no countdowns and no "offer ends soon".
+tapping. There are no countdowns and no "offer ends soon". A journey moment that would open a
+locked story (a new friend's first story) shows the friend and then the locked card, never the
+paywall.
 
-## 4. Restore, Family Sharing, refunds and grace periods
+## 4. Restore, Family Sharing, refunds and grace periods (iOS)
 
 All of this is StoreKit 2 on the device.
 
@@ -123,6 +162,7 @@ All of this is StoreKit 2 on the device.
     reinstalls.
 - **Restore purchases.** Call `AppStore.sync()` from the Grown-ups section and from the paywall,
   behind the gate. It's rarely needed with StoreKit 2, but App Review expects the button.
+- **Manage subscription.** `showManageSubscriptions(in:)`, behind the gate.
 - **Family Sharing.** Turn it on for both subscriptions in App Store Connect. One grown-up
   subscribes and every child's device in the family has Plus.
   - Shared transactions arrive with `ownershipType == .familyShared` and count the same.
@@ -130,7 +170,7 @@ All of this is StoreKit 2 on the device.
 - **Billing grace period.** Turn on the 16-day grace period in App Store Connect.
   - During grace the subscription stays in `currentEntitlements`, so the child notices nothing.
   - The Grown-ups section shows "There's a problem with your payment" and a Manage subscription
-    button.
+    button, from `Product.SubscriptionInfo.Status` (`.inGracePeriod`, `.inBillingRetryPeriod`).
   - After grace, Apple's billing retry runs with no access, and stories lock as for any lapse.
 - **Refunds.**
   - Grown-ups can ask for one in the app with `beginRefundRequest`, behind the gate.
@@ -139,93 +179,166 @@ All of this is StoreKit 2 on the device.
 - **Verification.** Only trust transactions that pass StoreKit's JWS check (`VerificationResult
   .verified`). An unverified result counts as not entitled, and the app never shows an error to
   the child.
+- **Local testing.** A `.storekit` configuration file backs local runs and previews, and
+  `StoreKitTest`'s `SKTestSession` covers renew, lapse, refund, grace and family-shared cases.
 
-### What we give up with no server
+## 5. Android: Google Play Billing
 
-- **App Store Server Notifications need an endpoint**, so they're out. The app learns about
-  renewals, refunds and lapses at launch and through `Transaction.updates`, which is enough for
-  entitlement.
+The same rules on Play, with the official library `com.android.billingclient:billing-ktx` (the
+current major version) and no server.
+
+- **Connecting.** One `BillingClient` for the app, built with `enablePendingPurchases` and a
+  `PurchasesUpdatedListener`, connected when the app starts and reconnected when the service
+  disconnects. Billing lives in the `app` module; the rule for which stories are free lives in
+  `core/content`, so it stays pure Kotlin and testable.
+- **Entitlement.**
+  - On start and on every return to the foreground, call `queryPurchasesAsync` for
+    `ProductType.SUBS`. Play caches it on the device, so it works offline.
+  - Plus is active when a purchase of `hop_tales_plus` has `purchaseState == PURCHASED`.
+  - Purchases also arrive on the `PurchasesUpdatedListener` while the app runs; handle them the
+    same way.
+  - Like iOS, the app keeps no entitlement cache of its own. Play's is authoritative and survives
+    reinstalls on the same Google account.
+- **Acknowledgement.** Every new purchase with `isAcknowledged == false` is acknowledged with
+  `acknowledgePurchase` as soon as it's seen, on the listener or at the next query. Play refunds a
+  subscription that isn't acknowledged within three days, so the next launch retries any that
+  failed.
+- **Pending purchases.** A purchase in `PENDING` (a cash or slow payment method) is not Plus yet.
+  The Grown-ups section says "Waiting for your payment to go through", and stories unlock once it
+  turns `PURCHASED`, on the listener or the next query.
+- **Verification.** With no server, the app checks the purchase signature against the app's Play
+  public key from Play Console and treats anything that fails as not entitled, with no error shown
+  to the child.
+- **Grace period and account hold.** Turn on a grace period on both base plans in Play Console
+  (14 days, the nearest to Apple's 16). During grace the purchase is still returned as
+  `PURCHASED`, so the child notices nothing. In account hold it drops out of
+  `queryPurchasesAsync`, and stories lock as for any lapse.
+- **Restore.** Play has no restore call; a reinstall or a new device on the same Google account
+  finds the purchase at the first query. The Grown-ups section still has Restore purchases, which
+  runs the query again, so both apps offer the same buttons.
+- **Manage subscription.** Open Play's subscription centre,
+  `https://play.google.com/store/account/subscriptions?sku=hop_tales_plus&package=com.hoptales.android`,
+  behind the gate. It's an outside link, so the gate guards it twice over.
+- **Refunds.** Play has no in-app refund call. Request a refund opens Google Play's refund help
+  page behind the gate. A refunded or revoked purchase drops out of `queryPurchasesAsync`, and
+  stories lock the lapsed way, keeping progress.
+- **Family sharing.** Play Family Library doesn't share in-app subscriptions today, so Plus
+  belongs to the Google account that bought it. Check Play Console when setting up, and turn it on
+  if Play has added it.
+- **Families policy.** Hop Tales is in Play's Families programme, which asks for:
+  - a parent gate before any purchase, and no purchase prompts aimed at children — the locked card
+    has no price and the paywall is only behind the gate;
+  - no ads or analytics SDKs (the billing library is Google's own and allowed);
+  - Play Billing's in-app messaging (`showInAppMessages`) stays off, since it would draw a payment
+    prompt in front of a child.
+- **Testing.** License testers in Play Console buy with test cards and accelerated renewals.
+  Unit tests use a fake entitlement source, as on iOS.
+
+## 6. What we give up with no server
+
+- **Store server notifications need an endpoint**, so they're out: App Store Server Notifications
+  on iOS and Real-time developer notifications on Play. Each app learns about renewals, refunds
+  and lapses at launch and while running, which is enough for entitlement.
+- **Android can't tell grace from a normal renewal on the device.** The Play Developer API would,
+  but it needs a server, so the Android Grown-ups section has no "problem with your payment" line.
+  Play tells the purchaser itself, by email and in the Play Store.
+- **Server-side receipt checks.** iOS has StoreKit's on-device JWS check; Android has the
+  signature check against the Play public key, which is weaker but enough for a $4.99 plan.
 - **Business numbers** (trials started, conversion, churn) come from App Store Connect's
-  subscription reports and App Analytics, not from the app. Kids Category rules (guideline 1.3)
-  forbid third-party analytics anyway.
+  subscription reports and Play Console's subscription dashboards, not from the app. Kids Category
+  (guideline 1.3) and Play's Families policy forbid third-party analytics anyway.
 
-## 5. Privacy and review
+## 7. Content rhythm
 
-- **Privacy label.** The App Privacy answers stay "Data Not Collected". Apple handles the
-  purchase, and the app sends nothing anywhere.
-- **Privacy policy.** Update `privacy.html` and `docs/app-store-privacy.md`: today both say "no
-  purchases". Say that purchases go through Apple, behind a parent gate, and that we receive
-  nothing about the purchaser.
-- **Terms of Use.** A subscription needs Terms of Use (Apple's standard licence agreement is
-  fine) linked from the paywall and the App Store description.
-- **Guideline 3.1.2.** An auto-renewing subscription must give ongoing value. That means a steady
-  supply of new stories; see Strategy below.
-- **Review notes.** Tell the reviewer where the gate is, give them the times-table answer rule,
-  and say that The Meadow Walk is the free story.
+Plus is a promise of more, so it needs a rhythm parents can see:
 
-## 6. Strategy
+- **A new story every month**, above Level 1, so it lands in Plus.
+- **Something seasonal each season**: a new friend, a wardrobe set or a meadow mood. Wardrobe looks
+  and moods are still earned by reading, never sold.
 
-**The library is the product.**
-- With four stories, a monthly subscription is a hard sell, and App Review may ask what the
-  ongoing value is. So a public content cadence has to come first: for example, **two new stories
-  a month**, announced on the paywall ("New stories every month") and in the app's release notes.
-- Aim for at least **12 stories at launch**. At the current six sentences each, that's about three
-  weeks of reading, and the yearly plan's trial then shows off a real shelf.
-- The build can be ready before then. Hold the paywall behind a build-time flag
-  until the library is ready.
+The rhythm is the reason to subscribe, so it's in three places: the line under the paywall title,
+the Grown-ups Plus section ("A new story every month, and something new each season"), and the
+store descriptions on both stores. It's also what App Store guideline 3.1.2 means by ongoing value.
+Release notes name each month's story.
+
+## 8. Privacy and review
+
+- **Privacy label.** The App Privacy answers stay "Data Not Collected", and Play's Data safety
+  form stays "No data collected". The stores handle the purchase, and the app sends nothing
+  anywhere.
+- **Privacy policy.** `Website/public/privacy.html` says "no purchases" and
+  `docs/app-store-privacy.md` says "there are no links or purchases, so there is no gate". Both
+  change to: purchases go through Apple or Google, behind a parent gate, and we receive nothing
+  about the purchaser.
+- **Store descriptions.** Drop "no in-app purchases" from the App Store description, add the free
+  Level 1 stories, the two plans, the trial and the content rhythm, and write the Play
+  description to match.
+- **Terms of Use.** A subscription needs Terms of Use (Apple's standard licence agreement is fine
+  on iOS; `Website/public/terms.html` covers Play) linked from the paywall and both store
+  descriptions.
+- **Review notes.** Tell the reviewers where the gate is, give them the times-table answer rule,
+  and say that the Level 1 stories are free.
+
+## 9. Strategy
+
+**The library is the product.** There are 34 stories across seven levels, so a grown-up who
+subscribes sees a real shelf on day one, and the content rhythm keeps it growing.
 
 **Positioning.**
-- "One story free, forever. Plus unlocks every story, and new ones every month, for the whole
-  family."
+- "Every Level 1 story free, forever. Plus unlocks every story, with a new one every month, for
+  the whole family."
 - The promises we can actually keep are the moat: no ads, no data and no account.
 - Lead with yearly, and show monthly as the flexible option.
 
-**Levers after launch**, all Apple-provided and none needing a server:
-- **Offer codes** for schools, reviewers and friends.
-- **Win-back offers** (iOS 18) for lapsed subscribers, for example the first month at $0.99.
-- A **promotional offer** in Grown-ups for a family who cancelled in a billing-retry window.
+**Levers after launch**, all store-provided and none needing a server:
+- **Offer codes** (Apple) and **promo codes** (Play) for schools, reviewers and friends.
+- **Win-back offers** for lapsed subscribers, for example the first month at $0.99, on both
+  stores.
 - **Price tests.** App Store Connect doesn't A/B test prices natively; product-page optimisation
-  can test the paywall screenshots and copy instead.
-- A lifetime unlock if reviews complain about the subscription.
+  can test the paywall screenshots and copy instead. Play Console has price experiments.
 
-**Measure** in App Store Connect:
+**Measure** in App Store Connect and Play Console:
 - trial starts;
 - trial-to-paid conversion, aiming for 35–50% for a family app with a real trial;
 - month-2 retention;
 - the refund rate.
 Revisit prices after 90 days of data.
 
-## Build order (future issues)
+## Build order
 
-1. **Parent gate component.** A shared times-table gate in `DesignSystem`/`GrownUps`, with
-   snapshot and unit tests. Useful on its own, since Settings links out eventually.
-2. **Entitlement client.** A `Purchases` module with a `PurchasesClient` dependency:
-   - It exposes `isPlus` as a stream from `currentEntitlements` plus `updates`, along with
-     `products`, `purchase`, `restore`, `manage` and `refund`.
-   - It has live, test and preview values.
-   - A `.storekit` configuration file backs local runs, and `StoreKitTest`'s `SKTestSession`
-     covers renew, lapse, refund, grace and family-shared cases.
-3. **Locked stories.** `Story.isFree`, true only for The Meadow Walk. Home shows the padlock
-   sticker, and the locked card appears with Ask a grown-up. Progress is untouched on lapse.
-4. **The paywall.** `SubscriptionStoreView` behind the gate, the paper styling, and snapshots in
-   light and dark.
-5. **Grown-ups section.** Status, Subscribe, Restore, Manage and Refund, with the billing-problem
-   state.
-6. **Onboarding soft offer.** A last card with the free path first.
-7. **App Store Connect setup (manual).**
-   - The subscription group and products.
-   - Family Sharing, the 16-day grace period and the yearly trial.
-   - Enrol in the Small Business Program.
-   - Terms of Use, review notes and localised display names.
-8. **Privacy and site copy.** `privacy.html`, `docs/app-store-privacy.md`, and the website's
-   pricing line.
-9. **Launch switch.** A build-time flag that shows the paywall once the library reaches its
-   launch size.
+Each step is one issue and one pull request that lands on both apps (`Parity: both`). Until step
+6 has the products live in both consoles, the gating rule stays switched off in release builds,
+so a shipped build never locks a story nobody can buy yet.
 
-## Decisions for Ian
-
-- Prices: $4.99 monthly and $29.99 yearly, or a different anchor?
-- Trial: 7 days on yearly only, or on both plans, or 14 days?
-- Is The Meadow Walk the free story, or should it be a story written to be the free one?
-- The launch library size and content cadence: are 12 stories and two a month realistic?
-- Lifetime unlock in v1 or later?
+1. **Entitlement and the Level 1 rule** — #345
+   - Shared logic: `Story.isFree` (`level == 1`) and `isLocked(story, isPlus:)` in Swift
+     `Content` and Kotlin `core/content`, with ported tests, plus the `PlusPlan` mapping from
+     each store's IDs.
+   - iOS: a `PurchasesClient` dependency exposing `isPlus` as a stream (`currentEntitlements`
+     plus `updates`), with live, test and preview values.
+   - Android: an entitlement source over `BillingClient` (`queryPurchasesAsync`, acknowledgement,
+     pending), with a fake for tests and previews.
+   - A release switch that keeps every story open until step 6.
+2. **The locked story card and the parent gate** — #346
+   - The shared times-table gate on both apps, with snapshot and unit tests.
+   - The padlock sticker on Home, and the locked card with the story's standing and Ask a
+     grown-up.
+   - Amend `docs/HANDOFF.md` rule 6, since the gate now exists.
+3. **The paywall** — #347
+   - iOS: `SubscriptionStoreView` behind the gate, with a `.storekit` file for local runs.
+   - Android: the paper paywall sheet and `launchBillingFlow`.
+   - Snapshots in light and dark on both apps.
+4. **The Grown-ups Plus section** — #348
+   - Status, Subscribe, Restore, Manage and Refund, all behind the gate; the payment-problem line
+     on iOS and the pending line on Android; the content rhythm.
+5. **The end-of-onboarding offer** — #349
+   - The one-time card after the last onboarding step, with the trial as the primary button and
+     Start with the free stories as the secondary.
+6. **Store setup and copy** — #350
+   - App Store Connect: the subscription group and products, prices, the yearly trial, Family
+     Sharing, the 16-day grace period, the Small Business Program, review notes and localised
+     display names.
+   - Play Console: `hop_tales_plus` with its two base plans, prices, the trial offer, the grace
+     period, license testers and the Families declarations.
+   - Repo copy: `privacy.html`, `docs/app-store-privacy.md`, the website, and the store
+     descriptions without "no in-app purchases". Then turn the release switch on.
