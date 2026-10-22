@@ -107,8 +107,8 @@ grown-up**. The card has no price, no trial wording and no buy button.
 - A wrong answer draws a new question, with no lockout and no failure state for the child.
 - The gate is one shared component on each app. The paywall, Restore, Manage subscription, Request
   a refund and any future outside link all go through it.
-- Neither app has the gate yet: rule 6 says it comes with the first purchase or outside link, and
-  this is that. Build step 2 adds it.
+- Build step 2 (#346) added it on both apps, with the locked story card as its first use. Until the
+  paywall lands (#347), passing the gate shows a "Hop Tales Plus is on its way" note.
 
 **The paywall (grown-up-facing, behind the gate).**
 - **iOS.** StoreKit's `SubscriptionStoreView` for the `hop_tales_plus` group, styled as a paper

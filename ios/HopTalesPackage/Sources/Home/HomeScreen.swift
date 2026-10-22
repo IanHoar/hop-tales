@@ -2,6 +2,7 @@ import ComposableArchitecture2
 import Content
 import Dependencies
 import DesignSystem
+import GrownUps
 import SwiftUI
 import World
 
@@ -16,6 +17,9 @@ extension EnvironmentValues {
     public var childName: String?
     var progress = Content.Progress()
     var hour: Int?
+    public var isPlus = false
+    public var locksStories = Plus.locksStories
+    public var locked: LockedStory.State?
 
     public init(childName: String? = nil) {
       self.childName = childName
@@ -40,7 +44,17 @@ extension EnvironmentValues {
     }
 
     var keepGoing: StoryStanding? {
-      standings.keepGoing(startingAt: progress.journey.activeFriend.startingStoryID)
+      standings
+        .filter { !isLocked($0.story) }
+        .keepGoing(startingAt: progress.journey.activeFriend.startingStoryID)
+    }
+
+    public func isLocked(_ story: Story) -> Bool {
+      Plus.isLocked(story, isPlus: isPlus, locksStories: locksStories)
+    }
+
+    public mutating func showLocked(_ story: Story) {
+      locked = LockedStory.State(standing: StoryStanding(story: story, progress: progress))
     }
 
     var greeting: String {
@@ -59,32 +73,45 @@ extension EnvironmentValues {
     case bookTapped
     case friendsTapped
     case journeyTapped
+    case locked(LockedStory.Action)
     case wardrobeTapped
     case playOnTVTapped
     case storyTapped(Story)
   }
 
   @Dependency(ProgressStore.self) var progressStore
+  @Dependency(PurchasesClient.self) var purchases
 
   public var body: some Feature {
-    Update { _, action in
+    Update { state, action in
       switch action {
-      case .bookTapped, .friendsTapped, .grownUpsTapped, .journeyTapped, .playOnTVTapped,
+      case .locked(.closeTapped):
+        state.locked = nil
+      case .bookTapped, .friendsTapped, .grownUpsTapped, .journeyTapped, .locked, .playOnTVTapped,
         .storyTapped, .wardrobeTapped:
         break
       }
+    }
+    .ifLet(\.locked) {
+      LockedStory()
     }
     .onMount { state in
       state.progress = progressStore.load()
       if state.hour == nil {
         state.hour = Calendar.current.component(.hour, from: Date())
       }
+      guard state.locksStories else { return }
+      store.addTask {
+        for await isPlus in purchases.isPlus() {
+          try store.modify { $0.isPlus = isPlus }
+        }
+      }
     }
   }
 }
 
 public struct HomeScreen: View {
-  let store: StoreOf<Home>
+  @Bindable var store: StoreOf<Home>
   @Environment(\.colorScheme) private var colorScheme
   @State private var sheetTop: CGFloat = 0
   @State private var scrolled: CGFloat = 0
@@ -189,6 +216,9 @@ public struct HomeScreen: View {
     }
     .navigationBarHidden(true)
     .onAppear { arrived = true }
+    .sheet(item: $store.scope(\.locked)) { locked in
+      LockedStoryScreen(store: locked)
+    }
   }
 
   private var shown: Bool { arrived || !arrivesFromOnboarding || reduceMotion }
@@ -288,7 +318,9 @@ public struct HomeScreen: View {
         .padding(.top, 6)
         .accessibilityAddTraits(.isHeader)
       ForEach(store.standings.filter { $0.story.id != store.keepGoing?.story.id }) { standing in
-        StoryRow(standing: standing) { store.send(.storyTapped(standing.story)) }
+        StoryRow(standing: standing, isLocked: store.state.isLocked(standing.story)) {
+          store.send(.storyTapped(standing.story))
+        }
       }
       Button { store.send(.playOnTVTapped) } label: {
         Label("Play on the TV", systemImage: "tv")

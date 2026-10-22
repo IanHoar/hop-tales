@@ -80,7 +80,7 @@ fun PaperTitle(title: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun DoneChip(onClick: () -> Unit) {
+fun DoneChip(onClick: () -> Unit, label: String = "Done") {
     Box(
         Modifier
             .pressable(onClick)
@@ -89,7 +89,7 @@ fun DoneChip(onClick: () -> Unit) {
             .padding(horizontal = 16.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Text("Done", style = LocalTypography.current.display(17.sp), color = LocalPaper.current.ink)
+        Text(label, style = LocalTypography.current.display(17.sp), color = LocalPaper.current.ink)
     }
 }
 
