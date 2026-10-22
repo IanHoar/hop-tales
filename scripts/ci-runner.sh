@@ -2,14 +2,15 @@
 # Switches which CI runner tests pull requests: GitHub Actions or Xcode Cloud.
 #
 #   scripts/ci-runner.sh              shows which runner is live
-#   scripts/ci-runner.sh github       GitHub Actions tests iOS; "CI" is required
-#   scripts/ci-runner.sh xcode-cloud  Xcode Cloud tests iOS; "CI" and "HopTales | Default" are required
+#   scripts/ci-runner.sh github       GitHub Actions tests iOS
+#   scripts/ci-runner.sh xcode-cloud  Xcode Cloud tests iOS, and the "CI" gate waits for its result
 #
-# Two things change together, so a merge is never blocked on a check nobody will post:
+# Either way "CI" and "Parity" are the required checks. Two things change together:
 #
-#   1. The CI_RUNNER repository variable, which the iOS job in .github/workflows/ci.yml reads to
-#      run or skip. Android always runs on GitHub Actions, and the "CI" gate always reports.
-#   2. The required status checks in the "main" ruleset.
+#   1. The CI_RUNNER repository variable, which .github/workflows/ci.yml reads to run the iOS job
+#      or the Xcode Cloud job that waits for "HopTales | Default". Android always runs on GitHub
+#      Actions, and the "CI" gate always reports.
+#   2. The required status checks in the "main" ruleset: "CI" and "Parity".
 #
 # The third, turning Xcode Cloud's pull request workflow off or on, only App Store Connect can do,
 # so the script prints where. See docs/ci.md.
@@ -19,7 +20,6 @@ repo="IanHoar/hop-tales"
 ruleset_name="main"
 
 xcode_cloud_check="HopTales | Default"
-xcode_cloud_app=117084
 github_check="CI"
 github_actions_app=15368
 parity_check="Parity"
@@ -70,7 +70,7 @@ case "${1:-}" in
   github)
     gh variable set CI_RUNNER --repo "$repo" --body github
     require "$github_check" "$github_actions_app" "$parity_check" "$github_actions_app"
-    echo "GitHub Actions now tests iOS, and \"$github_check\" is required on main."
+    echo "GitHub Actions now tests iOS, and \"$github_check\" and \"$parity_check\" are required on main."
     echo "Open pull requests pick it up on their next push."
     echo
     echo "Now disable Xcode Cloud's pull request workflow so it stops spending hours:"
@@ -79,12 +79,15 @@ case "${1:-}" in
     ;;
   xcode-cloud)
     gh variable set CI_RUNNER --repo "$repo" --body xcode-cloud
-    require "$github_check" "$github_actions_app" "$parity_check" "$github_actions_app" \
-      "$xcode_cloud_check" "$xcode_cloud_app"
-    echo "Xcode Cloud now tests iOS, and \"$github_check\" and \"$xcode_cloud_check\" are required on main."
+    require "$github_check" "$github_actions_app" "$parity_check" "$github_actions_app"
+    echo "Xcode Cloud now tests iOS. \"$github_check\" waits for \"$xcode_cloud_check\", and"
+    echo "\"$github_check\" and \"$parity_check\" are required on main."
+    echo "Open pull requests pick it up on their next push."
     echo
     echo "Now enable Xcode Cloud's pull request workflow again:"
     echo "  App Store Connect → Hop Tales → Xcode Cloud → Manage Workflows → Default → Enable"
+    echo "and give it a Files and Folders start condition that ignores changes only under android/,"
+    echo "so Android-only pull requests don't spend its hours."
     ;;
   *)
     echo "usage: scripts/ci-runner.sh [github | xcode-cloud]" >&2
