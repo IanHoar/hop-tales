@@ -50,6 +50,7 @@ public struct Profile: Codable, Hashable, Sendable {
   public var voiceID: String?
   public var theme: Theme
   public var soundButtons: Bool
+  public var plusOffered: Bool
 
   public init(
     childName: String = "",
@@ -57,7 +58,8 @@ public struct Profile: Codable, Hashable, Sendable {
     accent: Accent = .canadian,
     voiceID: String? = nil,
     theme: Theme = .device,
-    soundButtons: Bool = false
+    soundButtons: Bool = false,
+    plusOffered: Bool = false
   ) {
     self.childName = childName
     self.startingFriend = startingFriend
@@ -65,6 +67,7 @@ public struct Profile: Codable, Hashable, Sendable {
     self.voiceID = voiceID
     self.theme = theme
     self.soundButtons = soundButtons
+    self.plusOffered = plusOffered
   }
 
   public var startingStoryID: String { startingFriend.startingStoryID }
@@ -77,6 +80,7 @@ public struct Profile: Codable, Hashable, Sendable {
     case voiceID
     case theme
     case soundButtons
+    case plusOffered
   }
 
   public init(from decoder: any Decoder) throws {
@@ -86,6 +90,7 @@ public struct Profile: Codable, Hashable, Sendable {
     voiceID = try container.decodeIfPresent(String.self, forKey: .voiceID)
     theme = try container.decodeIfPresent(Theme.self, forKey: .theme) ?? .device
     soundButtons = try container.decodeIfPresent(Bool.self, forKey: .soundButtons) ?? false
+    plusOffered = try container.decodeIfPresent(Bool.self, forKey: .plusOffered) ?? false
     if let friend = try container.decodeIfPresent(Friend.self, forKey: .startingFriend) {
       startingFriend = friend
     } else {
@@ -102,6 +107,7 @@ public struct Profile: Codable, Hashable, Sendable {
     try container.encodeIfPresent(voiceID, forKey: .voiceID)
     try container.encode(theme, forKey: .theme)
     try container.encode(soundButtons, forKey: .soundButtons)
+    try container.encode(plusOffered, forKey: .plusOffered)
   }
 }
 

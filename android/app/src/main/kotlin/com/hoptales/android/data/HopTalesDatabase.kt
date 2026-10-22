@@ -22,7 +22,7 @@ class HopTalesDatabase(
     }
 
     override fun onCreate(db: SQLiteDatabase) {
-        for (statement in SCHEMA) db.execSQL(statement)
+        for (statement in SCHEMA + MIGRATIONS.values.flatten()) db.execSQL(statement)
         val legacy = legacy ?: return
         val profileFile = File(legacy, LEGACY_PROFILE)
         read(profileFile, Profile.serializer())?.let {
@@ -36,7 +36,11 @@ class HopTalesDatabase(
         }
     }
 
-    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) = Unit
+    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        for ((version, statements) in MIGRATIONS) {
+            if (version in (oldVersion + 1)..newVersion) statements.forEach(db::execSQL)
+        }
+    }
 
     override fun onOpen(db: SQLiteDatabase) {
         for (file in imported) file.delete()
@@ -49,7 +53,7 @@ class HopTalesDatabase(
 
     companion object {
         const val NAME = "hoptales.db"
-        const val VERSION = 1
+        const val VERSION = 2
         const val LEGACY_PROFILE = "profile.json"
         const val LEGACY_PROGRESS = "progress.json"
 
@@ -82,6 +86,10 @@ class HopTalesDatabase(
             )
             """,
         ).map { it.trimIndent() }
+
+        val MIGRATIONS = mapOf(
+            2 to listOf("""ALTER TABLE "profiles" ADD COLUMN "plusOffered" INTEGER NOT NULL DEFAULT 0"""),
+        )
     }
 }
 

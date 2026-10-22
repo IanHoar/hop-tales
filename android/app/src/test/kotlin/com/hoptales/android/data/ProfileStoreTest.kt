@@ -42,6 +42,14 @@ class ProfileStoreTest {
     }
 
     @Test
+    fun theOnboardingOfferIsRememberedWithTheProfile() {
+        store().save(maya)
+        assertEquals(false, store().load()?.plusOffered)
+        store().save(maya.copy(plusOffered = true))
+        assertEquals(true, store().load()?.plusOffered)
+    }
+
+    @Test
     fun aDraftIsKeptUntilTheProfileIsSaved() {
         val store = store()
         val draft = ProfileDraft(childName = "Maya", backup = true, step = 2)

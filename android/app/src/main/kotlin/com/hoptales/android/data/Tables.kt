@@ -21,7 +21,7 @@ object ProfileTable {
     const val ONLY = "profile"
 
     fun read(db: SQLiteDatabase): Profile? = db.rawQuery(
-        """SELECT "childName", "startingFriend", "accent", "voiceID", "soundButtons", "theme" FROM "profiles" WHERE "id" = ?""",
+        """SELECT "childName", "startingFriend", "accent", "voiceID", "soundButtons", "theme", "plusOffered" FROM "profiles" WHERE "id" = ?""",
         arrayOf(ONLY),
     ).use { row ->
         if (!row.moveToFirst()) return null
@@ -32,6 +32,7 @@ object ProfileTable {
             voiceID = if (row.isNull(3)) null else row.getString(3),
             soundButtons = row.getInt(4) != 0,
             theme = Profile.Theme.of(row.getString(5)),
+            plusOffered = row.getInt(6) != 0,
         )
     }
 
@@ -39,15 +40,16 @@ object ProfileTable {
         if (read(db) == profile) return
         db.execSQL(
             """
-            INSERT INTO "profiles" ("id", "childName", "startingFriend", "accent", "voiceID", "soundButtons", "theme")
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO "profiles" ("id", "childName", "startingFriend", "accent", "voiceID", "soundButtons", "theme", "plusOffered")
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT ("id") DO UPDATE SET
               "childName" = excluded."childName",
               "startingFriend" = excluded."startingFriend",
               "accent" = excluded."accent",
               "voiceID" = excluded."voiceID",
               "soundButtons" = excluded."soundButtons",
-              "theme" = excluded."theme"
+              "theme" = excluded."theme",
+              "plusOffered" = excluded."plusOffered"
             """.trimIndent(),
             arrayOf<Any?>(
                 ONLY,
@@ -57,6 +59,7 @@ object ProfileTable {
                 profile.voiceID,
                 if (profile.soundButtons) 1 else 0,
                 profile.theme.raw,
+                if (profile.plusOffered) 1 else 0,
             ),
         )
     }

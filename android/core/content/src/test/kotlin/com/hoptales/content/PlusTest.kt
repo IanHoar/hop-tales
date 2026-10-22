@@ -41,6 +41,20 @@ class PlusTest {
     }
 
     @Test
+    fun onboardingOffersPlusOnceToAReaderWithoutIt() {
+        val fresh = Profile(childName = "Maya")
+        assertTrue(Plus.offersAtOnboarding(fresh, isPlus = false, locksStories = true))
+        assertFalse(Plus.offersAtOnboarding(fresh, isPlus = true, locksStories = true))
+        val offered = Profile(childName = "Maya", plusOffered = true)
+        assertFalse(Plus.offersAtOnboarding(offered, isPlus = false, locksStories = true))
+    }
+
+    @Test
+    fun theSwitchOffSkipsTheOnboardingOffer() {
+        assertFalse(Plus.offersAtOnboarding(Profile(), isPlus = false, locksStories = false))
+    }
+
+    @Test
     fun appStoreProductsMapOntoPlans() {
         assertEquals(PlusPlan.MONTHLY, PlusPlan.fromAppStore("com.hoptales.plus.monthly"))
         assertEquals(PlusPlan.YEARLY, PlusPlan.fromAppStore("com.hoptales.plus.yearly"))
