@@ -15,19 +15,45 @@ public struct CloudSync: Sendable {
   public var setEnabled: @Sendable (Bool) async -> Void
   public var catchUp: @Sendable () async -> Void
   public var deleteCloudCopy: @Sendable () async throws -> Void
+  public var catchUpLimit: Duration
 
   public init(
     account: @escaping @Sendable () async -> Account,
     isEnabled: @escaping @Sendable () -> Bool,
     setEnabled: @escaping @Sendable (Bool) async -> Void,
     catchUp: @escaping @Sendable () async -> Void = {},
-    deleteCloudCopy: @escaping @Sendable () async throws -> Void = {}
+    deleteCloudCopy: @escaping @Sendable () async throws -> Void = {},
+    catchUpLimit: Duration = .seconds(12)
   ) {
     self.account = account
     self.isEnabled = isEnabled
     self.setEnabled = setEnabled
     self.catchUp = catchUp
     self.deleteCloudCopy = deleteCloudCopy
+    self.catchUpLimit = catchUpLimit
+  }
+
+  public func turnOnAndCatchUp() async {
+    let setEnabled = setEnabled
+    let catchUp = catchUp
+    await Self.waitAtMost(catchUpLimit) {
+      await setEnabled(true)
+      await catchUp()
+    }
+  }
+
+  static func waitAtMost(_ limit: Duration, for work: @escaping @Sendable () async -> Void) async {
+    let (finished, finish) = AsyncStream<Void>.makeStream()
+    Task {
+      await work()
+      finish.yield()
+    }
+    let timer = Task {
+      try? await Task.sleep(for: limit)
+      finish.yield()
+    }
+    for await _ in finished { break }
+    timer.cancel()
   }
 }
 
@@ -64,12 +90,7 @@ extension CloudSync: DependencyKey {
       @Dependency(\.defaultSyncEngine) var syncEngine
       guard syncEngine.isRunning else { return }
       let engine = syncEngine
-      await withTaskGroup { group in
-        group.addTask { try? await engine.fetchChanges() }
-        group.addTask { try? await Task.sleep(for: .seconds(10)) }
-        await group.next()
-        group.cancelAll()
-      }
+      await waitAtMost(.seconds(10)) { try? await engine.fetchChanges() }
     },
     deleteCloudCopy: {
       @Dependency(\.defaultSyncEngine) var syncEngine
