@@ -1,6 +1,8 @@
 package com.hoptales.android.billing
 
+import com.android.billingclient.api.BillingClient.BillingResponseCode
 import com.hoptales.android.BuildConfig
+import com.hoptales.content.PlusPlan
 import com.hoptales.content.Story
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -9,6 +11,7 @@ import org.junit.Test
 import java.security.KeyPairGenerator
 import java.security.Signature
 import java.util.Base64
+import java.util.Locale
 
 class PlayPurchaseTest {
     private val trusting = PurchaseVerifier { _, _ -> true }
@@ -87,5 +90,43 @@ class PlayPurchaseTest {
         val source = FakePlusSource(isPlus = false)
         val stories = (1..7).map { Story(id = "level-$it", title = "Level $it", sentences = emptyList(), level = it) }
         assertTrue(stories.none(source::isLocked))
+    }
+
+    @Test
+    fun aBoughtPlanIsPurchased() {
+        assertEquals(PurchaseOutcome.PURCHASED, PlayPurchase.outcome(BillingResponseCode.OK, listOf(purchase())))
+    }
+
+    @Test
+    fun aSlowPaymentIsPending() {
+        val pending = purchase(state = PlayPurchase.State.PENDING)
+        assertEquals(PurchaseOutcome.PENDING, PlayPurchase.outcome(BillingResponseCode.OK, listOf(pending)))
+    }
+
+    @Test
+    fun backingOutIsCancelled() {
+        assertEquals(PurchaseOutcome.CANCELLED, PlayPurchase.outcome(BillingResponseCode.USER_CANCELED, emptyList()))
+    }
+
+    @Test
+    fun anAlreadyOwnedPlanCountsAsPurchased() {
+        assertEquals(PurchaseOutcome.PURCHASED, PlayPurchase.outcome(BillingResponseCode.ITEM_ALREADY_OWNED, emptyList()))
+    }
+
+    @Test
+    fun anythingElseFailsQuietly() {
+        assertEquals(PurchaseOutcome.FAILED, PlayPurchase.outcome(BillingResponseCode.SERVICE_UNAVAILABLE, emptyList()))
+        assertEquals(PurchaseOutcome.FAILED, PlayPurchase.outcome(BillingResponseCode.OK, listOf(purchase(products = listOf("other")))))
+    }
+
+    @Test
+    fun theYearlyPlanShowsItsMonthlyPrice() {
+        assertEquals("$2.50", PlusOffer.monthlyPrice(29_990_000, "USD", PlusPlan.YEARLY, Locale.US))
+        assertEquals(null, PlusOffer.monthlyPrice(4_990_000, "USD", PlusPlan.MONTHLY, Locale.US))
+    }
+
+    @Test
+    fun offersSortYearlyFirst() {
+        assertEquals(PlusOffer.SAMPLES, PlusOffer.inPaywallOrder(PlusOffer.SAMPLES.reversed()))
     }
 }

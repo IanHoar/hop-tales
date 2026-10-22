@@ -14,6 +14,8 @@ import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
 import com.github.takahirom.roborazzi.RoborazziOptions
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.github.takahirom.roborazzi.captureScreenRoboImage
+import com.hoptales.android.billing.FakePlusSource
+import com.hoptales.android.billing.PurchaseOutcome
 import com.hoptales.android.design.HopTalesTheme
 import com.hoptales.android.home.BookScreen
 import com.hoptales.android.home.FriendsScreen
@@ -28,6 +30,7 @@ import com.hoptales.android.reading.ChallengeTip
 import com.hoptales.android.reading.ReadingScreen
 import com.hoptales.android.settings.ParentGate
 import com.hoptales.android.settings.ParentGateState
+import com.hoptales.android.settings.Paywall
 import com.hoptales.android.settings.SettingsActions
 import com.hoptales.android.settings.SettingsContent
 import com.hoptales.android.settings.SettingsState
@@ -95,6 +98,22 @@ class ScreenshotTest {
     @Test fun parentGateNewQuestionLight() = parentGate("parent-gate-new-question", newQuestion, dark = false)
 
     @Test fun parentGateNewQuestionDark() = parentGate("parent-gate-new-question", newQuestion, dark = true)
+
+    @Test fun paywallLight() = paywall("paywall", FakePlusSource(), dark = false)
+
+    @Test fun paywallDark() = paywall("paywall", FakePlusSource(), dark = true)
+
+    @Test fun paywallOnboardingLight() = paywall("paywall-onboarding", FakePlusSource(), dark = false, onboarding = true)
+
+    @Test fun paywallOnboardingDark() = paywall("paywall-onboarding", FakePlusSource(), dark = true, onboarding = true)
+
+    @Test fun paywallUnavailableLight() = paywall("paywall-unavailable", FakePlusSource(offers = null), dark = false)
+
+    @Test fun paywallUnavailableDark() = paywall("paywall-unavailable", FakePlusSource(offers = null), dark = true)
+
+    @Test fun paywallPendingLight() = paywallPending(dark = false)
+
+    @Test fun paywallPendingDark() = paywallPending(dark = true)
 
     @Test fun basketFullLight() = basketFull(dark = false)
 
@@ -325,7 +344,7 @@ class ScreenshotTest {
         val locked = app.library.stories(Friend.HARE.level)[1]
         val standing = StoryStanding.of(locked, Progress(completedSentences = mapOf(locked.id to 4)))
         compose.setContent {
-            HopTalesTheme(dark = dark) { LockedStoryScreen(standing, onDone = {}) }
+            HopTalesTheme(dark = dark) { LockedStoryScreen(standing, FakePlusSource(), onDone = {}) }
         }
         compose.onRoot().captureRoboImage(path("locked-card", dark), options)
     }
@@ -335,6 +354,21 @@ class ScreenshotTest {
             HopTalesTheme(dark = dark) { ParentGate(onPassed = {}, onClose = {}, initial = gate) }
         }
         compose.onRoot().captureRoboImage(path(name, dark), options)
+    }
+
+    private fun paywall(name: String, plus: FakePlusSource, dark: Boolean, onboarding: Boolean = false) {
+        compose.setContent {
+            HopTalesTheme(dark = dark) { Paywall(plus, onClose = {}, onboarding = onboarding, live = false) }
+        }
+        compose.onRoot().captureRoboImage(path(name, dark), options)
+    }
+
+    private fun paywallPending(dark: Boolean) {
+        compose.setContent {
+            HopTalesTheme(dark = dark) { Paywall(FakePlusSource(outcome = PurchaseOutcome.PENDING), onClose = {}, live = false) }
+        }
+        compose.onNodeWithContentDescription("Yearly", substring = true).performClick()
+        compose.onRoot().captureRoboImage(path("paywall-pending", dark), options)
     }
 
     private fun basketFull(dark: Boolean) {

@@ -8,6 +8,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.hoptales.android.HopTalesApplication
+import com.hoptales.android.billing.FakePlusSource
 import com.hoptales.android.design.HopTalesTheme
 import com.hoptales.android.settings.ParentGateState
 import com.hoptales.content.Friend
@@ -102,7 +103,12 @@ class LockedStoryTest {
         var done = 0
         compose.setContent {
             HopTalesTheme {
-                LockedStoryScreen(StoryStanding.of(plusStory, Progress()), onDone = { done += 1 }, gate = ParentGateState(seed = 1))
+                LockedStoryScreen(
+                    StoryStanding.of(plusStory, Progress()),
+                    FakePlusSource(),
+                    onDone = { done += 1 },
+                    gate = ParentGateState(seed = 1),
+                )
             }
         }
         compose.onNodeWithText("Ask a grown-up").performClick()
@@ -114,8 +120,24 @@ class LockedStoryTest {
         compose.onNodeWithContentDescription("1").performClick()
         compose.onNodeWithContentDescription("2").performClick()
         compose.onNodeWithContentDescription("Check answer").performClick()
-        compose.onNodeWithText("Hop Tales Plus is on its way").assertIsDisplayed()
-        compose.onNodeWithText("Back to stories").performClick()
+        compose.onNodeWithText("Hop Tales Plus").assertIsDisplayed()
+        compose.onNodeWithText("Close").performClick()
+        compose.onNodeWithText("This story is part of Hop Tales Plus.").assertIsDisplayed()
+        assertEquals(0, done)
+    }
+
+    @Test
+    fun subscribingClosesTheCard() {
+        var done = 0
+        val plus = FakePlusSource()
+        compose.setContent {
+            HopTalesTheme {
+                LockedStoryScreen(StoryStanding.of(plusStory, Progress()), plus, onDone = { done += 1 }, step = LockedStep.PAYWALL)
+            }
+        }
+        compose.onNodeWithContentDescription("Yearly", substring = true).performClick()
+        compose.waitForIdle()
+        assertTrue(plus.isPlus.value)
         assertEquals(1, done)
     }
 
@@ -123,7 +145,7 @@ class LockedStoryTest {
     fun closingTheGateGoesBackToTheCard() {
         compose.setContent {
             HopTalesTheme {
-                LockedStoryScreen(StoryStanding.of(plusStory, Progress()), onDone = {}, gate = ParentGateState(seed = 1))
+                LockedStoryScreen(StoryStanding.of(plusStory, Progress()), FakePlusSource(), onDone = {}, gate = ParentGateState(seed = 1))
             }
         }
         compose.onNodeWithText("Ask a grown-up").performClick()

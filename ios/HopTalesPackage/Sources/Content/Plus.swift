@@ -14,13 +14,18 @@ public enum Plus {
   }
 }
 
+public enum PlusLinks {
+  public static let terms = URL(string: "https://www.hoptales.com/terms.html")!
+  public static let privacy = URL(string: "https://www.hoptales.com/privacy.html")!
+}
+
 public enum PlusPlan: String, CaseIterable, Hashable, Sendable {
   case monthly
   case yearly
 
   public static let appStoreGroup = "hop_tales_plus"
   public static let playProductID = "hop_tales_plus"
-  public static let playTrialOfferID = "yearly-free-trial"
+  public static let paywallOrder: [PlusPlan] = [.yearly, .monthly]
 
   public var appStoreProductID: String {
     switch self {
@@ -36,8 +41,11 @@ public enum PlusPlan: String, CaseIterable, Hashable, Sendable {
     }
   }
 
-  public var playOfferID: String? {
-    self == .yearly ? Self.playTrialOfferID : nil
+  public var months: Int {
+    switch self {
+    case .monthly: 1
+    case .yearly: 12
+    }
   }
 
   public init?(appStoreProductID: String) {

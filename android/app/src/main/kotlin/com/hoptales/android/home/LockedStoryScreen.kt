@@ -29,24 +29,24 @@ import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hoptales.android.billing.PlusSource
 import com.hoptales.android.design.Deckle
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.PadlockSticker
 import com.hoptales.android.design.PaperButton
-import com.hoptales.android.design.PaperQuietButton
 import com.hoptales.android.settings.ParentGate
 import com.hoptales.android.settings.ParentGateState
+import com.hoptales.android.settings.Paywall
 import com.hoptales.android.world.MeadowPostcard
 import com.hoptales.content.StoryStanding
 
-enum class LockedStep { CARD, GATE, PLUS_COMING }
+enum class LockedStep { CARD, GATE, PAYWALL }
 
 val StoryStanding.lockedLine: String?
     get() {
@@ -61,14 +61,24 @@ val StoryStanding.lockedLine: String?
 @Composable
 fun LockedStoryScreen(
     standing: StoryStanding,
+    plus: PlusSource,
     onDone: () -> Unit,
     step: LockedStep = LockedStep.CARD,
     gate: ParentGateState = remember { ParentGateState.drawing() },
 ) {
     var shown by rememberSaveable { mutableStateOf(step) }
-    if (shown == LockedStep.GATE) {
-        ParentGate(onPassed = { shown = LockedStep.PLUS_COMING }, onClose = { shown = LockedStep.CARD }, initial = gate)
-        return
+    when (shown) {
+        LockedStep.GATE -> {
+            ParentGate(onPassed = { shown = LockedStep.PAYWALL }, onClose = { shown = LockedStep.CARD }, initial = gate)
+            return
+        }
+
+        LockedStep.PAYWALL -> {
+            Paywall(plus, onClose = { shown = LockedStep.CARD }, onSubscribed = onDone)
+            return
+        }
+
+        LockedStep.CARD -> Unit
     }
     val paper = LocalPaper.current
     val shape = remember { Deckle(seed = 23, jitter = 3.dp, step = 14.dp) }
@@ -88,7 +98,7 @@ fun LockedStoryScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
-                if (shown == LockedStep.PLUS_COMING) PlusComing(onDone) else Card(standing) { shown = LockedStep.GATE }
+                Card(standing) { shown = LockedStep.GATE }
             }
         }
     }
@@ -117,24 +127,4 @@ private fun Card(standing: StoryStanding, onAsk: () -> Unit) {
     }
     Text("This story is part of Hop Tales Plus.", style = type.ui(18.sp), color = paper.ink, textAlign = TextAlign.Center)
     PaperButton("Ask a grown-up", onClick = onAsk)
-}
-
-@Composable
-private fun PlusComing(onDone: () -> Unit) {
-    val paper = LocalPaper.current
-    val type = LocalTypography.current
-    Text(
-        "Hop Tales Plus is on its way",
-        style = type.display(26.sp),
-        color = paper.ink,
-        textAlign = TextAlign.Center,
-        modifier = Modifier.semantics { heading() },
-    )
-    Text(
-        "Subscriptions aren't open yet. Every Level 1 story stays free to read.",
-        style = type.ui(17.sp, FontWeight.Medium),
-        color = paper.muted,
-        textAlign = TextAlign.Center,
-    )
-    PaperQuietButton("Back to stories", onClick = onDone)
 }

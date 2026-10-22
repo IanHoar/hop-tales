@@ -1,5 +1,6 @@
 package com.hoptales.android.billing
 
+import com.android.billingclient.api.BillingClient.BillingResponseCode
 import com.hoptales.content.PlusPlan
 import java.security.KeyFactory
 import java.security.Signature
@@ -26,6 +27,22 @@ data class PlayPurchase(
 
     companion object {
         fun isPlus(purchases: List<PlayPurchase>, verifier: PurchaseVerifier): Boolean = purchases.any { it.entitles(verifier) }
+
+        fun outcome(responseCode: Int, purchases: List<PlayPurchase>): PurchaseOutcome = when (responseCode) {
+            BillingResponseCode.OK, BillingResponseCode.ITEM_ALREADY_OWNED -> {
+                val plus = purchases.filter { it.isPlusProduct }
+                when {
+                    plus.any { it.state == State.PURCHASED } -> PurchaseOutcome.PURCHASED
+                    plus.any { it.state == State.PENDING } -> PurchaseOutcome.PENDING
+                    responseCode == BillingResponseCode.ITEM_ALREADY_OWNED -> PurchaseOutcome.PURCHASED
+                    else -> PurchaseOutcome.FAILED
+                }
+            }
+
+            BillingResponseCode.USER_CANCELED -> PurchaseOutcome.CANCELLED
+
+            else -> PurchaseOutcome.FAILED
+        }
 
         fun toAcknowledge(purchases: List<PlayPurchase>, verifier: PurchaseVerifier): List<PlayPurchase> =
             purchases.filter { it.needsAcknowledging(verifier) }
