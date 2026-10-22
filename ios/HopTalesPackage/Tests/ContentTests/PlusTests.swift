@@ -29,6 +29,19 @@ struct PlusTests {
     #expect(StoryLibrary.all.allSatisfy { !Plus.isLocked($0, isPlus: false, locksStories: false) })
   }
 
+  @Test func onboardingOffersPlusOnceToAReaderWithoutIt() {
+    let fresh = Profile(childName: "Maya")
+    #expect(Plus.offersAtOnboarding(fresh, isPlus: false, locksStories: true))
+    #expect(!Plus.offersAtOnboarding(fresh, isPlus: true, locksStories: true))
+    let offered = Profile(childName: "Maya", plusOffered: true)
+    #expect(!Plus.offersAtOnboarding(offered, isPlus: false, locksStories: true))
+  }
+
+  @Test func theSwitchOffSkipsTheOnboardingOffer() {
+    #expect(!Plus.offersAtOnboarding(Profile(), isPlus: false, locksStories: false))
+    #expect(!Plus.offersAtOnboarding(Profile(), isPlus: false))
+  }
+
   @Test func appStoreProductsMapOntoPlans() {
     #expect(PlusPlan(appStoreProductID: "com.hoptales.plus.monthly") == .monthly)
     #expect(PlusPlan(appStoreProductID: "com.hoptales.plus.yearly") == .yearly)

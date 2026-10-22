@@ -35,6 +35,20 @@ struct ProfileStoreTests {
     #expect(store.loadDraft() == nil)
   }
 
+  @Test func theOnboardingOfferIsRememberedWithTheProfile() throws {
+    let store = try store()
+    store.save(Profile(childName: "Maya"))
+    #expect(store.load()?.plusOffered == false)
+    store.save(Profile(childName: "Maya", plusOffered: true))
+    #expect(store.load()?.plusOffered == true)
+  }
+
+  @Test func aProfileSavedBeforeTheOfferDecodesAsNotOffered() throws {
+    let json = Data(#"{"childName":"Maya","accent":"en-CA"}"#.utf8)
+    let profile = try JSONDecoder().decode(Profile.self, from: json)
+    #expect(!profile.plusOffered)
+  }
+
   @Test func erasingForgetsTheProfile() throws {
     let store = try store()
     store.save(Profile(childName: "Maya"))

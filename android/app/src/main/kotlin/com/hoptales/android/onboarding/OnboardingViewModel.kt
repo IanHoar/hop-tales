@@ -1,7 +1,10 @@
 package com.hoptales.android.onboarding
 
 import androidx.lifecycle.ViewModel
+import com.hoptales.android.BuildConfig
 import com.hoptales.android.HopTalesApplication
+import com.hoptales.android.billing.PlusSource
+import com.hoptales.content.Plus
 import com.hoptales.onboarding.Authorization
 import com.hoptales.onboarding.Onboarding
 import com.hoptales.onboarding.OnboardingNext
@@ -12,7 +15,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.Locale
 
-class OnboardingViewModel(private val app: HopTalesApplication, hasMicrophone: Boolean) : ViewModel() {
+class OnboardingViewModel(
+    private val app: HopTalesApplication,
+    hasMicrophone: Boolean,
+    private val plus: PlusSource = app.plus,
+    private val locksStories: Boolean = BuildConfig.PLUS_LOCKS_STORIES,
+) : ViewModel() {
     private val onboarding = Onboarding(
         app.profileStore.loadDraft()?.let(OnboardingState::resuming) ?: OnboardingState(),
         Locale.getDefault().country,
@@ -20,6 +28,9 @@ class OnboardingViewModel(private val app: HopTalesApplication, hasMicrophone: B
     private val mutableState = MutableStateFlow(onboarding.state)
 
     val state: StateFlow<OnboardingState> = mutableState.asStateFlow()
+
+    var offersPlus = false
+        private set
 
     init {
         if (onboarding.state.step.number > OnboardingStep.LISTENING.number) {
@@ -48,7 +59,8 @@ class OnboardingViewModel(private val app: HopTalesApplication, hasMicrophone: B
             app.backupChoice.isOn = leaving.backup == true
         }
         if (next is OnboardingNext.Finished) {
-            app.profileStore.save(next.profile)
+            offersPlus = Plus.offersAtOnboarding(next.profile, plus.isPlus.value, locksStories)
+            app.profileStore.save(next.profile.copy(plusOffered = offersPlus))
             app.progressStore.startJourney(next.profile.startingFriend)
         } else {
             publish()

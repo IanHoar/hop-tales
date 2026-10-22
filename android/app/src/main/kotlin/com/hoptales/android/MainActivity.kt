@@ -70,6 +70,7 @@ import com.hoptales.android.home.LockedStoryScreen
 import com.hoptales.android.home.WardrobeScreen
 import com.hoptales.android.intro.IntroScreen
 import com.hoptales.android.onboarding.OnboardingScreen
+import com.hoptales.android.onboarding.PlusOfferScreen
 import com.hoptales.android.reading.ReadingScreen
 import com.hoptales.android.settings.SettingsScreen
 import com.hoptales.android.world.IntroArt
@@ -270,7 +271,9 @@ private fun Destination(app: HopTalesApplication) {
             when (target) {
                 Route.Onboarding -> {
                     LaunchedEffect(Unit) { fromOnboarding = true }
-                    OnboardingScreen(key = "onboarding-$visit")
+                    OnboardingScreen(key = "onboarding-$visit") { offersPlus ->
+                        sheet = if (offersPlus) Sheet.PLUS_OFFER else null
+                    }
                 }
 
                 is Route.Reading -> ReadingScreen(
@@ -309,6 +312,8 @@ private fun Destination(app: HopTalesApplication) {
         SheetOverlay(overlay) { target ->
             when {
                 target == Sheet.SETTINGS -> SettingsScreen(key = "settings-$visit", onDone = { isShowingSettings = false })
+
+                target == Sheet.PLUS_OFFER -> PlusOfferScreen(app.plus, onDone = { sheet = null })
 
                 target == Sheet.JOURNEY -> JourneyMapScreen(
                     library = app.library,
@@ -457,6 +462,7 @@ private object Sheet {
     const val SETTINGS = "settings"
     const val JOURNEY = "journey"
     const val FRIENDS = "friends"
+    const val PLUS_OFFER = "plus-offer"
     const val WARDROBE = "wardrobe:"
     const val BOOK = "book:"
     const val LOCKED = "locked:"

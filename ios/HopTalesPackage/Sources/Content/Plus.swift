@@ -12,6 +12,14 @@ public enum Plus {
   ) -> Bool {
     locksStories && !story.isFree && !isPlus
   }
+
+  public static func offersAtOnboarding(
+    _ profile: Profile,
+    isPlus: Bool,
+    locksStories: Bool = Plus.locksStories
+  ) -> Bool {
+    locksStories && !isPlus && !profile.plusOffered
+  }
 }
 
 public enum PlusLinks {

@@ -18,6 +18,7 @@ struct ProfileRecord: Equatable, Identifiable {
   var voiceID: String?
   var theme = Profile.Theme.device
   var soundButtons = false
+  var plusOffered = false
 }
 
 @Table("progress")
@@ -50,7 +51,8 @@ extension ProfileRecord {
       accent: profile.accent,
       voiceID: profile.voiceID,
       theme: profile.theme,
-      soundButtons: profile.soundButtons
+      soundButtons: profile.soundButtons,
+      plusOffered: profile.plusOffered
     )
   }
 
@@ -61,7 +63,8 @@ extension ProfileRecord {
       accent: accent,
       voiceID: voiceID,
       theme: theme,
-      soundButtons: soundButtons
+      soundButtons: soundButtons,
+      plusOffered: plusOffered
     )
   }
 }
@@ -123,13 +126,37 @@ public enum HopTalesDatabase {
       guard let legacy else { return }
       try importFiles(from: legacy, into: db)
     }
+    migrator.registerMigration("Add plusOffered to profiles", migrate: addPlusOffered)
     return migrator
+  }
+
+  static func addPlusOffered(_ db: Database) throws {
+    try #sql(
+      """
+      ALTER TABLE "profiles" ADD COLUMN "plusOffered" INTEGER NOT NULL DEFAULT 0
+      """
+    )
+    .execute(db)
+  }
+
+  static func importProfile(_ record: ProfileRecord, into db: Database) throws {
+    try #sql(
+      """
+      INSERT OR REPLACE INTO "profiles"
+        ("id", "childName", "startingFriend", "accent", "voiceID", "theme", "soundButtons")
+      VALUES (
+        \(record.id), \(record.childName), \(record.startingFriend), \(record.accent),
+        \(record.voiceID), \(record.theme), \(record.soundButtons)
+      )
+      """
+    )
+    .execute(db)
   }
 
   static func importFiles(from legacy: URL, into db: Database) throws {
     let profileURL = legacy.appending(path: "profile.json")
     if let profile = ProfileStore.read(Profile.self, from: profileURL) {
-      try ProfileRecord.upsert { ProfileRecord(profile) }.execute(db)
+      try importProfile(ProfileRecord(profile), into: db)
     }
     let progressURL = legacy.appending(path: "progress.json")
     if let progress = ProfileStore.read(Progress.self, from: progressURL) {
