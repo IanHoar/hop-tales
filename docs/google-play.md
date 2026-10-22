@@ -1,7 +1,7 @@
 # Google Play
 
-Getting the Android app onto Google Play, and where it stands. The repository side of signing is
-done; what is left happens in Play Console and Google Cloud.
+Getting the Android app onto Google Play, and where it stands. Signing and releasing from CI are
+done on the repository side; what is left happens in Play Console and Google Cloud.
 
 ## Status
 
@@ -9,11 +9,12 @@ done; what is left happens in Play Console and Google Cloud.
 - [x] Upload key generated: `~/keys/hoptales-upload.jks`, alias `upload`. It is not in the repo.
 - [x] Release builds sign with it (`android/app/build.gradle.kts`, `signingConfigs.release`).
 - [x] A signed `app-release.aab` builds locally.
-- [ ] Play Console account verification. **This is where it stopped.**
-- [ ] Create the app and make the first upload to Internal testing.
+- [x] Play Console account verification.
+- [x] Create the app and make the first upload to Internal testing, by hand (version code 1).
+- [ ] Release from CI: the workflow is in place; the service account and secrets are not
+  ([Releasing from CI](#releasing-from-ci)).
 - [ ] Finish the app content forms.
 - [ ] Closed testing, then production.
-- [ ] Release from CI.
 
 ## The upload key
 
@@ -45,8 +46,14 @@ From `android/`:
 Build from this repository, not the old `ReadingApp-android` checkout, which predates the signing
 setup.
 
-Raise `versionCode` in `android/app/build.gradle.kts` for every upload (1, 2, 3 …). Play rejects a
-repeated one. `versionName` is what people see.
+Without a release tag the build is version code 1, `0.1.0`, which Play has already seen. Pass the
+tag to build what CI would:
+
+```sh
+./gradlew :app:bundleRelease -PreleaseTag=android/v1.0.0-1   # version code 1000001, 1.0.0
+```
+
+[Releasing from CI](#releasing-from-ci) explains the numbers. Releases normally go through CI.
 
 ## First upload
 
@@ -83,22 +90,84 @@ this. Check which kind the Superbrands Apps account is under **Settings → Deve
 
 Once the app is live, link it from the website (#290).
 
-## Releasing from CI (later)
+## Releasing from CI
 
-After the first manual upload, a GitHub Actions workflow can build, sign and upload to Internal
-testing, as Xcode Cloud does for TestFlight:
+Publishing a GitHub release with an Android tag builds, signs and uploads the app to **Internal
+testing**, as an iOS tag puts the iOS app on TestFlight through Xcode Cloud
+([xcode-cloud.md](xcode-cloud.md), step 5). Each app releases from its own tag prefix:
 
-1. In Google Cloud, create a service account and download its JSON key. In Play Console → **Users
-   and permissions**, invite its email with release permissions for Hop Tales.
-2. Add the secrets:
+```sh
+gh release create android/v1.0.0-1 --generate-notes   # Android, to Play's internal testing
+gh release create ios/v1.0.1-1 --generate-notes       # iOS, to TestFlight
+```
+
+`--generate-notes` lists the changes since the latest release of either app. Add
+`--notes-start-tag android/v…`, naming the previous Android tag, to list only what changed since
+then.
+
+`.github/workflows/release-android.yml` runs on every published release and skips quietly unless
+the tag starts with `android/v`. It checks the tag's shape, builds `:app:bundleRelease`, keeps the
+`.aab` as the run's `app-release-bundle` artifact, and uploads it with `:app:publishReleaseBundle`
+from the [Gradle Play Publisher](https://github.com/Triple-T/gradle-play-publisher) plugin, as a
+completed release on the internal track. The release's description, cut to Play's 500 characters,
+becomes the en-US release notes; the workflow writes it to
+`android/app/src/main/play/release-notes/en-US/default.txt`, which is gitignored. Promotion to
+closed testing and production stays a manual step in Play Console.
+
+To run a release again, for example after fixing a secret: Actions → Release Android → Run
+workflow, with the tag. Play rejects a version code it has already seen, so a release that reached
+Play needs a new tag instead.
+
+The plugin is build tooling. It runs on the build machine and never ships in the app, so the
+no-third-parties rule is untouched. Without credentials it does nothing: local builds and the pull
+request workflow don't need any.
+
+### Version codes
+
+The tag is `android/v<major>.<minor>.<patch>-<build>`. `versionName` is the dotted half, and
+`versionCode` packs all four numbers:
+
+```
+versionCode = major × 1,000,000 + minor × 10,000 + patch × 100 + build
+
+android/v1.0.0-1   →  1000001, "1.0.0"
+android/v1.2.3-4   →  1020304, "1.2.3"
+```
+
+Play only accepts a version code higher than any it has seen, so bump the build for every upload
+of the same version and reset it when the version moves. Minor, patch and build get two digits
+each; a tag with any of them at 100 or more fails the build rather than overlapping the next slot.
+The first upload, made by hand, used version code 1, and every tag clears it.
+
+Pass `-PreleaseTag=…` to Gradle to build the same numbers locally. Without it the build stays at
+version code 1, `0.1.0`.
+
+### One-time setup
+
+1. **Service account.** In [Google Cloud Console](https://console.cloud.google.com), pick or create
+   a project, then **APIs & Services → Library → Google Play Android Developer API → Enable**.
+   Under **IAM & Admin → Service accounts → Create service account**, name it (`hoptales-release`,
+   say) and skip the optional roles. Open it, **Keys → Add key → Create new key → JSON**, and keep
+   the downloaded file out of the repository.
+2. **Play permission.** In Play Console → **Users and permissions → Invite new users**, enter the
+   service account's email. Under **App permissions**, add Hop Tales with **Release apps to testing
+   tracks** and **View app information**. Leave account permissions empty, then **Invite user**.
+   It can take a few hours before the API accepts the new account.
+3. **Secrets.** From the repository:
 
    ```sh
    base64 -i ~/keys/hoptales-upload.jks | gh secret set ANDROID_UPLOAD_KEYSTORE
-   gh secret set ANDROID_UPLOAD_PASSWORD
+   gh secret set ANDROID_UPLOAD_PASSWORD                  # prompts; the keystore password
    gh secret set ANDROID_UPLOAD_ALIAS --body upload
-   gh secret set PLAY_SERVICE_ACCOUNT_JSON < service-account.json
+   gh secret set PLAY_SERVICE_ACCOUNT_JSON < ~/Downloads/hoptales-release-….json
    ```
 
-3. Add the Gradle Play Publisher plugin and a workflow that runs on a tag or by hand. It decodes the
-   keystore, sets `versionCode` from the run number and publishes the bundle to the internal track.
-   Promotion to closed testing and production stays a manual step in Play Console.
+   Then delete the downloaded JSON key, or move it to the password manager beside the keystore.
+
+If any secret is missing, the workflow stops before building and names it. The secrets reach only
+the release job's own steps; GitHub masks them in the log, and the decoded keystore and key file
+live in the runner's temporary directory and are deleted when the job ends.
+
+If the upload fails with "Only releases with status draft may be created on draft app", the app
+has never had a release rolled out. Roll out the hand-made first release on Internal testing in Play
+Console, then run the workflow again.

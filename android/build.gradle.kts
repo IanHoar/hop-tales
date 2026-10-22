@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.roborazzi) apply false
+    alias(libs.plugins.play.publisher) apply false
     alias(libs.plugins.ktlint)
 }
 

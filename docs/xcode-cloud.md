@@ -29,7 +29,7 @@ nothing.
 |---|---|---|
 | `ci_post_clone.sh` | after clone, before package resolution | Runs `scripts/ci-setup.sh`, shared with GitHub Actions, which trusts the package macros, authenticates the private `pointfreeco/TCA26` dependency, and prefers a prebuilt swift-syntax |
 | `ci_pre_xcodebuild.sh` | before an archive | Stamps the version and build number the release tag asked for |
-| `ci_post_xcodebuild.sh` | after an archive | Writes `ios/TestFlight/WhatToTest.en-US.txt` from the commits since the previous release |
+| `ci_post_xcodebuild.sh` | after an archive | Writes `ios/TestFlight/WhatToTest.en-US.txt` from the commits since the previous iOS release |
 
 ## Setup
 
@@ -124,13 +124,20 @@ blocks the merge.
 
 ### 5. The release workflow
 
-A release is cut by publishing a GitHub release. Its tag carries both numbers:
+A release is cut by publishing a GitHub release. Each app releases from its own tag prefix, and
+the iOS tag carries both numbers:
 
 ```
-v<marketing version>-<build number>       e.g. v1.0.0-1
+ios/v<marketing version>-<build number>       e.g. ios/v1.0.0-1
 ```
 
-- **Start Condition:** Tag Changes, pattern `v*`. Tick auto-cancel here too.
+An `android/v…` tag ships the Android app to Google Play through GitHub Actions instead
+([google-play.md](google-play.md)), so the two apps release independently.
+
+- **Start Condition:** Tag Changes, pattern `ios/v*`. Tick auto-cancel here too. Tags were plain
+  `v*` (`v1.0.0-1` … `v1.0.0-62`) until each app got its own prefix: change the pattern in App Store
+  Connect → Hop Tales → Xcode Cloud → Manage Workflows → the release workflow → Start Conditions
+  when that change merges, or the first `ios/v…` release starts no build.
 - **Actions:** Archive, with **TestFlight and App Store** as the deployment preparation — not
   Internal Testing Only, whose builds are processed without what an App Store submission needs and
   so can never be promoted. It only makes a build *eligible*; nothing is submitted for review.
@@ -139,10 +146,16 @@ v<marketing version>-<build number>       e.g. v1.0.0-1
 `ci_pre_xcodebuild.sh` reads the tag and stamps `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION`
 with `agvtool`; `Info.plist` picks both up through `$(...)` substitution. A tag of any other shape
 fails the build with an explicit message rather than shipping the wrong version, and an archive
-started by anything but a tag fails the same way.
+started by anything but a tag fails the same way. A legacy `v…` tag fails too, so it can't ship
+by accident.
 
 TestFlight rejects a build number it has already seen, so the half after the dash increments for
-every upload of the same version — `v1.0.0-1`, `v1.0.0-2` — and resets when the version changes.
+every upload of the same version — `ios/v1.0.0-1`, `ios/v1.0.0-2` — and resets when the version
+changes.
+
+`ci_post_xcodebuild.sh` writes the What to Test notes from the commits since the previous `ios/v…`
+tag, so an Android release in between doesn't cut them short. Until the first `ios/v…` tag exists it
+falls back to the latest legacy `v…` tag.
 
 `agvtool` alone is not enough. Xcode Cloud passes its own build number on the `xcodebuild` command
 line, and a command-line setting beats the project, so `$(CURRENT_PROJECT_VERSION)` in `Info.plist`
@@ -151,14 +164,19 @@ script therefore writes both numbers into `Info.plist` as literals, leaving noth
 and prints what it stamped so a build log settles any argument.
 
 One consequence of that first mistake: build 41 is now spent against version 1.0.0. App Store
-Connect wants a build number it has not seen for a given version, so the next 1.0.0 release has to
-clear 41 — `v1.0.0-42` — or move the version instead, `v1.0.1-1`. The latter is cleaner.
+Connect wants a build number it has not seen for a given version, so another 1.0.0 release has to
+clear every build already uploaded (the legacy tags reach `v1.0.0-62`), or move the version instead,
+`ios/v1.0.1-1`. The latter is cleaner.
 
 To cut one:
 
 ```sh
-gh release create v1.0.0-1 --generate-notes
+gh release create ios/v1.0.1-1 --generate-notes       # iOS, to TestFlight
+gh release create android/v1.0.0-1 --generate-notes   # Android, to Play's internal testing
 ```
+
+Ship both apps by publishing one release for each tag; they can point at the same commit, and
+each app numbers its own versions.
 
 Tagging is the only trigger: pushing to `main` no longer archives, so `main` can move without
 spending compute or burning a build number.
