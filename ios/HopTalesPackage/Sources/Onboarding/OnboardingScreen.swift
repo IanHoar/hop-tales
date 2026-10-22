@@ -192,8 +192,7 @@ import World
   private func restore(_ state: inout State) {
     state.isCatchingUp = true
     store.addTask {
-      await cloudSync.setEnabled(true)
-      await cloudSync.catchUp()
+      await cloudSync.turnOnAndCatchUp()
       let restored = profileStore.load()
       if let restored, speechClient.isAuthorized() {
         try store.send(.finished(restored))
