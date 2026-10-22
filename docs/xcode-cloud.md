@@ -14,10 +14,11 @@ The app lives in `ios/` since the repository became a monorepo. Xcode Cloud look
 beside the workspace it builds, so the scripts moved with it, and each workflow has to point at
 `ios/HopTales.xcworkspace`. A workflow created before the move still names the old root path and
 fails to find the project until it is edited in Xcode (Integrate → Manage Workflows → the workflow
-→ General) and saved. Give the release workflow a start condition that skips changes only under
-`android/`, so Android merges don't spend the free hours. Leave the pull request workflow running
-on every change while its check is required: a build it skips posts no check, and the pull request
-can't merge (see [ci.md](ci.md)).
+→ General) and saved. Give the pull request workflow a Files and Folders start condition that
+skips changes only under `android/`, so Android work doesn't spend the free hours; the release
+workflow starts only from `ios/v…` tags, so Android never reaches it. Nothing requires the pull
+request workflow's status directly: the `Xcode Cloud` job inside GitHub's `CI` gate waits for it,
+and only when iOS files changed (see [ci.md](ci.md)).
 
 ## What the scripts do
 
@@ -95,7 +96,8 @@ package resolution fail with something cryptic.
 
 ### 4. The pull request workflow
 
-- **Start Condition:** Pull Request Changes, target branch `main`.
+- **Start Condition:** Pull Request Changes, target branch `main`, with Files and Folders set to
+  ignore changes under `android/`.
 - **Actions:** Build, then Test.
 - **Environment: Xcode 27.1 (27A9275), not "Latest Release".** Pin the exact version on both
   workflows, so a new Xcode or simulator runtime on Xcode Cloud never changes the renderer behind
@@ -119,8 +121,9 @@ package resolution fail with something cryptic.
 - **Tick auto-cancel** in the start condition. Without it a second push leaves the first build
   running to completion against a commit nobody is waiting on, and the free tier is 25 hours.
 
-Once a build has reported once, add its check to the branch protection rule on `main` so a red build
-blocks the merge.
+It reports as the `HopTales | Default` status. Don't add that to the `main` ruleset: the `Xcode
+Cloud` job in `.github/workflows/ci.yml` waits for it and fails `CI` when it fails, or when it
+hasn't started within 45 minutes because the workflow is disabled or out of hours.
 
 ### 5. The release workflow
 

@@ -6,8 +6,12 @@
 # The iOS job is the stand-in for Xcode Cloud's pull request workflow, for when its free compute
 # hours run out. Only one iOS runner is live at a time:
 #
-#   scripts/ci-runner.sh github        the iOS job runs here, and "CI" is required
-#   scripts/ci-runner.sh xcode-cloud   the iOS job is skipped, and "CI" and Xcode Cloud's check are required
+#   scripts/ci-runner.sh github        the iOS job runs here
+#   scripts/ci-runner.sh xcode-cloud   the iOS job is skipped, and the Xcode Cloud job waits for
+#                                      Xcode Cloud's own status, "HopTales | Default", instead
+#
+# Either way "CI" and "Parity" are the only required checks, so an Android-only pull request never
+# waits on Xcode Cloud.
 #
 # Run it by hand from the Actions tab (workflow_dispatch) to build both apps on any branch.
 # docs/ci.md has the rest.
@@ -190,14 +194,68 @@ jobs:
           path: android/app/build/outputs/roborazzi
           if-no-files-found: ignore
 
+  xcode-cloud:
+    name: Xcode Cloud
+    needs: changes
+    if: github.event_name == 'pull_request' && needs.changes.outputs.ios == 'true' && vars.CI_RUNNER == 'xcode-cloud'
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    permissions:
+      statuses: read
+    steps:
+      - name: Wait for HopTales | Default
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          CONTEXT: HopTales | Default
+          TIMEOUT_MINUTES: 45
+        run: |
+          set -euo pipefail
+          deadline=$(( $(date +%s) + TIMEOUT_MINUTES * 60 ))
+          state="" url="" last=""
+          echo "Waiting for \"$CONTEXT\" on $SHA."
+          while :; do
+            if latest=$(gh api "repos/$REPO/commits/$SHA/statuses?per_page=100" \
+                | jq -r --arg context "$CONTEXT" \
+                  'map(select(.context == $context)) | first // empty | "\(.state) \(.target_url // "")"'); then
+              read -r state url <<< "$latest"
+            else
+              echo "::warning::Couldn't read the commit's statuses; trying again."
+            fi
+            if [ "$state" != "$last" ]; then
+              echo "$(date -u +%H:%M:%S) ${state:-not started}${url:+ $url}"
+              last="$state"
+            fi
+            case "$state" in
+              success)
+                echo "Xcode Cloud passed."
+                exit 0
+                ;;
+              failure|error)
+                echo "::error::Xcode Cloud finished with $state. $url"
+                exit 1
+                ;;
+            esac
+            if [ "$(date +%s)" -ge "$deadline" ]; then
+              if [ -z "$state" ]; then
+                echo "::error::Xcode Cloud never started a build for $SHA in $TIMEOUT_MINUTES minutes. Check that its Default workflow is enabled and has free hours left (docs/xcode-cloud.md), or hand pull requests to GitHub Actions with scripts/ci-runner.sh github."
+              else
+                echo "::error::Xcode Cloud is still $state after $TIMEOUT_MINUTES minutes. $url"
+              fi
+              exit 1
+            fi
+            sleep 30
+          done
+
   ci:
     name: CI
-    needs: [changes, test, android]
+    needs: [changes, test, xcode-cloud, android]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Every platform passed or had nothing to test
         run: |
-          echo "changes: ${{ needs.changes.result }}, iOS: ${{ needs.test.result }}, Android: ${{ needs.android.result }}"
+          echo "changes: ${{ needs.changes.result }}, iOS: ${{ needs.test.result }}, Xcode Cloud: ${{ needs.xcode-cloud.result }}, Android: ${{ needs.android.result }}"
           test "${{ needs.changes.result }}" = success
-          ! echo "${{ needs.test.result }} ${{ needs.android.result }}" | grep -qE 'failure|cancelled'
+          ! echo "${{ needs.test.result }} ${{ needs.xcode-cloud.result }} ${{ needs.android.result }}" | grep -qE 'failure|cancelled'

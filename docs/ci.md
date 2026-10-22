@@ -2,10 +2,12 @@
 
 Pull requests are tested by one of two runners, and either can take over from the other:
 
-| Runner | Free tier | Required check on `main` |
+| Runner | Free tier | What `CI` waits for |
 |---|---|---|
-| Xcode Cloud | 25 compute hours a month | `HopTales \| Default` |
+| Xcode Cloud | 25 compute hours a month | `Xcode Cloud`, which waits for `HopTales \| Default` |
 | GitHub Actions | Unlimited minutes, because the repository is public | `Test` |
+
+Either way the required checks on `main` are `CI` and `Parity`.
 
 TestFlight releases stay on Xcode Cloud whichever runner is testing pull requests, and start from
 `ios/v…` release tags; [xcode-cloud.md](xcode-cloud.md) is its runbook. Android releases start from
@@ -24,9 +26,8 @@ The script changes two things together, so a merge is never blocked on a check t
 post:
 
 1. The `CI_RUNNER` repository variable. The iOS job in `.github/workflows/ci.yml` runs when it is
-   `github` and is skipped otherwise.
-2. The required status checks in the `main` ruleset: `CI` alone, or `CI` and `HopTales | Default`
-   while Xcode Cloud is live.
+   `github`, and the `Xcode Cloud` job runs in its place when it is `xcode-cloud`.
+2. The required status checks in the `main` ruleset, which are `CI` and `Parity` for both runners.
 
 It needs `gh` signed in as a repository admin.
 
@@ -34,13 +35,15 @@ It needs `gh` signed in as a repository admin.
 so the script prints the step: App Store Connect → Hop Tales → Xcode Cloud → Manage Workflows →
 `Default` → Disable, or Enable to switch back. Leave the release workflow on either way. A disabled
 workflow starts no builds and spends no hours. If it's left on while GitHub Actions is live, it
-keeps testing pull requests until its hours run out.
+keeps testing pull requests until its hours run out. When you enable it, give it a Files and
+Folders start condition that ignores changes only under `android/`, so Android-only pull requests
+don't spend its hours.
 
 **When to switch.** GitHub Actions is the default while the repository is public, since its minutes
 are free and uncapped. Switch to Xcode Cloud if GitHub's macOS runners become unavailable or
 metered, and switch back when they return. If Xcode Cloud is live and its hours run out, it stops
-posting checks and pull requests wait on `HopTales | Default` forever. That is the moment to run
-`scripts/ci-runner.sh github`.
+posting checks, and the `Xcode Cloud` job fails after 45 minutes saying it never started. That is
+the moment to run `scripts/ci-runner.sh github`.
 
 Pull requests that are already open pick up the new runner on their next push. To try GitHub
 Actions without switching, run the workflow by hand from the Actions tab (`gh workflow run
@@ -72,13 +75,17 @@ resolve packages. Every branch here is pushed to this repository, so that does n
   instead, and then the required check never reports and the pull request can't merge.
 - `Parity` (`.github/workflows/parity.yml`) is required alongside it whichever runner is live; see
   [parity.md](parity.md).
-- `CI` is the one required check for builds. It waits for both jobs and fails if either failed or was
+- While Xcode Cloud is live, a Linux job (`Xcode Cloud`) stands in for `Test`: on a pull request
+  with the same iOS changes, it polls the head commit every 30 seconds for Xcode Cloud's
+  `HopTales | Default` status and passes or fails with it, printing the build's link. If no status
+  appears within 45 minutes it fails with a message that Xcode Cloud never started: the `Default`
+  workflow is disabled or out of hours, and `scripts/ci-runner.sh github` hands pull requests over.
+- `CI` is the one required check for builds. It waits for every job and fails if any failed or was
   cancelled; a job skipped because its files didn't change counts as passing. So an Android-only
   pull request waits for Android and nothing else, and one that touches both waits for both.
-- Xcode Cloud has no equivalent. Its start conditions can ignore `android/`, but a build it skips
-  posts no check at all, so while Xcode Cloud is the live runner its required check blocks
-  Android-only pull requests. Leave the PR workflow's start condition on every change while it is
-  required, and filter only the release workflow.
+- Because `HopTales | Default` is no longer required directly, Xcode Cloud's `Default` workflow can
+  skip `android/` with a Files and Folders start condition. The build it skips posts no status, and
+  nothing is waiting for one, since the `Xcode Cloud` job only runs when iOS files changed.
 - Runs on the `xcode-27` image, with Xcode 27.1 (27A9275) pinned through `DEVELOPER_DIR`, which is
   the same Xcode that Xcode Cloud pins. The iPhone Duo's fold API is new in the iOS 27.1 SDK, so
   27.0 can't build the app. `XCODE_BUILD` is part of the cache key, so moving Xcode starts a fresh
