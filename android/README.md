@@ -165,6 +165,9 @@ Play gets an App Bundle, not an APK:
 
 It is unsigned; sign it with the upload key when it goes to Play.
 
+The dressed-friend sheets go in the `looks` fast-follow asset pack rather than the base;
+[docs/google-play.md](../docs/google-play.md#the-looks-pack) covers it and how to test it locally.
+
 ## Privacy
 
 Same rules as iOS: on-device recognition only, nothing recorded or sent, no analytics, no third-party
