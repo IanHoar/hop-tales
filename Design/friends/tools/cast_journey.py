@@ -72,7 +72,7 @@ def board_plan():
         "Treats stay the fun layer: picked up on the path, one per friend's taste.",
         "Each friend has their own wardrobe of 8 items (Hare has 12), made for their shape and world.",
         "Meeting a friend gives their first item. Each full basket of that friend's treats (10 + 5n) unlocks the next.",
-        "No shop, no purchases. Treats and baskets don't gate levels; reading does."], 1256, 370)
+        "No shop. Treats and baskets don't gate levels; reading does."], 1256, 370)
     phases = [("1 · Levels in the content", "Tag every story with a level and mark its big words in stories.json. Write the big stories."),
               ("2 · Steps and the journey", "Step counting, big words on the path, the journey map, the big story and the new-friend moment."),
               ("3 · Treats and baskets", "Treats on the path, the basket chip, the tally, the basket-full present."),

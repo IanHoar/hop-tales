@@ -165,7 +165,7 @@ def board_plan():
         "One wardrobe shared by every friend, in four slots: hat, glasses, neck and back.",
         "Each item has an anchor on each friend (head, eyes, neck, back) with a scale, so one sticker fits every animal.",
         "What a friend is wearing shows on the path while reading, and on home.",
-        "Grown-up rule: no shop, no purchases, no ads. Everything is unlocked by reading."], 1256, 370)
+        "Grown-up rule: no shop, no ads. Friends and looks are unlocked by reading."], 1256, 370)
     phases = [("1 · Treats", "Carrots on the path, the basket chip, golden carrots, the tally at The end. Hare only."),
               ("2 · Levels and wardrobe", "Level ribbon, the level-up moment, the wardrobe with the first 6 hats, what's worn shows while reading."),
               ("3 · Friends", "The friends screen, Bramble and Bluebell Wood, the new-friend moment, the collection book."),
