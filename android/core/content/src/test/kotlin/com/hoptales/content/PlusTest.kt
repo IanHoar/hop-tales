@@ -59,8 +59,9 @@ class PlusTest {
     }
 
     @Test
-    fun onlyTheYearlyPlanHasTheTrial() {
-        assertEquals("yearly-free-trial", PlusPlan.YEARLY.playOfferId)
-        assertNull(PlusPlan.MONTHLY.playOfferId)
+    fun thePaywallLeadsWithTheYearlyPlan() {
+        assertEquals(listOf(PlusPlan.YEARLY, PlusPlan.MONTHLY), PlusPlan.PAYWALL_ORDER)
+        assertEquals(12, PlusPlan.YEARLY.months)
+        assertEquals(1, PlusPlan.MONTHLY.months)
     }
 }

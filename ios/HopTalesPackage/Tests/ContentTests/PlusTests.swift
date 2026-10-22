@@ -51,8 +51,9 @@ struct PlusTests {
     )
   }
 
-  @Test func onlyTheYearlyPlanHasTheTrial() {
-    #expect(PlusPlan.yearly.playOfferID == "yearly-free-trial")
-    #expect(PlusPlan.monthly.playOfferID == nil)
+  @Test func thePaywallLeadsWithTheYearlyPlan() {
+    #expect(PlusPlan.paywallOrder == [.yearly, .monthly])
+    #expect(PlusPlan.yearly.months == 12)
+    #expect(PlusPlan.monthly.months == 1)
   }
 }

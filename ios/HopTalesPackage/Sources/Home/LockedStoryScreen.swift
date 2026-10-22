@@ -10,8 +10,7 @@ import SwiftUI
 
   public struct State: Identifiable {
     public var standing: StoryStanding
-    public var gate: ParentGate.State?
-    public var isPlusComing = false
+    public var grownUp: GrownUpPaywall.State?
 
     public init(standing: StoryStanding) {
       self.standing = standing
@@ -32,7 +31,7 @@ import SwiftUI
   public enum Action {
     case askAGrownUpTapped
     case closeTapped
-    case gate(ParentGate.Action)
+    case grownUp(GrownUpPaywall.Action)
   }
 
   @Dependency(GateSeed.self) var gateSeed
@@ -41,18 +40,16 @@ import SwiftUI
     Update { state, action in
       switch action {
       case .askAGrownUpTapped:
-        state.gate = ParentGate.State(seed: gateSeed.draw())
-      case .gate(.passed):
-        state.gate = nil
-        state.isPlusComing = true
-      case .gate(.closeTapped):
-        state.gate = nil
-      case .closeTapped, .gate:
+        state.grownUp = GrownUpPaywall.State(seed: gateSeed.draw())
+      case .grownUp(.gate(.closeTapped)), .grownUp(.paywall(.closeTapped)),
+        .grownUp(.paywall(.tryLevelOneTapped)):
+        state.grownUp = nil
+      case .closeTapped, .grownUp:
         break
       }
     }
-    .ifLet(\.gate) {
-      ParentGate()
+    .ifLet(\.grownUp) {
+      GrownUpPaywall()
     }
   }
 }
@@ -66,15 +63,13 @@ public struct LockedStoryScreen: View {
 
   public var body: some View {
     Group {
-      if let gate = store.scope(\.gate) {
-        ParentGateScreen(store: gate)
+      if let grownUp = store.scope(\.grownUp) {
+        GrownUpPaywallScreen(store: grownUp)
       } else {
         VStack(spacing: 0) {
           SheetHeader(title: "Hop Tales Plus") { store.send(.closeTapped) }
           ScrollView {
-            Group {
-              if store.isPlusComing { comingSoon } else { card }
-            }
+            card
             .padding(24)
             .frame(maxWidth: .infinity)
             .background {
@@ -139,31 +134,11 @@ public struct LockedStoryScreen: View {
     guard let line = store.state.standingLine else { return title }
     return "\(title) \(line)."
   }
-
-  private var comingSoon: some View {
-    VStack(spacing: 14) {
-      Text("Hop Tales Plus is on its way")
-        .font(Typography.display(26))
-        .foregroundStyle(Paper.ink)
-        .multilineTextAlignment(.center)
-        .fixedSize(horizontal: false, vertical: true)
-        .accessibilityAddTraits(.isHeader)
-      Text("Subscriptions aren't open yet. Every Level 1 story stays free to read.")
-        .font(Typography.ui(17, weight: .medium))
-        .foregroundStyle(Paper.muted)
-        .multilineTextAlignment(.center)
-        .fixedSize(horizontal: false, vertical: true)
-      Button("Back to stories") { store.send(.closeTapped) }
-        .buttonStyle(.paperQuiet)
-        .padding(.top, 6)
-    }
-  }
 }
 
 #if DEBUG
 struct LockedStoryPreview: View {
   var completed = 4
-  var isPlusComing = false
 
   var body: some View {
     LockedStoryScreen(store: Store(initialState: state) { LockedStory() })
@@ -173,13 +148,10 @@ struct LockedStoryPreview: View {
   private var state: LockedStory.State {
     let story = StoryLibrary.stories(at: Friend.hare.level)[1]
     let progress = Content.Progress(completedSentences: [story.id: completed])
-    var state = LockedStory.State(standing: StoryStanding(story: story, progress: progress))
-    state.isPlusComing = isPlusComing
-    return state
+    return LockedStory.State(standing: StoryStanding(story: story, progress: progress))
   }
 }
 
 #Preview("Locked story") { LockedStoryPreview() }
 #Preview("Locked story, not started") { LockedStoryPreview(completed: 0) }
-#Preview("Plus is coming") { LockedStoryPreview(isPlusComing: true) }
 #endif

@@ -6,17 +6,20 @@ object Plus {
     fun isLocked(story: Story, isPlus: Boolean, locksStories: Boolean): Boolean = locksStories && !story.isFree && !isPlus
 }
 
-enum class PlusPlan(val appStoreProductId: String, val playBasePlanId: String) {
-    MONTHLY("com.hoptales.plus.monthly", "monthly"),
-    YEARLY("com.hoptales.plus.yearly", "yearly"),
-    ;
+object PlusLinks {
+    const val TERMS = "https://www.hoptales.com/terms.html"
+    const val PRIVACY = "https://www.hoptales.com/privacy.html"
+}
 
-    val playOfferId: String? get() = if (this == YEARLY) PLAY_TRIAL_OFFER_ID else null
+enum class PlusPlan(val appStoreProductId: String, val playBasePlanId: String, val months: Int) {
+    MONTHLY("com.hoptales.plus.monthly", "monthly", 1),
+    YEARLY("com.hoptales.plus.yearly", "yearly", 12),
+    ;
 
     companion object {
         const val APP_STORE_GROUP = "hop_tales_plus"
         const val PLAY_PRODUCT_ID = "hop_tales_plus"
-        const val PLAY_TRIAL_OFFER_ID = "yearly-free-trial"
+        val PAYWALL_ORDER = listOf(YEARLY, MONTHLY)
 
         fun fromAppStore(productId: String): PlusPlan? = entries.firstOrNull { it.appStoreProductId == productId }
 
