@@ -56,6 +56,23 @@ class HopTalesDatabaseTest {
     }
 
     @Test
+    fun aVersionTwoDatabaseGainsLevelOneCelebratedAndKeepsItsProgress() {
+        val file = File(folder.root, "hoptales.db")
+        SQLiteDatabase.openOrCreateDatabase(file, null).use { old ->
+            for (statement in HopTalesDatabase.SCHEMA + HopTalesDatabase.MIGRATIONS.getValue(2)) old.execSQL(statement)
+            old.execSQL(
+                """INSERT INTO "progress" ("id", "stars", "journey", "baskets", "outfits") VALUES ('progress', 7, '{}', '[]', '[]')""",
+            )
+            old.version = 2
+        }
+        val db = database().writableDatabase
+        assertEquals(7, ProgressTable.read(db).stars)
+        assertFalse(ProgressTable.read(db).levelOneCelebrated)
+        ProgressTable.write(db, Progress(stars = 7, levelOneCelebrated = true), ProgressTable.read(db))
+        assertTrue(ProgressTable.read(db).levelOneCelebrated)
+    }
+
+    @Test
     fun progressAndProfileFromBeforeTheDatabaseAreImported() {
         val legacy = folder.newFolder("files")
         val progress = Progress(

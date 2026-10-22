@@ -3,6 +3,7 @@ package com.hoptales.android.reading
 import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hoptales.android.BuildConfig
 import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.speech.SpeechEvent
 import com.hoptales.android.speech.SpeechLogEntry
@@ -37,7 +38,11 @@ sealed interface Listening {
     data object Active : Listening
 }
 
-class ReadingViewModel(story: Story, private val app: HopTalesApplication) : ViewModel() {
+class ReadingViewModel(
+    story: Story,
+    private val app: HopTalesApplication,
+    private val locksStories: Boolean = BuildConfig.PLUS_LOCKS_STORIES,
+) : ViewModel() {
     private val profile = app.profileStore.load() ?: Profile()
     private val locale = Locale.forLanguageTag(profile.accent.tag)
     private val reading = app.progressStore.load().journey.let { journey ->
@@ -200,6 +205,8 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
         publish()
     }
 
+    fun levelOneKeepReading(): Boolean = reading.levelOneKeepReading().also { publish() }
+
     fun tryItOn(friend: Friend) {
         app.progressStore.update { progress ->
             progress.newestItem(friend, app.wardrobe)?.let { progress.wearing(it, friend, app.wardrobe) } ?: progress
@@ -211,7 +218,7 @@ class ReadingViewModel(story: Story, private val app: HopTalesApplication) : Vie
     private fun sentenceChanged(before: ReadingState) {
         persist()
         if (reading.state.isFinished) {
-            app.progressStore.update { reading.finishing(it, app.library) }
+            app.progressStore.update { reading.finishing(it, app.library, app.plus.isPlus.value, locksStories) }
             publish()
         }
         if (reading.state.completionCount > before.completionCount && app.soundPreference.isOn) {

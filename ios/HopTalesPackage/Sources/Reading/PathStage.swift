@@ -136,7 +136,14 @@ struct PathStage: View {
   @ViewBuilder
   private var journeyPanel: some View {
     VStack {
-      if let callout = store.callout {
+      if case .levelOneFinished = store.callout {
+        LevelOneCard(geometry: geometry) {
+          store.send(.askAGrownUpTapped)
+        } keepReading: {
+          store.send(.levelOneKeepReadingTapped)
+        }
+        .transition(.scale(scale: 0.9).combined(with: .opacity))
+      } else if let callout = store.callout {
         CalloutCard(moment: callout, geometry: geometry, isDone: store.hasTriedItOn) {
           if let story = callout.story { store.send(.continueTapped(story)) }
           if case let .basketFull(friend, _) = callout { store.send(.tryItOnTapped(friend)) }
@@ -160,6 +167,7 @@ struct PathStage: View {
     .frame(width: geometry.size.width, height: geometry.size.height)
     .overlay {
       if case .newFriend = store.callout { PaperConfetti(size: geometry.size, delay: 1.3) }
+      if case .levelOneFinished = store.callout { PaperConfetti(size: geometry.size, delay: 0.3) }
     }
     .animation(.easeInOut(duration: 0.3), value: store.journeyMoments)
   }

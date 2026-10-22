@@ -30,6 +30,12 @@ struct ProgressStoreTests {
     #expect(store.load() == progress)
   }
 
+  @Test func levelOneCelebratedIsKept() throws {
+    let store = ProgressStore.database(try database())
+    store.save(Content.Progress(stars: 3, levelOneCelebrated: true))
+    #expect(store.load().levelOneCelebrated)
+  }
+
   @Test func onlyTheStoriesThatChangedAreWritten() throws {
     let database = try database()
     let store = ProgressStore.database(database)

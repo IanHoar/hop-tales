@@ -36,7 +36,8 @@ extension ProgressStore: DependencyKey {
       wordsRead: counts(stories, \.wordsRead),
       journey: record?.journey ?? Journey(),
       baskets: record?.baskets ?? [:],
-      outfits: record?.outfits ?? [:]
+      outfits: record?.outfits ?? [:],
+      levelOneCelebrated: record?.levelOneCelebrated ?? false
     )
   }
 

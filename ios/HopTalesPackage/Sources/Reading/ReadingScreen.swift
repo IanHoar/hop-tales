@@ -2,6 +2,7 @@ import ComposableArchitecture2
 import Content
 import Dependencies
 import DesignSystem
+import GrownUps
 import SpeechRecognition
 import SwiftUI
 import World
@@ -15,21 +16,12 @@ import World
   public init() {}
 
   public struct State: Identifiable {
-    public struct Recognised: Equatable, Sendable {
-      public var count: Int
-      public var sentenceIndex: Int
-      public var stars: Int
-      public var wordIndex: Int
-    }
-
-    public enum Completed: Equatable, Sendable {
-      case sentence(index: Int)
-      case story(stars: Int)
-    }
-
     public var authorization: SpeechClient.Authorization?
     public var bigWords: Set<WordRef> = []
     public var friend = Friend.hare
+    public var grownUp: GrownUpPaywall.State?
+    public var isPlus = false
+    public var locksStories = Plus.locksStories
     public var look: String?
     public var treat: StoryTreat?
     public var completed: Completed?
@@ -81,11 +73,14 @@ import World
   }
 
   public enum Action {
+    case askAGrownUpTapped
     case authorizationResolved(SpeechClient.Authorization)
     case backTapped
     case backToStoriesTapped
     case continueTapped(Story)
     case currentWordTapped
+    case grownUp(GrownUpPaywall.Action)
+    case levelOneKeepReadingTapped
     case readAgainTapped
     case helpOffered
     case keepReadingTapped
@@ -106,6 +101,7 @@ import World
   @FeatureState var noiseLevel: Double?
   @FeatureState var ticksSinceMatch = 0
   @FeatureState var heardSinceMatch = false
+  @Dependency(GateSeed.self) var gateSeed
   @Dependency(ProfileStore.self) var profileStore
   @Dependency(ProgressStore.self) var progressStore
   @Dependency(SoundClient.self) var sound
@@ -155,8 +151,11 @@ import World
 
       case .momentDismissed:
         state.hasTriedItOn = false
-        guard let index = state.journeyMoments.firstIndex(where: \.isCallout) else { break }
-        state.journeyMoments.remove(at: index)
+        state.dismissCallout()
+
+      case .askAGrownUpTapped, .grownUp, .levelOneKeepReadingTapped:
+        guard levelOne(action, &state) else { break }
+        store.addTask { try store.send(.backToStoriesTapped) }
 
       case .currentWordTapped, .helpOffered:
         guard let word = state.currentWord?.text, !state.isSpeaking else { break }
@@ -228,7 +227,9 @@ import World
         }
       }
     }
-
+    .ifLet(\.grownUp) {
+      GrownUpPaywall()
+    }
     .onMount(id: [store.sentenceIndex, store.listeningEpoch]) { state in
       guard state.isActive else { return }
       state.strictness = strictnessPreference.load()
@@ -314,36 +315,10 @@ extension Reading {
       )
     )
   }
-
-  func finish(_ state: inout State) {
-    var progress = progressStore.load()
-    let helped = wordsHelped.intersection(wordsRead).count
-    let helpRate = wordsRead.isEmpty ? 0 : Double(helped) / Double(wordsRead.count)
-    let collected = state.treat.flatMap { treat in
-      wordsRead.contains(treat.word)
-        ? CollectedTreat(
-          friend: treat.friend,
-          isTrail: treat.isTrail,
-          isGolden: !treat.isTrail && helpRate <= Levels.goldenHelpRate
-        )
-        : nil
-    }
-    let result = StoryResult(
-      storyID: state.story.id,
-      wordsRead: wordsRead.count,
-      bigWordsRead: wordsRead.intersection(state.bigWords).count,
-      helpedWords: helped,
-      treat: collected
-    )
-    state.journeyMoments = progress.journey.record(result)
-    if let collected { state.journeyMoments += progress.collect(collected) }
-    progressStore.save(progress)
-  }
-
 }
 
 public struct ReadingScreen: View {
-  let store: StoreOf<Reading>
+  @Bindable var store: StoreOf<Reading>
 
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
   @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -386,6 +361,9 @@ public struct ReadingScreen: View {
     }
     .toolbar(.hidden, for: .navigationBar)
     .modifier(ReadingPanels(store: store))
+    .sheet(item: $store.scope(\.grownUp)) { grownUp in
+      GrownUpPaywallScreen(store: grownUp)
+    }
     .sensoryFeedback(.success, trigger: store.completionCount) { _, count in
       guard count > 0, case .sentence = store.completed else { return false }
       return true

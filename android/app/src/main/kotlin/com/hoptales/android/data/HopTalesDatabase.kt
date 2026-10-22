@@ -53,7 +53,7 @@ class HopTalesDatabase(
 
     companion object {
         const val NAME = "hoptales.db"
-        const val VERSION = 2
+        const val VERSION = 3
         const val LEGACY_PROFILE = "profile.json"
         const val LEGACY_PROGRESS = "progress.json"
 
@@ -89,6 +89,7 @@ class HopTalesDatabase(
 
         val MIGRATIONS = mapOf(
             2 to listOf("""ALTER TABLE "profiles" ADD COLUMN "plusOffered" INTEGER NOT NULL DEFAULT 0"""),
+            3 to listOf("""ALTER TABLE "progress" ADD COLUMN "levelOneCelebrated" INTEGER NOT NULL DEFAULT 0"""),
         )
     }
 }
