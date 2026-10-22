@@ -29,7 +29,7 @@ This document plus `Design/` is everything Claude Code needs to start. Decisions
 3. **Recognition is forgiving.** A five-year-old's pronunciation is not a dictation test. Match loosely (§5), never punish, never show a red X.
 4. **Nothing is timed against the child.** The world only advances when a word is read. Silence is fine. After ~6s of silence, the app *offers help* (word is spoken aloud, gently) — it does not fail.
 5. **No ads, no external links, no data leaves the device.** Speech recognition is on-device. Nothing is recorded or stored.
-6. **A parent gate** guards anything that leaves the app or costs money — purchases, subscriptions, outside links (App Review 1.3, Kids Category). Settings has neither, so it opens directly; the gate comes back with the first of those. Use an adult-level task (a times-table question in words), not a hold.
+6. **A parent gate** guards anything that leaves the app or costs money — purchases, subscriptions, outside links (App Review 1.3, Kids Category). It's a times-table question in words ("What is seven times eight?") on a number pad, never a hold. A wrong answer draws a new question, with no lockout and no failure state. Each app has one shared gate (`ParentGate` in `GrownUps` on iOS, beside `settings` on Android) that calls a continuation when it's passed; the locked story card's "Ask a grown-up" is its first use. Settings itself has nothing that leaves the app or costs money, so it still opens directly.
 
 ---
 

@@ -19,6 +19,11 @@ struct HomeSnapshotTests {
   }
 
   @Test(arguments: [ColorScheme.light, .dark])
+  func lockedStories(scheme: ColorScheme) {
+    expectSnapshot(of: HomePreview(.locked), scheme: scheme)
+  }
+
+  @Test(arguments: [ColorScheme.light, .dark])
   func midwayOnAnIPad(scheme: ColorScheme) {
     expectSnapshot(of: HomePreview(.midway, size: Metrics.pad.reference), scheme: scheme)
   }

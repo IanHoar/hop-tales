@@ -19,12 +19,15 @@ import com.hoptales.android.home.BookScreen
 import com.hoptales.android.home.FriendsScreen
 import com.hoptales.android.home.HomeScreen
 import com.hoptales.android.home.JourneyMapScreen
+import com.hoptales.android.home.LockedStoryScreen
 import com.hoptales.android.home.WardrobeScreen
 import com.hoptales.android.intro.IntroContent
 import com.hoptales.android.onboarding.OnboardingActions
 import com.hoptales.android.onboarding.OnboardingContent
 import com.hoptales.android.reading.ChallengeTip
 import com.hoptales.android.reading.ReadingScreen
+import com.hoptales.android.settings.ParentGate
+import com.hoptales.android.settings.ParentGateState
 import com.hoptales.android.settings.SettingsActions
 import com.hoptales.android.settings.SettingsContent
 import com.hoptales.android.settings.SettingsState
@@ -38,6 +41,7 @@ import com.hoptales.content.Profile
 import com.hoptales.content.Progress
 import com.hoptales.content.Sky
 import com.hoptales.content.Story
+import com.hoptales.content.StoryStanding
 import com.hoptales.content.Weather
 import com.hoptales.onboarding.OnboardingState
 import com.hoptales.onboarding.OnboardingStep
@@ -75,6 +79,22 @@ class ScreenshotTest {
     @Test fun homeMidwayLight() = home("home-midway", midway, dark = false)
 
     @Test fun homeMidwayDark() = home("home-midway", midway, dark = true)
+
+    @Test fun homeLockedLight() = homeLocked(dark = false)
+
+    @Test fun homeLockedDark() = homeLocked(dark = true)
+
+    @Test fun lockedCardLight() = lockedCard(dark = false)
+
+    @Test fun lockedCardDark() = lockedCard(dark = true)
+
+    @Test fun parentGateLight() = parentGate("parent-gate", ParentGateState(seed = 1), dark = false)
+
+    @Test fun parentGateDark() = parentGate("parent-gate", ParentGateState(seed = 1), dark = true)
+
+    @Test fun parentGateNewQuestionLight() = parentGate("parent-gate-new-question", newQuestion, dark = false)
+
+    @Test fun parentGateNewQuestionDark() = parentGate("parent-gate-new-question", newQuestion, dark = true)
 
     @Test fun basketFullLight() = basketFull(dark = false)
 
@@ -279,6 +299,40 @@ class ScreenshotTest {
             HopTalesTheme(dark = dark) {
                 HomeScreen(library = app.library, progress = progress, onStory = {}, childName = "Maya", hour = 9)
             }
+        }
+        compose.onRoot().captureRoboImage(path(name, dark), options)
+    }
+
+    private val newQuestion = ParentGateState(seed = 1, round = 1, entry = "4")
+
+    private fun homeLocked(dark: Boolean) {
+        compose.setContent {
+            HopTalesTheme(dark = dark) {
+                HomeScreen(
+                    library = app.library,
+                    progress = midway,
+                    onStory = {},
+                    childName = "Maya",
+                    hour = 9,
+                    isLocked = { !it.isFree },
+                )
+            }
+        }
+        compose.onRoot().captureRoboImage(path("home-locked", dark), options)
+    }
+
+    private fun lockedCard(dark: Boolean) {
+        val locked = app.library.stories(Friend.HARE.level)[1]
+        val standing = StoryStanding.of(locked, Progress(completedSentences = mapOf(locked.id to 4)))
+        compose.setContent {
+            HopTalesTheme(dark = dark) { LockedStoryScreen(standing, onDone = {}) }
+        }
+        compose.onRoot().captureRoboImage(path("locked-card", dark), options)
+    }
+
+    private fun parentGate(name: String, gate: ParentGateState, dark: Boolean) {
+        compose.setContent {
+            HopTalesTheme(dark = dark) { ParentGate(onPassed = {}, onClose = {}, initial = gate) }
         }
         compose.onRoot().captureRoboImage(path(name, dark), options)
     }

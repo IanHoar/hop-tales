@@ -9,6 +9,7 @@ struct HomePreview: View {
   enum Variant {
     case firstRun
     case midway
+    case locked
   }
 
   let variant: Variant
@@ -34,8 +35,9 @@ struct HomePreview: View {
   }
 
   private var state: Home.State {
-    var state = Home.State(childName: variant == .midway ? "Wren" : nil)
+    var state = Home.State(childName: variant == .firstRun ? nil : "Wren")
     state.hour = 9
+    state.locksStories = variant == .locked
     return state
   }
 
@@ -43,7 +45,7 @@ struct HomePreview: View {
     switch variant {
     case .firstRun:
       Content.Progress()
-    case .midway:
+    case .midway, .locked:
       Content.Progress(
         stars: 56,
         completedSentences: ["meadow-walk": 6, "golden-hour": 3],
@@ -55,5 +57,6 @@ struct HomePreview: View {
 
 #Preview("First run") { HomePreview(.firstRun) }
 #Preview("Midway") { HomePreview(.midway) }
+#Preview("Locked stories") { HomePreview(.locked) }
 #Preview("iPad") { HomePreview(.midway, size: Metrics.pad.reference) }
 #endif
