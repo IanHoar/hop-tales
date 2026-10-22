@@ -40,6 +40,7 @@ import com.hoptales.content.Basket
 import com.hoptales.content.Friend
 import com.hoptales.content.Journey
 import com.hoptales.content.Mood
+import com.hoptales.content.PlusStatus
 import com.hoptales.content.Profile
 import com.hoptales.content.Progress
 import com.hoptales.content.Sky
@@ -244,6 +245,22 @@ class ScreenshotTest {
     @Config(qualifiers = "w412dp-h2540dp-xhdpi")
     fun settingsDark() = settings(dark = true)
 
+    @Test fun plusFreeLight() = plusSection("plus-free", PlusStatus.Free, dark = false, nothingToRestore = true)
+
+    @Test fun plusFreeDark() = plusSection("plus-free", PlusStatus.Free, dark = true, nothingToRestore = true)
+
+    @Test fun plusRenewsLight() = plusSection("plus-renews", PlusStatus.Renews(), dark = false)
+
+    @Test fun plusRenewsDark() = plusSection("plus-renews", PlusStatus.Renews(), dark = true)
+
+    @Test fun plusEndsLight() = plusSection("plus-ends", PlusStatus.Ends(), dark = false)
+
+    @Test fun plusEndsDark() = plusSection("plus-ends", PlusStatus.Ends(), dark = true)
+
+    @Test fun plusPendingLight() = plusSection("plus-pending", PlusStatus.Pending, dark = false)
+
+    @Test fun plusPendingDark() = plusSection("plus-pending", PlusStatus.Pending, dark = true)
+
     @Test
     @Config(qualifiers = "w412dp-h2540dp-notnight-xhdpi")
     fun settingsThemeDarkOnALightDevice() {
@@ -284,6 +301,25 @@ class ScreenshotTest {
             HopTalesTheme(dark = dark) { OnboardingContent(state, OnboardingActions()) }
         }
         compose.onRoot().captureRoboImage(path("onboarding-${step.name.lowercase().replace('_', '-')}", dark), options)
+    }
+
+    private fun plusSection(name: String, status: PlusStatus, dark: Boolean, nothingToRestore: Boolean = false) {
+        val profile = Profile("Maya", Friend.HARE, Profile.Accent.CANADIAN)
+        compose.setContent {
+            HopTalesTheme(dark = dark) {
+                SettingsContent(
+                    SettingsState(
+                        childName = "Maya",
+                        profile = profile,
+                        journey = Journey.starting(Friend.HARE),
+                        plusStatus = status,
+                        foundNothingToRestore = nothingToRestore,
+                    ),
+                    SettingsActions(),
+                )
+            }
+        }
+        compose.onRoot().captureRoboImage(path(name, dark), options)
     }
 
     private fun settings(dark: Boolean) {

@@ -2,6 +2,7 @@ package com.hoptales.android.billing
 
 import com.android.billingclient.api.BillingClient.BillingResponseCode
 import com.hoptales.content.PlusPlan
+import com.hoptales.content.PlusStatus
 import java.security.KeyFactory
 import java.security.Signature
 import java.security.spec.X509EncodedKeySpec
@@ -15,6 +16,7 @@ data class PlayPurchase(
     val token: String,
     val json: String,
     val signature: String,
+    val isAutoRenewing: Boolean = true,
 ) {
     enum class State { PURCHASED, PENDING, UNSPECIFIED }
 
@@ -27,6 +29,15 @@ data class PlayPurchase(
 
     companion object {
         fun isPlus(purchases: List<PlayPurchase>, verifier: PurchaseVerifier): Boolean = purchases.any { it.entitles(verifier) }
+
+        fun status(purchases: List<PlayPurchase>, verifier: PurchaseVerifier): PlusStatus {
+            val entitled = purchases.firstOrNull { it.entitles(verifier) }
+            return when {
+                entitled != null -> if (entitled.isAutoRenewing) PlusStatus.Renews() else PlusStatus.Ends()
+                purchases.any { it.isPlusProduct && it.state == State.PENDING } -> PlusStatus.Pending
+                else -> PlusStatus.Free
+            }
+        }
 
         fun outcome(responseCode: Int, purchases: List<PlayPurchase>): PurchaseOutcome = when (responseCode) {
             BillingResponseCode.OK, BillingResponseCode.ITEM_ALREADY_OWNED -> {
