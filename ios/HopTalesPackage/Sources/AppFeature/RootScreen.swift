@@ -49,6 +49,15 @@ import SwiftUI
   @Dependency(ProfileStore.self) var profileStore
   @Dependency(ProgressStore.self) var progressStore
 
+  private func open(_ story: Story, _ state: inout State) {
+    guard !state.home.isLocked(story) else {
+      state.home.showLocked(story)
+      return
+    }
+    let reading = Reading.State(story, on: progressStore.load())
+    state.path.append(.reading(reading))
+  }
+
   private func startJourney(with friend: Friend) {
     var progress = progressStore.load()
     guard progress.journey.level < friend.level else { return }
@@ -61,8 +70,7 @@ import SwiftUI
       Update { state, action in
         switch action {
         case let .home(.storyTapped(story)):
-          let reading = Reading.State(story, on: progressStore.load())
-          state.path.append(.reading(reading))
+          open(story, &state)
         case .home(.friendsTapped):
           state.friends = Friends.State()
         case .home(.bookTapped):
@@ -98,8 +106,7 @@ import SwiftUI
           state.home.apply(progressStore.load())
         case let .journeyMap(.bigStoryTapped(story)):
           state.journeyMap = nil
-          let reading = Reading.State(story, on: progressStore.load())
-          state.path.append(.reading(reading))
+          open(story, &state)
         case .journeyMap:
           break
         case .home(.grownUpsTapped):
@@ -110,7 +117,7 @@ import SwiftUI
           state.home.apply(progressStore.load())
         case let .settings(.themePicked(theme)):
           state.theme = theme
-        case .home(.playOnTVTapped):
+        case .home(.locked), .home(.playOnTVTapped):
           break
         case .intro(.finished):
           state.intro = nil
@@ -134,9 +141,8 @@ import SwiftUI
           state.onboarding = Onboarding.State()
         case let .path(_, .reading(.continueTapped(story))):
           state.path.removeLast()
-          let reading = Reading.State(story, on: progressStore.load())
-          state.path.append(.reading(reading))
           state.home.apply(progressStore.load())
+          open(story, &state)
         case .path(_, .reading(.backToStoriesTapped)):
           state.path.removeLast()
           state.home.apply(progressStore.load())

@@ -75,6 +75,7 @@ import com.hoptales.android.design.Glyphs
 import com.hoptales.android.design.LocalFold
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
+import com.hoptales.android.design.PadlockSticker
 import com.hoptales.android.design.PaperLabel
 import com.hoptales.android.design.PaperStar
 import com.hoptales.android.design.headingGroup
@@ -121,6 +122,8 @@ fun HomeScreen(
     onBook: () -> Unit = {},
     entrance: Boolean = false,
     covered: Boolean = false,
+    isLocked: (Story) -> Boolean = { false },
+    onLockedStory: (Story) -> Unit = {},
 ) {
     val paper = LocalPaper.current
     val arrival = rememberArrival(entrance)
@@ -128,7 +131,7 @@ fun HomeScreen(
     val insets = WindowInsets.safeDrawing.asPaddingValues()
     val friend = progress.journey.activeFriend
     val standings = progress.shelf(library)
-    val keepGoing = standings.keepGoing(friend.startingStoryID(library))
+    val keepGoing = standings.filterNot { isLocked(it.story) }.keepGoing(friend.startingStoryID(library))
     val outfit = progress.outfit(friend, wardrobe)
     BoxWithConstraints(Modifier.fillMaxSize().background(paper.page)) {
         val fullHeight = maxHeight
@@ -224,7 +227,8 @@ fun HomeScreen(
                         modifier = Modifier.padding(top = 6.dp).semantics { heading() },
                     )
                     for (standing in standings.filter { it.story.id != keepGoing?.story?.id }) {
-                        StoryRow(standing) { onStory(standing.story) }
+                        val locked = isLocked(standing.story)
+                        StoryRow(standing, locked) { if (locked) onLockedStory(standing.story) else onStory(standing.story) }
                     }
                 }
             }
@@ -483,7 +487,7 @@ private fun KeepGoingCard(standing: StoryStanding, onClick: () -> Unit) {
 }
 
 @Composable
-private fun StoryRow(standing: StoryStanding, onClick: () -> Unit) {
+private fun StoryRow(standing: StoryStanding, locked: Boolean, onClick: () -> Unit) {
     val paper = LocalPaper.current
     val type = LocalTypography.current
     val shape = RoundedCornerShape(16.dp)
@@ -492,7 +496,8 @@ private fun StoryRow(standing: StoryStanding, onClick: () -> Unit) {
             .fillMaxWidth()
             .pressable(onClick)
             .clearAndSetSemantics {
-                contentDescription = "${standing.story.title}. ${standing.subtitle}"
+                val label = "${standing.story.title}. ${standing.subtitle}"
+                contentDescription = if (locked) "$label. Locked, part of Hop Tales Plus" else label
                 role = Role.Button
             }
             .background(paper.rim.copy(alpha = 0.55f), shape)
@@ -506,17 +511,19 @@ private fun StoryRow(standing: StoryStanding, onClick: () -> Unit) {
             Text(standing.story.title, style = type.display(17.sp), color = paper.ink)
             Text(standing.subtitle, style = type.ui(13.sp, FontWeight.Medium), color = paper.muted)
         }
-        when (standing.standing) {
-            StoryStanding.Standing.Finished -> Box(
+        when {
+            locked -> PadlockSticker(30.dp)
+
+            standing.standing == StoryStanding.Standing.Finished -> Box(
                 Modifier.size(24.dp).background(paper.sageDeep, CircleShape),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(Glyphs.check, null, tint = paper.onRed, modifier = Modifier.size(16.dp))
             }
 
-            is StoryStanding.Standing.InProgress -> PaperStar(22.dp)
+            standing.standing is StoryStanding.Standing.InProgress -> PaperStar(22.dp)
 
-            StoryStanding.Standing.Unread -> Text(
+            else -> Text(
                 "New",
                 style = type.ui(13.sp),
                 color = paper.redInk,

@@ -66,6 +66,7 @@ import com.hoptales.android.home.BookScreen
 import com.hoptales.android.home.FriendsScreen
 import com.hoptales.android.home.HomeScreen
 import com.hoptales.android.home.JourneyMapScreen
+import com.hoptales.android.home.LockedStoryScreen
 import com.hoptales.android.home.WardrobeScreen
 import com.hoptales.android.intro.IntroScreen
 import com.hoptales.android.onboarding.OnboardingScreen
@@ -76,8 +77,10 @@ import com.hoptales.android.world.IntroLayout
 import com.hoptales.android.world.IntroTimeline
 import com.hoptales.android.world.LocalLooks
 import com.hoptales.content.Friend
+import com.hoptales.content.Plus
 import com.hoptales.content.Profile
 import com.hoptales.content.Story
+import com.hoptales.content.StoryStanding
 import com.hoptales.content.tapping
 import com.hoptales.content.undressing
 import com.hoptales.onboarding.OnboardingState
@@ -228,6 +231,17 @@ private fun Destination(app: HopTalesApplication) {
     var fromOnboarding by remember { mutableStateOf(false) }
     val progress by app.progressStore.progress.collectAsStateWithLifecycle()
     val profile by app.profileStore.profile.collectAsStateWithLifecycle()
+    val isPlus by app.plus.isPlus.collectAsStateWithLifecycle()
+    val isLocked: (Story) -> Boolean = { Plus.isLocked(it, isPlus, BuildConfig.PLUS_LOCKS_STORIES) }
+    val open: (Story) -> Unit = {
+        trying = null
+        if (isLocked(it)) {
+            storyID = null
+            sheet = Sheet.locked(it)
+        } else {
+            storyID = it.id
+        }
+    }
     val route = when {
         profile == null -> Route.Onboarding
         else -> storyID?.let(app.library::get)?.let(Route::Reading) ?: Route.Home
@@ -265,10 +279,7 @@ private fun Destination(app: HopTalesApplication) {
                         trying = null
                         storyID = null
                     },
-                    onStory = {
-                        trying = null
-                        storyID = it.id
-                    },
+                    onStory = open,
                     onTryItOn = { trying = Sheet.wardrobe(it) },
                 )
 
@@ -289,6 +300,8 @@ private fun Destination(app: HopTalesApplication) {
                         onBook = { sheet = Sheet.book(friend) },
                         entrance = fromOnboarding,
                         covered = overlay != null,
+                        isLocked = isLocked,
+                        onLockedStory = { sheet = Sheet.locked(it) },
                     )
                 }
             }
@@ -303,7 +316,7 @@ private fun Destination(app: HopTalesApplication) {
                     onFriend = { tapped -> app.progressStore.update { it.copy(journey = it.journey.readingWith(tapped)) } },
                     onBigStory = {
                         sheet = null
-                        storyID = it.id
+                        open(it)
                     },
                     onDone = { sheet = null },
                 )
@@ -315,6 +328,13 @@ private fun Destination(app: HopTalesApplication) {
                     onJourney = { sheet = Sheet.JOURNEY },
                     onDone = { sheet = null },
                 )
+
+                target.startsWith(Sheet.LOCKED) -> {
+                    val locked = app.library[target.removePrefix(Sheet.LOCKED)]
+                    if (locked != null) {
+                        LockedStoryScreen(StoryStanding.of(locked, progress), onDone = { sheet = null })
+                    }
+                }
 
                 target.startsWith(Sheet.WARDROBE) -> {
                     val dressing = Sheet.friend(target) ?: friend
@@ -439,10 +459,13 @@ private object Sheet {
     const val FRIENDS = "friends"
     const val WARDROBE = "wardrobe:"
     const val BOOK = "book:"
+    const val LOCKED = "locked:"
 
     fun wardrobe(friend: Friend) = WARDROBE + friend.key
 
     fun book(friend: Friend) = BOOK + friend.key
+
+    fun locked(story: Story) = LOCKED + story.id
 
     fun friend(sheet: String): Friend? = Friend.entries.firstOrNull { sheet.endsWith(":${it.key}") }
 }

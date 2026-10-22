@@ -153,6 +153,12 @@ object Glyphs {
         strokeWidth = 1.2f,
     )
 
+    val backspace = stroked(
+        "backspace",
+        "M8,5H20a1.5,1.5 0 0,1 1.5,1.5v11a1.5,1.5 0 0,1 -1.5,1.5H8L2.5,12zM11.5,9.5L16.5,14.5M16.5,9.5L11.5,14.5",
+        strokeWidth = 2f,
+    )
+
     val check = filled("check", "M9,16.17L4.83,12l-1.42,1.41L9,19 21,7l-1.41,-1.41z")
 
     val counterclockwise = stroked("counterclockwise", "M5,9.4A7.5,7.5 0 1,0 12,4.5H9.5M11.8,1.6L9,4.5 11.8,7.4")

@@ -22,6 +22,7 @@ struct StoryThumbnail: View {
 
 struct StoryRow: View {
   let standing: StoryStanding
+  var isLocked = false
   let action: () -> Void
 
   var body: some View {
@@ -51,8 +52,13 @@ struct StoryRow: View {
     }
     .buttonStyle(.plain)
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel("\(standing.story.title). \(standing.subtitle)")
+    .accessibilityLabel(accessibilityLabel)
     .accessibilityAddTraits(.isButton)
+  }
+
+  private var accessibilityLabel: String {
+    let label = "\(standing.story.title). \(standing.subtitle)"
+    return isLocked ? "\(label). Locked, part of Hop Tales Plus" : label
   }
 
   private var rowShape: RoundedRectangle {
@@ -61,6 +67,15 @@ struct StoryRow: View {
 
   @ViewBuilder
   private var badge: some View {
+    if isLocked {
+      PadlockSticker(size: 30)
+    } else {
+      progressBadge
+    }
+  }
+
+  @ViewBuilder
+  private var progressBadge: some View {
     switch standing.standing {
     case .finished:
       Image(systemName: "checkmark.circle.fill")
