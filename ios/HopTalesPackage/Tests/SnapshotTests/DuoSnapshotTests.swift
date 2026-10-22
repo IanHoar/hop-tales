@@ -97,7 +97,7 @@ struct DuoSnapshotTests {
 
   @Test(arguments: cases)
   func onboarding(fold: Fold, scheme: ColorScheme) {
-    shoot(OnboardingPreview(.friend, size: fold.content), fold, scheme, named: "onboarding")
+    shoot(OnboardingPreview(.ahead, size: fold.content), fold, scheme, named: "onboarding")
   }
 
   struct Posture: Sendable {
@@ -115,7 +115,7 @@ struct DuoSnapshotTests {
 
   @Test(arguments: postures)
   func onboardingHalfOpen(posture: Posture) {
-    for step in [Onboarding.Step.cloud, .friend] {
+    for step in [Onboarding.Step.cloud, .ahead] {
       shoot(
         OnboardingPreview(step, size: posture.fold.content)
           .environment(\.simulatedFold, DesignSystem.Fold(posture.crease)),

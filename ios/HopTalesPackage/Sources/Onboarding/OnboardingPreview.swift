@@ -27,11 +27,7 @@ struct OnboardingPreview: View {
     state.childName = "Wren"
     state.path = Onboarding.Step.allCases.filter { $0 != .cloud && $0.rawValue <= step.rawValue }
     if step.rawValue > Onboarding.Step.listening.rawValue { state.authorization = .authorized }
-    if step == .friend { state.startingFriend = .hare }
-    if step == .soundButtons {
-      state.startingFriend = .bunny
-      state.soundButtons = true
-    }
+    if step == .soundButtons { state.soundButtons = true }
     if step.rawValue > Onboarding.Step.cloud.rawValue { state.cloudSync = false }
     if step == .cloud {
       state.cloudSync = true
@@ -44,6 +40,6 @@ struct OnboardingPreview: View {
 #Preview("iCloud") { OnboardingPreview(.cloud) }
 #Preview("Name") { OnboardingPreview(.name) }
 #Preview("Microphone") { OnboardingPreview(.listening) }
-#Preview("Starting friend") { OnboardingPreview(.friend) }
+#Preview("What's ahead") { OnboardingPreview(.ahead) }
 #Preview("Sound buttons") { OnboardingPreview(.soundButtons) }
 #endif

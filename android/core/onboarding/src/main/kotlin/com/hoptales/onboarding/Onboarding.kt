@@ -8,7 +8,7 @@ enum class OnboardingStep {
     BACKUP,
     NAME,
     LISTENING,
-    FRIEND,
+    AHEAD,
     SOUND_BUTTONS,
     ;
 
@@ -25,7 +25,6 @@ data class OnboardingState(
     val step: OnboardingStep = OnboardingStep.entries.first(),
     val childName: String = "",
     val authorization: Authorization? = null,
-    val startingFriend: Friend? = null,
     val accent: Profile.Accent? = null,
     val soundButtons: Boolean? = null,
     val backup: Boolean? = null,
@@ -51,7 +50,6 @@ data class OnboardingState(
     val draft: ProfileDraft
         get() = ProfileDraft(
             childName = childName,
-            startingFriend = startingFriend,
             accent = accent,
             soundButtons = soundButtons,
             backup = backup,
@@ -62,13 +60,13 @@ data class OnboardingState(
         OnboardingStep.BACKUP -> backup != null
         OnboardingStep.NAME -> childName.isNotBlank()
         OnboardingStep.LISTENING -> authorization != null
-        OnboardingStep.FRIEND -> startingFriend != null
+        OnboardingStep.AHEAD -> true
         OnboardingStep.SOUND_BUTTONS -> soundButtons != null
     }
 
     fun profile(region: String?): Profile = Profile(
         childName = childName.trim(),
-        startingFriend = startingFriend ?: Friend.BUNNY,
+        startingFriend = Friend.at(1),
         accent = accent ?: Profile.Accent.of(region),
         soundButtons = soundButtons ?: false,
     )
@@ -77,7 +75,6 @@ data class OnboardingState(
         fun resuming(draft: ProfileDraft) = OnboardingState(
             step = OnboardingStep.numbered(draft.step) ?: OnboardingStep.entries.first(),
             childName = draft.childName,
-            startingFriend = draft.startingFriend,
             accent = draft.accent,
             soundButtons = draft.soundButtons,
             backup = draft.backup,
@@ -95,10 +92,6 @@ sealed interface OnboardingNext {
 class Onboarding(var state: OnboardingState = OnboardingState(), private val region: String? = null) {
     fun nameChanged(name: String) {
         state = state.copy(childName = Profile.trimmedName(name))
-    }
-
-    fun friendPicked(friend: Friend) {
-        state = state.copy(startingFriend = friend)
     }
 
     fun soundButtonsPicked(isOn: Boolean) {
