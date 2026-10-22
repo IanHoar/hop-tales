@@ -8,6 +8,8 @@ plugins {
 val shared = rootDir.resolve("../ios/HopTalesPackage/Sources")
 val notYetOnAndroid = listOf("postcard-*")
 val baseLooks = providers.gradleProperty("hoptales.baseLooks").get().split(",")
+val plusLocksStories = providers.gradleProperty("hoptales.plusLocksStories").get().toBooleanStrict()
+val playPublicKey = providers.gradleProperty("hoptales.playPublicKey").orNull.orEmpty()
 
 abstract class BaseWorldArt : DefaultTask() {
     @get:InputDirectory
@@ -75,6 +77,8 @@ android {
         versionCode = release?.code ?: 1
         versionName = release?.name ?: "0.1.0"
         buildConfigField("String", "BASE_LOOKS", "\"${baseLooks.joinToString(",")}\"")
+        buildConfigField("boolean", "PLUS_LOCKS_STORIES", plusLocksStories.toString())
+        buildConfigField("String", "PLAY_PUBLIC_KEY", "\"$playPublicKey\"")
     }
 
     signingConfigs {
@@ -158,6 +162,7 @@ dependencies {
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.play.asset.delivery)
+    implementation(libs.billing.ktx)
     debugImplementation(libs.compose.ui.tooling)
     testImplementation(libs.junit)
     testImplementation(platform(libs.compose.bom))

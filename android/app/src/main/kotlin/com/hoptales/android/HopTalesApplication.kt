@@ -1,6 +1,9 @@
 package com.hoptales.android
 
 import android.app.Application
+import com.hoptales.android.billing.PlayKeyVerifier
+import com.hoptales.android.billing.PlayPlusSource
+import com.hoptales.android.billing.PlusSource
 import com.hoptales.android.data.BackupChoice
 import com.hoptales.android.data.HopTalesDatabase
 import com.hoptales.android.data.ListeningPreferences
@@ -46,6 +49,7 @@ class HopTalesApplication : Application() {
     val chord: ChordPlayer by lazy { ChordPlayer() }
     val soundPreference: SoundPreference by lazy { SoundPreference(this) }
     val speechLog: SpeechLog by lazy { SpeechLog(this) }
+    val plus: PlusSource by lazy { PlayPlusSource(this, PlayKeyVerifier(BuildConfig.PLAY_PUBLIC_KEY)) }
     val looks: LookPack by lazy {
         if (BuildConfig.DEBUG) LookPack.bundled else LookPack(PlayPackDelivery(this)).also(LookPack::start)
     }
