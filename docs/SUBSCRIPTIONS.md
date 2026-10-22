@@ -28,8 +28,8 @@ ours.
 
 - **The free tier is Level 1, not one named story.** The rule is `story.level == 1` in
   `stories.json`, so it covers the four Level 1 stories today (The Meadow Walk, Bob and the Bug,
-  The Big Nap, Bob and the Mud) and any Level 1 story added later. It doesn't depend on the friend
-  picked in onboarding, so resetting onboarding never hands out a different free shelf.
+  The Big Nap, Bob and the Mud) and any Level 1 story added later. Every new reader starts at
+  Level 1 with Bob, and onboarding offers no other starting friend.
 - **No feature ever sits behind the paywall**, only stories. The reading loop is the same for
   everyone, so a free child never meets a lesser version of the game.
 - **The TV isn't paywalled.** It's the feature that sells the app on the living-room floor, and
@@ -39,9 +39,10 @@ ours.
   rule 5 still holds).
 - **The journey keeps going.** A free child who reads well enough at Level 1 still meets the next
   friend. That friend's stories show the locked card, and the four Level 1 stories stay open.
-- **A starting friend above Level 1.** Onboarding offers Bob, Skip and Oggy (Levels 1–3). If the
-  grown-up picks Skip or Oggy and then starts with the free stories, the friend is kept, the
-  friend's own stories show the locked card, and Home offers the Level 1 stories to read.
+- **A starting friend above Level 1.** Onboarding no longer offers one: every new reader starts
+  with Bob. A reader who was set up on Skip or Oggy before that, or whom a grown-up moves up in
+  Settings, keeps the friend; the friend's own stories show the locked card, and Home offers the
+  Level 1 stories to read.
 
 ### Introductory offer
 

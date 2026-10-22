@@ -49,6 +49,26 @@ Interactive artboards are in `Design/artboards/*.dc.html` (each is a self-contai
 | `iPad` | 1194×834 landscape, castle stage |
 | `World` | The asset sheet: composite + each layer isolated |
 
+### Onboarding
+
+The first launch walks the grown-up through five steps on one paper sheet over the meadow, with
+Back on every step after the first:
+
+1. **iCloud** (Google backup on Android). Choosing Yes on a device with a saved reader brings the
+   reader back and skips to the microphone.
+2. **Name** — the child's name or nickname.
+3. **Microphone** — explained before the system prompt. Refusing it doesn't block set-up.
+4. **What's ahead** — "Reading grows with your reader". It shows the Level 1, 2 and 3 friends
+   (Bob, Skip, Oggy) on a dotted trail, each with their "Words like …" examples, Bob marked
+   "Starts here", then "More friends further along". It's informational: nothing to pick, and
+   Continue is always enabled.
+5. **Sound buttons.**
+
+Every new reader starts at Level 1 with the Level 1 friend (`Friend.at(level: 1)`, Bob). There is
+no starting-level choice. A grown-up moves a stronger reader up in Settings ("Reading with"), which
+offers the first three friends plus any friend already met. Existing and restored profiles keep
+their saved starting friend.
+
 ---
 
 ## 3. Design tokens

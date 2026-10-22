@@ -13,7 +13,7 @@ import World
     case cloud = 1
     case name
     case listening
-    case friend
+    case ahead
     case soundButtons
   }
 
@@ -21,7 +21,6 @@ import World
     public var path: [Step] = []
     public var childName = ""
     public var authorization: SpeechClient.Authorization?
-    public var startingFriend: Friend?
     public var accent: Profile.Accent?
     public var soundButtons: Bool?
     public var cloudSync: Bool?
@@ -32,7 +31,6 @@ import World
 
     public init(resuming draft: ProfileDraft) {
       childName = draft.childName
-      startingFriend = draft.startingFriend
       accent = draft.accent
       soundButtons = draft.soundButtons
       cloudSync = draft.cloudSync
@@ -42,7 +40,6 @@ import World
     public var draft: ProfileDraft {
       ProfileDraft(
         childName: childName,
-        startingFriend: startingFriend,
         accent: accent,
         soundButtons: soundButtons,
         cloudSync: cloudSync,
@@ -62,7 +59,7 @@ import World
     public var profile: Profile {
       Profile(
         childName: childName.trimmingCharacters(in: .whitespacesAndNewlines),
-        startingFriend: startingFriend ?? .bunny,
+        startingFriend: .at(level: 1),
         accent: resolvedAccent,
         soundButtons: soundButtons ?? false
       )
@@ -91,7 +88,7 @@ import World
       switch step {
       case .name: !childName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
       case .listening: authorization != nil
-      case .friend: startingFriend != nil
+      case .ahead: true
       case .soundButtons: soundButtons != nil
       case .cloud: cloudSync != nil
       }
@@ -105,7 +102,6 @@ import World
     case cloudCaughtUp(restored: Profile?)
     case cloudSyncPicked(Bool)
     case finished(Profile)
-    case friendPicked(Friend)
     case nameChanged(String)
     case primaryTapped
     case soundButtonsPicked(Bool)
@@ -168,9 +164,6 @@ import World
 
       case let .nameChanged(name):
         state.childName = String(name.prefix(24))
-
-      case let .friendPicked(friend):
-        state.startingFriend = friend
 
       case let .soundButtonsPicked(isOn):
         state.soundButtons = isOn

@@ -52,7 +52,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Rect
@@ -64,13 +63,15 @@ import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
@@ -99,7 +100,6 @@ import com.hoptales.android.world.IdleFriend
 import com.hoptales.android.world.MeadowBackdrop
 import com.hoptales.android.world.SoundMarksExamples
 import com.hoptales.content.Friend
-import com.hoptales.content.Phonics
 import com.hoptales.onboarding.Authorization
 import com.hoptales.onboarding.OnboardingNext
 import com.hoptales.onboarding.OnboardingState
@@ -107,7 +107,6 @@ import com.hoptales.onboarding.OnboardingStep
 
 class OnboardingActions(
     val nameChanged: (String) -> Unit = {},
-    val friendPicked: (Friend) -> Unit = {},
     val soundButtonsPicked: (Boolean) -> Unit = {},
     val backupPicked: (Boolean) -> Unit = {},
     val backTapped: () -> Unit = {},
@@ -129,7 +128,6 @@ fun OnboardingScreen(key: String) {
         state,
         OnboardingActions(
             nameChanged = model::nameChanged,
-            friendPicked = model::friendPicked,
             soundButtonsPicked = model::soundButtonsPicked,
             backupPicked = model::backupPicked,
             backTapped = model::backTapped,
@@ -251,7 +249,7 @@ private val OnboardingStep.title: String
         OnboardingStep.BACKUP -> "Back up to your Google account?"
         OnboardingStep.NAME -> "What should we call you?"
         OnboardingStep.LISTENING -> "Can Hop Tales use the microphone?"
-        OnboardingStep.FRIEND -> "Who should your reader start with?"
+        OnboardingStep.AHEAD -> "Reading grows with your reader"
         OnboardingStep.SOUND_BUTTONS -> "Show dots and dashes under the sounds?"
     }
 
@@ -269,8 +267,9 @@ private val OnboardingStep.detail: String
             "The microphone lets Hop Tales hear your child read, so the hare can hop to the next word. Everything is heard " +
                 "on this device. Nothing is recorded, and nothing is sent anywhere."
 
-        OnboardingStep.FRIEND ->
-            "Pick the friend whose words look about right, and let your reader have a look too. You can change this later."
+        OnboardingStep.AHEAD ->
+            "Your reader starts with ${Friend.at(1).friendName} and short, simple words. With every story they read, " +
+                "they'll meet new friends and move on to longer, trickier words."
 
         OnboardingStep.SOUND_BUTTONS ->
             "Sound buttons put a dot under each sound and a dash under letters that make one sound together, like sh. " +
@@ -300,7 +299,7 @@ private fun StepPage(state: OnboardingState, actions: OnboardingActions) {
 
                 OnboardingStep.LISTENING -> MicrophoneNote(state.authorization)
 
-                OnboardingStep.FRIEND -> FriendChoices(state.startingFriend, actions.friendPicked)
+                OnboardingStep.AHEAD -> ReadingAhead(state.childName)
 
                 OnboardingStep.SOUND_BUTTONS -> SoundButtonChoices(state.soundButtons, actions.soundButtonsPicked)
             }
@@ -388,61 +387,77 @@ private fun Note(text: String) {
 }
 
 @Composable
-private fun FriendChoices(selected: Friend?, onPick: (Friend) -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        for (friend in Friend.starters) FriendChoice(friend, friend == selected) { onPick(friend) }
-        LaterFriends(Modifier.padding(top = 6.dp))
+private fun ReadingAhead(childName: String) {
+    val friends = (1..3).map(Friend::at)
+    Column(Modifier.fillMaxWidth()) {
+        friends.forEachIndexed { index, friend ->
+            if (index > 0) Trail()
+            FriendAhead(friend, startsHere = index == 0, childName = childName)
+        }
+        Trail()
+        Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            Spacer(Modifier.width(58.dp))
+            Text(
+                "More friends further along",
+                style = LocalTypography.current.ui(14.sp, FontWeight.Medium),
+                color = LocalPaper.current.muted,
+            )
+        }
     }
 }
 
 @Composable
-private fun FriendChoice(friend: Friend, isSelected: Boolean, onClick: () -> Unit) {
+private fun FriendAhead(friend: Friend, startsHere: Boolean, childName: String) {
     val paper = LocalPaper.current
     val type = LocalTypography.current
-    ChoiceSurface(
-        selected = isSelected,
-        onClick = onClick,
-        label = "${friend.friendName}, ${friend.stage}. Words like ${friend.examples.joinToString(", ")}.",
+    val words = friend.examples.joinToString(", ")
+    val reader = childName.trim().ifEmpty { "your reader" }
+    val start = if (startsHere) ", where $reader starts" else ""
+    Row(
+        Modifier.clearAndSetSemantics { contentDescription = "${friend.friendName}$start. Words like $words." },
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.width(58.dp), contentAlignment = Alignment.Center) {
-                FriendSticker(friend, 58.dp, Modifier.wrapContentWidth(unbounded = true))
-            }
-            Spacer(Modifier.width(14.dp))
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Text(friend.friendName, style = type.display(19.sp), color = paper.ink, modifier = Modifier.alignByBaseline())
+        Box(Modifier.width(58.dp), contentAlignment = Alignment.Center) {
+            FriendSticker(friend, 58.dp, Modifier.wrapContentWidth(unbounded = true))
+        }
+        Spacer(Modifier.width(14.dp))
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(friend.friendName, style = type.display(19.sp), color = paper.ink, modifier = Modifier.alignByBaseline())
+                if (startsHere) {
                     Spacer(Modifier.width(8.dp))
-                    Text(friend.stage, style = type.ui(14.sp), color = paper.muted, modifier = Modifier.alignByBaseline())
+                    Text(
+                        "Starts here",
+                        style = type.ui(12.sp, FontWeight.SemiBold),
+                        color = paper.ink,
+                        modifier = Modifier
+                            .alignByBaseline()
+                            .background(paper.wash, CircleShape)
+                            .padding(horizontal = 8.dp, vertical = 3.dp),
+                    )
                 }
-                Text(friend.examples.joinToString(" · "), style = type.word(18.sp), color = paper.ink.copy(alpha = 0.85f))
             }
+            Text(
+                buildAnnotatedString {
+                    append("Words like ")
+                    withStyle(type.word(18.sp).toSpanStyle().copy(color = paper.ink)) { append(words) }
+                },
+                style = type.ui(14.sp),
+                color = paper.muted,
+            )
         }
     }
 }
 
 @Composable
-private fun LaterFriends(modifier: Modifier = Modifier) {
-    val paper = LocalPaper.current
-    val type = LocalTypography.current
-    val later = Friend.entries.filter { it !in Friend.starters }
+private fun Trail() {
+    val dot = LocalPaper.current.muted.copy(alpha = 0.45f)
     Column(
-        modifier.fillMaxWidth().semantics(mergeDescendants = true) {},
+        Modifier.width(58.dp).padding(vertical = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(5.dp),
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.Bottom) {
-            for (friend in later) {
-                FriendSticker(friend, 34.dp, Modifier.alpha(0.45f), isSilhouette = true, silhouette = paper.silhouette)
-            }
-        }
-        Text(
-            "${later.size} more friends join as your reader gets stronger",
-            style = type.ui(13.sp, FontWeight.Medium),
-            color = paper.muted,
-            textAlign = TextAlign.Center,
-        )
-        Text(Phonics.STANDARD, style = type.ui(12.sp), color = paper.muted, textAlign = TextAlign.Center)
+        repeat(3) { Box(Modifier.size(5.dp).background(dot, CircleShape)) }
     }
 }
 

@@ -52,17 +52,24 @@ struct OnboardingTests {
     store.send(.primaryTapped)
     await store.receive(\.authorizationResolved) { $0.authorization = .authorized }
     #expect(store.state.primaryTitle == "Continue")
-    store.send(.primaryTapped) { $0.path = [.name, .listening, .friend] }
-    store.send(.primaryTapped)
-    store.send(.friendPicked(.frog)) {
-      $0.startingFriend = .frog
-    }
-    store.send(.primaryTapped) { $0.path = [.name, .listening, .friend, .soundButtons] }
+    store.send(.primaryTapped) { $0.path = [.name, .listening, .ahead] }
+    #expect(store.state.stepNumber == 4)
+    #expect(store.state.steps.count == 5)
+    #expect(store.state.primaryEnabled)
+    store.send(.primaryTapped) { $0.path = [.name, .listening, .ahead, .soundButtons] }
     store.send(.primaryTapped)
     store.send(.soundButtonsPicked(true)) { $0.soundButtons = true }
     #expect(store.state.primaryTitle == "Start reading")
     store.send(.primaryTapped)
     await store.receive(\.finished)
+  }
+
+  @Test func everyNewReaderStartsWithTheLevelOneFriend() {
+    var state = Onboarding.State()
+    state.childName = "Maya"
+    #expect(state.profile.startingFriend == Friend.at(level: 1))
+    #expect(state.profile.startingFriend == .bunny)
+    #expect(state.profile.startingStoryID == StoryLibrary.stories(at: 1).first?.id)
   }
 
   private func cloud(
@@ -141,7 +148,7 @@ struct OnboardingTests {
     state.childName = "Maya"
     #expect(state.canContinue(from: .name))
     #expect(!state.canContinue(from: .listening))
-    #expect(!state.canContinue(from: .friend))
+    #expect(state.canContinue(from: .ahead))
     #expect(!state.canContinue(from: .soundButtons))
     #expect(!state.canContinue(from: .cloud))
   }
@@ -158,7 +165,7 @@ struct OnboardingTests {
     store.send(.primaryTapped) { $0.path = [.name, .listening] }
     store.send(.primaryTapped)
     await store.receive(\.authorizationResolved) { $0.authorization = .denied }
-    store.send(.primaryTapped) { $0.path = [.name, .listening, .friend] }
+    store.send(.primaryTapped) { $0.path = [.name, .listening, .ahead] }
   }
 
   @Test func finishingSavesTheProfileAndShowsTheStories() {
@@ -184,7 +191,7 @@ struct OnboardingTests {
 
   @Test func backReturnsToThePreviousQuestion() async {
     var state = Onboarding.State()
-    state.path = [.name, .listening, .friend]
+    state.path = [.name, .listening, .ahead]
     let store = TestStore(initialState: state) {
       Onboarding().dependency(Self.speech)
     }
@@ -211,7 +218,7 @@ struct OnboardingTests {
     let draft = ProfileDraft(
       childName: "Maya",
       startingFriend: .frog,
-      step: Onboarding.Step.friend.rawValue
+      step: Onboarding.Step.ahead.rawValue
     )
     let store = TestStore(initialState: Root.State()) {
       Root()
@@ -219,9 +226,8 @@ struct OnboardingTests {
         .dependency(Self.speech)
     } changes: {
       $0.onboarding = Onboarding.State.DebugSnapshot(
-        path: [.name, .listening, .friend],
-        childName: "Maya",
-        startingFriend: .frog
+        path: [.name, .listening, .ahead],
+        childName: "Maya"
       )
     }
     await store.receive(\.onboarding.authorizationResolved) {
@@ -250,6 +256,7 @@ struct OnboardingTests {
     #expect(store.state.onboarding == nil)
     #expect(saved.value?.accent == .american)
     #expect(saved.value?.soundButtons == true)
+    #expect(saved.value?.startingFriend == Friend.at(level: 1))
   }
 
   @Test func resettingOnboardingForgetsTheProfile() {

@@ -10,7 +10,7 @@ extension Onboarding.Step {
     switch self {
     case .name: "What should we call you?"
     case .listening: "Can Hop Tales use the microphone?"
-    case .friend: "Who should your reader start with?"
+    case .ahead: "Reading grows with your reader"
     case .soundButtons: "Show dots and dashes under the sounds?"
     case .cloud: "Use Hop Tales with iCloud?"
     }
@@ -25,9 +25,9 @@ extension Onboarding.Step {
       "The microphone lets Hop Tales hear your child read, so the hare can hop to the next "
         + "word. Everything is heard on this device. Nothing is recorded, and nothing is sent "
         + "anywhere."
-    case .friend:
-      "Pick the friend whose words look about right, and let your reader have a look too. "
-        + "You can change this later."
+    case .ahead:
+      "Your reader starts with \(Friend.at(level: 1).name) and short, simple words. With every "
+        + "story they read, they'll meet new friends and move on to longer, trickier words."
     case .soundButtons:
       "Sound buttons put a dot under each sound and a dash under letters that make one sound "
         + "together, like sh. Many schools teach blending this way. You can change this later."
@@ -75,8 +75,8 @@ struct StepPage: View {
       }
     case .listening:
       MicrophoneNote(authorization: store.authorization)
-    case .friend:
-      FriendChoices(selected: store.startingFriend) { store.send(.friendPicked($0)) }
+    case .ahead:
+      ReadingAhead(childName: store.childName)
     case .soundButtons:
       SoundButtonChoices(selected: store.soundButtons) { store.send(.soundButtonsPicked($0)) }
     case .cloud:
@@ -162,77 +162,86 @@ struct MicrophoneNote: View {
   }
 }
 
-struct FriendChoices: View {
-  let selected: Friend?
-  let pick: (Friend) -> Void
+struct ReadingAhead: View {
+  let childName: String
+
+  private let friends = (1...3).map { Friend.at(level: $0) }
 
   var body: some View {
-    VStack(spacing: 10) {
-      ForEach(Friend.starters, id: \.self) { friend in
-        FriendChoice(friend: friend, isSelected: friend == selected) { pick(friend) }
+    VStack(alignment: .leading, spacing: 0) {
+      ForEach(friends, id: \.self) { friend in
+        if friend != friends.first { Trail() }
+        FriendAhead(friend: friend, startsHere: friend == friends.first, childName: childName)
       }
-      LaterFriends()
-        .padding(.top, 6)
-    }
-  }
-}
-
-struct FriendChoice: View {
-  let friend: Friend
-  let isSelected: Bool
-  let action: () -> Void
-
-  var body: some View {
-    Button(action: action) {
+      Trail()
       HStack(spacing: 14) {
-        FriendSticker(friend, height: 58)
-          .frame(width: 58)
-        VStack(alignment: .leading, spacing: 2) {
-          HStack(alignment: .firstTextBaseline, spacing: 8) {
-            Text(friend.name)
-              .font(Typography.display(19))
-              .foregroundStyle(Paper.ink)
-            Text(friend.stage)
-              .font(Typography.ui(14))
-              .foregroundStyle(Paper.muted)
-          }
-          Text(friend.examples.joined(separator: " · "))
-            .font(Typography.word(18))
-            .foregroundStyle(Paper.ink.opacity(0.85))
-        }
+        Color.clear.frame(width: 58, height: 1)
+        Text("More friends further along")
+          .font(Typography.ui(14, weight: .medium))
+          .foregroundStyle(Paper.muted)
       }
-      .paperChoice(isSelected: isSelected)
     }
-    .buttonStyle(.plain)
-    .accessibilityElement(children: .ignore)
-    .accessibilityLabel(
-      "\(friend.name), \(friend.stage). Words like \(friend.examples.joined(separator: ", "))."
-    )
-    .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
+    .frame(maxWidth: .infinity, alignment: .leading)
   }
 }
 
-struct LaterFriends: View {
+struct FriendAhead: View {
+  let friend: Friend
+  let startsHere: Bool
+  let childName: String
+
   var body: some View {
-    VStack(spacing: 6) {
-      HStack(alignment: .bottom, spacing: 12) {
-        ForEach(Friend.allCases.filter { !Friend.starters.contains($0) }, id: \.self) { friend in
-          FriendSticker(friend, height: 34, isSilhouette: true)
-            .opacity(0.45)
+    HStack(spacing: 14) {
+      FriendSticker(friend, height: 58)
+        .frame(width: 58)
+      VStack(alignment: .leading, spacing: 2) {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+          Text(friend.name)
+            .font(Typography.display(19))
+            .foregroundStyle(Paper.ink)
+          if startsHere {
+            Text("Starts here")
+              .font(Typography.ui(12, weight: .semibold))
+              .foregroundStyle(Paper.ink)
+              .padding(.horizontal, 8)
+              .padding(.vertical, 3)
+              .background(Paper.wash, in: Capsule())
+          }
         }
+        Text("Words like \(Text(words).font(Typography.word(18)).foregroundStyle(Paper.ink))")
+          .font(Typography.ui(14))
+          .foregroundStyle(Paper.muted)
       }
-      Text("\(Friend.allCases.count - Friend.starters.count) more friends join as your reader "
-        + "gets stronger")
-        .font(Typography.ui(13, weight: .medium))
-        .foregroundStyle(Paper.muted)
-        .multilineTextAlignment(.center)
-      Text(Phonics.standard)
-        .font(Typography.ui(12))
-        .foregroundStyle(Paper.muted)
-        .multilineTextAlignment(.center)
     }
-    .frame(maxWidth: .infinity)
-    .accessibilityElement(children: .combine)
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel(label)
+  }
+
+  private var words: String { friend.examples.joined(separator: ", ") }
+
+  private var label: String {
+    let start = startsHere ? ", where \(reader) starts" : ""
+    return "\(friend.name)\(start). Words like \(words)."
+  }
+
+  private var reader: String {
+    let name = childName.trimmingCharacters(in: .whitespacesAndNewlines)
+    return name.isEmpty ? "your reader" : name
+  }
+}
+
+struct Trail: View {
+  var body: some View {
+    VStack(spacing: 5) {
+      ForEach(0..<3, id: \.self) { _ in
+        Circle()
+          .fill(Paper.muted.opacity(0.45))
+          .frame(width: 5, height: 5)
+      }
+    }
+    .frame(width: 58)
+    .padding(.vertical, 6)
+    .accessibilityHidden(true)
   }
 }
 
