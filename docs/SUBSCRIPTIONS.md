@@ -318,7 +318,9 @@ so a shipped build never locks a story nobody can buy yet.
      plus `updates`), with live, test and preview values.
    - Android: an entitlement source over `BillingClient` (`queryPurchasesAsync`, acknowledgement,
      pending), with a fake for tests and previews.
-   - A release switch that keeps every story open until step 6.
+   - A release switch that keeps every story open until step 6: `Plus.locksStories` in
+     `Content/Plus.swift` on iOS, `hoptales.plusLocksStories` in `android/gradle.properties` on
+     Android. Both are `false`, and a test on each app fails if either is flipped by accident.
 2. **The locked story card and the parent gate** — #346
    - The shared times-table gate on both apps, with snapshot and unit tests.
    - The padlock sticker on Home, and the locked card with the story's standing and Ask a
@@ -341,4 +343,7 @@ so a shipped build never locks a story nobody can buy yet.
    - Play Console: `hop_tales_plus` with its two base plans, prices, the trial offer, the grace
      period, license testers and the Families declarations.
    - Repo copy: `privacy.html`, `docs/app-store-privacy.md`, the website, and the store
-     descriptions without "no in-app purchases". Then turn the release switch on.
+     descriptions without "no in-app purchases". Then turn the release switch on (both
+     settings above, and the two `everyStoryStaysOpenUntilTheStoresAreLive` tests), and give the
+     release build the Play public key as the `hoptales.playPublicKey` Gradle property, without
+     which no Play purchase verifies.

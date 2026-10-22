@@ -96,6 +96,8 @@ data class Story(
 ) {
     val friend: Friend get() = Friend.at(level)
 
+    val isFree: Boolean get() = level == Plus.FREE_LEVEL
+
     val wordCount: Int get() = sentences.sumOf { it.words.size }
 
     fun mood(sentence: Int, word: Int = Int.MAX_VALUE): Mood {

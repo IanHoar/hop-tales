@@ -11,5 +11,7 @@ extension Root {
         reportIssue(error)
       }
     }
+    @Dependency(PurchasesClient.self) var purchases
+    purchases.start()
   }
 }

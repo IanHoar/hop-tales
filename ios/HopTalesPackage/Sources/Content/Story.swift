@@ -148,6 +148,8 @@ public struct Story: Codable, Hashable, Sendable, Identifiable {
 
   public var friend: Friend { Friend.at(level: level) }
 
+  public var isFree: Bool { level == Plus.freeLevel }
+
   public var wordCount: Int {
     sentences.reduce(0) { $0 + $1.words.count }
   }
