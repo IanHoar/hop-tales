@@ -5,6 +5,7 @@ import com.hoptales.content.CollectedTreat
 import com.hoptales.content.Friend
 import com.hoptales.content.Journey
 import com.hoptales.content.JourneyMoment
+import com.hoptales.content.Levels
 import com.hoptales.content.Progress
 import com.hoptales.content.StoryLibrary
 import com.hoptales.content.treat
@@ -87,6 +88,45 @@ class FinishingTest {
         assertFalse(reading.state.hasTriedItOn)
         assertNull(reading.state.callout)
         assertTrue(reading.state.tally != null)
+    }
+
+    private val levelOneRead = Progress(
+        journey = journey,
+        completedSentences = library.stories(Friend.BUNNY.level).associate { it.id to it.sentences.size },
+    )
+
+    @Test
+    fun finishingLevelOneWhileStoriesLockCelebratesThenGoesBackToTheStories() {
+        val reading = reading()
+        reading.readToTheEnd()
+        val progress = reading.finishing(levelOneRead, library, isPlus = false, locksStories = true)
+        assertEquals(JourneyMoment.LevelOneFinished, reading.state.callout)
+        assertTrue(progress.levelOneCelebrated)
+        assertTrue(reading.levelOneKeepReading())
+        assertNull(reading.state.callout)
+    }
+
+    @Test
+    fun finishingLevelOneWithEveryStoryOpenDoesNotCelebrate() {
+        val reading = reading()
+        reading.readToTheEnd()
+        val progress = reading.finishing(levelOneRead, library, isPlus = false, locksStories = false)
+        assertFalse(reading.state.journeyMoments.contains(JourneyMoment.LevelOneFinished))
+        assertFalse(progress.levelOneCelebrated)
+    }
+
+    @Test
+    fun aNewFriendEarnedOnTheSameReadFollowsLevelOne() {
+        val trailFull = journey.copy(
+            trail = Levels.trailGoal(journey.level),
+            storiesRead = library.stories(journey.level).map { it.id }.toSet(),
+        )
+        val reading = Reading(story, bigWords = trailFull.bigWords(story, library), treat = trailFull.treat(story))
+        reading.readToTheEnd()
+        reading.finishing(levelOneRead.copy(journey = trailFull), library, isPlus = false, locksStories = true)
+        assertEquals(JourneyMoment.LevelOneFinished, reading.state.callout)
+        assertFalse(reading.levelOneKeepReading())
+        assertTrue(reading.state.callout is JourneyMoment.NewFriend)
     }
 
     @Test

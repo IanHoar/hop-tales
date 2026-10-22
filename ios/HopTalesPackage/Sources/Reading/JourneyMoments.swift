@@ -202,7 +202,7 @@ struct CalloutCard: View {
         geometry: geometry,
         opened: Binding(get: { opened || isDone }, set: { opened = $0 })
       )
-    case .tally, .treat:
+    case .tally, .treat, .levelOneFinished:
       EmptyView()
     }
   }
@@ -213,7 +213,7 @@ struct CalloutCard: View {
     case let .notYet(friend): "\(friend.name) will wait for you at \(friend.place)."
     case let .newFriend(friend, _): "Reading level \(friend.level)!"
     case .basketFull: "A full basket!"
-    case .tally, .treat: ""
+    case .tally, .treat, .levelOneFinished: ""
     }
   }
 
@@ -231,7 +231,7 @@ struct CalloutCard: View {
         ? "It's " + (moment.unlockedItem.map { "a \($0.name.lowercased())" } ?? "a present")
           + " for \(friend.name)!"
         : "You filled \(friend.name)'s basket of \(friend.treat.many). There's a present inside!"
-    case .tally, .treat:
+    case .tally, .treat, .levelOneFinished:
       ""
     }
   }
@@ -243,7 +243,7 @@ struct CalloutCard: View {
     case .notYet: "OK"
     case let .newFriend(friend, _): "Go to \(friend.place)"
     case .basketFull: "Try it on"
-    case .tally, .treat: ""
+    case .tally, .treat, .levelOneFinished: ""
     }
   }
 
@@ -251,7 +251,7 @@ struct CalloutCard: View {
     switch moment {
     case .bigStoryReady: "Not yet"
     case .newFriend, .basketFull: "Later"
-    case .notYet, .tally, .treat: nil
+    case .notYet, .tally, .treat, .levelOneFinished: nil
     }
   }
 }

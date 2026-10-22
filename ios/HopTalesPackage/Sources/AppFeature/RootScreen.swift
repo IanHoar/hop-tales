@@ -57,7 +57,9 @@ import SwiftUI
       state.home.showLocked(story)
       return
     }
-    let reading = Reading.State(story, on: progressStore.load())
+    var reading = Reading.State(story, on: progressStore.load())
+    reading.isPlus = state.home.isPlus
+    reading.locksStories = state.home.locksStories
     state.path.append(.reading(reading))
   }
 

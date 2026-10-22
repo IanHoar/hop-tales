@@ -15,6 +15,7 @@ struct ReadingScreenPreview: View {
     case newFriend
     case basketFull
     case triedItOn
+    case levelOneFinished
   }
 
   var story = StoryLibrary.all[0]
@@ -55,6 +56,14 @@ struct ReadingScreenPreview: View {
       state.treat = StoryTreat(
         word: WordRef(sentence: story.sentences.count - 1, word: 1), friend: .hare, isTrail: false
       )
+    case .levelOneFinished:
+      state.sentenceIndex = story.sentences.count
+      state.stars = 42
+      state.completed = .story(stars: 42)
+      state.journeyMoments = [
+        .tally(steps: 41, total: 200, goal: 200, bigWords: 3, next: .hare, storiesLeft: 0),
+        .levelOneFinished
+      ]
     case .end, .bigStoryReady, .newFriend, .basketFull, .triedItOn:
       state.sentenceIndex = story.sentences.count
       state.stars = 42
@@ -81,4 +90,5 @@ struct ReadingScreenPreview: View {
 #Preview("End") { ReadingScreenPreview(moment: .end) }
 #Preview("Big story ready") { ReadingScreenPreview(moment: .bigStoryReady) }
 #Preview("New friend") { ReadingScreenPreview(moment: .newFriend) }
+#Preview("Level 1 finished") { ReadingScreenPreview(moment: .levelOneFinished) }
 #endif

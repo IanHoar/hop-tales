@@ -284,7 +284,7 @@ private fun PresentReveal(friend: Friend, item: WardrobeItem?, opened: Boolean, 
 }
 
 @Composable
-private fun CardButton(text: String, filled: Boolean, geometry: PathGeometry, onClick: () -> Unit) {
+internal fun CardButton(text: String, filled: Boolean, geometry: PathGeometry, onClick: () -> Unit) {
     val paper = LocalPaper.current
     val style = LocalTypography.current.display(geometry.sp(16f))
     if (filled) {
@@ -386,11 +386,14 @@ fun JourneyPanel(
     onTryItOn: (Friend) -> Unit,
     isDone: Boolean,
     dismiss: () -> Unit,
+    onAskAGrownUp: () -> Unit = {},
+    onKeepReading: () -> Unit = dismiss,
 ) {
     val app = LocalContext.current.applicationContext as HopTalesApplication
     Box(Modifier.fillMaxSize()) {
-        MomentCards(state, geometry, app, onStory, onTryItOn, isDone, dismiss)
+        MomentCards(state, geometry, app, onStory, onTryItOn, isDone, dismiss, onAskAGrownUp, onKeepReading)
         if (state.callout is JourneyMoment.NewFriend) PaperConfetti(delayMillis = FriendReveal.CONFETTI_DELAY_MILLIS)
+        if (state.callout is JourneyMoment.LevelOneFinished) PaperConfetti(delayMillis = LEVEL_ONE_CONFETTI_DELAY_MILLIS)
     }
 }
 
@@ -403,6 +406,8 @@ private fun MomentCards(
     onTryItOn: (Friend) -> Unit,
     isDone: Boolean,
     dismiss: () -> Unit,
+    onAskAGrownUp: () -> Unit,
+    onKeepReading: () -> Unit,
 ) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
         val top = (geometry.y(PANEL_Y) / geometry.density).dp
@@ -424,6 +429,8 @@ private fun MomentCards(
                 null -> Unit
 
                 is JourneyMoment.Tally -> TallyCard(shown, state.collectedTreat, geometry)
+
+                JourneyMoment.LevelOneFinished -> LevelOneCard(geometry, askAGrownUp = onAskAGrownUp, keepReading = onKeepReading)
 
                 else -> {
                     val item = shown.unlockedItem(app.wardrobe)
@@ -461,3 +468,4 @@ private const val TRAIL_ALPHA = 0.6f
 private const val MOMENT_MILLIS = 300
 private const val CALLOUT_FROM = 0.9f
 private const val PANEL_Y = 110f
+private const val LEVEL_ONE_CONFETTI_DELAY_MILLIS = 300

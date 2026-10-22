@@ -201,6 +201,10 @@ class ScreenshotTest {
 
     @Test fun triedItOnDark() = triedItOn(dark = true)
 
+    @Test fun levelOneFinishedLight() = levelOneFinished(dark = false)
+
+    @Test fun levelOneFinishedDark() = levelOneFinished(dark = true)
+
     @Test fun newFriendLight() = newFriend(dark = false)
 
     @Test fun newFriendDark() = newFriend(dark = true)
@@ -521,6 +525,36 @@ class ScreenshotTest {
         compose.onNodeWithText("Try it on").performClick()
         compose.waitForIdle()
         compose.onRoot().captureRoboImage(path("tried-it-on", dark), options)
+    }
+
+    @Test
+    fun askAGrownUpAfterLevelOneOpensTheGateFirst() {
+        finishLevelOne(dark = false)
+        compose.onNodeWithText("Ask a grown-up").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Ask a grown-up to answer this.").assertExists()
+        compose.onNodeWithText("Close").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("You finished Level 1!").assertExists()
+    }
+
+    private fun finishLevelOne(dark: Boolean) {
+        val levelOne = app.library.stories(Friend.BUNNY.level)
+        app.progressStore.save(Progress(completedSentences = levelOne.associate { it.id to it.sentences.size }))
+        compose.setContent {
+            HopTalesTheme(dark = dark) { ReadingScreen(story = levelOne.first(), onDone = {}, locksStories = true) }
+        }
+        compose.waitForIdle()
+        readToTheEnd()
+    }
+
+    private fun levelOneFinished(dark: Boolean) {
+        finishLevelOne(dark)
+        compose.onNodeWithText("You finished Level 1!").assertExists()
+        compose.onNodeWithContentDescription("Skip is waiting. Words like ship, duck, frog.").assertExists()
+        compose.onNodeWithText("Ask a grown-up").assertExists()
+        compose.onNodeWithText("Keep reading").assertExists()
+        compose.onRoot().captureRoboImage(path("level-one-finished", dark), options)
     }
 
     private fun newFriend(dark: Boolean) {
