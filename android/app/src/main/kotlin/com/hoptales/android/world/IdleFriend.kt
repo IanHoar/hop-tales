@@ -43,11 +43,12 @@ data class IdlePose(val frame: Int, val scaleX: Float, val scaleY: Float) {
 @Composable
 fun IdleFriend(friend: Friend, look: String?, height: Dp, modifier: Modifier = Modifier, shadow: Color? = null) {
     val assets = LocalContext.current.assets
+    val looks = LocalLooks.current
     val still = rememberReducedMotion()
     val sheets = HareSheets.of(friend)
     val sheet = sheets.idle
-    val image = remember(friend, look) {
-        look?.let { Art.image(assets, sheets.dressed(friend, it, HareSheet.IDLE)) } ?: Art.image(assets, sheet.asset)
+    val image = remember(friend, look, looks) {
+        look?.let { Art.image(assets, sheets.dressed(friend, it, HareSheet.IDLE), looks) } ?: Art.image(assets, sheet.asset)
     }
     var time by remember { mutableDoubleStateOf(System.nanoTime() / 1e9) }
     LaunchedEffect(still) {

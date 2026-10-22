@@ -7,6 +7,37 @@ plugins {
 
 val shared = rootDir.resolve("../ios/HopTalesPackage/Sources")
 val notYetOnAndroid = listOf("postcard-*")
+val baseLooks = providers.gradleProperty("hoptales.baseLooks").get().split(",")
+
+abstract class BaseWorldArt : DefaultTask() {
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val art: DirectoryProperty
+
+    @get:Input
+    abstract val looks: ListProperty<String>
+
+    @get:OutputDirectory
+    abstract val output: DirectoryProperty
+
+    @get:Inject
+    abstract val files: FileSystemOperations
+
+    @TaskAction
+    fun copy() {
+        files.sync {
+            from(art) { exclude("look-*") }
+            from(art) { include(looks.get().flatMap { listOf("look-$it.*", "look-$it-idle.*", "look-$it-hop.*") }) }
+            into(output)
+        }
+    }
+}
+
+val baseWorldArt = tasks.register<BaseWorldArt>("baseWorldArt") {
+    art.set(shared.resolve("World/Resources"))
+    looks.set(baseLooks)
+    output.set(layout.buildDirectory.dir("generated/baseWorldArt"))
+}
 
 data class ReleaseVersion(val code: Int, val name: String)
 
@@ -43,6 +74,7 @@ android {
         targetSdk = 37
         versionCode = release?.code ?: 1
         versionName = release?.name ?: "0.1.0"
+        buildConfigField("String", "BASE_LOOKS", "\"${baseLooks.joinToString(",")}\"")
     }
 
     signingConfigs {
@@ -78,10 +110,14 @@ android {
     sourceSets {
         getByName("main") {
             assets.srcDir(shared.resolve("Content/Resources"))
-            assets.srcDir(shared.resolve("World/Resources"))
             assets.srcDir(shared.resolve("DesignSystem/Resources"))
         }
+        getByName("debug") {
+            assets.srcDir(shared.resolve("World/Resources"))
+        }
     }
+
+    assetPacks += ":looks"
 
     testOptions {
         unitTests {
@@ -100,6 +136,12 @@ android {
     }
 }
 
+androidComponents {
+    onVariants(selector().withBuildType("release")) { variant ->
+        variant.sources.assets?.addGeneratedSourceDirectory(baseWorldArt, BaseWorldArt::output)
+    }
+}
+
 dependencies {
     implementation(project(":core:reading"))
     implementation(project(":core:onboarding"))
@@ -115,6 +157,7 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.play.asset.delivery)
     debugImplementation(libs.compose.ui.tooling)
     testImplementation(libs.junit)
     testImplementation(platform(libs.compose.bom))
