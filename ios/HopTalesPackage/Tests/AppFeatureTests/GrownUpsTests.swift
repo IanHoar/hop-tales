@@ -16,7 +16,7 @@ struct GrownUpsTests {
     Voice(id: "com.apple.voice.enhanced.en-US.Samantha", name: "Samantha", language: "en-US")
   ]
 
-  @Test func theGrownUpsButtonOpensTheSettings() {
+  @Test func theGrownUpsButtonOpensTheSettings() async {
     let store = TestStore(initialState: Root.State()) {
       Root()
         .dependency(ProfileStore(load: { Profile(childName: "Maya") }, save: { _ in }))
@@ -39,6 +39,7 @@ struct GrownUpsTests {
         voices: Self.voices
       )
     }
+    await store.dismount()
   }
 
   @Test func savingToICloudCanBeTurnedOnAndTheCopyDeleted() async {
@@ -129,7 +130,7 @@ struct GrownUpsTests {
     #expect(spoken.value == [british, british])
   }
 
-  @Test func theNameIsSavedWhenTheGrownUpIsDone() {
+  @Test func theNameIsSavedWhenTheGrownUpIsDone() async {
     let profiles = LockIsolated<[Profile]>([])
     let store = TestStore(initialState: Settings.State()) {
       Settings()
@@ -148,9 +149,10 @@ struct GrownUpsTests {
     #expect(profiles.value.isEmpty)
     store.send(.doneTapped)
     #expect(profiles.value.last?.childName == "Wren")
+    await store.dismount()
   }
 
-  @Test func aLongNameIsCutShort() {
+  @Test func aLongNameIsCutShort() async {
     let store = TestStore(initialState: Settings.State()) {
       Settings()
     }
@@ -158,6 +160,7 @@ struct GrownUpsTests {
     store.send(.nameChanged(String(repeating: "a", count: 30))) {
       $0.childName = String(repeating: "a", count: 24)
     }
+    await store.dismount()
   }
 
   @Test func doneClosesTheSettingsAndGreetsTheNewName() {
@@ -184,7 +187,7 @@ struct GrownUpsTests {
     }
   }
 
-  @Test func pickingAThemeChangesTheWholeApp() {
+  @Test func pickingAThemeChangesTheWholeApp() async {
     let saved = Profile(childName: "Maya", theme: .light)
     var root = Root.State()
     root.intro = nil
@@ -202,6 +205,7 @@ struct GrownUpsTests {
       $0.theme = .dark
       $0.settings?.profile.theme = .dark
     }
+    await store.dismount()
   }
 }
 

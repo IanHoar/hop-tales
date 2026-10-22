@@ -1,6 +1,5 @@
 package com.hoptales.android.settings
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -47,6 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.selected
@@ -108,12 +108,12 @@ fun SettingsScreen(key: String, onDone: () -> Unit) {
     val app = context.applicationContext as HopTalesApplication
     val model: SettingsViewModel = viewModel(key = key) { SettingsViewModel(app) }
     val state by model.state.collectAsStateWithLifecycle()
+    val uri = LocalUriHandler.current
     val done = {
         model.done()
         onDone()
     }
-    BackHandler(onBack = done)
-    SettingsContent(
+    SettingsSheet(
         state,
         SettingsActions(
             nameChanged = model::nameChanged,
@@ -138,6 +138,9 @@ fun SettingsScreen(key: String, onDone: () -> Unit) {
             },
             done = done,
         ),
+        plus = app.plus,
+        onRestore = model::restore,
+        openLink = { runCatching { uri.openUri(it) } },
     )
 }
 
@@ -154,7 +157,7 @@ val Strictness.detail: String
     }
 
 @Composable
-fun SettingsContent(state: SettingsState, actions: SettingsActions) {
+fun SettingsContent(state: SettingsState, actions: SettingsActions, onPlus: (PlusRequest) -> Unit = {}) {
     val paper = LocalPaper.current
     val insets = WindowInsets.safeDrawing.asPaddingValues()
     Column(Modifier.fillMaxSize().background(paper.page)) {
@@ -167,6 +170,7 @@ fun SettingsContent(state: SettingsState, actions: SettingsActions) {
                     .padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = insets.calculateBottomPadding() + 30.dp),
                 verticalArrangement = Arrangement.spacedBy(28.dp),
             ) {
+                Section("Hop Tales Plus") { PlusRow(state, onPlus) }
                 Section("Reader") { SettingsName(state.childName, actions) }
                 Section("Reading with") {
                     for (friend in state.readingFriends) {
@@ -370,7 +374,7 @@ private fun SpeechLogRow(state: SettingsState, actions: SettingsActions) {
 }
 
 @Composable
-private fun ActionChip(text: String, icon: ImageVector, onClick: () -> Unit) {
+internal fun ActionChip(text: String, icon: ImageVector, onClick: () -> Unit) {
     val paper = LocalPaper.current
     PaperChip(onClick = onClick) {
         Icon(icon, contentDescription = null, tint = paper.ink, modifier = Modifier.size(17.dp))

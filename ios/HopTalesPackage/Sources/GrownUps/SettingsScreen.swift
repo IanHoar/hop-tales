@@ -30,6 +30,13 @@ import World
     public var speechLogFile: URL?
     public var strictness: WordMatcher.Strictness = .gentle
     public var voices: [Voice] = []
+    public var plusStatus = PlusStatus.free
+    public var foundNothingToRestore = false
+    public var isManagingSubscription = false
+    public var isRequestingRefund = false
+    public var gatedRequest: GatedRequest?
+    public var gate: ParentGate.State?
+    public var grownUp: GrownUpPaywall.State?
 
     public init() {}
 
@@ -52,6 +59,8 @@ import World
     case debugUnlockEverythingTapped
     case doneTapped
     case friendPicked(Friend)
+    case gate(ParentGate.Action)
+    case grownUp(GrownUpPaywall.Action)
     case hearVoiceTapped
     case nameChanged(String)
     case nameSubmitted
@@ -61,6 +70,7 @@ import World
     case speechLogCleared
     case speechLogToggled(Bool)
     case strictnessPicked(WordMatcher.Strictness)
+    case subscription(Subscription)
     case themePicked(Profile.Theme)
     case voicePicked(String?)
   }
@@ -68,6 +78,8 @@ import World
   @Dependency(CloudSync.self) var cloudSync
   @Dependency(ProfileStore.self) var profileStore
   @Dependency(ProgressStore.self) var progressStore
+  @Dependency(PurchasesClient.self) var purchases
+  @Dependency(GateSeed.self) var gateSeed
   @Dependency(SoundPreference.self) var soundPreference
   @Dependency(SpeechClient.self) var speechClient
   @Dependency(SpeechLog.self) var speechLog
@@ -121,6 +133,32 @@ import World
     }
   }
 
+  func restore() {
+    store.addTask {
+      let isPlus = (try? await purchases.restore()) ?? false
+      try store.send(.subscription(.restored(isPlus)))
+    }
+  }
+
+  func reloadStatus() {
+    store.addTask {
+      let status = await Settings.currentStatus(purchases)
+      try store.send(.subscription(.statusResolved(status)))
+    }
+  }
+
+  func watchStatus() {
+    store.addTask {
+      var shown = PlusStatus.free
+      for await isPlus in purchases.isPlus() {
+        let status = PlusStatus.resolved(isPlus: isPlus, details: await purchases.status())
+        guard status != shown else { continue }
+        shown = status
+        try store.send(.subscription(.statusResolved(status)))
+      }
+    }
+  }
+
   private func save(_ state: State) {
     var saved = state.profile
     saved.childName = state.childName.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -139,6 +177,23 @@ import World
 
       case .doneTapped, .nameSubmitted:
         save(state)
+
+      case .gate(.passed):
+        grant(&state)
+
+      case .gate(.closeTapped):
+        state.gate = nil
+        state.gatedRequest = nil
+
+      case .grownUp(.gate(.closeTapped)), .grownUp(.paywall(.closeTapped)),
+        .grownUp(.paywall(.subscribed)), .grownUp(.paywall(.tryLevelOneTapped)):
+        state.grownUp = nil
+
+      case .gate, .grownUp:
+        break
+
+      case let .subscription(action):
+        subscription(action, &state)
 
       case let .friendPicked(friend):
         state.journey.grownUpMoves(to: friend)
@@ -213,6 +268,13 @@ import World
       refreshSpeechLog(&state)
       state.cloudSync = cloudSync.isEnabled()
       if state.cloudSync { checkCloudAccount() }
+      watchStatus()
+    }
+    .ifLet(\.gate) {
+      ParentGate()
+    }
+    .ifLet(\.grownUp) {
+      GrownUpPaywall()
     }
   }
 }
@@ -225,10 +287,24 @@ public struct SettingsScreen: View {
   }
 
   public var body: some View {
+    Group {
+      if let grownUp = store.scope(\.grownUp) {
+        GrownUpPaywallScreen(store: grownUp)
+      } else if let gate = store.scope(\.gate) {
+        ParentGateScreen(store: gate)
+      } else {
+        settings
+      }
+    }
+    .subscriptionSheets(store)
+  }
+
+  private var settings: some View {
     VStack(spacing: 0) {
       SettingsHeader { store.send(.doneTapped) }
       ScrollView {
         VStack(alignment: .leading, spacing: 28) {
+          SettingsSection("Hop Tales Plus") { PlusRow(store: store) }
           SettingsSection("Reader") { NameField(store: store) }
           SettingsSection("Reading with") { FriendChoices(store: store) }
           SettingsSection("Accent") { AccentChoices(store: store) }
@@ -251,37 +327,6 @@ public struct SettingsScreen: View {
       .scrollDismissesKeyboard(.interactively)
     }
     .background(Paper.page.ignoresSafeArea())
-  }
-}
-
-struct SettingsSection<Content: View>: View {
-  let title: String
-  let content: Content
-
-  init(_ title: String, @ViewBuilder content: () -> Content) {
-    self.title = title
-    self.content = content()
-  }
-
-  var body: some View {
-    VStack(alignment: .leading, spacing: 12) {
-      Text(title.uppercased())
-        .font(Typography.ui(13, weight: .semibold))
-        .tracking(13 * 0.14)
-        .foregroundStyle(Paper.muted)
-        .padding(.horizontal, 4)
-        .accessibilityAddTraits(.isHeader)
-      content
-    }
-  }
-}
-
-extension View {
-  func settingsField() -> some View {
-    let shape = RoundedRectangle(cornerRadius: 18, style: .continuous)
-    return background(Paper.rim.opacity(0.6), in: shape)
-      .overlay(shape.strokeBorder(Paper.rim, lineWidth: 3))
-      .shadow(color: Paper.shadow.opacity(0.5), radius: 3, y: 2)
   }
 }
 
@@ -340,49 +385,5 @@ struct FriendChoices: View {
       .foregroundStyle(Paper.muted)
       .frame(maxWidth: .infinity, alignment: .leading)
       .padding(.horizontal, 4)
-  }
-}
-
-struct VoiceRow: View {
-  let store: StoreOf<Settings>
-
-  var body: some View {
-    HStack(spacing: 12) {
-      Menu {
-        Picker(
-          "Help voice",
-          selection: Binding(get: { store.profile.voiceID }, set: { store.send(.voicePicked($0)) })
-        ) {
-          Text("Automatic").tag(String?.none)
-          ForEach(store.voices) { voice in
-            Text("\(voice.name) · \(voice.region)").tag(Optional(voice.id))
-          }
-        }
-      } label: {
-        HStack {
-          Text(store.voiceName)
-            .font(Typography.display(19))
-            .foregroundStyle(Paper.ink)
-          Spacer(minLength: 0)
-          Image(systemName: "chevron.up.chevron.down")
-            .font(.system(size: 15, weight: .bold))
-            .foregroundStyle(Paper.muted)
-        }
-        .padding(.horizontal, 16)
-        .frame(height: 56)
-        .settingsField()
-        .contentShape(.rect(cornerRadius: 18))
-      }
-      .accessibilityLabel("Help voice, \(store.voiceName)")
-      Button { store.send(.hearVoiceTapped) } label: {
-        Image(systemName: "speaker.wave.2.fill")
-          .font(.system(size: 18, weight: .bold))
-          .foregroundStyle(Paper.ink)
-          .frame(width: 56, height: 56)
-          .paperChip(Circle(), rim: 3)
-      }
-      .buttonStyle(.plain)
-      .accessibilityLabel("Hear the help voice")
-    }
   }
 }

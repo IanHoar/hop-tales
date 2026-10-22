@@ -64,4 +64,12 @@ class PlusTest {
         assertEquals(12, PlusPlan.YEARLY.months)
         assertEquals(1, PlusPlan.MONTHLY.months)
     }
+
+    @Test
+    fun manageOpensPlaysSubscriptionCentreForPlus() {
+        assertEquals(
+            "https://play.google.com/store/account/subscriptions?sku=hop_tales_plus&package=com.hoptales.android",
+            PlusLinks.playSubscriptions("com.hoptales.android"),
+        )
+    }
 }

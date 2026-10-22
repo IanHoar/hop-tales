@@ -18,6 +18,7 @@ import com.android.billingclient.api.acknowledgePurchase
 import com.android.billingclient.api.queryProductDetails
 import com.android.billingclient.api.queryPurchasesAsync
 import com.hoptales.content.PlusPlan
+import com.hoptales.content.PlusStatus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
@@ -36,6 +37,9 @@ class PlayPlusSource(context: Context, private val verifier: PurchaseVerifier, p
     PlusSource {
     private val plus = MutableStateFlow(false)
     override val isPlus: StateFlow<Boolean> = plus.asStateFlow()
+
+    private val plusStatus = MutableStateFlow<PlusStatus>(PlusStatus.Free)
+    override val status: StateFlow<PlusStatus> = plusStatus.asStateFlow()
 
     private val outcomeFlow = MutableSharedFlow<PurchaseOutcome>(extraBufferCapacity = 4)
     override val outcomes: SharedFlow<PurchaseOutcome> = outcomeFlow.asSharedFlow()
@@ -163,6 +167,7 @@ class PlayPlusSource(context: Context, private val verifier: PurchaseVerifier, p
         if (result.billingResult.responseCode != BillingResponseCode.OK) return
         val purchases = result.purchasesList.map(::playPurchase)
         plus.value = PlayPurchase.isPlus(purchases, verifier)
+        plusStatus.value = PlayPurchase.status(purchases, verifier)
         PlayPurchase.toAcknowledge(purchases, verifier).forEach { purchase ->
             client.acknowledgePurchase(AcknowledgePurchaseParams.newBuilder().setPurchaseToken(purchase.token).build())
         }
@@ -180,6 +185,7 @@ class PlayPlusSource(context: Context, private val verifier: PurchaseVerifier, p
         token = purchase.purchaseToken,
         json = purchase.originalJson,
         signature = purchase.signature,
+        isAutoRenewing = purchase.isAutoRenewing,
     )
 
     private companion object {
