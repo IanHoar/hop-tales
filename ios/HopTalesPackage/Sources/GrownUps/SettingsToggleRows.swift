@@ -141,3 +141,34 @@ struct SoundButtonsRow: View {
     .settingsField()
   }
 }
+
+struct SettingsSection<Content: View>: View {
+  let title: String
+  let content: Content
+
+  init(_ title: String, @ViewBuilder content: () -> Content) {
+    self.title = title
+    self.content = content()
+  }
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      Text(title.uppercased())
+        .font(Typography.ui(13, weight: .semibold))
+        .tracking(13 * 0.14)
+        .foregroundStyle(Paper.muted)
+        .padding(.horizontal, 4)
+        .accessibilityAddTraits(.isHeader)
+      content
+    }
+  }
+}
+
+extension View {
+  func settingsField() -> some View {
+    let shape = RoundedRectangle(cornerRadius: 18, style: .continuous)
+    return background(Paper.rim.opacity(0.6), in: shape)
+      .overlay(shape.strokeBorder(Paper.rim, lineWidth: 3))
+      .shadow(color: Paper.shadow.opacity(0.5), radius: 3, y: 2)
+  }
+}

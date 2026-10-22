@@ -8,7 +8,7 @@ import Testing
 @MainActor
 @Suite(.timeLimit(.minutes(1)))
 struct DebugJourneyTests {
-  @Test func unlockingEverythingMeetsEveryFriendAndResettingStartsOver() {
+  @Test func unlockingEverythingMeetsEveryFriendAndResettingStartsOver() async {
     let saved = LockIsolated(Content.Progress())
     var state = Settings.State()
     state.profile = Profile(startingFriend: .hare)
@@ -28,5 +28,6 @@ struct DebugJourneyTests {
       $0.journey = Journey(starting: .hare)
     }
     #expect(saved.value.journey == Journey(starting: .hare))
+    await store.dismount()
   }
 }

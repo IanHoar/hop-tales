@@ -135,6 +135,7 @@ public struct PurchasesClient: Sendable {
   public var purchase: @Sendable (PlusPlan) async throws -> PurchaseOutcome
   public var restore: @Sendable () async throws -> Bool
   public var refresh: @Sendable () -> Void
+  public var status: @Sendable () async -> PlusStatus?
 
   public init(
     start: @escaping @Sendable () -> Void,
@@ -142,7 +143,8 @@ public struct PurchasesClient: Sendable {
     offers: @escaping @Sendable () async throws -> [PlusOffer] = { throw PurchasesUnavailable() },
     purchase: @escaping @Sendable (PlusPlan) async throws -> PurchaseOutcome = { _ in .failed },
     restore: @escaping @Sendable () async throws -> Bool = { false },
-    refresh: @escaping @Sendable () -> Void = {}
+    refresh: @escaping @Sendable () -> Void = {},
+    status: @escaping @Sendable () async -> PlusStatus? = { nil }
   ) {
     self.start = start
     self.isPlus = isPlus
@@ -150,6 +152,7 @@ public struct PurchasesClient: Sendable {
     self.purchase = purchase
     self.restore = restore
     self.refresh = refresh
+    self.status = status
   }
 }
 
@@ -185,7 +188,16 @@ extension PurchasesClient: DependencyKey {
         entitlement.refresh()
         return PlusTransaction.isPlus(current)
       },
-      refresh: { entitlement.refresh() }
+      refresh: { entitlement.refresh() },
+      status: {
+        let ids = PlusPlan.paywallOrder.map(\.appStoreProductID)
+        guard
+          let products = try? await Product.products(for: ids),
+          let subscription = products.first(where: { $0.subscription != nil })?.subscription,
+          let statuses = try? await subscription.status
+        else { return nil }
+        return PlusStatus.of(statuses.map(PlusRenewal.init))
+      }
     )
   }()
 
@@ -213,7 +225,8 @@ extension PurchasesClient: DependencyKey {
     isPlus: Bool = false,
     offers: [PlusOffer]? = PlusOffer.samples,
     outcome: PurchaseOutcome = .purchased,
-    restores: Bool = false
+    restores: Bool = false,
+    status: PlusStatus? = nil
   ) -> PurchasesClient {
     let store = FakeStore(isPlus: isPlus)
     return PurchasesClient(
@@ -232,7 +245,8 @@ extension PurchasesClient: DependencyKey {
         store.refresh()
         return store.isPlus
       },
-      refresh: { store.refresh() }
+      refresh: { store.refresh() },
+      status: { status }
     )
   }
 }

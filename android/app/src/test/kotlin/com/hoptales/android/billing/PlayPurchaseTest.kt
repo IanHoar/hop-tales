@@ -3,6 +3,7 @@ package com.hoptales.android.billing
 import com.android.billingclient.api.BillingClient.BillingResponseCode
 import com.hoptales.android.BuildConfig
 import com.hoptales.content.PlusPlan
+import com.hoptales.content.PlusStatus
 import com.hoptales.content.Story
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -22,7 +23,30 @@ class PlayPurchaseTest {
         isAcknowledged: Boolean = true,
         isSuspended: Boolean = false,
         token: String = "token",
-    ) = PlayPurchase(products, state, isAcknowledged, isSuspended, token, json = "{}", signature = "")
+        isAutoRenewing: Boolean = true,
+    ) = PlayPurchase(products, state, isAcknowledged, isSuspended, token, json = "{}", signature = "", isAutoRenewing = isAutoRenewing)
+
+    @Test
+    fun aRenewingSubscriptionRenews() {
+        assertEquals(PlusStatus.Renews(), PlayPurchase.status(listOf(purchase()), trusting))
+    }
+
+    @Test
+    fun aCancelledSubscriptionEnds() {
+        assertEquals(PlusStatus.Ends(), PlayPurchase.status(listOf(purchase(isAutoRenewing = false)), trusting))
+    }
+
+    @Test
+    fun aPendingPurchaseIsWaiting() {
+        assertEquals(PlusStatus.Pending, PlayPurchase.status(listOf(purchase(state = PlayPurchase.State.PENDING)), trusting))
+    }
+
+    @Test
+    fun noPurchaseOrALapsedOneIsFree() {
+        assertEquals(PlusStatus.Free, PlayPurchase.status(emptyList(), trusting))
+        assertEquals(PlusStatus.Free, PlayPurchase.status(listOf(purchase(isSuspended = true)), trusting))
+        assertEquals(PlusStatus.Free, PlayPurchase.status(listOf(purchase()), PurchaseVerifier { _, _ -> false }))
+    }
 
     @Test
     fun aPurchasedPlusSubscriptionIsPlus() {

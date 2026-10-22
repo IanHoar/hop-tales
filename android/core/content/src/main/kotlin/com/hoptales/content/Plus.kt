@@ -9,6 +9,10 @@ object Plus {
 object PlusLinks {
     const val TERMS = "https://www.hoptales.com/terms.html"
     const val PRIVACY = "https://www.hoptales.com/privacy.html"
+    const val PLAY_REFUNDS = "https://support.google.com/googleplay/answer/2479637"
+
+    fun playSubscriptions(packageName: String): String =
+        "https://play.google.com/store/account/subscriptions?sku=${PlusPlan.PLAY_PRODUCT_ID}&package=$packageName"
 }
 
 enum class PlusPlan(val appStoreProductId: String, val playBasePlanId: String, val months: Int) {
