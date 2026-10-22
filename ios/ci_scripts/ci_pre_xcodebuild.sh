@@ -3,11 +3,12 @@
 #
 # Releases are cut by publishing a GitHub release, which creates a tag of the form
 #
-#     v<marketing version>-<build number>       e.g. v1.0.0-1
+#     ios/v<marketing version>-<build number>       e.g. ios/v1.0.0-1
 #
-# The release workflow starts on tag changes, and this turns that one string into the two numbers
-# the App Store needs. TestFlight rejects a build number it has already seen, so bump the half
-# after the dash for every upload of the same version.
+# Each app releases from its own tag prefix; android/v... tags ship the Android app to Google Play
+# instead. The release workflow starts on tag changes matching ios/v*, and this turns that one
+# string into the two numbers the App Store needs. TestFlight rejects a build number it has already
+# seen, so bump the half after the dash for every upload of the same version.
 set -eu
 
 if [ "${CI_XCODEBUILD_ACTION:-}" != "archive" ]; then
@@ -26,24 +27,24 @@ error: this archive was not started by a tag, so there is no version to release.
 
 The release workflow's start condition is Tag Changes, and the tag carries the version:
 
-    v<marketing version>-<build number>       e.g. v1.0.0-1
+    ios/v<marketing version>-<build number>       e.g. ios/v1.0.0-1
 
 See docs/xcode-cloud.md, step 5.
 MESSAGE
   exit 1
 fi
 
-if ! echo "$tag" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+-[0-9]+$'; then
+if ! echo "$tag" | grep -qE '^ios/v[0-9]+\.[0-9]+\.[0-9]+-[0-9]+$'; then
   cat >&2 <<MESSAGE
 error: the tag "$tag" is not a release version.
 
-Release tags are v<major>.<minor>.<patch>-<build>, e.g. v1.0.0-1. Delete the tag and the release,
-then publish it again with a name of that shape.
+iOS release tags are ios/v<major>.<minor>.<patch>-<build>, e.g. ios/v1.0.0-1. Delete the tag and
+the release, then publish it again with a name of that shape.
 MESSAGE
   exit 1
 fi
 
-version=${tag#v}
+version=${tag#ios/v}
 marketing=${version%-*}
 build=${version##*-}
 

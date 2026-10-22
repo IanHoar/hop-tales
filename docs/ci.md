@@ -7,8 +7,10 @@ Pull requests are tested by one of two runners, and either can take over from th
 | Xcode Cloud | 25 compute hours a month | `HopTales \| Default` |
 | GitHub Actions | Unlimited minutes, because the repository is public | `Test` |
 
-TestFlight releases stay on Xcode Cloud whichever runner is testing pull requests. Only Xcode Cloud
-signs and uploads builds. [xcode-cloud.md](xcode-cloud.md) is its runbook.
+TestFlight releases stay on Xcode Cloud whichever runner is testing pull requests, and start from
+`ios/v…` release tags; [xcode-cloud.md](xcode-cloud.md) is its runbook. Android releases start from
+`android/v…` tags in `.github/workflows/release-android.yml`, which signs and uploads to Google Play
+([google-play.md](google-play.md)).
 
 ## Switching
 

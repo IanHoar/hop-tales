@@ -2,10 +2,36 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.roborazzi)
+    alias(libs.plugins.play.publisher)
 }
 
 val shared = rootDir.resolve("../ios/HopTalesPackage/Sources")
 val notYetOnAndroid = listOf("postcard-*")
+
+data class ReleaseVersion(val code: Int, val name: String)
+
+fun releaseVersion(tag: String): ReleaseVersion {
+    val match = Regex("""^(?:android/)?v(\d+)\.(\d+)\.(\d+)-(\d+)$""").matchEntire(tag)
+        ?: throw GradleException(
+            "releaseTag \"$tag\" is not a release version. Android release tags are " +
+                "android/v<major>.<minor>.<patch>-<build>, e.g. android/v1.0.0-1.",
+        )
+    val (major, minor, patch, build) = match.destructured.toList().map { it.toLong() }
+    listOf("minor" to minor, "patch" to patch, "build" to build).forEach { (part, value) ->
+        if (value >= 100) {
+            throw GradleException(
+                "releaseTag \"$tag\": $part is $value, but versionCode leaves it two digits (0-99). See docs/google-play.md.",
+            )
+        }
+    }
+    val code = major * 1_000_000 + minor * 10_000 + patch * 100 + build
+    if (code > 2_100_000_000) {
+        throw GradleException("releaseTag \"$tag\": versionCode $code is above Play's limit of 2100000000.")
+    }
+    return ReleaseVersion(code.toInt(), "$major.$minor.$patch")
+}
+
+val release = providers.gradleProperty("releaseTag").orNull?.let(::releaseVersion)
 
 android {
     namespace = "com.hoptales.android"
@@ -15,8 +41,8 @@ android {
         applicationId = "com.hoptales.android"
         minSdk = 31
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = release?.code ?: 1
+        versionName = release?.name ?: "0.1.0"
     }
 
     signingConfigs {
@@ -98,6 +124,15 @@ dependencies {
     testImplementation(libs.roborazzi.compose)
     testImplementation(libs.androidx.window.testing)
     debugImplementation(libs.compose.ui.test.manifest)
+}
+
+play {
+    track.set("internal")
+    defaultToAppBundles.set(true)
+    releaseStatus.set(com.github.triplet.gradle.androidpublisher.ReleaseStatus.COMPLETED)
+    providers.gradleProperty("HOPTALES_PLAY_CREDENTIALS").orNull?.let {
+        serviceAccountCredentials.set(file(it))
+    }
 }
 
 roborazzi {
