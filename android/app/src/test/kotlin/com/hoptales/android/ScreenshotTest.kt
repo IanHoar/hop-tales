@@ -189,9 +189,9 @@ class ScreenshotTest {
 
     @Test fun onboardingListeningDark() = onboarding(OnboardingStep.LISTENING, dark = true)
 
-    @Test fun onboardingFriendLight() = onboarding(OnboardingStep.FRIEND, dark = false)
+    @Test fun onboardingAheadLight() = onboarding(OnboardingStep.AHEAD, dark = false)
 
-    @Test fun onboardingFriendDark() = onboarding(OnboardingStep.FRIEND, dark = true)
+    @Test fun onboardingAheadDark() = onboarding(OnboardingStep.AHEAD, dark = true)
 
     @Test fun onboardingSoundButtonsLight() = onboarding(OnboardingStep.SOUND_BUTTONS, dark = false)
 
@@ -239,7 +239,6 @@ class ScreenshotTest {
             step = step,
             backup = true,
             childName = "Maya",
-            startingFriend = Friend.HARE.takeIf { step >= OnboardingStep.FRIEND },
             soundButtons = true.takeIf { step >= OnboardingStep.SOUND_BUTTONS },
         )
         compose.setContent {

@@ -81,7 +81,7 @@ class LargeScreenshotTest {
 
     @Test
     @Config(qualifiers = TABLET_PORTRAIT)
-    fun onboardingTabletPortrait() = onboarding(OnboardingStep.FRIEND, "tablet-portrait")
+    fun onboardingTabletPortrait() = onboarding(OnboardingStep.AHEAD, "tablet-portrait")
 
     @Test
     @Config(qualifiers = TABLET_PORTRAIT)
@@ -109,7 +109,7 @@ class LargeScreenshotTest {
 
     @Test
     @Config(qualifiers = TABLET_LANDSCAPE)
-    fun onboardingTabletLandscape() = onboarding(OnboardingStep.FRIEND, "tablet-landscape")
+    fun onboardingTabletLandscape() = onboarding(OnboardingStep.AHEAD, "tablet-landscape")
 
     @Test
     @Config(qualifiers = TABLET_LANDSCAPE)
@@ -174,7 +174,7 @@ class LargeScreenshotTest {
 
     @Test
     @Config(qualifiers = FOLD_OPEN)
-    fun onboardingFoldOpen() = onboarding(OnboardingStep.FRIEND, "fold-open")
+    fun onboardingFoldOpen() = onboarding(OnboardingStep.AHEAD, "fold-open")
 
     @Test
     @Config(qualifiers = FOLD_OPEN)
@@ -198,7 +198,7 @@ class LargeScreenshotTest {
 
     @Test
     @Config(qualifiers = FOLD_OPEN)
-    fun onboardingFriendBook() = onboarding(OnboardingStep.FRIEND, "book", fold = FoldingFeature.Orientation.VERTICAL)
+    fun onboardingAheadBook() = onboarding(OnboardingStep.AHEAD, "book", fold = FoldingFeature.Orientation.VERTICAL)
 
     @Test
     @Config(qualifiers = FOLD_OPEN_PORTRAIT)
@@ -218,7 +218,7 @@ class LargeScreenshotTest {
 
     @Test
     @Config(qualifiers = FOLD_OPEN_PORTRAIT)
-    fun onboardingFriendTabletop() = onboarding(OnboardingStep.FRIEND, "tabletop", fold = FoldingFeature.Orientation.HORIZONTAL)
+    fun onboardingAheadTabletop() = onboarding(OnboardingStep.AHEAD, "tabletop", fold = FoldingFeature.Orientation.HORIZONTAL)
 
     private fun halfOpen(orientation: FoldingFeature.Orientation) {
         val metrics = app.resources.displayMetrics
@@ -271,7 +271,6 @@ class LargeScreenshotTest {
             step = step,
             backup = true,
             childName = "Maya",
-            startingFriend = Friend.HARE.takeIf { step >= OnboardingStep.FRIEND },
         )
         shoot("onboarding-${step.name.lowercase()}-$device", fold = fold) { OnboardingContent(state, OnboardingActions()) }
     }

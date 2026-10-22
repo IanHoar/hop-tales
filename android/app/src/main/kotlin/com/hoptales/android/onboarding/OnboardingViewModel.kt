@@ -2,7 +2,6 @@ package com.hoptales.android.onboarding
 
 import androidx.lifecycle.ViewModel
 import com.hoptales.android.HopTalesApplication
-import com.hoptales.content.Friend
 import com.hoptales.onboarding.Authorization
 import com.hoptales.onboarding.Onboarding
 import com.hoptales.onboarding.OnboardingNext
@@ -30,8 +29,6 @@ class OnboardingViewModel(private val app: HopTalesApplication, hasMicrophone: B
     }
 
     fun nameChanged(name: String) = update { nameChanged(name) }
-
-    fun friendPicked(friend: Friend) = update { friendPicked(friend) }
 
     fun soundButtonsPicked(isOn: Boolean) = update { soundButtonsPicked(isOn) }
 

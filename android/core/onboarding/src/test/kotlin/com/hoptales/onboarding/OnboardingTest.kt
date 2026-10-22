@@ -27,9 +27,10 @@ class OnboardingTest {
         onboarding.authorizationResolved(Authorization.AUTHORIZED)
         assertEquals("Continue", onboarding.state.primaryTitle)
         assertEquals(OnboardingNext.Advanced, onboarding.primaryTapped())
-        assertEquals(OnboardingStep.FRIEND, onboarding.state.step)
-        assertEquals(OnboardingNext.Stay, onboarding.primaryTapped())
-        onboarding.friendPicked(Friend.FROG)
+        assertEquals(OnboardingStep.AHEAD, onboarding.state.step)
+        assertEquals(4, onboarding.state.stepNumber)
+        assertEquals(5, onboarding.state.stepCount)
+        assertTrue(onboarding.state.primaryEnabled)
         assertEquals(OnboardingNext.Advanced, onboarding.primaryTapped())
         assertEquals(OnboardingStep.SOUND_BUTTONS, onboarding.state.step)
         onboarding.soundButtonsPicked(true)
@@ -37,7 +38,7 @@ class OnboardingTest {
 
         val finished = onboarding.primaryTapped()
         assertEquals(
-            OnboardingNext.Finished(Profile("Maya", Friend.FROG, Profile.Accent.BRITISH, soundButtons = true)),
+            OnboardingNext.Finished(Profile("Maya", Friend.BUNNY, Profile.Accent.BRITISH, soundButtons = true)),
             finished,
         )
     }
@@ -53,7 +54,7 @@ class OnboardingTest {
         state = state.copy(childName = "Maya")
         assertTrue(state.canContinue(OnboardingStep.NAME))
         assertFalse(state.canContinue(OnboardingStep.LISTENING))
-        assertFalse(state.canContinue(OnboardingStep.FRIEND))
+        assertTrue(state.canContinue(OnboardingStep.AHEAD))
         assertFalse(state.canContinue(OnboardingStep.SOUND_BUTTONS))
     }
 
@@ -63,7 +64,7 @@ class OnboardingTest {
         assertEquals(OnboardingNext.RequestMicrophone, onboarding.primaryTapped())
         onboarding.authorizationResolved(Authorization.DENIED)
         assertEquals(OnboardingNext.Advanced, onboarding.primaryTapped())
-        assertEquals(OnboardingStep.FRIEND, onboarding.state.step)
+        assertEquals(OnboardingStep.AHEAD, onboarding.state.step)
     }
 
     @Test
@@ -75,7 +76,7 @@ class OnboardingTest {
 
     @Test
     fun backReturnsToThePreviousQuestion() {
-        val onboarding = Onboarding(OnboardingState(step = OnboardingStep.FRIEND))
+        val onboarding = Onboarding(OnboardingState(step = OnboardingStep.AHEAD))
         assertTrue(onboarding.backTapped())
         assertEquals(OnboardingStep.LISTENING, onboarding.state.step)
         assertTrue(onboarding.backTapped())
@@ -88,6 +89,13 @@ class OnboardingTest {
     }
 
     @Test
+    fun everyNewReaderStartsWithTheLevelOneFriend() {
+        val profile = OnboardingState(childName = "Maya", soundButtons = false).profile("GB")
+        assertEquals(Friend.at(1), profile.startingFriend)
+        assertEquals(Friend.BUNNY, profile.startingFriend)
+    }
+
+    @Test
     fun aLongNameIsCutShort() {
         val onboarding = Onboarding()
         onboarding.nameChanged("Maximilian-Alexander-Bartholomew")
@@ -96,8 +104,8 @@ class OnboardingTest {
 
     @Test
     fun theNameIsTrimmedAndTheAccentFollowsTheRegion() {
-        val state = OnboardingState(childName = "  Maya ", startingFriend = Friend.HARE, soundButtons = false)
-        assertEquals(Profile("Maya", Friend.HARE, Profile.Accent.AMERICAN), state.profile("US"))
+        val state = OnboardingState(childName = "  Maya ", soundButtons = false)
+        assertEquals(Profile("Maya", Friend.BUNNY, Profile.Accent.AMERICAN), state.profile("US"))
         assertEquals(Profile.Accent.CANADIAN, state.profile(null).accent)
         assertEquals(Profile.Accent.BRITISH, state.copy(accent = Profile.Accent.BRITISH).profile("US").accent)
     }
@@ -114,11 +122,11 @@ class OnboardingTest {
 
     @Test
     fun reopeningTheAppResumesAtTheLastStep() {
-        val draft = ProfileDraft(childName = "Maya", startingFriend = Friend.FROG, step = OnboardingStep.FRIEND.number)
+        val draft = ProfileDraft(childName = "Maya", startingFriend = Friend.FROG, step = OnboardingStep.AHEAD.number)
         val state = OnboardingState.resuming(draft)
-        assertEquals(OnboardingStep.FRIEND, state.step)
+        assertEquals(OnboardingStep.AHEAD, state.step)
         assertEquals("Maya", state.childName)
-        assertEquals(Friend.FROG, state.startingFriend)
+        assertEquals(Friend.at(1), state.profile("GB").startingFriend)
         assertEquals(4, state.stepNumber)
         assertEquals(5, state.stepCount)
     }
@@ -141,8 +149,8 @@ class OnboardingTest {
         val state = OnboardingState.resuming(draft)
         assertTrue(state.isComplete)
         assertFalse(OnboardingState.resuming(draft.copy(backup = null)).isComplete)
-        assertEquals(Profile("Maya", Friend.HARE, Profile.Accent.AMERICAN, soundButtons = true), state.profile("GB"))
+        assertEquals(Profile("Maya", Friend.BUNNY, Profile.Accent.AMERICAN, soundButtons = true), state.profile("GB"))
         assertFalse(OnboardingState.resuming(draft.copy(soundButtons = null)).isComplete)
-        assertFalse(OnboardingState.resuming(draft.copy(step = OnboardingStep.FRIEND.number)).isComplete)
+        assertFalse(OnboardingState.resuming(draft.copy(step = OnboardingStep.AHEAD.number)).isComplete)
     }
 }

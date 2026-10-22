@@ -44,19 +44,16 @@ This is a plan, not built yet. It builds on the collage storybook (`docs/DESIGN-
 - **The levels follow the UFLI Foundations phonics sequence.** `Content/Resources/phonics.json` lists each level's sounds and heart words. `scripts/build-stories.py` and `PhonicsTests` refuse a story word that a reader at that level can't decode yet. A reading teacher still needs to review how the levels map onto it (#183).
 - **Keep the numbers in one table in `Content`:** steps per level, sentence lengths and the big-word rate, so they're easy to tune.
 - **Steps to the next friend come from the stories, not a fixed number.** `Levels.goodReadsToNextFriend` sets how many good reads each level takes (3½ at levels 1–2, then half a read more per level). A good read is the level's average story length plus the 20-step bonus, so the goal follows the content if stories are added or rewritten. The figures in the table are what today's stories give, rounded to 10.
-- **Starting point: onboarding offers the first three friends only.** This replaces the reading-level step in `DESIGN-HANDOFF-V3.md` §4 (`PhoneOnboard`).
-  - **Step 3 of 4:**
-    - Title: "Who should your reader start with?"
-    - Body: "Pick the friend whose words look about right. You can change this later in settings."
-  - **Three cards**, each with the friend's sticker, name, a label and example words in Young Serif:
-    - **Bob** · Just starting · *sat · hop · red*
-    - **Skip** · Getting going · *frog · ship · hill*
-    - **Oggy** · Reading well · *lake · kite · home*
-
-    The selected card gets a red 3 pt border.
-  - **Below the cards:** silhouettes of the other four friends and "4 more friends join as your reader gets stronger".
-  - **Picking a friend** starts at their level. The easier friends are already met: picking Oggy means Bob and Skip come along.
-  - **Button, Marmalade, Barnacle and Bartholomew are never offered in onboarding.** They're only reached by filling the path and passing each big story.
+- **Starting point: every new reader starts with Bob at Level 1.** Onboarding no longer offers a choice of friend. Level 1 is the free tier of Hop Tales Plus (`docs/SUBSCRIPTIONS.md`).
+  - **Step 4 of 5, "What's ahead":** an informational step, not a picker.
+    - Title: "Reading grows with your reader"
+    - Body: "Your reader starts with Bob and short, simple words. With every story they read, they'll meet new friends and move on to longer, trickier words."
+  - **A dotted trail** of the first three friends, each with their sticker, name and "Words like" examples in Young Serif, with no card, border or selection state:
+    - **Bob** · *Starts here* · *sat, hop, red*
+    - **Skip** · *ship, duck, frog*
+    - **Oggy** · *lake, kite, home*
+  - **Below the trail:** "More friends further along". Continue is always enabled.
+  - **Button, Marmalade, Barnacle and Bartholomew are never shown in onboarding.** They're only reached by filling the path and passing each big story.
   - **Settings:** the grown-up setting can move a child between the levels they've reached. It can't skip them ahead past level 3.
 
 ## 2. Steps and big words
@@ -290,7 +287,7 @@ struct Wardrobe: Codable {
 
 ## 9. Build order (one issue each)
 
-1. **Onboarding:** replace the reading-level step with the three-friend picker.
+1. **Onboarding:** replace the reading-level step with the three-friend picker (since replaced by the "What's ahead" step; every reader starts with Bob).
 2. **Levels in the content:** tag every story's level, mark big words, write the big stories (one per level up), and add the level table to `Content`.
 3. **Journey:** step counting, big words on the path, the tally path meter, the big-story card, passing and "not yet", the new-friend moment, and the journey map.
 4. **Treats and baskets:** treats on the path, the basket chip, golden treats, each friend's basket and the basket-full present.
@@ -300,7 +297,7 @@ struct Wardrobe: Codable {
 
 ## 10. Decisions for Ian
 
-1. **Who picks in onboarding:** decided: the grown-up picks, with the child watching. The step stays grown-up-facing like the rest of onboarding. The friend cards are big and friendly enough to show the child, and the copy invites them to look.
+1. **Who picks in onboarding:** superseded: nobody picks. Every reader starts with Bob, and the step shows the first three friends as what's ahead. A grown-up can move a stronger reader up in Settings.
 2. **The big-story bar:** is 85 % of words without help right?
 3. **Level ups:** decided: the big story is the main way up, and a level also rises on its own after sustained reading. The first-pass rule, kept in the level table so it's easy to tune:
    - **8 stories at the current level**, each read with help on no more than 1 word in 10, since the last level up. This stays at 8 with the shorter paths: it's still more reads than the path and the big story together at every level, so it remains the fallback for a child who reads well but keeps saying "Not yet" to the big story.

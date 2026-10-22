@@ -21,6 +21,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasContentDescription
@@ -128,13 +129,17 @@ class AccessibilityTest {
     }
 
     @Test
-    fun onboardingFriendIsOneSelectedButton() {
-        onboarding(OnboardingStep.FRIEND)
-        val hare = Friend.HARE
-        compose.onNodeWithContentDescription("${hare.friendName}, ${hare.stage}. Words like", substring = true)
-            .assertIsButton()
-            .assertIsSelected()
-        compose.onNodeWithText(hare.stage).assertDoesNotExist()
+    fun onboardingAheadShowsFriendsWithoutChoices() {
+        onboarding(OnboardingStep.AHEAD)
+        compose.onNode(isHeading() and hasText("Reading grows with your reader")).assertExists()
+        val first = Friend.at(1)
+        compose.onNodeWithContentDescription("${first.friendName}, where Maya starts. Words like", substring = true)
+            .assertHasNoClickAction()
+        for (friend in listOf(Friend.at(2), Friend.at(3))) {
+            compose.onNodeWithContentDescription("${friend.friendName}. Words like", substring = true)
+                .assertHasNoClickAction()
+        }
+        compose.onNodeWithContentDescription(Friend.at(4).friendName, substring = true).assertDoesNotExist()
         compose.onNodeWithContentDescription("Back").assertHasClickAction()
     }
 
@@ -307,7 +312,6 @@ class AccessibilityTest {
         val state = OnboardingState(
             step = step,
             childName = "Maya",
-            startingFriend = Friend.HARE.takeIf { step >= OnboardingStep.FRIEND },
         )
         compose.setContent { HopTalesTheme { OnboardingContent(state, OnboardingActions()) } }
     }

@@ -110,7 +110,8 @@ rules change, change both. `WordMatcherTest` mirrors `WordMatcherTests` case for
 
 The first launch walks the grown-up through onboarding: Google backup (the Android counterpart of
 the iCloud step), the child's name, the microphone (explained before Android's prompt, which is
-asked for there and never on a story start again), the starting friend and sound buttons. Answers
+asked for there and never on a story start again), what's ahead (the first three friends, with Bob
+as where every reader starts; nothing to pick) and sound buttons. Answers
 are kept in `profile-draft.json` as they are given, so a closed app resumes where it left off.
 
 Progress and the finished `Profile` live in SQLite, `databases/hoptales.db`, through the platform's
