@@ -376,6 +376,6 @@ so a shipped build never locks a story nobody can buy yet.
      offer, the grace period, the licence key, license testers and the Families declarations.
    - Repo copy: `privacy.html`, `docs/app-store-privacy.md`, the website, and the store
      descriptions without "no in-app purchases". Then turn the release switch on (both
-     settings above, and the two `everyStoryStaysOpenUntilTheStoresAreLive` tests), and give the
-     release build the Play public key as the `hoptales.playPublicKey` Gradle property, without
-     which no Play purchase verifies.
+     settings above, and the two `everyStoryStaysOpenUntilTheStoresAreLive` tests), The Play public key is
+     committed as the `hoptales.playPublicKey` Gradle property in `android/gradle.properties`; it is
+     public, and without it no Play purchase verifies.
