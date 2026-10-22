@@ -41,7 +41,8 @@ need one (`swift-sharing`).
   - no third-party analytics or advertising
   - no links out of the app, purchases or other distractions except behind a parental gate
   - a privacy policy is required
-  - Today there are no links or purchases, so there is no gate (`docs/HANDOFF.md` rule 6).
+  - The Hop Tales Plus paywall, restore and manage links sit behind the parental gate
+    (`docs/HANDOFF.md` rule 6, `docs/SUBSCRIPTIONS.md`).
 
 ## Still needed before submission
 
