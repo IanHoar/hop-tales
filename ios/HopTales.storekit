@@ -1,0 +1,124 @@
+{
+  "appPolicies": {
+    "eula": "",
+    "policies": [
+      {
+        "locale": "en_US",
+        "policyText": "",
+        "policyURL": ""
+      }
+    ]
+  },
+  "identifier": "5E4F3A47",
+  "nonRenewingSubscriptions": [],
+  "products": [],
+  "settings": {
+    "_failTransactionsEnabled": false,
+    "_locale": "en_US",
+    "_storefront": "USA",
+    "_storeKitErrors": [
+      {
+        "current": null,
+        "enabled": false,
+        "name": "Load Products"
+      },
+      {
+        "current": null,
+        "enabled": false,
+        "name": "Purchase"
+      },
+      {
+        "current": null,
+        "enabled": false,
+        "name": "Verification"
+      },
+      {
+        "current": null,
+        "enabled": false,
+        "name": "App Store Sync"
+      },
+      {
+        "current": null,
+        "enabled": false,
+        "name": "Subscription Status"
+      },
+      {
+        "current": null,
+        "enabled": false,
+        "name": "App Transaction"
+      },
+      {
+        "current": null,
+        "enabled": false,
+        "name": "Manage Subscriptions Sheet"
+      },
+      {
+        "current": null,
+        "enabled": false,
+        "name": "Refund Request Sheet"
+      },
+      {
+        "current": null,
+        "enabled": false,
+        "name": "Offer Code Redeem Sheet"
+      }
+    ]
+  },
+  "subscriptionGroups": [
+    {
+      "id": "21800347",
+      "localizations": [],
+      "name": "hop_tales_plus",
+      "subscriptions": [
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "29.99",
+          "familyShareable": true,
+          "groupNumber": 1,
+          "internalID": "6800347002",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "Every story, for a year",
+              "displayName": "Hop Tales Plus Yearly",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "com.hoptales.plus.yearly",
+          "recurringSubscriptionPeriod": "P1Y",
+          "referenceName": "Plus Yearly",
+          "subscriptionGroupID": "21800347",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "4.99",
+          "familyShareable": true,
+          "groupNumber": 1,
+          "internalID": "6800347001",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "Every story, month by month",
+              "displayName": "Hop Tales Plus Monthly",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "com.hoptales.plus.monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Plus Monthly",
+          "subscriptionGroupID": "21800347",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        }
+      ]
+    }
+  ],
+  "version": {
+    "major": 4,
+    "minor": 0
+  }
+}

@@ -332,7 +332,7 @@ private fun Destination(app: HopTalesApplication) {
                 target.startsWith(Sheet.LOCKED) -> {
                     val locked = app.library[target.removePrefix(Sheet.LOCKED)]
                     if (locked != null) {
-                        LockedStoryScreen(StoryStanding.of(locked, progress), onDone = { sheet = null })
+                        LockedStoryScreen(StoryStanding.of(locked, progress), app.plus, onDone = { sheet = null })
                     }
                 }
 

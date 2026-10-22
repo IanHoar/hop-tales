@@ -107,17 +107,20 @@ grown-up**. The card has no price, no plan names and no buy button.
 - A wrong answer draws a new question, with no lockout and no failure state for the child.
 - The gate is one shared component on each app. The paywall, Restore, Manage subscription, Request
   a refund and any future outside link all go through it.
-- Build step 2 (#346) added it on both apps, with the locked story card as its first use. Until the
-  paywall lands (#347), passing the gate shows a "Hop Tales Plus is on its way" note.
+- Build step 2 (#346) added it on both apps, with the locked story card as its first use. Since
+  #347, passing the gate opens the paywall. `GrownUpPaywall` (iOS, in `GrownUps`) and `Paywall`
+  (Android, in `settings`) are the one entry point, with an onboarding flag for #349.
 
 **The paywall (grown-up-facing, behind the gate).**
 - **iOS.** StoreKit's `SubscriptionStoreView` for the `hop_tales_plus` group, styled as a paper
   sheet over the meadow.
   - It shows the two plans, auto-renewal wording, and links to Terms of Use and the Privacy
     Policy, which App Review requires for subscriptions.
-  - It includes Restore purchases (`.storeButton(.visible, for: .restorePurchases)`).
-  - Using Apple's view instead of a custom one keeps the required disclosures correct as the rules
-    change.
+  - Our paper plan rows are its custom control style, so tapping a plan runs Apple's purchase.
+    Restore purchases (`AppStore.sync()`), the auto-renewal wording and the Terms and Privacy
+    links sit under the plans in the same paper footer as on Android, so Apple's own buttons are
+    hidden.
+  - Previews and snapshots draw the same rows from fake offers in `PurchasesClient.fake()`.
 - **Android.** A Compose sheet drawn in the same paper style, listing the two base plans from
   `queryProductDetailsAsync`, with the yearly plan first. Buying calls `launchBillingFlow` with the
   base plan's offer token, and Play draws its own purchase sheet over it.

@@ -85,7 +85,7 @@ extension EnvironmentValues {
   public var body: some Feature {
     Update { state, action in
       switch action {
-      case .locked(.closeTapped):
+      case .locked(.closeTapped), .locked(.grownUp(.paywall(.subscribed))):
         state.locked = nil
       case .bookTapped, .friendsTapped, .grownUpsTapped, .journeyTapped, .locked, .playOnTVTapped,
         .storyTapped, .wardrobeTapped:
