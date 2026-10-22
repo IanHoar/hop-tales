@@ -12,6 +12,8 @@ import com.hoptales.android.speech.ReadingAudio
 import com.hoptales.android.speech.Speaker
 import com.hoptales.android.speech.SpeechListener
 import com.hoptales.android.speech.SpeechLog
+import com.hoptales.android.world.LookPack
+import com.hoptales.android.world.PlayPackDelivery
 import com.hoptales.content.Phonics
 import com.hoptales.content.StoryLibrary
 import com.hoptales.content.StoryProps
@@ -44,4 +46,7 @@ class HopTalesApplication : Application() {
     val chord: ChordPlayer by lazy { ChordPlayer() }
     val soundPreference: SoundPreference by lazy { SoundPreference(this) }
     val speechLog: SpeechLog by lazy { SpeechLog(this) }
+    val looks: LookPack by lazy {
+        if (BuildConfig.DEBUG) LookPack.bundled else LookPack(PlayPackDelivery(this)).also(LookPack::start)
+    }
 }

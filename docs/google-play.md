@@ -55,6 +55,30 @@ tag to build what CI would:
 
 [Releasing from CI](#releasing-from-ci) explains the numbers. Releases normally go through CI.
 
+## The looks pack
+
+The dressed-friend sheets (`look-*`) are most of the app's size, so a release bundle carries them in
+a **fast-follow** asset pack, `looks` (`android/looks`), and Play downloads it straight after the
+app installs. Each friend's starting look (`hoptales.baseLooks` in `android/gradle.properties`)
+stays in the base, so the intro and every friend's first outfit are there from the first launch.
+Until the pack lands, a look it holds shows the friend in their base sheet; it appears without a
+restart once Play delivers the pack. The app makes no network call of its own: Play does the
+download, through Google's asset-delivery library. Debug builds, `installDebug` and the tests keep
+every sheet in the app. Both sets are copied from `ios/…/World/Resources` at build time.
+
+Try the delivery locally with [bundletool](https://github.com/google/bundletool) before a release:
+
+```sh
+./gradlew :app:bundleRelease
+bundletool build-apks --bundle=app/build/outputs/bundle/release/app-release.aab \
+  --output=hoptales.apks --local-testing
+bundletool install-apks --apks=hoptales.apks    # the pack arrives as it would from Play
+bundletool get-size total --apks=hoptales.apks  # the first download, without the pack
+```
+
+`--local-testing` installs the pack from the device's own storage, so the wardrobe can be checked
+without Play. `./gradlew :app:installRelease` installs the base alone, with no pack.
+
 ## First upload
 
 1. Play Console → **Create app**: Hop Tales, App, Free. The package name comes from the first bundle
@@ -76,6 +100,8 @@ app is for children, so they need care:
 - **Data safety**: nothing is collected or shared. Speech is recognised on the device. The optional
   Google account backup holds the reader's name and progress, is off until a grown-up turns it on,
   and only the family can see it.
+- **Foreground service permissions**: Google's asset-delivery library declares a `dataSync`
+  foreground service, which unpacks the looks pack. Declare it as downloading app content.
 - **Privacy policy URL**, **content rating** (the IARC questionnaire), **ads: none**, **app access:
   no login needed**.
 - **Store listing**: a short and full description, a 512×512 icon, a 1024×500 feature graphic, and

@@ -40,6 +40,7 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -73,6 +74,7 @@ import com.hoptales.android.settings.SettingsScreen
 import com.hoptales.android.world.IntroArt
 import com.hoptales.android.world.IntroLayout
 import com.hoptales.android.world.IntroTimeline
+import com.hoptales.android.world.LocalLooks
 import com.hoptales.content.Friend
 import com.hoptales.content.Profile
 import com.hoptales.content.Story
@@ -108,6 +110,7 @@ class MainActivity : ComponentActivity() {
         val reduceMotion = reducesMotion()
         setContent {
             val profile by app.profileStore.profile.collectAsStateWithLifecycle()
+            val looks by app.looks.sheets.collectAsStateWithLifecycle()
             var keptTheme by remember { mutableStateOf(Profile.Theme.DEVICE) }
             LaunchedEffect(profile?.theme) { profile?.theme?.let { keptTheme = it } }
             val dark = (profile?.theme ?: keptTheme).isDark(isSystemInDarkTheme())
@@ -120,13 +123,15 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 }
-                FoldAware {
-                    Entry(
-                        introArt = introArt,
-                        introDone = introDone,
-                        reduceMotion = reduceMotion,
-                        onIntroFinished = { introDone = true },
-                    ) { Destination(app) }
+                CompositionLocalProvider(LocalLooks provides looks) {
+                    FoldAware {
+                        Entry(
+                            introArt = introArt,
+                            introDone = introDone,
+                            reduceMotion = reduceMotion,
+                            onIntroFinished = { introDone = true },
+                        ) { Destination(app) }
+                    }
                 }
             }
         }

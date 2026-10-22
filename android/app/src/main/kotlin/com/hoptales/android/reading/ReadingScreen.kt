@@ -79,6 +79,7 @@ import com.hoptales.android.design.rememberReducedMotion
 import com.hoptales.android.world.Art
 import com.hoptales.android.world.HareSheet
 import com.hoptales.android.world.HareSheets
+import com.hoptales.android.world.LocalLooks
 import com.hoptales.android.world.MeadowGround
 import com.hoptales.android.world.MeadowLayer
 import com.hoptales.android.world.MeadowStars
@@ -227,9 +228,10 @@ private fun PathStage(
     val weather = remember { SkyWeather() }
     val skyTime by rememberSkyTime(running = !reduceMotion)
     LaunchedEffect(state.mood) { weather.apply(state.mood, skyTime) }
-    val hare = remember(friend, wearing) {
+    val looks = LocalLooks.current
+    val hare = remember(friend, wearing, looks) {
         val sheets = HareSheets.of(friend)
-        fun sheet(sheet: HareSheet) = wearing?.let { Art.image(context.assets, sheets.dressed(friend, it, sheet)) }
+        fun sheet(sheet: HareSheet) = wearing?.let { Art.image(context.assets, sheets.dressed(friend, it, sheet), looks) }
             ?: Art.image(context.assets, sheets.of(sheet).asset)
         HareArt(sheet(HareSheet.IDLE), sheet(HareSheet.HOP), sheets)
     }

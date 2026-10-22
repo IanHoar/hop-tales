@@ -20,6 +20,7 @@ dependencyResolutionManagement {
 rootProject.name = "HopTales"
 
 include(":app")
+include(":looks")
 include(":core:content")
 include(":core:speech")
 include(":core:reading")
