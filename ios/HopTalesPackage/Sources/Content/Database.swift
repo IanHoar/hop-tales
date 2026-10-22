@@ -33,6 +33,7 @@ struct ProgressRecord: Equatable, Identifiable {
   var baskets: [Friend: Basket] = [:]
   @Column(as: [Friend: [Slot: String]].JSONRepresentation.self)
   var outfits: [Friend: [Slot: String]] = [:]
+  var levelOneCelebrated = false
 }
 
 @Table("storyProgress")
@@ -76,7 +77,8 @@ extension ProgressRecord {
       stars: progress.stars,
       journey: progress.journey,
       baskets: progress.baskets,
-      outfits: progress.outfits
+      outfits: progress.outfits,
+      levelOneCelebrated: progress.levelOneCelebrated
     )
   }
 }
@@ -124,9 +126,11 @@ public enum HopTalesDatabase {
     }
     migrator.registerMigration("Import progress.json and profile.json") { db in
       guard let legacy else { return }
+      try addLevelOneCelebrated(db)
       try importFiles(from: legacy, into: db)
     }
     migrator.registerMigration("Add plusOffered to profiles", migrate: addPlusOffered)
+    migrator.registerMigration("Add levelOneCelebrated to progress", migrate: addLevelOneCelebrated)
     return migrator
   }
 
@@ -134,6 +138,17 @@ public enum HopTalesDatabase {
     try #sql(
       """
       ALTER TABLE "profiles" ADD COLUMN "plusOffered" INTEGER NOT NULL DEFAULT 0
+      """
+    )
+    .execute(db)
+  }
+
+  static func addLevelOneCelebrated(_ db: Database) throws {
+    guard try !db.columns(in: "progress").contains(where: { $0.name == "levelOneCelebrated" })
+    else { return }
+    try #sql(
+      """
+      ALTER TABLE "progress" ADD COLUMN "levelOneCelebrated" INTEGER NOT NULL DEFAULT 0
       """
     )
     .execute(db)

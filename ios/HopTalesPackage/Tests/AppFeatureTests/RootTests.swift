@@ -56,6 +56,39 @@ struct RootTests {
     await store.dismount()
   }
 
+  @Test func aStoryOpensKnowingWhetherStoriesLockAndThePlan() async {
+    var state = Root.State()
+    state.home.locksStories = true
+    state.home.isPlus = true
+    let store = TestStore(initialState: state) {
+      Root()
+        .dependency(PurchasesClient.fixed(true))
+    }
+    let story = StoryLibrary.all[0]
+    let big = Journey().bigWords(in: story)
+    let treat = Journey().treat(in: story)
+    let friend = story.friend
+    store.send(.home(.storyTapped(story))) {
+      $0.path = [.reading(Reading.State.DebugSnapshot(
+        bigWords: big, friend: friend, isPlus: true, locksStories: true, look: "bow",
+        treat: treat, story: story
+      ))]
+    }
+
+    await store.receive(\.path) {
+      $0.path = [
+        .reading(
+          Reading.State.DebugSnapshot(
+            authorization: .authorized, bigWords: big, friend: friend, isPlus: true,
+            locksStories: true, look: "bow", treat: treat, story: story
+          )
+        )
+      ]
+    }
+
+    await store.dismount()
+  }
+
   @Test func theTVWaitsUntilAStoryIsOpen() async {
     let store = TestStore(initialState: Root.State()) {
       Root()

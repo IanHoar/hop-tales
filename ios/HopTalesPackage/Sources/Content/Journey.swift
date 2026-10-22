@@ -51,13 +51,14 @@ public enum JourneyMoment: Equatable, Sendable {
   case newFriend(Friend, via: LevelUp)
   case treat(CollectedTreat, trail: Int)
   case basketFull(Friend, number: Int)
+  case levelOneFinished
 }
 
 extension JourneyMoment {
   public var isCallout: Bool {
     switch self {
     case .tally, .treat: false
-    case .bigStoryReady, .notYet, .newFriend, .basketFull: true
+    case .bigStoryReady, .notYet, .newFriend, .basketFull, .levelOneFinished: true
     }
   }
 
@@ -65,7 +66,7 @@ extension JourneyMoment {
     switch self {
     case let .bigStoryReady(friend): StoryLibrary.bigStory(at: friend.level)
     case let .newFriend(friend, _): StoryLibrary.stories(at: friend.level).first
-    case .tally, .notYet, .treat, .basketFull: nil
+    case .tally, .notYet, .treat, .basketFull, .levelOneFinished: nil
     }
   }
 }

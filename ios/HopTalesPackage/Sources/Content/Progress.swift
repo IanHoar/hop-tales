@@ -7,6 +7,7 @@ public struct Progress: Codable, Hashable, Sendable {
   public var journey: Journey
   public var baskets: [Friend: Basket]
   public var outfits: [Friend: [Slot: String]]
+  public var levelOneCelebrated: Bool
 
   public init(
     stars: Int = 0,
@@ -14,7 +15,8 @@ public struct Progress: Codable, Hashable, Sendable {
     wordsRead: [String: Int] = [:],
     journey: Journey = Journey(),
     baskets: [Friend: Basket] = [:],
-    outfits: [Friend: [Slot: String]] = [:]
+    outfits: [Friend: [Slot: String]] = [:],
+    levelOneCelebrated: Bool = false
   ) {
     self.completedSentences = completedSentences
     self.stars = stars
@@ -22,6 +24,7 @@ public struct Progress: Codable, Hashable, Sendable {
     self.journey = journey
     self.baskets = baskets
     self.outfits = outfits
+    self.levelOneCelebrated = levelOneCelebrated
   }
 
   enum CodingKeys: String, CodingKey {
@@ -31,6 +34,7 @@ public struct Progress: Codable, Hashable, Sendable {
     case journey
     case baskets
     case outfits
+    case levelOneCelebrated
   }
 
   public init(from decoder: any Decoder) throws {
@@ -41,6 +45,8 @@ public struct Progress: Codable, Hashable, Sendable {
     journey = try container.decodeIfPresent(Journey.self, forKey: .journey) ?? Journey()
     baskets = try container.decodeIfPresent([Friend: Basket].self, forKey: .baskets) ?? [:]
     outfits = try container.decodeIfPresent([Friend: [Slot: String]].self, forKey: .outfits) ?? [:]
+    levelOneCelebrated =
+      try container.decodeIfPresent(Bool.self, forKey: .levelOneCelebrated) ?? false
     if journey.storiesRead.isEmpty {
       journey.storiesRead = Set(
         StoryLibrary.stories(at: journey.level)

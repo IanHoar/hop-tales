@@ -35,6 +35,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
@@ -76,6 +77,8 @@ import com.hoptales.android.design.LocalPalette
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.rememberReducedMotion
+import com.hoptales.android.settings.ParentGate
+import com.hoptales.android.settings.Paywall
 import com.hoptales.android.world.Art
 import com.hoptales.android.world.HareSheet
 import com.hoptales.android.world.HareSheets
@@ -106,13 +109,21 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
+private enum class GrownUpStep { GATE, PAYWALL }
+
 @Composable
-fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {}, onTryItOn: (Friend) -> Unit = {}) {
+fun ReadingScreen(
+    story: Story,
+    onDone: () -> Unit,
+    onStory: (Story) -> Unit = {},
+    onTryItOn: (Friend) -> Unit = {},
+    locksStories: Boolean = BuildConfig.PLUS_LOCKS_STORIES,
+) {
     val context = LocalContext.current
     val app = context.applicationContext as HopTalesApplication
     val owner = remember { ReadingOwner() }
     DisposableEffect(owner) { onDispose { owner.viewModelStore.clear() } }
-    val model: ReadingViewModel = viewModel(owner) { ReadingViewModel(story, app) }
+    val model: ReadingViewModel = viewModel(owner) { ReadingViewModel(story, app, locksStories) }
     val state by model.state.collectAsStateWithLifecycle()
     val listening by model.listening.collectAsStateWithLifecycle()
     val look by model.look.collectAsStateWithLifecycle()
@@ -130,8 +141,10 @@ fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {
         onStopOrDispose { model.stop() }
     }
     val unavailable = listening == Listening.Denied || listening == Listening.Unsupported
+    var grownUp by rememberSaveable { mutableStateOf<GrownUpStep?>(null) }
     BackHandler {
         when {
+            grownUp != null -> grownUp = null
             unavailable -> onDone()
             state.isConfirmingStop -> model.keepReading()
             model.backTapped() -> onDone()
@@ -193,10 +206,26 @@ fun ReadingScreen(story: Story, onDone: () -> Unit, onStory: (Story) -> Unit = {
                 },
                 isDone = state.hasTriedItOn,
                 dismiss = model::momentDismissed,
+                onAskAGrownUp = { grownUp = GrownUpStep.GATE },
+                onKeepReading = { if (model.levelOneKeepReading()) onDone() },
             )
         }
         AnimatedVisibility(state.isConfirmingStop, enter = fadeIn(stopFade), exit = fadeOut(stopFade)) {
             StopReading(friend = story.friend.friendName, keepReading = model::keepReading, stop = onDone)
+        }
+        when (grownUp) {
+            GrownUpStep.GATE -> ParentGate(onPassed = { grownUp = GrownUpStep.PAYWALL }, onClose = { grownUp = null })
+
+            GrownUpStep.PAYWALL -> Paywall(
+                app.plus,
+                onClose = { grownUp = null },
+                onSubscribed = {
+                    grownUp = null
+                    model.momentDismissed()
+                },
+            )
+
+            null -> Unit
         }
     }
 }

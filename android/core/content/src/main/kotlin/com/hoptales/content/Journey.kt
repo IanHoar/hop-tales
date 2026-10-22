@@ -42,6 +42,8 @@ sealed interface JourneyMoment {
 
     data class BasketFull(val friend: Friend, val number: Int) : JourneyMoment
 
+    data object LevelOneFinished : JourneyMoment
+
     val isCallout: Boolean get() = this !is Tally && this !is TreatFound
 
     fun story(library: StoryLibrary): Story? = when (this) {

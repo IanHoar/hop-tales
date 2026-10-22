@@ -10,6 +10,7 @@ data class Progress(
     val journey: Journey = Journey(),
     val baskets: Map<Friend, Basket> = emptyMap(),
     val outfits: Map<Friend, Map<Slot, String>> = emptyMap(),
+    val levelOneCelebrated: Boolean = false,
 ) {
     fun isFinished(story: Story): Boolean = (completedSentences[story.id] ?: 0) >= story.sentences.size
 

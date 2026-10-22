@@ -84,7 +84,7 @@ object ProgressTable {
 
     fun read(db: SQLiteDatabase): Progress {
         val record = db.rawQuery(
-            """SELECT "stars", "journey", "baskets", "outfits" FROM "progress" WHERE "id" = ?""",
+            """SELECT "stars", "journey", "baskets", "outfits", "levelOneCelebrated" FROM "progress" WHERE "id" = ?""",
             arrayOf(ONLY),
         ).use { row ->
             if (!row.moveToFirst()) return@use null
@@ -93,6 +93,7 @@ object ProgressTable {
                 journey = Columns.journey(row.getString(1)),
                 baskets = Columns.baskets(row.getString(2)),
                 outfits = Columns.outfits(row.getString(3)),
+                levelOneCelebrated = row.getInt(4) != 0,
             )
         } ?: Progress()
         val stories = storyRows(db)
@@ -109,12 +110,14 @@ object ProgressTable {
             put("journey", Columns.journey(progress.journey))
             put("baskets", Columns.baskets(progress.baskets))
             put("outfits", Columns.outfits(progress.outfits))
+            put("levelOneCelebrated", if (progress.levelOneCelebrated) 1 else 0)
         }
         val unchanged = existing != null &&
             existing.stars == progress.stars &&
             existing.journey == progress.journey &&
             existing.baskets == progress.baskets &&
-            existing.outfits == progress.outfits
+            existing.outfits == progress.outfits &&
+            existing.levelOneCelebrated == progress.levelOneCelebrated
         if (!unchanged) db.insertWithOnConflict("progress", null, values, SQLiteDatabase.CONFLICT_REPLACE)
         val rows = progress.storyRows
         val old = existing?.storyRows.orEmpty()

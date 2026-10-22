@@ -12,6 +12,7 @@ import com.hoptales.content.StoryResult
 import com.hoptales.content.StoryTreat
 import com.hoptales.content.Word
 import com.hoptales.content.WordRef
+import com.hoptales.content.celebratingLevelOne
 import com.hoptales.content.collecting
 import com.hoptales.speech.PartialDebouncer
 import com.hoptales.speech.Strictness
@@ -193,7 +194,7 @@ class Reading(story: Story, strictness: Strictness = Strictness.GENTLE, bigWords
         return recorded
     }
 
-    fun finishing(progress: Progress, library: StoryLibrary): Progress {
+    fun finishing(progress: Progress, library: StoryLibrary, isPlus: Boolean = false, locksStories: Boolean = false): Progress {
         val helped = (wordsHelped intersect wordsRead).size
         val helpRate = if (wordsRead.isEmpty()) 0.0 else helped.toDouble() / wordsRead.size
         val collected = state.treat?.takeIf { it.word in wordsRead }?.let {
@@ -209,8 +210,20 @@ class Reading(story: Story, strictness: Strictness = Strictness.GENTLE, bigWords
         val journey = progress.journey.recording(result, library)
         val walked = progress.copy(journey = journey.value)
         val basket = collected?.let(walked::collecting)
-        state = state.copy(journeyMoments = journey.moments + basket?.moments.orEmpty())
-        return basket?.value ?: walked
+        val celebrated = (basket?.value ?: walked).celebratingLevelOne(
+            state.story,
+            journey.moments + basket?.moments.orEmpty(),
+            library,
+            isPlus,
+            locksStories,
+        )
+        state = state.copy(journeyMoments = celebrated.moments)
+        return celebrated.value
+    }
+
+    fun levelOneKeepReading(): Boolean {
+        momentDismissed()
+        return state.callout == null
     }
 
     fun tryItOn() {

@@ -85,6 +85,7 @@ let package = Package(
       dependencies: [
         "Content",
         "DesignSystem",
+        "GrownUps",
         "SpeechRecognition",
         "World",
         .product(name: "ComposableArchitecture2", package: "TCA26"),
@@ -121,6 +122,7 @@ let package = Package(
       name: "ReadingTests",
       dependencies: [
         "DesignSystem",
+        "GrownUps",
         "Reading",
         "SpeechRecognition",
         "World",
