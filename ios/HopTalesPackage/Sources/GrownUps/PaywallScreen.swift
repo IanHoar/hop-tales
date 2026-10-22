@@ -37,8 +37,8 @@ public enum PaywallOffers: Hashable, Sendable {
     case offersFailed
     case offersLoaded([PlusOffer])
     case planTapped(PlusPlan)
+    case nothingToRestore
     case purchaseCompleted(PurchaseOutcome)
-    case restoreFinished(isPlus: Bool)
     case restoreTapped
     case subscribed
     case tryLevelOneTapped
@@ -73,14 +73,14 @@ public enum PaywallOffers: Hashable, Sendable {
           break
         }
 
-      case let .restoreFinished(isPlus):
-        state.foundNothingToRestore = !isPlus
+      case .nothingToRestore:
+        state.foundNothingToRestore = true
 
       case .restoreTapped:
         state.foundNothingToRestore = false
         store.addTask {
           let isPlus = (try? await purchases.restore()) ?? false
-          try store.send(.restoreFinished(isPlus: isPlus))
+          if !isPlus { try store.send(.nothingToRestore) }
         }
 
       case .closeTapped, .subscribed, .tryLevelOneTapped:

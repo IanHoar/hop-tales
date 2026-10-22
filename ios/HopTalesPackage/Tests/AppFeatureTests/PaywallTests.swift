@@ -76,7 +76,6 @@ struct PaywallTests {
     await store.receive(\.offersLoaded) { $0.offers = .loaded(PlusOffer.samples) }
     store.send(.restoreTapped)
     await store.receive(\.subscribed)
-    await store.receive(\.restoreFinished)
     #expect(await isPlus(purchases) == true)
     await store.dismount()
   }
@@ -85,7 +84,7 @@ struct PaywallTests {
     let store = paywall(.fake(restores: false))
     await store.receive(\.offersLoaded) { $0.offers = .loaded(PlusOffer.samples) }
     store.send(.restoreTapped)
-    await store.receive(\.restoreFinished) { $0.foundNothingToRestore = true }
+    await store.receive(\.nothingToRestore) { $0.foundNothingToRestore = true }
     await store.dismount()
   }
 

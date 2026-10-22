@@ -224,13 +224,15 @@ extension PurchasesClient: DependencyKey {
         return offers
       },
       purchase: { _ in
-        if outcome == .purchased { store.publish(true) }
+        if outcome == .purchased { store.own() }
         return outcome
       },
       restore: {
-        if restores { store.publish(true) }
+        if restores { store.own() }
+        store.refresh()
         return store.isPlus
-      }
+      },
+      refresh: { store.refresh() }
     )
   }
 }
@@ -238,6 +240,7 @@ extension PurchasesClient: DependencyKey {
 final class FakeStore: Sendable {
   private struct State {
     var isPlus: Bool
+    var owns = false
     var subscribers: [UUID: AsyncStream<Bool>.Continuation] = [:]
   }
 
@@ -263,6 +266,14 @@ final class FakeStore: Sendable {
       continuation.yield(state.isPlus)
     }
     return stream
+  }
+
+  func own() {
+    state.withLock { $0.owns = true }
+  }
+
+  func refresh() {
+    if state.withLock(\.owns) { publish(true) }
   }
 
   func publish(_ isPlus: Bool) {
@@ -295,7 +306,7 @@ final class StoreEntitlement: Sendable {
 
   func refresh() {
     start()
-    state.withLock { $0.change?.yield() }
+    state.withLock { _ = $0.change?.yield() }
   }
 
   func stream() -> AsyncStream<Bool> {

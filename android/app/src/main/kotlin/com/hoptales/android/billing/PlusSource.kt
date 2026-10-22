@@ -42,21 +42,24 @@ class FakePlusSource(
 
     val bought = mutableListOf<PlusOffer>()
 
+    private var owns = false
+
     override fun refresh() {
         refreshes += 1
+        if (owns) isPlus.value = true
     }
 
     override suspend fun offers(): List<PlusOffer> = offers.orEmpty()
 
     override fun buy(activity: Activity?, offer: PlusOffer) {
         bought += offer
-        if (outcome == PurchaseOutcome.PURCHASED) isPlus.value = true
+        if (outcome == PurchaseOutcome.PURCHASED) owns = true
         outcomeFlow.tryEmit(outcome)
     }
 
     override suspend fun restore(): Boolean {
+        if (restores) owns = true
         refresh()
-        if (restores) isPlus.value = true
         return isPlus.value
     }
 }
