@@ -64,6 +64,13 @@ Back on every step after the first:
    Continue is always enabled.
 5. **Sound buttons.**
 
+After the last step, the grown-up is offered Hop Tales Plus once (`docs/SUBSCRIPTIONS.md` §3): the
+parent gate, then the paywall with both plans and **Try Level 1 free**. Leaving the gate, Try Level 1
+free or closing the paywall starts the app on Home with the free stories; a purchase starts it as
+Plus. The profile's `plusOffered` records that it was shown, so it never comes back on its own;
+Reset onboarding erases the profile and shows it again. It's skipped for a reader who already has
+Plus, and entirely while the release switch keeps every story open.
+
 Every new reader starts at Level 1 with the Level 1 friend (`Friend.at(level: 1)`, Bob). There is
 no starting-level choice. A grown-up moves a stronger reader up in Settings ("Reading with"), which
 offers the first three friends plus any friend already met. Existing and restored profiles keep

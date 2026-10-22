@@ -4,6 +4,9 @@ object Plus {
     const val FREE_LEVEL = 1
 
     fun isLocked(story: Story, isPlus: Boolean, locksStories: Boolean): Boolean = locksStories && !story.isFree && !isPlus
+
+    fun offersAtOnboarding(profile: Profile, isPlus: Boolean, locksStories: Boolean): Boolean =
+        locksStories && !isPlus && !profile.plusOffered
 }
 
 object PlusLinks {

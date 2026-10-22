@@ -11,6 +11,7 @@ data class Profile(
     val voiceID: String? = null,
     val theme: Theme = Theme.DEVICE,
     val soundButtons: Boolean = false,
+    val plusOffered: Boolean = false,
 ) {
     @Serializable
     enum class Theme(val raw: String, val themeName: String) {

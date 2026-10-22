@@ -114,7 +114,7 @@ class OnboardingActions(
 )
 
 @Composable
-fun OnboardingScreen(key: String) {
+fun OnboardingScreen(key: String, onFinished: (offersPlus: Boolean) -> Unit = {}) {
     val context = LocalContext.current
     val app = context.applicationContext as HopTalesApplication
     val model: OnboardingViewModel = viewModel(key = key) {
@@ -132,7 +132,11 @@ fun OnboardingScreen(key: String) {
             backupPicked = model::backupPicked,
             backTapped = model::backTapped,
             primaryTapped = {
-                if (model.primaryTapped() == OnboardingNext.RequestMicrophone) request.launch(Manifest.permission.RECORD_AUDIO)
+                when (model.primaryTapped()) {
+                    OnboardingNext.RequestMicrophone -> request.launch(Manifest.permission.RECORD_AUDIO)
+                    is OnboardingNext.Finished -> onFinished(model.offersPlus)
+                    else -> Unit
+                }
             },
         ),
     )

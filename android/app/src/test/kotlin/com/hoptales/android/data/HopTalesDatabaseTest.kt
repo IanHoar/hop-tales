@@ -42,6 +42,20 @@ class HopTalesDatabaseTest {
     }
 
     @Test
+    fun aVersionOneDatabaseGainsThePlusOfferColumn() {
+        val path = File(folder.root, "hoptales.db").path
+        SQLiteDatabase.openOrCreateDatabase(path, null).use { old ->
+            for (statement in HopTalesDatabase.SCHEMA) old.execSQL(statement)
+            old.execSQL("""INSERT INTO "profiles" ("id", "childName") VALUES ('profile', 'Maya')""")
+            old.version = 1
+        }
+        val db = database().writableDatabase
+        assertEquals(Profile("Maya"), ProfileTable.read(db))
+        ProfileTable.write(db, Profile("Maya", plusOffered = true))
+        assertEquals(true, ProfileTable.read(db)?.plusOffered)
+    }
+
+    @Test
     fun progressAndProfileFromBeforeTheDatabaseAreImported() {
         val legacy = folder.newFolder("files")
         val progress = Progress(
