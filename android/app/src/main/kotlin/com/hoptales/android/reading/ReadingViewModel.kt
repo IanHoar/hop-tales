@@ -205,7 +205,7 @@ class ReadingViewModel(
         publish()
     }
 
-    fun levelOneKeepReading(): Boolean = reading.levelOneKeepReading().also { publish() }
+    fun backToMyStories(): Boolean = reading.backToMyStories().also { publish() }
 
     fun tryItOn(friend: Friend) {
         app.progressStore.update { progress ->

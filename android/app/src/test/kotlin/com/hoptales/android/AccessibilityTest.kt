@@ -271,7 +271,7 @@ class AccessibilityTest {
         }
         compose.onNodeWithContentDescription("You finished ${story.title}.").assertExists()
         compose.onNodeWithContentDescription(" stars", substring = true).assertExists()
-        compose.onNodeWithText("Done").assertHasClickAction()
+        compose.onNodeWithText("Back to my stories").assertHasClickAction()
         compose.onNodeWithText("Read it again").assertHasClickAction()
         compose.onNodeWithContentDescription(" steps. ", substring = true).assertExists()
         compose.onNodeWithContentDescription("Current word", substring = true).assertDoesNotExist()

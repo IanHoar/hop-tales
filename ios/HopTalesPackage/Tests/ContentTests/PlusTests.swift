@@ -29,6 +29,27 @@ struct PlusTests {
     #expect(StoryLibrary.all.allSatisfy { !Plus.isLocked($0, isPlus: false, locksStories: false) })
   }
 
+  @Test func aLevelOneReaderSeesSkipAndOggyLocked() {
+    #expect(Plus.lockedLevels(above: 1, isPlus: false, locksStories: true) == [.hare, .frog])
+  }
+
+  @Test func aReaderAlreadyWithSkipSeesTheTwoLevelsAfterHim() {
+    #expect(Plus.lockedLevels(above: 2, isPlus: false, locksStories: true) == [.frog, .crow])
+  }
+
+  @Test func onlyLevelsThatExistAreShownLocked() {
+    #expect(Plus.lockedLevels(above: 6, isPlus: false, locksStories: true) == [.grasshopper])
+    #expect(Plus.lockedLevels(above: 7, isPlus: false, locksStories: true).isEmpty)
+  }
+
+  @Test func plusSeesNoLockedLevels() {
+    #expect(Plus.lockedLevels(above: 1, isPlus: true, locksStories: true).isEmpty)
+  }
+
+  @Test func theSwitchOffShowsNoLockedLevels() {
+    #expect(Plus.lockedLevels(above: 1, isPlus: false, locksStories: false).isEmpty)
+  }
+
   @Test func onboardingOffersPlusOnceToAReaderWithoutIt() {
     let fresh = Profile(childName: "Maya")
     #expect(Plus.offersAtOnboarding(fresh, isPlus: false, locksStories: true))

@@ -61,7 +61,9 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -92,6 +94,7 @@ import com.hoptales.android.world.MeadowPostcard
 import com.hoptales.android.world.Rosette
 import com.hoptales.android.world.Sticker
 import com.hoptales.android.world.WearSticker
+import com.hoptales.content.Friend
 import com.hoptales.content.Journey
 import com.hoptales.content.Progress
 import com.hoptales.content.Story
@@ -124,6 +127,8 @@ fun HomeScreen(
     covered: Boolean = false,
     isLocked: (Story) -> Boolean = { false },
     onLockedStory: (Story) -> Unit = {},
+    lockedLevels: List<Friend> = emptyList(),
+    onLockedLevel: (Friend) -> Unit = {},
 ) {
     val paper = LocalPaper.current
     val arrival = rememberArrival(entrance)
@@ -229,6 +234,15 @@ fun HomeScreen(
                     for (standing in standings.filter { it.story.id != keepGoing?.story?.id }) {
                         val locked = isLocked(standing.story)
                         StoryRow(standing, locked) { if (locked) onLockedStory(standing.story) else onStory(standing.story) }
+                    }
+                    if (lockedLevels.isNotEmpty()) {
+                        Text(
+                            "Next levels",
+                            style = LocalTypography.current.display(20.sp),
+                            color = paper.ink,
+                            modifier = Modifier.padding(top = 6.dp).semantics { heading() },
+                        )
+                        for (level in lockedLevels) LockedLevelRow(level) { onLockedLevel(level) }
                     }
                 }
             }
@@ -530,5 +544,41 @@ private fun StoryRow(standing: StoryStanding, locked: Boolean, onClick: () -> Un
                 modifier = Modifier.padding(end = 4.dp),
             )
         }
+    }
+}
+
+@Composable
+private fun LockedLevelRow(friend: Friend, onClick: () -> Unit) {
+    val paper = LocalPaper.current
+    val type = LocalTypography.current
+    val shape = RoundedCornerShape(16.dp)
+    val title = "Level ${friend.level} with ${friend.friendName}"
+    val words = friend.examples.joinToString(", ")
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .pressable(onClick)
+            .clearAndSetSemantics {
+                contentDescription = "$title. Words like $words. Locked, part of Hop Tales Plus"
+                role = Role.Button
+            }
+            .background(paper.shade, shape)
+            .padding(horizontal = 10.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Box(Modifier.size(50.dp), contentAlignment = Alignment.Center) { FriendSticker(friend, 46.dp) }
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
+            Text(title, style = type.display(17.sp), color = paper.ink)
+            Text(
+                buildAnnotatedString {
+                    append("Words like ")
+                    withStyle(type.word(15.sp).toSpanStyle().copy(color = paper.ink)) { append(words) }
+                },
+                style = type.ui(13.sp, FontWeight.Medium),
+                color = paper.muted,
+            )
+        }
+        PadlockSticker(30.dp)
     }
 }

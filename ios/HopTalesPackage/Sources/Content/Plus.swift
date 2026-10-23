@@ -5,12 +5,28 @@ public enum Plus {
 
   public static let freeLevel = 1
 
+  public static let lockedLevelsShown = 2
+
   public static func isLocked(
     _ story: Story,
     isPlus: Bool,
     locksStories: Bool = Plus.locksStories
   ) -> Bool {
     locksStories && !story.isFree && !isPlus
+  }
+
+  public static func lockedLevels(
+    above shelf: Int,
+    isPlus: Bool,
+    locksStories: Bool = Plus.locksStories
+  ) -> [Friend] {
+    guard locksStories, !isPlus else { return [] }
+    let first = Swift.max(shelf, freeLevel) + 1
+    return Array(
+      Friend.allCases
+        .filter { $0.level >= first && !StoryLibrary.stories(at: $0.level).isEmpty }
+        .prefix(lockedLevelsShown)
+    )
   }
 
   public static func offersAtOnboarding(

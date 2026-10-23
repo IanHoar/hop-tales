@@ -13,6 +13,7 @@ import com.hoptales.android.design.HopTalesTheme
 import com.hoptales.android.settings.ParentGateState
 import com.hoptales.content.Friend
 import com.hoptales.content.Journey
+import com.hoptales.content.Plus
 import com.hoptales.content.Progress
 import com.hoptales.content.Story
 import com.hoptales.content.StoryStanding
@@ -151,5 +152,80 @@ class LockedStoryTest {
         compose.onNodeWithText("Ask a grown-up").performClick()
         compose.onNodeWithText("Close").performClick()
         compose.onNodeWithText("This story is part of Hop Tales Plus.").assertIsDisplayed()
+    }
+
+    @Test
+    fun aLockedLevelOpensTheGateNeverAStory() {
+        val read = mutableListOf<Story>()
+        val tapped = mutableListOf<Friend>()
+        compose.setContent {
+            HopTalesTheme {
+                HomeScreen(
+                    library = app.library,
+                    progress = Progress(),
+                    onStory = { read += it },
+                    hour = 9,
+                    isLocked = { !it.isFree },
+                    lockedLevels = Plus.lockedLevels(Friend.BUNNY.level, app.library, isPlus = false, locksStories = true),
+                    onLockedLevel = { tapped += it },
+                )
+            }
+        }
+        compose.onNodeWithContentDescription("Level 3 with Oggy. Words like lake, kite, home. Locked, part of Hop Tales Plus")
+            .assertExists()
+        compose.onNodeWithContentDescription("Level 2 with Skip. Words like ship, duck, frog. Locked, part of Hop Tales Plus")
+            .performScrollTo()
+            .performClick()
+        assertEquals(listOf(Friend.HARE), tapped)
+        assertTrue(read.isEmpty())
+    }
+
+    @Test
+    fun noLockedLevelsShowWithoutThem() {
+        compose.setContent {
+            HopTalesTheme {
+                HomeScreen(library = app.library, progress = Progress(), onStory = {}, hour = 9)
+            }
+        }
+        compose.onNodeWithText("Next levels").assertDoesNotExist()
+    }
+
+    @Test
+    fun aLockedLevelGoesThroughTheGateToThePaywall() {
+        var done = 0
+        compose.setContent {
+            HopTalesTheme { LockedLevelScreen(FakePlusSource(), onDone = { done += 1 }, gate = ParentGateState(seed = 1)) }
+        }
+        compose.onNodeWithText("Ask a grown-up to answer this.").assertIsDisplayed()
+        compose.onNodeWithText("What is five times three?").assertIsDisplayed()
+        compose.onNodeWithContentDescription("1").performClick()
+        compose.onNodeWithContentDescription("5").performClick()
+        compose.onNodeWithContentDescription("Check answer").performClick()
+        compose.onNodeWithText("Hop Tales Plus").assertIsDisplayed()
+        compose.onNodeWithText("Close").performClick()
+        assertEquals(1, done)
+    }
+
+    @Test
+    fun closingTheGateFromALockedLevelGoesBackHome() {
+        var done = 0
+        compose.setContent {
+            HopTalesTheme { LockedLevelScreen(FakePlusSource(), onDone = { done += 1 }, gate = ParentGateState(seed = 1)) }
+        }
+        compose.onNodeWithText("Close").performClick()
+        assertEquals(1, done)
+    }
+
+    @Test
+    fun subscribingFromALockedLevelClosesThePaywall() {
+        var done = 0
+        val plus = FakePlusSource()
+        compose.setContent {
+            HopTalesTheme { LockedLevelScreen(plus, onDone = { done += 1 }, step = LockedLevelStep.PAYWALL) }
+        }
+        compose.onNodeWithContentDescription("Yearly", substring = true).performClick()
+        compose.waitForIdle()
+        assertTrue(plus.isPlus.value)
+        assertEquals(1, done)
     }
 }

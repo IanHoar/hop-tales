@@ -48,6 +48,8 @@ import com.hoptales.content.StoryStanding
 
 enum class LockedStep { CARD, GATE, PAYWALL }
 
+enum class LockedLevelStep { GATE, PAYWALL }
+
 val StoryStanding.lockedLine: String?
     get() {
         val total = story.sentences.size
@@ -127,4 +129,18 @@ private fun Card(standing: StoryStanding, onAsk: () -> Unit) {
     }
     Text("This story is part of Hop Tales Plus.", style = type.ui(18.sp), color = paper.ink, textAlign = TextAlign.Center)
     PaperButton("Ask a grown-up", onClick = onAsk)
+}
+
+@Composable
+fun LockedLevelScreen(
+    plus: PlusSource,
+    onDone: () -> Unit,
+    step: LockedLevelStep = LockedLevelStep.GATE,
+    gate: ParentGateState = remember { ParentGateState.drawing() },
+) {
+    var shown by rememberSaveable { mutableStateOf(step) }
+    when (shown) {
+        LockedLevelStep.GATE -> ParentGate(onPassed = { shown = LockedLevelStep.PAYWALL }, onClose = onDone, initial = gate)
+        LockedLevelStep.PAYWALL -> Paywall(plus, onClose = onDone, onSubscribed = onDone)
+    }
 }

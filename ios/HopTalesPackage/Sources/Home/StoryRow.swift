@@ -93,6 +93,45 @@ struct StoryRow: View {
   }
 }
 
+struct LockedLevelRow: View {
+  let friend: Friend
+  let action: () -> Void
+
+  private var title: String { "Level \(friend.level) with \(friend.name)" }
+  private var words: String { friend.examples.joined(separator: ", ") }
+
+  var body: some View {
+    Button(action: action) {
+      HStack(spacing: 12) {
+        FriendSticker(friend, height: 46)
+          .frame(width: 50, height: 50)
+        VStack(alignment: .leading, spacing: 1) {
+          Text(title)
+            .font(Typography.display(17))
+            .foregroundStyle(Paper.ink)
+          Text("Words like \(Text(words).font(Typography.word(15)).foregroundStyle(Paper.ink))")
+            .font(Typography.ui(13, weight: .medium))
+            .foregroundStyle(Paper.muted)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        PadlockSticker(size: 30)
+      }
+      .padding(.horizontal, 10)
+      .padding(.vertical, 8)
+      .background(Paper.shade, in: rowShape)
+      .contentShape(rowShape)
+    }
+    .buttonStyle(.plain)
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel("\(title). Words like \(words). Locked, part of Hop Tales Plus")
+    .accessibilityAddTraits(.isButton)
+  }
+
+  private var rowShape: RoundedRectangle {
+    RoundedRectangle(cornerRadius: 16, style: .continuous)
+  }
+}
+
 struct KeepGoingCard: View {
   let standing: StoryStanding
   let action: () -> Void

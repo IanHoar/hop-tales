@@ -35,7 +35,6 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
@@ -77,8 +76,6 @@ import com.hoptales.android.design.LocalPalette
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.rememberReducedMotion
-import com.hoptales.android.settings.ParentGate
-import com.hoptales.android.settings.Paywall
 import com.hoptales.android.world.Art
 import com.hoptales.android.world.HareSheet
 import com.hoptales.android.world.HareSheets
@@ -109,13 +106,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-private enum class GrownUpStep { GATE, PAYWALL }
-
 @Composable
 fun ReadingScreen(
     story: Story,
     onDone: () -> Unit,
-    onStory: (Story) -> Unit = {},
     onTryItOn: (Friend) -> Unit = {},
     locksStories: Boolean = BuildConfig.PLUS_LOCKS_STORIES,
 ) {
@@ -141,10 +135,8 @@ fun ReadingScreen(
         onStopOrDispose { model.stop() }
     }
     val unavailable = listening == Listening.Denied || listening == Listening.Unsupported
-    var grownUp by rememberSaveable { mutableStateOf<GrownUpStep?>(null) }
     BackHandler {
         when {
-            grownUp != null -> grownUp = null
             unavailable -> onDone()
             state.isConfirmingStop -> model.keepReading()
             model.backTapped() -> onDone()
@@ -193,39 +185,24 @@ fun ReadingScreen(
                 geometry = geometry,
                 readAgain = model::readAgain,
                 done = onDone,
+                leadsHome = state.callout == null,
             )
         }
         AnimatedVisibility(state.isFinished, enter = finishedFade, exit = finishedFadeOut) {
             JourneyPanel(
                 state,
                 geometry,
-                onStory = onStory,
                 onTryItOn = { friend ->
                     model.tryItOn(friend)
                     onTryItOn(friend)
                 },
                 isDone = state.hasTriedItOn,
                 dismiss = model::momentDismissed,
-                onAskAGrownUp = { grownUp = GrownUpStep.GATE },
-                onKeepReading = { if (model.levelOneKeepReading()) onDone() },
+                onBackToStories = { if (model.backToMyStories()) onDone() },
             )
         }
         AnimatedVisibility(state.isConfirmingStop, enter = fadeIn(stopFade), exit = fadeOut(stopFade)) {
             StopReading(friend = story.friend.friendName, keepReading = model::keepReading, stop = onDone)
-        }
-        when (grownUp) {
-            GrownUpStep.GATE -> ParentGate(onPassed = { grownUp = GrownUpStep.PAYWALL }, onClose = { grownUp = null })
-
-            GrownUpStep.PAYWALL -> Paywall(
-                app.plus,
-                onClose = { grownUp = null },
-                onSubscribed = {
-                    grownUp = null
-                    model.momentDismissed()
-                },
-            )
-
-            null -> Unit
         }
     }
 }

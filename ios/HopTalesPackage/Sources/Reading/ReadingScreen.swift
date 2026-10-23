@@ -2,7 +2,6 @@ import ComposableArchitecture2
 import Content
 import Dependencies
 import DesignSystem
-import GrownUps
 import SpeechRecognition
 import SwiftUI
 import World
@@ -19,7 +18,6 @@ import World
     public var authorization: SpeechClient.Authorization?
     public var bigWords: Set<WordRef> = []
     public var friend = Friend.hare
-    public var grownUp: GrownUpPaywall.State?
     public var isPlus = false
     public var locksStories = Plus.locksStories
     public var look: String?
@@ -73,14 +71,11 @@ import World
   }
 
   public enum Action {
-    case askAGrownUpTapped
     case authorizationResolved(SpeechClient.Authorization)
     case backTapped
     case backToStoriesTapped
-    case continueTapped(Story)
     case currentWordTapped
-    case grownUp(GrownUpPaywall.Action)
-    case levelOneKeepReadingTapped
+    case backToMyStoriesTapped
     case readAgainTapped
     case helpOffered
     case keepReadingTapped
@@ -101,7 +96,6 @@ import World
   @FeatureState var noiseLevel: Double?
   @FeatureState var ticksSinceMatch = 0
   @FeatureState var heardSinceMatch = false
-  @Dependency(GateSeed.self) var gateSeed
   @Dependency(ProfileStore.self) var profileStore
   @Dependency(ProgressStore.self) var progressStore
   @Dependency(SoundClient.self) var sound
@@ -143,9 +137,6 @@ import World
       case .keepReadingTapped:
         state.isConfirmingStop = false
 
-      case .continueTapped:
-        break
-
       case .tryItOnTapped:
         state.hasTriedItOn = true
 
@@ -153,8 +144,9 @@ import World
         state.hasTriedItOn = false
         state.dismissCallout()
 
-      case .askAGrownUpTapped, .grownUp, .levelOneKeepReadingTapped:
-        guard levelOne(action, &state) else { break }
+      case .backToMyStoriesTapped:
+        state.dismissCallout()
+        guard state.callout == nil else { break }
         store.addTask { try store.send(.backToStoriesTapped) }
 
       case .currentWordTapped, .helpOffered:
@@ -226,9 +218,6 @@ import World
           if case .story = state.completed { finish(&state) }
         }
       }
-    }
-    .ifLet(\.grownUp) {
-      GrownUpPaywall()
     }
     .onMount(id: [store.sentenceIndex, store.listeningEpoch]) { state in
       guard state.isActive else { return }
@@ -318,7 +307,7 @@ extension Reading {
 }
 
 public struct ReadingScreen: View {
-  @Bindable var store: StoreOf<Reading>
+  let store: StoreOf<Reading>
 
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
   @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -361,9 +350,6 @@ public struct ReadingScreen: View {
     }
     .toolbar(.hidden, for: .navigationBar)
     .modifier(ReadingPanels(store: store))
-    .sheet(item: $store.scope(\.grownUp)) { grownUp in
-      GrownUpPaywallScreen(store: grownUp)
-    }
     .sensoryFeedback(.success, trigger: store.completionCount) { _, count in
       guard count > 0, case .sentence = store.completed else { return false }
       return true

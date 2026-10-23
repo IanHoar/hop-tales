@@ -29,7 +29,7 @@ This document plus `Design/` is everything Claude Code needs to start. Decisions
 3. **Recognition is forgiving.** A five-year-old's pronunciation is not a dictation test. Match loosely (§5), never punish, never show a red X.
 4. **Nothing is timed against the child.** The world only advances when a word is read. Silence is fine. After ~6s of silence, the app *offers help* (word is spoken aloud, gently) — it does not fail.
 5. **No ads, no external links, no data leaves the device.** Speech recognition is on-device. Nothing is recorded or stored.
-6. **A parent gate** guards anything that leaves the app or costs money — purchases, subscriptions, outside links (App Review 1.3, Kids Category). It's a times-table question in words ("What is seven times eight?") on a number pad, never a hold. A wrong answer draws a new question, with no lockout and no failure state. Each app has one shared gate (`ParentGate` in `GrownUps` on iOS, beside `settings` on Android) that calls a continuation when it's passed; the locked story card's "Ask a grown-up" is its first use. Settings itself has nothing that leaves the app or costs money, so it still opens directly.
+6. **A parent gate** guards anything that leaves the app or costs money — purchases, subscriptions, outside links (App Review 1.3, Kids Category). It's a times-table question in words ("What is seven times eight?") on a number pad, never a hold. A wrong answer draws a new question, with no lockout and no failure state. Each app has one shared gate (`ParentGate` in `GrownUps` on iOS, beside `settings` on Android) that calls a continuation when it's passed; the locked story card's "Ask a grown-up" is its first use, and a locked level on Home opens it directly. Settings itself has nothing that leaves the app or costs money, so it still opens directly.
 
 ---
 
@@ -70,6 +70,33 @@ free or closing the paywall starts the app on Home with the free stories; a purc
 Plus. The profile's `plusOffered` records that it was shown, so it never comes back on its own;
 Reset onboarding erases the profile and shows it again. It's skipped for a reader who already has
 Plus, and entirely while the release switch keeps every story open.
+
+### The end of a story
+
+The end of a story, or of a level, always leads back to Home (the stories page), never straight
+into another story or level. The end card's primary button says **Back to my stories**, under
+**Read it again** and the stars sticker; it's held back while a callout is up, so there's one
+primary button on screen and the callouts can't be skipped. The journey moments still show in order (tally and
+treat, then the callouts: Level 1 finished, the big story, a new friend, a full basket). Their
+primary buttons say **Back to my stories** (the big-story and new-friend cards say **Next** while
+another callout follows), and the last one goes Home. The big story is started from the journey
+map; a new friend's stories are waiting on Home. **Read it again** (the same story) and **Try it
+on** (the wardrobe) stay, since neither opens a different story.
+
+### Home
+
+Under the friend and the level chip, the paper sheet holds, top to bottom: the "Keep reading" card,
+the Friends, Wardrobe and Book stickers, "More stories" (the active friend's stories, then the
+levels below), **Next levels**, and "Play on the TV".
+
+**Next levels** shows only while stories lock and the reader doesn't have Plus
+(`Plus.lockedLevels`). It lists the two levels above the highest level whose stories Home already
+lists — Skip (Level 2) and Oggy (Level 3) for a Level 1 reader. Each row has the friend's sticker,
+"Level 2 with Skip", their "Words like …" examples (the same ones as onboarding's "What's ahead")
+and a padlock sticker. Tapping a row opens the parent gate, then the paywall; nothing priced shows
+before the gate, and the gate's own "For grown-ups … Ask a grown-up to answer this" is what tells a
+child to fetch someone. Plus readers never see the section, and it's absent while the release
+switch keeps every story open.
 
 Every new reader starts at Level 1 with the Level 1 friend (`Friend.at(level: 1)`, Bob). There is
 no starting-level choice. A grown-up moves a stronger reader up in Settings ("Reading with"), which

@@ -20,6 +20,7 @@ extension EnvironmentValues {
     public var isPlus = false
     public var locksStories = Plus.locksStories
     public var locked: LockedStory.State?
+    public var grownUp: GrownUpPaywall.State?
 
     public init(childName: String? = nil) {
       self.childName = childName
@@ -49,6 +50,12 @@ extension EnvironmentValues {
         .keepGoing(startingAt: progress.journey.activeFriend.startingStoryID)
     }
 
+    public var lockedLevels: [Friend] {
+      Plus.lockedLevels(
+        above: progress.journey.activeFriend.level, isPlus: isPlus, locksStories: locksStories
+      )
+    }
+
     public func isLocked(_ story: Story) -> Bool {
       Plus.isLocked(story, isPlus: isPlus, locksStories: locksStories)
     }
@@ -72,13 +79,16 @@ extension EnvironmentValues {
     case grownUpsTapped
     case bookTapped
     case friendsTapped
+    case grownUp(GrownUpPaywall.Action)
     case journeyTapped
     case locked(LockedStory.Action)
+    case lockedLevelTapped(Friend)
     case wardrobeTapped
     case playOnTVTapped
     case storyTapped(Story)
   }
 
+  @Dependency(GateSeed.self) var gateSeed
   @Dependency(ProgressStore.self) var progressStore
   @Dependency(PurchasesClient.self) var purchases
 
@@ -87,13 +97,21 @@ extension EnvironmentValues {
       switch action {
       case .locked(.closeTapped), .locked(.grownUp(.paywall(.subscribed))):
         state.locked = nil
-      case .bookTapped, .friendsTapped, .grownUpsTapped, .journeyTapped, .locked, .playOnTVTapped,
-        .storyTapped, .wardrobeTapped:
+      case .lockedLevelTapped:
+        state.grownUp = GrownUpPaywall.State(seed: gateSeed.draw())
+      case .grownUp(.gate(.closeTapped)), .grownUp(.paywall(.closeTapped)),
+        .grownUp(.paywall(.tryLevelOneTapped)), .grownUp(.paywall(.subscribed)):
+        state.grownUp = nil
+      case .bookTapped, .friendsTapped, .grownUp, .grownUpsTapped, .journeyTapped, .locked,
+        .playOnTVTapped, .storyTapped, .wardrobeTapped:
         break
       }
     }
     .ifLet(\.locked) {
       LockedStory()
+    }
+    .ifLet(\.grownUp) {
+      GrownUpPaywall()
     }
     .onMount { state in
       state.progress = progressStore.load()
@@ -219,6 +237,9 @@ public struct HomeScreen: View {
     .sheet(item: $store.scope(\.locked)) { locked in
       LockedStoryScreen(store: locked)
     }
+    .sheet(item: $store.scope(\.grownUp)) { grownUp in
+      GrownUpPaywallScreen(store: grownUp)
+    }
   }
 
   private var shown: Bool { arrived || !arrivesFromOnboarding || reduceMotion }
@@ -322,6 +343,16 @@ public struct HomeScreen: View {
           store.send(.storyTapped(standing.story))
         }
       }
+      if !store.lockedLevels.isEmpty {
+        Text("Next levels")
+          .font(Typography.display(20))
+          .foregroundStyle(Paper.ink)
+          .padding(.top, 6)
+          .accessibilityAddTraits(.isHeader)
+        ForEach(store.lockedLevels, id: \.self) { friend in
+          LockedLevelRow(friend: friend) { store.send(.lockedLevelTapped(friend)) }
+        }
+      }
       Button { store.send(.playOnTVTapped) } label: {
         Label("Play on the TV", systemImage: "tv")
           .font(Typography.ui(16))
@@ -360,29 +391,5 @@ struct StarBadge: View {
 #Preview {
   NavigationStack {
     HomeScreen(store: Store(initialState: Home.State(childName: "Wren")) { Home() })
-  }
-}
-
-struct StickerButton<Art: View>: View {
-  let title: String
-  @ViewBuilder let art: () -> Art
-  let action: () -> Void
-
-  var body: some View {
-    Button(action: action) {
-      VStack(spacing: 6) {
-        art()
-          .frame(width: 84, height: 84)
-          .background(Paper.rim.opacity(0.7), in: Circle())
-          .overlay(Circle().strokeBorder(Paper.rim, lineWidth: 3))
-          .shadow(color: Paper.shadow.opacity(0.6), radius: 4, y: 3)
-        Text(title)
-          .font(Typography.display(16))
-          .foregroundStyle(Paper.ink)
-      }
-      .frame(maxWidth: .infinity)
-    }
-    .buttonStyle(.plain)
-    .accessibilityLabel(title)
   }
 }
