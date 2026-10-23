@@ -196,24 +196,31 @@ p {
   object-fit: cover;
 }
 
-.app-store-badge {
+.store-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: max(12px, calc(var(--badge-h, 46px) / 4));
+}
+
+.store-badges--hero {
+  --badge-h: 58px;
+}
+
+.store-badges--cta {
+  --badge-h: 62px;
+}
+
+.store-badge {
   display: inline-block;
   flex: none;
   line-height: 0;
   border-radius: 10px;
 }
 
-.app-store-badge img {
+.store-badge img {
   width: auto;
   height: var(--badge-h, 46px);
-}
-
-.app-store-badge--hero {
-  --badge-h: 58px;
-}
-
-.app-store-badge--cta {
-  --badge-h: 62px;
 }
 
 .brand {
@@ -264,7 +271,7 @@ p {
   list-style: none;
 }
 
-.site-nav__links a:not(.app-store-badge) {
+.site-nav__links a:not(.store-badge) {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
@@ -274,9 +281,14 @@ p {
   text-decoration: none;
 }
 
-.site-nav__links a:not(.app-store-badge):hover {
+.site-nav__links a:not(.store-badge):hover {
   text-decoration: underline;
   text-underline-offset: 4px;
+}
+
+.site-nav__links .store-badges {
+  flex-wrap: nowrap;
+  gap: 12px;
 }
 
 .site-nav__get {
@@ -365,8 +377,9 @@ p {
 
 .hero__cta {
   display: flex;
-  align-items: center;
-  gap: 18px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
 }
 
 .hero__platforms {
@@ -862,9 +875,15 @@ p {
   text-underline-offset: 4px;
 }
 
-.site-footer__meta {
+.site-footer__meta,
+.site-footer__legal {
   font-size: 14px;
   color: var(--footer-meta);
+}
+
+.site-footer__legal {
+  flex-basis: 100%;
+  font-size: 13px;
 }
 
 .legal {
@@ -913,6 +932,10 @@ p {
 
 .legal__card a {
   text-underline-offset: 3px;
+}
+
+.legal__card .store-badges {
+  margin: 22px 0 26px;
 }
 
 .legal__updated {
@@ -1031,6 +1054,12 @@ p {
   }
 }
 
+@media (max-width: 1279px) {
+  .site-nav__minor {
+    display: none;
+  }
+}
+
 @media (min-width: 900px) and (max-width: 1099px) {
   .steps {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1118,9 +1147,10 @@ p {
     display: none;
   }
 
-  .app-store-badge--hero,
-  .app-store-badge--cta {
-    --badge-h: 52px;
+  .store-badges--hero,
+  .store-badges--cta {
+    --badge-h: 46px;
+    gap: 12px;
   }
 
   .hero__art {
