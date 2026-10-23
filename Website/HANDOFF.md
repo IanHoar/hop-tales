@@ -94,7 +94,7 @@ Letter-spacing on Lilita is 0.01em. For outlined headings, use `-webkit-text-str
 
 ## 3. Sections (desktop 1440; content inset 64 px nav / 100 px sections)
 
-**Nav** (over the hero, top 26): wordmark SVG 198 × 51 on the left. On the right: How it works (`#how`), For parents (`#parents`), Privacy (`privacy.html`), Terms (`terms.html`), and the App Store badge at 50 px tall. Gap 30.
+**Nav** (over the hero, top 26): wordmark SVG 198 × 51 on the left. On the right: How it works (`#how`), For parents (`#parents`), Privacy (`privacy.html`), Terms (`terms.html`), and the App Store and Google Play badges side by side at 46 px tall, 12 apart. Gap 30. Below 1280 the Privacy and Terms links drop out of the nav (the footer carries them) so the two badges fit on one line.
 
 **Hero** (880 tall, bottom border 5 px ink)
 - Background: `sky-day`, `far-day`, `mid-day` and `near-day` stacked at 1.04 scale, all anchored top-left (2434 × 878). The ground line sits at y ≈ 466. Past 2434 px wide, extend with the sky's top colour and the grass colour.
@@ -102,7 +102,7 @@ Letter-spacing on Lilita is 0.01em. For outlined headings, use `-webkit-text-str
 - Left column (x 64, top 124, width 720): red ribbon "A READ-ALOUD ADVENTURE" (300 × 44, Lilita 16). 22 px gap, then the H1 "Read a word.<br>Watch the world grow." (two lines at 72).
 - Intro card (x 64, top 548, width 560): bevel with radius 30, border 4, drop 6, padding 26/30/30.
   - Copy: "Hop Tales listens while your child reads aloud. Every word they say bounces the ball forward — and carries Pip the fox from a sunny meadow to a dragon's hill."
-  - Below it, a row: the App Store badge (64 tall) and two lines in muted 15: "iPhone & iPad / Plays on your TV with AirPlay".
+  - Below it, the App Store and Google Play badges in a row (58 tall), then two lines in muted 15: "iPhone, iPad & Android / Plays on your TV with AirPlay (iPhone & iPad)". AirPlay is Apple-only, so the TV line says which devices it means.
 - Phones: `inkheard` 320 wide, rotated −4°, at (840, 120), in front. `inkdragon` 290 wide, rotated 7°, at (1052, 150), behind.
 
 **How it works** (`#how`, `--page`, 700 tall)
@@ -143,11 +143,11 @@ Letter-spacing on Lilita is 0.01em. For outlined headings, use `-webkit-text-str
 - Background: dusk layers at 1.0 scale, shifted up 190 px. Horizontal offsets: sky 0, far −240, mid −480, near −800. This puts the castle on the left, the old keep in the middle, and torches at x ≈ 1200 and ≈ 1450.
 - Overlay: `linear-gradient(90deg, rgba(14,12,42,.72) 0%, rgba(14,12,42,.35) 45%, transparent 70%)`.
 - Ember (`dragon.svg`, 420 × 368) at (960, 170), `filter: brightness(.92)`.
-- Text (x 100, top 150, width 640): H2 "Ready for the dragon?", then `--on-night` 20 "Download Hop Tales and read the first story together tonight.", then the App Store badge at 70 tall.
+- Text (x 100, top 150, width 640): H2 "Ready for the dragon?", then `--on-night` 20 "Download Hop Tales and read the first story together tonight.", then the App Store and Google Play badges at 62 tall.
 
 **Footer** (`--ink`, 150 tall, padding 0 100)
 - Wordmark at 30 on the left.
-- On the right: Privacy Policy, Terms of Service, and Download (App Store link), in Fredoka 600 17 cream, underlined with a 4 px offset. Then "© 2026 Hop Tales" in 15 `--footer-meta`.
+- On the right: Privacy Policy, Terms of Service, and Download (`download/`, which sends each device to its store), in Fredoka 600 17 cream, underlined with a 4 px offset. Then "© 2026 Hop Tales" in 15 `--footer-meta`, and under the links the line "Google Play and the Google Play logo are trademarks of Google LLC." in 13 `--footer-meta`.
 
 ## 4. Responsive
 
@@ -160,21 +160,23 @@ Match the reference at 1440 and 390, and make the layout fluid everywhere betwee
 | < 700 | The mobile artboard, padding 20. |
 
 Mobile artboard specifics:
-- **Nav:** wordmark 28, plus a small ink "Get it" pill linking to the App Store. There are no text links in the mobile nav; the footer carries Privacy and Terms.
+- **Nav:** wordmark 28, plus a small ink "Get it" pill linking to `download/`, which sends each device to its store. There are no text links in the mobile nav; the footer carries Privacy and Terms.
 - **Hero:** 760 tall. `day` scene at 0.9 scale, shifted up 27. Layer x offsets: far −49, mid −97, near −162. Ribbon 250 × 40, H1 46. Two phones overlap at 200 wide (−4°) and 170 wide (6°).
-- **Intro card:** overlaps the hero bottom by 60 px and contains a full-width App Store badge.
+- **Intro card:** overlaps the hero bottom by 60 px and contains the App Store and Google Play badges side by side at 46 tall.
 - **How it works:** one column of cards.
 - **Stories:** three phones fanned (150 / 160 / 150 wide, −8° / 0 / 8°) with the castle one in front. The caption line reads "Meadow · Castle Road · Dragon's Hill / Morning sun to torches at dusk."
 - **TV section and features:** stacked.
 - **CTA:** 520 tall, dusk scene at 0.9 scale, shifted up 120. Layer x offsets: far −502, mid −1004, near −1674. The dragon is 300 wide, bottom-centre, with the heading and badge above.
 - **Footer:** stacked, with links wrapping.
 
-## 5. App Store badge and links
+## 5. Store badges and links
 
-- Use **Apple's official "Download on the App Store" badge** (black SVG) from Apple's marketing guidelines, at the heights above. The custom ink button in the design is only a stand-in, because Apple's guidelines don't allow a custom version of the badge.
-- `APP_STORE_URL = https://apps.apple.com/app/id<APP_ID>`. Keep it in one place, since it's used in the nav, hero, CTA, footer and mobile "Get it" pill.
-- Add a Smart App Banner: `<meta name="apple-itunes-app" content="app-id=<APP_ID>">`.
-- The `<APP_ID>` comes from App Store Connect. Leave a single obvious TODO until then.
+- **App Store:** Apple's official "Download on the App Store" badge (black SVG, `assets/app-store-badge.svg`) from Apple's marketing guidelines. The custom ink button in the design is only a stand-in, because Apple's guidelines don't allow a custom version of the badge. `APP_STORE_URL = https://apps.apple.com/app/id6814702992`.
+- **Google Play:** Google's official "Get it on Google Play" badge (English, black, `assets/google-play-badge.svg`), taken unmodified from the badge kit on partnermarketinghub.withgoogle.com. `PLAY_URL = https://play.google.com/store/apps/details?id=com.hoptales.android`.
+- **Badge rules:** the two badges always appear together, App Store first, at the same height (46 nav and mobile, 58 hero, 62 CTA). Google's badge is never smaller than another store's badge. Keep at least a quarter of the badge height clear around each (the `.store-badges` gap is `max(12px, height / 4)`). Never recolour, crop, outline or animate either badge. Alt text is the badge's own words: "Download on the App Store" and "Get it on Google Play".
+- **Legal line:** every page that shows the Play badge carries "Google Play and the Google Play logo are trademarks of Google LLC." in the footer.
+- **Links:** each URL lives in one place, a meta-refresh page: `download/app-store/` and `download/google-play/`. Badges link to those. `download/` is the device router used by the footer's Download link and the mobile "Get it" pill: a small inline script sends Android to Google Play and iPhone/iPad (including iPadOS's desktop user agent) to the App Store; everyone else, and anyone without JS, sees both badges.
+- Smart App Banner: `<meta name="apple-itunes-app" content="app-id=6814702992">` (iOS only; Android has no equivalent).
 
 ## 6. Privacy and Terms pages
 

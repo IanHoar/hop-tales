@@ -2,12 +2,33 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="refresh" content="0; url=https://apps.apple.com/app/id6814702992">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
-  <link rel="canonical" href="https://apps.apple.com/app/id6814702992">
   <title>Download Hop Tales</title>
+  <script>
+    (function () {
+      var ua = navigator.userAgent;
+      var ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+      if (/Android/i.test(ua)) location.replace("/download/google-play/");
+      else if (ios) location.replace("/download/app-store/");
+    })();
+  </script>
+  <meta name="theme-color" content="#F4EBD8">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png">
+  <link rel="stylesheet" href="/styles.css?v=3">
 </head>
 <body>
-  <p><a href="https://apps.apple.com/app/id6814702992">Download Hop Tales on the App Store</a></p>
+  <main id="main" class="legal">
+    <article class="legal__card paper">
+      <h1>Get Hop Tales</h1>
+      <p>Hop Tales is on iPhone, iPad and Android. Pick your store:</p>
+      <div class="store-badges store-badges--cta">
+        <a class="store-badge" href="/download/app-store/"><img src="/assets/app-store-badge.svg" width="186" height="62" alt="Download on the App Store"></a>
+        <a class="store-badge" href="/download/google-play/"><img src="/assets/google-play-badge.svg" width="209" height="62" alt="Get it on Google Play"></a>
+      </div>
+      <p class="legal__updated"><a href="/">Back to hoptales.com</a></p>
+      <p class="legal__updated">Google Play and the Google Play logo are trademarks of Google LLC.</p>
+    </article>
+  </main>
 </body>
 </html>
