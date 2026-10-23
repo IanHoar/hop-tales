@@ -55,3 +55,21 @@ python3 scripts/store-screenshots/upload.py 1.1    # or a named version
 
 The script deletes the existing 6.9″ and 13″ screenshots for the primary locale, then uploads the
 new ones in file-name order.
+
+## Google Play
+
+The play set frames the Android app's screens at 1080 × 1920 (9:16), with the same headlines and
+friends. `StoreScreenshotTest` renders the six screens with Robolectric at 412 × 915 dp, xxhdpi, and
+the DEBUG-only reading controls turned off. It only runs with `-PstoreScreenshots`, so CI and
+`verifyRoborazziDebug` skip it:
+
+```sh
+cd android && ./gradlew :app:testDebugUnitTest --tests '*StoreScreenshotTest' -PstoreScreenshots --rerun
+cd .. && python3 scripts/store-screenshots/compose.py play
+```
+
+The screens land in `build/store-screenshots/raw/android-<screen>.png` and the panels in
+`build/store-screenshots/out/play-<n>-<screen>.png`. The reading moments sit where the current word
+and its neighbours are whole on screen; check the result after changing one. `PLAY_SHOTS` maps each
+panel to its Android screen, and `PLAY_STICKERS` moves friends that would cover a word or a
+button. Upload the set in Play Console under the store listing's phone screenshots.

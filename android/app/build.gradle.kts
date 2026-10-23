@@ -10,6 +10,7 @@ val notYetOnAndroid = listOf("postcard-*")
 val baseLooks = providers.gradleProperty("hoptales.baseLooks").get().split(",")
 val plusLocksStories = providers.gradleProperty("hoptales.plusLocksStories").get().toBooleanStrict()
 val playPublicKey = providers.gradleProperty("hoptales.playPublicKey").orNull.orEmpty()
+val storeScreenshots = providers.gradleProperty("storeScreenshots").isPresent
 
 abstract class BaseWorldArt : DefaultTask() {
     @get:InputDirectory
@@ -130,6 +131,9 @@ android {
                 it.systemProperty("robolectric.pixelCopyRenderMode", "hardware")
                 it.jvmArgs("--add-opens=java.base/jdk.internal.access=ALL-UNNAMED")
                 it.systemProperty("hoptales.database", shared.resolve("Content/Database.swift").absolutePath)
+                if (storeScreenshots) {
+                    it.systemProperty("hoptales.storeScreenshots", rootDir.resolve("../build/store-screenshots/raw").canonicalPath)
+                }
             }
         }
     }

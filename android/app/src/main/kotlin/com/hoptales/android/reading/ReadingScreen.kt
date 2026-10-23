@@ -112,6 +112,7 @@ fun ReadingScreen(
     onDone: () -> Unit,
     onTryItOn: (Friend) -> Unit = {},
     locksStories: Boolean = BuildConfig.PLUS_LOCKS_STORIES,
+    showsDebugControls: Boolean = BuildConfig.DEBUG,
 ) {
     val context = LocalContext.current
     val app = context.applicationContext as HopTalesApplication
@@ -158,7 +159,7 @@ fun ReadingScreen(
             wearing = look,
             soundButtons = model.soundButtons,
             onWordTapped = model::help,
-            onMeadowTapped = if (BuildConfig.DEBUG) model::skipWord else null,
+            onMeadowTapped = if (showsDebugControls) model::skipWord else null,
         )
         Box(Modifier.fillMaxSize().safeDrawingPadding()) {
             BackChip(
@@ -167,7 +168,7 @@ fun ReadingScreen(
                 at = DpOffset(geometry.dp(BACK_CHIP_X), geometry.dp(BACK_CHIP_Y)),
             ) { if (model.backTapped()) onDone() }
             val word = state.currentWord
-            if (BuildConfig.DEBUG && word != null) {
+            if (showsDebugControls && word != null) {
                 Box(Modifier.align(Alignment.BottomCenter).padding(bottom = 10.dp).semantics { hideFromAccessibility() }) {
                     DebugControls(word.text, readWord = model::skipWord, restOfSentence = model::readRestOfSentence)
                 }
