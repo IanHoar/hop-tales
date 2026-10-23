@@ -77,8 +77,9 @@ struct PurchasesClientTests {
     #expect(values == [false, true, false])
   }
 
-  @Test func everyStoryStaysOpenUntilTheStoresAreLive() {
-    #expect(!Plus.locksStories)
-    #expect(StoryLibrary.all.allSatisfy { !Plus.isLocked($0, isPlus: false) })
+  @Test func onlyLevelOneIsOpenWithoutPlus() {
+    #expect(Plus.locksStories)
+    #expect(StoryLibrary.all.allSatisfy { Plus.isLocked($0, isPlus: false) == ($0.level != 1) })
+    #expect(StoryLibrary.all.allSatisfy { !Plus.isLocked($0, isPlus: true) })
   }
 }

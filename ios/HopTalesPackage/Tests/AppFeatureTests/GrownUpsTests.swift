@@ -163,7 +163,7 @@ struct GrownUpsTests {
     await store.dismount()
   }
 
-  @Test func doneClosesTheSettingsAndGreetsTheNewName() {
+  @Test func doneClosesTheSettingsAndGreetsTheNewName() async {
     let saved = LockIsolated(Profile(childName: "Maya"))
     var state = Root.State()
     state.settings = Settings.State()
@@ -185,6 +185,7 @@ struct GrownUpsTests {
       $0.settings = nil
       $0.home.childName = "Wren"
     }
+    await store.dismount()
   }
 
   @Test func pickingAThemeChangesTheWholeApp() async {

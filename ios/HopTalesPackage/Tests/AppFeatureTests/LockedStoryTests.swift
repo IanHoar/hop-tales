@@ -86,10 +86,10 @@ struct LockedStoryTests {
     await store.dismount()
   }
 
-  @Test func theReleaseSwitchLocksNothing() {
+  @Test func theReleaseSwitchLocksEverythingAboveLevelOne() {
     let home = Root.State().home
-    #expect(!home.locksStories)
-    #expect(StoryLibrary.all.allSatisfy { !home.isLocked($0) })
+    #expect(home.locksStories)
+    #expect(StoryLibrary.all.allSatisfy { home.isLocked($0) == ($0.level != 1) })
   }
 
   @Test func theCardShowsTheStandingAndNothingWhenUnread() {
