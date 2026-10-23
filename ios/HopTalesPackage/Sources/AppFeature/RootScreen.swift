@@ -122,7 +122,8 @@ import SwiftUI
           state.home.apply(progressStore.load())
         case let .settings(.themePicked(theme)):
           state.theme = theme
-        case .home(.locked), .home(.playOnTVTapped):
+        case .home(.grownUp), .home(.locked), .home(.lockedLevelTapped),
+          .home(.playOnTVTapped):
           break
         case .intro(.finished):
           state.intro = nil
@@ -163,10 +164,6 @@ import SwiftUI
           state.home = home
           state.plusOffer = nil
           state.onboarding = Onboarding.State()
-        case let .path(_, .reading(.continueTapped(story))):
-          state.path.removeLast()
-          state.home.apply(progressStore.load())
-          open(story, &state)
         case .path(_, .reading(.backToStoriesTapped)):
           state.path.removeLast()
           state.home.apply(progressStore.load())

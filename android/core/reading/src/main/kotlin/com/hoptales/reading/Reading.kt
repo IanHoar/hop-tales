@@ -221,7 +221,7 @@ class Reading(story: Story, strictness: Strictness = Strictness.GENTLE, bigWords
         return celebrated.value
     }
 
-    fun levelOneKeepReading(): Boolean {
+    fun backToMyStories(): Boolean {
         momentDismissed()
         return state.callout == null
     }

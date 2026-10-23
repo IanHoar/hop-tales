@@ -102,7 +102,7 @@ class FinishingTest {
         val progress = reading.finishing(levelOneRead, library, isPlus = false, locksStories = true)
         assertEquals(JourneyMoment.LevelOneFinished, reading.state.callout)
         assertTrue(progress.levelOneCelebrated)
-        assertTrue(reading.levelOneKeepReading())
+        assertTrue(reading.backToMyStories())
         assertNull(reading.state.callout)
     }
 
@@ -125,8 +125,24 @@ class FinishingTest {
         reading.readToTheEnd()
         reading.finishing(levelOneRead.copy(journey = trailFull), library, isPlus = false, locksStories = true)
         assertEquals(JourneyMoment.LevelOneFinished, reading.state.callout)
-        assertFalse(reading.levelOneKeepReading())
+        assertFalse(reading.backToMyStories())
         assertTrue(reading.state.callout is JourneyMoment.NewFriend)
+        assertTrue(reading.backToMyStories())
+        assertNull(reading.state.callout)
+    }
+
+    @Test
+    fun aNewFriendGoesBackToTheStoriesNotIntoTheirFirstStory() {
+        val trailFull = journey.copy(
+            trail = Levels.trailGoal(journey.level),
+            storiesRead = library.stories(journey.level).map { it.id }.toSet(),
+        )
+        val reading = Reading(story, bigWords = trailFull.bigWords(story, library), treat = trailFull.treat(story))
+        reading.readToTheEnd()
+        reading.finishing(Progress(journey = trailFull), library)
+        assertTrue(reading.state.callout is JourneyMoment.NewFriend)
+        assertTrue(reading.backToMyStories())
+        assertNull(reading.state.callout)
     }
 
     @Test

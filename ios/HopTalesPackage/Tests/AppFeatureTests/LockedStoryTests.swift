@@ -195,4 +195,87 @@ struct LockedStoryTests {
     store.send(.locked(.closeTapped)) { $0.locked = nil }
     await store.dismount()
   }
+
+  @Test func aFreeReaderSeesTheNextTwoLevelsLocked() {
+    #expect(Self.locking().home.lockedLevels == [.hare, .frog])
+  }
+
+  @Test func aReaderWithSkipSeesTheLevelsAfterHisLockedStories() {
+    var home = Self.locking().home
+    home.apply(Content.Progress(journey: Journey(starting: .hare)))
+    #expect(home.lockedLevels == [.frog, .crow])
+  }
+
+  @Test func plusReadersSeeNoLockedLevels() {
+    #expect(Self.locking(isPlus: true).home.lockedLevels.isEmpty)
+  }
+
+  @Test func noLockedLevelsWhileStoriesStayOpen() {
+    var home = Self.locking().home
+    home.locksStories = false
+    #expect(home.lockedLevels.isEmpty)
+  }
+
+  @Test func aLockedLevelOpensTheGateThenThePaywall() async {
+    var state = Home.State()
+    state.hour = 9
+    state.locksStories = true
+    let store = TestStore(initialState: state) {
+      Home()
+        .dependency(PurchasesClient.fake())
+    }
+    store.send(.lockedLevelTapped(.hare)) {
+      $0.grownUp = GrownUpPaywall.State.DebugSnapshot(
+        isOnboarding: false, gate: ParentGate.State.DebugSnapshot(seed: 1)
+      )
+    }
+    store.send(.grownUp(.gate(.digitTapped(1)))) { $0.grownUp?.gate?.entry = "1" }
+    store.send(.grownUp(.gate(.digitTapped(5)))) { $0.grownUp?.gate?.entry = "15" }
+    store.send(.grownUp(.gate(.answerTapped)))
+    await store.receive(\.grownUp.gate.passed) {
+      $0.grownUp?.gate = nil
+      $0.grownUp?.paywall = Paywall.State.DebugSnapshot(isOnboarding: false)
+    }
+    await store.receive(\.grownUp.paywall.offersLoaded) {
+      $0.grownUp?.paywall?.offers = .loaded(PlusOffer.samples)
+    }
+    store.send(.grownUp(.paywall(.closeTapped))) { $0.grownUp = nil }
+    await store.dismount()
+  }
+
+  @Test func closingTheGateFromALockedLevelGoesBackHome() async {
+    var state = Home.State()
+    state.hour = 9
+    state.locksStories = true
+    let store = TestStore(initialState: state) {
+      Home()
+        .dependency(PurchasesClient.fake())
+    }
+    store.send(.lockedLevelTapped(.frog)) {
+      $0.grownUp = GrownUpPaywall.State.DebugSnapshot(
+        isOnboarding: false, gate: ParentGate.State.DebugSnapshot(seed: 1)
+      )
+    }
+    store.send(.grownUp(.gate(.closeTapped))) { $0.grownUp = nil }
+    await store.dismount()
+  }
+
+  @Test func subscribingFromALockedLevelClosesThePaywall() async {
+    var state = Home.State()
+    state.hour = 9
+    state.grownUp = GrownUpPaywall.State(seed: 1)
+    state.grownUp?.gate = nil
+    state.grownUp?.paywall = Paywall.State()
+    let store = TestStore(initialState: state) {
+      Home()
+        .dependency(PurchasesClient.fake())
+    }
+    await store.receive(\.grownUp.paywall.offersLoaded) {
+      $0.grownUp?.paywall?.offers = .loaded(PlusOffer.samples)
+    }
+    store.send(.grownUp(.paywall(.planTapped(.yearly))))
+    await store.receive(\.grownUp.paywall.purchaseCompleted)
+    await store.receive(\.grownUp.paywall.subscribed) { $0.grownUp = nil }
+    await store.dismount()
+  }
 }

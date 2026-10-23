@@ -1,36 +1,13 @@
 import Content
 import DesignSystem
-import GrownUps
 import SwiftUI
 import World
-
-extension Reading {
-  func levelOne(_ action: Action, _ state: inout State) -> Bool {
-    switch action {
-    case .askAGrownUpTapped:
-      state.grownUp = GrownUpPaywall.State(seed: gateSeed.draw())
-    case .grownUp(.gate(.closeTapped)), .grownUp(.paywall(.closeTapped)),
-      .grownUp(.paywall(.tryLevelOneTapped)):
-      state.grownUp = nil
-    case .grownUp(.paywall(.subscribed)):
-      state.grownUp = nil
-      state.dismissCallout()
-    case .levelOneKeepReadingTapped:
-      state.dismissCallout()
-      return state.callout == nil
-    default:
-      break
-    }
-    return false
-  }
-}
 
 struct LevelOneCard: View {
   static let next = Friend.at(level: Plus.freeLevel + 1)
 
   let geometry: ReadingGeometry
-  let askAGrownUp: () -> Void
-  let keepReading: () -> Void
+  let backToStories: () -> Void
 
   private var words: String { Self.next.examples.joined(separator: ", ") }
 
@@ -48,11 +25,13 @@ struct LevelOneCard: View {
         .fixedSize(horizontal: false, vertical: true)
         .accessibilityAddTraits(.isHeader)
       nextFriend
-      ViewThatFits(in: .horizontal) {
-        HStack(spacing: geometry.path(10)) { buttons }
-        VStack(spacing: geometry.path(10)) { buttons }
-      }
-      .padding(.top, geometry.path(4))
+      Text("New friends are waiting on your stories page.")
+        .font(Typography.ui(geometry.path(15)))
+        .foregroundStyle(Paper.ink)
+        .multilineTextAlignment(.center)
+        .fixedSize(horizontal: false, vertical: true)
+      button
+        .padding(.top, geometry.path(4))
     }
     .padding(geometry.path(20))
     .frame(maxWidth: geometry.path(340))
@@ -108,16 +87,8 @@ struct LevelOneCard: View {
     .accessibilityLabel("\(Self.next.name) is waiting. Words like \(words).")
   }
 
-  @ViewBuilder
-  private var buttons: some View {
-    Button("Keep reading", action: keepReading)
-      .font(Typography.display(geometry.path(16)))
-      .foregroundStyle(Paper.ink)
-      .padding(.horizontal, geometry.path(16))
-      .frame(height: geometry.path(46))
-      .paperChip(Capsule(), rim: geometry.path(3))
-      .buttonStyle(.plain)
-    Button("Ask a grown-up", action: askAGrownUp)
+  private var button: some View {
+    Button("Back to my stories", action: backToStories)
       .font(Typography.display(geometry.path(16)))
       .foregroundStyle(Paper.onRed)
       .padding(.horizontal, geometry.path(18))

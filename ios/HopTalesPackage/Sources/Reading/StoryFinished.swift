@@ -7,6 +7,7 @@ struct StoryFinished: View {
   let title: String
   let stars: Int
   let geometry: ReadingGeometry
+  var leadsHome = true
   let readAgain: () -> Void
   let done: () -> Void
 
@@ -16,7 +17,11 @@ struct StoryFinished: View {
         readAgainButton
         starChip
       }
-      doneButton
+      if leadsHome {
+        doneButton
+      } else {
+        Color.clear.frame(height: geometry.path(56))
+      }
     }
     .position(x: geometry.size.width / 2, y: geometry.y(Self.stickerY - 24))
     .accessibilityElement(children: .contain)
@@ -25,10 +30,13 @@ struct StoryFinished: View {
 
   private var doneButton: some View {
     Button(action: done) {
-      Text("Done")
+      Text("Back to my stories")
         .font(Typography.display(geometry.path(21)))
         .foregroundStyle(Paper.onRed)
-        .frame(width: geometry.path(236), height: geometry.path(56))
+        .lineLimit(1)
+        .padding(.horizontal, geometry.path(26))
+        .frame(minWidth: geometry.path(236))
+        .frame(height: geometry.path(56))
         .background {
           Capsule()
             .fill(Paper.rim)

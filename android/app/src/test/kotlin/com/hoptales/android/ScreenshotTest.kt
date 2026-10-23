@@ -40,6 +40,7 @@ import com.hoptales.content.Basket
 import com.hoptales.content.Friend
 import com.hoptales.content.Journey
 import com.hoptales.content.Mood
+import com.hoptales.content.Plus
 import com.hoptales.content.PlusStatus
 import com.hoptales.content.Profile
 import com.hoptales.content.Progress
@@ -49,6 +50,7 @@ import com.hoptales.content.StoryStanding
 import com.hoptales.content.Weather
 import com.hoptales.onboarding.OnboardingState
 import com.hoptales.onboarding.OnboardingStep
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -87,6 +89,14 @@ class ScreenshotTest {
     @Test fun homeLockedLight() = homeLocked(dark = false)
 
     @Test fun homeLockedDark() = homeLocked(dark = true)
+
+    @Test
+    @Config(qualifiers = "w412dp-h1480dp-xhdpi")
+    fun homeLockedLevelsLight() = homeLockedLevels(dark = false)
+
+    @Test
+    @Config(qualifiers = "w412dp-h1480dp-xhdpi")
+    fun homeLockedLevelsDark() = homeLockedLevels(dark = true)
 
     @Test fun lockedCardLight() = lockedCard(dark = false)
 
@@ -380,6 +390,23 @@ class ScreenshotTest {
         compose.onRoot().captureRoboImage(path("home-locked", dark), options)
     }
 
+    private fun homeLockedLevels(dark: Boolean) {
+        compose.setContent {
+            HopTalesTheme(dark = dark) {
+                HomeScreen(
+                    library = app.library,
+                    progress = Progress(stars = 30, completedSentences = mapOf("meadow-walk" to 6, "bob-bug" to 2)),
+                    onStory = {},
+                    childName = "Maya",
+                    hour = 9,
+                    isLocked = { !it.isFree },
+                    lockedLevels = Plus.lockedLevels(Friend.BUNNY.level, app.library, isPlus = false, locksStories = true),
+                )
+            }
+        }
+        compose.onRoot().captureRoboImage(path("home-locked-levels", dark), options)
+    }
+
     private fun lockedCard(dark: Boolean) {
         val locked = app.library.stories(Friend.HARE.level)[1]
         val standing = StoryStanding.of(locked, Progress(completedSentences = mapOf(locked.id to 4)))
@@ -528,21 +555,34 @@ class ScreenshotTest {
     }
 
     @Test
-    fun askAGrownUpAfterLevelOneOpensTheGateFirst() {
-        finishLevelOne(dark = false)
-        compose.onNodeWithText("Ask a grown-up").performClick()
+    fun backToMyStoriesAfterLevelOneGoesHome() {
+        var done = 0
+        finishLevelOne(dark = false) { done += 1 }
+        compose.onNodeWithText("Ask a grown-up").assertDoesNotExist()
+        compose.onNodeWithText("Back to my stories").performClick()
         compose.waitForIdle()
-        compose.onNodeWithText("Ask a grown-up to answer this.").assertExists()
-        compose.onNodeWithText("Close").performClick()
-        compose.waitForIdle()
-        compose.onNodeWithText("You finished Level 1!").assertExists()
+        assertEquals(1, done)
     }
 
-    private fun finishLevelOne(dark: Boolean) {
+    @Test
+    fun aNewFriendLeadsBackToMyStoriesNotIntoTheirFirstStory() {
+        var done = 0
+        compose.setContent {
+            HopTalesTheme { ReadingScreen(story = app.library["skip-big-story"]!!, onDone = { done += 1 }) }
+        }
+        compose.waitForIdle()
+        readToTheEnd()
+        compose.onNodeWithText("Go to", substring = true).assertDoesNotExist()
+        compose.onNodeWithText("Back to my stories").performClick()
+        compose.waitForIdle()
+        assertEquals(1, done)
+    }
+
+    private fun finishLevelOne(dark: Boolean, onDone: () -> Unit = {}) {
         val levelOne = app.library.stories(Friend.BUNNY.level)
         app.progressStore.save(Progress(completedSentences = levelOne.associate { it.id to it.sentences.size }))
         compose.setContent {
-            HopTalesTheme(dark = dark) { ReadingScreen(story = levelOne.first(), onDone = {}, locksStories = true) }
+            HopTalesTheme(dark = dark) { ReadingScreen(story = levelOne.first(), onDone = onDone, locksStories = true) }
         }
         compose.waitForIdle()
         readToTheEnd()
@@ -552,8 +592,8 @@ class ScreenshotTest {
         finishLevelOne(dark)
         compose.onNodeWithText("You finished Level 1!").assertExists()
         compose.onNodeWithContentDescription("Skip is waiting. Words like ship, duck, frog.").assertExists()
-        compose.onNodeWithText("Ask a grown-up").assertExists()
-        compose.onNodeWithText("Keep reading").assertExists()
+        compose.onNodeWithText("New friends are waiting on your stories page.").assertExists()
+        compose.onNodeWithText("Back to my stories").assertExists()
         compose.onRoot().captureRoboImage(path("level-one-finished", dark), options)
     }
 
