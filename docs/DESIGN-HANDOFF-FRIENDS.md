@@ -84,9 +84,9 @@ This is a plan, not built yet. It builds on the collage storybook (`docs/DESIGN-
 - **Tally** (`PhoneTally`): at The end, the paper sheet shows the story's treats, "3 big words read!" and **The path to Oggy** (the next friend's sticker in grey) with a torn-paper ribbon filling by the steps just earned ("+41 steps · 164 of 200").
 - **The big story** (`PhoneBigStory`):
   - When the path is full, the next friend is sitting on the path by The end sign.
-  - A card shows a postcard of their world: "Oggy has a bigger story! The path is full. Read Oggy's story to go to the pond together."
+  - A card shows a postcard of their world: "Oggy has a bigger story! The path is full. Find Oggy's big story on your journey map, and go to the pond together."
   - The story is shown as a chip with its level rosette.
-  - Buttons: **Not yet** and **Try the big story**.
+  - One button, **Back to my stories** (**Next** when another moment follows). It never opens the big story directly: the reader starts it from the journey map.
   - Each friend's big story is a normal story at the new level, read with the next friend hopping. It can be started again from the journey map at any time.
 - **Passing the big story:**
   - The bar is 85 % of words read without help (tunable).
@@ -94,7 +94,7 @@ This is a plan, not built yet. It builds on the collage storybook (`docs/DESIGN-
   - **Passed** (`PhoneNewFriend`):
     - paper confetti and the new level rosette: "Reading level 3!" and "Oggy is your new friend";
     - both friends side by side, and the friend's signature item ("Oggy gave you a spotty neckerchief");
-    - buttons: **Later** and **Go to the pond**.
+    - one button, **Back to my stories** (**Next** when another moment follows), which leads Home, where the new friend's stories now are. It never opens the friend's first story directly.
   - **Not yet:**
     - "Oggy will wait for you at the pond."
     - The path stays full.

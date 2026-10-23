@@ -66,6 +66,7 @@ import com.hoptales.android.home.BookScreen
 import com.hoptales.android.home.FriendsScreen
 import com.hoptales.android.home.HomeScreen
 import com.hoptales.android.home.JourneyMapScreen
+import com.hoptales.android.home.LockedLevelScreen
 import com.hoptales.android.home.LockedStoryScreen
 import com.hoptales.android.home.WardrobeScreen
 import com.hoptales.android.intro.IntroScreen
@@ -282,7 +283,6 @@ private fun Destination(app: HopTalesApplication) {
                         trying = null
                         storyID = null
                     },
-                    onStory = open,
                     onTryItOn = { trying = Sheet.wardrobe(it) },
                 )
 
@@ -305,6 +305,8 @@ private fun Destination(app: HopTalesApplication) {
                         covered = overlay != null,
                         isLocked = isLocked,
                         onLockedStory = { sheet = Sheet.locked(it) },
+                        lockedLevels = Plus.lockedLevels(friend.level, app.library, isPlus, BuildConfig.PLUS_LOCKS_STORIES),
+                        onLockedLevel = { sheet = Sheet.LOCKED_LEVEL },
                     )
                 }
             }
@@ -314,6 +316,8 @@ private fun Destination(app: HopTalesApplication) {
                 target == Sheet.SETTINGS -> SettingsScreen(key = "settings-$visit", onDone = { isShowingSettings = false })
 
                 target == Sheet.PLUS_OFFER -> PlusOfferScreen(app.plus, onDone = { sheet = null })
+
+                target == Sheet.LOCKED_LEVEL -> LockedLevelScreen(app.plus, onDone = { sheet = null })
 
                 target == Sheet.JOURNEY -> JourneyMapScreen(
                     library = app.library,
@@ -463,6 +467,7 @@ private object Sheet {
     const val JOURNEY = "journey"
     const val FRIENDS = "friends"
     const val PLUS_OFFER = "plus-offer"
+    const val LOCKED_LEVEL = "locked-level"
     const val WARDROBE = "wardrobe:"
     const val BOOK = "book:"
     const val LOCKED = "locked:"

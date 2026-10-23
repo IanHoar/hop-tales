@@ -41,6 +41,32 @@ class PlusTest {
     }
 
     @Test
+    fun aLevelOneReaderSeesSkipAndOggyLocked() {
+        assertEquals(listOf(Friend.HARE, Friend.FROG), Plus.lockedLevels(1, library, isPlus = false, locksStories = true))
+    }
+
+    @Test
+    fun aReaderAlreadyWithSkipSeesTheTwoLevelsAfterHim() {
+        assertEquals(listOf(Friend.FROG, Friend.CROW), Plus.lockedLevels(2, library, isPlus = false, locksStories = true))
+    }
+
+    @Test
+    fun onlyLevelsThatExistAreShownLocked() {
+        assertEquals(listOf(Friend.GRASSHOPPER), Plus.lockedLevels(6, library, isPlus = false, locksStories = true))
+        assertTrue(Plus.lockedLevels(7, library, isPlus = false, locksStories = true).isEmpty())
+    }
+
+    @Test
+    fun plusSeesNoLockedLevels() {
+        assertTrue(Plus.lockedLevels(1, library, isPlus = true, locksStories = true).isEmpty())
+    }
+
+    @Test
+    fun theSwitchOffShowsNoLockedLevels() {
+        assertTrue(Plus.lockedLevels(1, library, isPlus = false, locksStories = false).isEmpty())
+    }
+
+    @Test
     fun onboardingOffersPlusOnceToAReaderWithoutIt() {
         val fresh = Profile(childName = "Maya")
         assertTrue(Plus.offersAtOnboarding(fresh, isPlus = false, locksStories = true))

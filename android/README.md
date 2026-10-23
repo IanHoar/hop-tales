@@ -56,7 +56,7 @@ way. Change `.editorconfig` rather than suppressing a rule in the code.
 midway), reading, each of the six meadow moods, each friend's world, sound-button marks, the microphone ask, the microphone off, a story prop, a
 companion, a thought bubble, a big word, the challenge-word tip, the story-finished panel with its
 tally, a full basket, the "Done" card after trying the present on, a new friend, the stop card,
-the journey map, friends, the wardrobe, the collection book, home with locked Plus stories, the locked story
+the journey map, friends, the wardrobe, the collection book, home with locked Plus stories and with locked levels, the "You finished Level 1!" card, the locked story
 card, the parent gate (and a redrawn question), each onboarding step and the grown-ups settings, light and dark (and the settings in a chosen Dark theme on a light device), with Roborazzi on Robolectric — on the JVM, no emulator. The references
 live in
 `app/src/test/screenshots`; `verifyRoborazziDebug` fails when a render differs, and leaves the

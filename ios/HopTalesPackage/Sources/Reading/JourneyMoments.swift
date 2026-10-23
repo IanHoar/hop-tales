@@ -123,6 +123,7 @@ struct CalloutCard: View {
   let moment: JourneyMoment
   let geometry: ReadingGeometry
   var isDone = false
+  var isLast = true
   let primary: () -> Void
   let dismiss: () -> Void
   @State private var opened = false
@@ -220,7 +221,8 @@ struct CalloutCard: View {
   private var detail: String {
     switch moment {
     case let .bigStoryReady(friend):
-      "The path is full. Read \(friend.name)'s story to go to \(friend.place) together."
+      "The path is full. Find \(friend.name)'s big story on your journey map, "
+        + "and go to \(friend.place) together."
     case .notYet:
       "The path stays full. Try the big story again whenever you like."
     case let .newFriend(friend, via):
@@ -239,9 +241,8 @@ struct CalloutCard: View {
   private var primaryTitle: String {
     if isDone { return "Done" }
     return switch moment {
-    case .bigStoryReady: "Try the big story"
+    case .bigStoryReady, .newFriend: isLast ? "Back to my stories" : "Next"
     case .notYet: "OK"
-    case let .newFriend(friend, _): "Go to \(friend.place)"
     case .basketFull: "Try it on"
     case .tally, .treat, .levelOneFinished: ""
     }
@@ -249,9 +250,8 @@ struct CalloutCard: View {
 
   private var secondary: String? {
     switch moment {
-    case .bigStoryReady: "Not yet"
-    case .newFriend, .basketFull: "Later"
-    case .notYet, .tally, .treat, .levelOneFinished: nil
+    case .basketFull: "Later"
+    case .bigStoryReady, .newFriend, .notYet, .tally, .treat, .levelOneFinished: nil
     }
   }
 }

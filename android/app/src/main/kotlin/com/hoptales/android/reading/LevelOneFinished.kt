@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -48,7 +47,7 @@ object LevelOneFinished {
 }
 
 @Composable
-fun LevelOneCard(geometry: PathGeometry, askAGrownUp: () -> Unit, keepReading: () -> Unit, modifier: Modifier = Modifier) {
+fun LevelOneCard(geometry: PathGeometry, backToStories: () -> Unit, modifier: Modifier = Modifier) {
     val paper = LocalPaper.current
     val type = LocalTypography.current
     val card = remember(geometry) { Deckle(seed = 41, jitter = geometry.dp(2.6f), step = geometry.dp(10f)) }
@@ -73,13 +72,14 @@ fun LevelOneCard(geometry: PathGeometry, askAGrownUp: () -> Unit, keepReading: (
             modifier = Modifier.semantics { heading() },
         )
         NextFriend(geometry)
-        FlowRow(
-            Modifier.padding(top = geometry.dp(4f)),
-            horizontalArrangement = Arrangement.spacedBy(geometry.dp(10f), Alignment.CenterHorizontally),
-            verticalArrangement = Arrangement.spacedBy(geometry.dp(10f)),
-        ) {
-            CardButton("Keep reading", filled = false, geometry, onClick = keepReading)
-            CardButton("Ask a grown-up", filled = true, geometry, onClick = askAGrownUp)
+        Text(
+            "New friends are waiting on your stories page.",
+            style = type.ui(geometry.sp(15f)),
+            color = paper.ink,
+            textAlign = TextAlign.Center,
+        )
+        Box(Modifier.padding(top = geometry.dp(4f))) {
+            CardButton("Back to my stories", filled = true, geometry, onClick = backToStories)
         }
     }
 }

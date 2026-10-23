@@ -170,6 +170,7 @@ fun CalloutCard(
     geometry: PathGeometry,
     modifier: Modifier = Modifier,
     isDone: Boolean = false,
+    isLast: Boolean = true,
 ) {
     val type = LocalTypography.current
     val paper = LocalPaper.current
@@ -219,7 +220,7 @@ fun CalloutCard(
             } else {
                 if (!isDone) secondary(moment)?.let { CardButton(it, filled = false, geometry, onClick = dismiss) }
                 CardButton(
-                    if (isDone) "Done" else primaryTitle(moment),
+                    if (isDone) "Done" else primaryTitle(moment, isLast),
                     filled = true,
                     geometry = geometry,
                     onClick = if (leads &&
@@ -322,7 +323,8 @@ private fun title(moment: JourneyMoment): String = when (moment) {
 }
 
 private fun detail(moment: JourneyMoment, item: WardrobeItem?, opened: Boolean): String = when (moment) {
-    is JourneyMoment.BigStoryReady -> "The path is full. Read ${moment.friend.friendName}'s story to go to ${moment.friend.place} together."
+    is JourneyMoment.BigStoryReady ->
+        "The path is full. Find ${moment.friend.friendName}'s big story on your journey map, and go to ${moment.friend.place} together."
 
     is JourneyMoment.NotYet -> "The path stays full. Try the big story again whenever you like."
 
@@ -341,17 +343,15 @@ private fun detail(moment: JourneyMoment, item: WardrobeItem?, opened: Boolean):
     else -> ""
 }
 
-private fun primaryTitle(moment: JourneyMoment): String = when (moment) {
-    is JourneyMoment.BigStoryReady -> "Try the big story"
+private fun primaryTitle(moment: JourneyMoment, isLast: Boolean): String = when (moment) {
+    is JourneyMoment.BigStoryReady, is JourneyMoment.NewFriend -> if (isLast) "Back to my stories" else "Next"
     is JourneyMoment.NotYet -> "OK"
-    is JourneyMoment.NewFriend -> "Go to ${moment.friend.place}"
     is JourneyMoment.BasketFull -> "Try it on"
     else -> ""
 }
 
 private fun secondary(moment: JourneyMoment): String? = when (moment) {
-    is JourneyMoment.BigStoryReady -> "Not yet"
-    is JourneyMoment.NewFriend, is JourneyMoment.BasketFull -> "Later"
+    is JourneyMoment.BasketFull -> "Later"
     else -> null
 }
 
@@ -382,16 +382,14 @@ fun BasketChip(treat: StoryTreat, geometry: PathGeometry, modifier: Modifier = M
 fun JourneyPanel(
     state: ReadingState,
     geometry: PathGeometry,
-    onStory: (Story) -> Unit,
     onTryItOn: (Friend) -> Unit,
     isDone: Boolean,
     dismiss: () -> Unit,
-    onAskAGrownUp: () -> Unit = {},
-    onKeepReading: () -> Unit = dismiss,
+    onBackToStories: () -> Unit = dismiss,
 ) {
     val app = LocalContext.current.applicationContext as HopTalesApplication
     Box(Modifier.fillMaxSize()) {
-        MomentCards(state, geometry, app, onStory, onTryItOn, isDone, dismiss, onAskAGrownUp, onKeepReading)
+        MomentCards(state, geometry, app, onTryItOn, isDone, dismiss, onBackToStories)
         if (state.callout is JourneyMoment.NewFriend) PaperConfetti(delayMillis = FriendReveal.CONFETTI_DELAY_MILLIS)
         if (state.callout is JourneyMoment.LevelOneFinished) PaperConfetti(delayMillis = LEVEL_ONE_CONFETTI_DELAY_MILLIS)
     }
@@ -402,12 +400,10 @@ private fun MomentCards(
     state: ReadingState,
     geometry: PathGeometry,
     app: HopTalesApplication,
-    onStory: (Story) -> Unit,
     onTryItOn: (Friend) -> Unit,
     isDone: Boolean,
     dismiss: () -> Unit,
-    onAskAGrownUp: () -> Unit,
-    onKeepReading: () -> Unit,
+    onBackToStories: () -> Unit,
 ) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
         val top = (geometry.y(PANEL_Y) / geometry.density).dp
@@ -430,7 +426,7 @@ private fun MomentCards(
 
                 is JourneyMoment.Tally -> TallyCard(shown, state.collectedTreat, geometry)
 
-                JourneyMoment.LevelOneFinished -> LevelOneCard(geometry, askAGrownUp = onAskAGrownUp, keepReading = onKeepReading)
+                JourneyMoment.LevelOneFinished -> LevelOneCard(geometry, backToStories = onBackToStories)
 
                 else -> {
                     val item = shown.unlockedItem(app.wardrobe)
@@ -440,12 +436,13 @@ private fun MomentCards(
                         item = item,
                         leads = story != null || item != null,
                         primary = {
-                            story?.let(onStory)
+                            if (story != null) onBackToStories()
                             if (shown is JourneyMoment.BasketFull) onTryItOn(shown.friend)
                         },
                         dismiss = dismiss,
                         geometry = geometry,
                         isDone = isDone,
+                        isLast = state.journeyMoments.count { it.isCallout } <= 1,
                     )
                 }
             }

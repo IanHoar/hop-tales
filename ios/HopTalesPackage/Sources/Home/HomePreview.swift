@@ -10,7 +10,10 @@ struct HomePreview: View {
     case firstRun
     case midway
     case locked
+    case lockedLevels
   }
+
+  static let tallPhone = CGSize(width: Metrics.phone.reference.width, height: 1480)
 
   let variant: Variant
   let size: CGSize
@@ -37,7 +40,7 @@ struct HomePreview: View {
   private var state: Home.State {
     var state = Home.State(childName: variant == .firstRun ? nil : "Wren")
     state.hour = 9
-    state.locksStories = variant == .locked
+    state.locksStories = variant == .locked || variant == .lockedLevels
     return state
   }
 
@@ -51,6 +54,8 @@ struct HomePreview: View {
         completedSentences: ["meadow-walk": 6, "golden-hour": 3],
         journey: Journey(starting: .hare)
       )
+    case .lockedLevels:
+      Content.Progress(stars: 30, completedSentences: ["meadow-walk": 6, "bob-bug": 2])
     }
   }
 }
@@ -58,5 +63,6 @@ struct HomePreview: View {
 #Preview("First run") { HomePreview(.firstRun) }
 #Preview("Midway") { HomePreview(.midway) }
 #Preview("Locked stories") { HomePreview(.locked) }
+#Preview("Locked levels") { HomePreview(.lockedLevels, size: HomePreview.tallPhone) }
 #Preview("iPad") { HomePreview(.midway, size: Metrics.pad.reference) }
 #endif

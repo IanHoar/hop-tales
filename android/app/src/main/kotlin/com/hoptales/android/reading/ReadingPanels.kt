@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -161,7 +162,7 @@ private fun PaperNotice(icon: ImageVector, title: String, body: String, action: 
 }
 
 @Composable
-fun StoryFinished(title: String, stars: Int, geometry: PathGeometry, readAgain: () -> Unit, done: () -> Unit) {
+fun StoryFinished(title: String, stars: Int, geometry: PathGeometry, readAgain: () -> Unit, done: () -> Unit, leadsHome: Boolean = true) {
     val paper = LocalPaper.current
     val type = LocalTypography.current
     Box(Modifier.fillMaxSize()) {
@@ -206,9 +207,14 @@ fun StoryFinished(title: String, stars: Int, geometry: PathGeometry, readAgain: 
                     )
                 }
             }
+            if (!leadsHome) {
+                Spacer(Modifier.height(geometry.dp(56f)))
+                return@Column
+            }
             Box(
                 Modifier
-                    .size(geometry.dp(236f), geometry.dp(56f))
+                    .widthIn(min = geometry.dp(236f))
+                    .height(geometry.dp(56f))
                     .semantics { traversalIndex = -1f }
                     .pressable(done, press = Press.PAPER)
                     .dropShadow(CircleShape, Shadow(geometry.dp(5f), paper.shadow, offset = DpOffset(0.dp, geometry.dp(4f))))
@@ -217,7 +223,13 @@ fun StoryFinished(title: String, stars: Int, geometry: PathGeometry, readAgain: 
                     .background(paper.red, CircleShape),
                 contentAlignment = Alignment.Center,
             ) {
-                Text("Done", style = type.display(geometry.sp(21f)), color = paper.onRed)
+                Text(
+                    "Back to my stories",
+                    Modifier.padding(horizontal = geometry.dp(22f)),
+                    style = type.display(geometry.sp(21f)),
+                    color = paper.onRed,
+                    maxLines = 1,
+                )
             }
         }
     }

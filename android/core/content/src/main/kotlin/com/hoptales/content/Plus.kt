@@ -3,7 +3,17 @@ package com.hoptales.content
 object Plus {
     const val FREE_LEVEL = 1
 
+    const val LOCKED_LEVELS_SHOWN = 2
+
     fun isLocked(story: Story, isPlus: Boolean, locksStories: Boolean): Boolean = locksStories && !story.isFree && !isPlus
+
+    fun lockedLevels(above: Int, library: StoryLibrary, isPlus: Boolean, locksStories: Boolean): List<Friend> {
+        if (!locksStories || isPlus) return emptyList()
+        val first = maxOf(above, FREE_LEVEL) + 1
+        return Friend.entries
+            .filter { it.level >= first && library.stories(it.level).isNotEmpty() }
+            .take(LOCKED_LEVELS_SHOWN)
+    }
 
     fun offersAtOnboarding(profile: Profile, isPlus: Boolean, locksStories: Boolean): Boolean =
         locksStories && !isPlus && !profile.plusOffered

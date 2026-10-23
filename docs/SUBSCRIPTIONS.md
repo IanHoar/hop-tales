@@ -10,9 +10,9 @@ gate guards anything that costs money.
 **Hop Tales Plus** is one auto-renewing subscription with a monthly and a yearly plan, and no free
 trial. **Every Level 1 story** is free forever, with no account and no clock, and that is the
 taste. Every story above Level 1, and every story added later above Level 1, needs Plus. A child
-who reaches a locked story, or finishes Level 1, sees an "Ask a grown-up" button with no price and
-nothing to buy. Only a grown-up who passes the parent gate ever sees the paywall. Progress and
-stars are never taken away.
+who reaches a locked story sees an "Ask a grown-up" button with no price and nothing to buy, and
+Home shows the next two levels with a padlock, which lead to the parent gate. Only a grown-up who
+passes the parent gate ever sees the paywall. Progress and stars are never taken away.
 StoreKit 2 on iOS and Google Play Billing on Android do all of it on the device, with no server of
 ours.
 
@@ -101,7 +101,17 @@ sticker. Tapping it opens a card with the story's art and title, the story's sta
 one ("You read 4 of 6"), "This story is part of Hop Tales Plus", and one button: **Ask a
 grown-up**. The card has no price, no plan names and no buy button.
 
-**The parent gate.** Ask a grown-up opens the gate from rule 6:
+**Locked levels on Home (child-facing).** Below the reader's own stories, Home shows the next two
+locked levels under "Next levels": the levels above the highest one whose stories Home lists, so
+Skip (Level 2) and Oggy (Level 3) for a Level 1 reader. Each row has the friend's sticker, "Level 2
+with Skip", their "Words like …" examples from the onboarding trail, and a padlock sticker. Tapping
+one goes straight to the parent gate and then the paywall, with no child-facing card in between:
+the gate's own heading and "Ask a grown-up to answer this" tell the child a grown-up is needed, and
+nothing priced shows before it's passed. Plus readers never see these rows, and nothing shows while
+the release switch keeps every story open. `Plus.lockedLevels` (Swift) and `Plus.lockedLevels`
+(Kotlin) decide which levels show, with tests ported case for case.
+
+**The parent gate.** Ask a grown-up, or a locked level, opens the gate from rule 6:
 - It's a times-table question in words ("What is seven times eight?") with a number pad.
 - It's never a press-and-hold.
 - A wrong answer draws a new question, with no lockout and no failure state for the child.
@@ -131,7 +141,7 @@ grown-up**. The card has no price, no plan names and no buy button.
   title: why Plus is worth keeping.
 
 **Where the paywall can be reached:**
-1. The locked story card, then the gate.
+1. The locked story card, then the gate; or a locked level on Home, straight to the gate.
 2. **Grown-ups (settings)**, in a new "Hop Tales Plus" section:
    - The status, in plain words: "Plus, renews 3 March" or "Free: the Level 1 stories".
    - Subscribe, Restore purchases, Manage subscription and Request a refund.
@@ -146,18 +156,17 @@ grown-up**. The card has no price, no plan names and no buy button.
      starts the app on the free stories, with no further prompt.
    - This is the one moment a grown-up is guaranteed to be holding the phone. It's shown once and
      never comes back on its own; resetting onboarding (a grown-up action) shows it again.
-4. **"You finished Level 1!"**, once (child-facing, see below), through its Ask a grown-up button
-   and the gate.
-
 **"You finished Level 1!" (child-facing).** When a free reader has finished every Level 1 story
-at least once, the next step up is the first thing Plus sells, so the app marks it:
+at least once, the app celebrates it and points to what's next. It doesn't sell anything; the
+locked levels on Home are the way in:
 - A celebratory paper card in the app's style: paper confetti, the Level 1 rosette and "You
   finished Level 1!".
 - It previews what's next: Skip, the Level 2 friend, in colour with "Skip is waiting", and the
   trickier words as Skip's "Words like …" examples from the onboarding trail.
-- Buttons: **Ask a grown-up**, which opens the gate and then the paywall, and **Keep reading**,
-  which closes the card to Home with the Level 1 stories open to read again.
-- No price, no plan names and nothing to buy, like the locked card.
+- "New friends are waiting on your stories page.", pointing at the locked levels on Home.
+- One button, **Back to my stories**, which closes the card to Home with the Level 1 stories open
+  to read again, or first to a new-friend moment earned on the same read.
+- No gate, no price, no plan names and nothing to buy.
 - **Where it sits.** It's a journey moment, produced by the `Journey` feature with the others
   (tally, big story, new friend) and shown on the reading panels at The end. It comes right after
   the tally of the read that finishes the last Level 1 story. Finishing every story at the level
@@ -167,8 +176,8 @@ at least once, the next step up is the first thing Plus sells, so the app marks 
   - a new-friend moment earned on the same read (the trail or sustained reading) follows it, and
     Skip's stories then show the locked card.
 - **Shown once**, recorded on the reader's progress so it syncs and doesn't come back on another
-  device. After that the locked cards are the way in. A reader who had already finished every
-  Level 1 story before this ships sees it at the end of their next Level 1 story.
+  device. A reader who had already finished every Level 1 story before this ships sees it at the
+  end of their next Level 1 story.
 - It never appears for a Plus subscriber, and not while the release switch keeps every story open
   (build step 1), since there'd be nothing to unlock.
 
@@ -365,9 +374,10 @@ so a shipped build never locks a story nobody can buy yet.
    - The one-time paywall after the last onboarding step, behind the gate: both plans, yearly
      leading, and Try Level 1 free as the secondary.
 6. **"You finished Level 1!"** — #355
-   - The once-only journey moment at The end, with the Skip and trickier-words preview, Ask a
-     grown-up (gate, then the paywall from step 3) and Keep reading; its flag on the reader's
-     progress, and ported tests for when it appears.
+   - The once-only journey moment at The end, with the Skip and trickier-words preview; its flag
+     on the reader's progress, and ported tests for when it appears.
+   - Follow-up: the card dropped its Ask a grown-up for one **Back to my stories** button, and
+     Home shows the next two locked levels instead, each leading to the gate and the paywall.
 7. **Store setup and copy** — #350
    - App Store Connect, done: the `hop_tales_plus` group with `com.hoptales.plus.monthly` ($4.99,
      1 month) and `com.hoptales.plus.yearly` ($29.99, 1 year upfront), Family Sharing on, no
