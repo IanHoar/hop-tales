@@ -18,8 +18,9 @@
   <meta property="og:url" content="https://hoptales.com/">
   <meta property="og:image" content="https://hoptales.com/assets/og.jpg">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="styles.css?v=2">
+  <link rel="stylesheet" href="styles.css?v=3">
   <script defer src="/_vercel/insights/script.js"></script>
+  <script defer src="video.js"></script>
 </head>
 <body>
   <header class="site-nav site-nav--overlay">
@@ -67,6 +68,28 @@
             </picture>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section id="watch" class="watch" aria-labelledby="watch-title">
+      <div class="wrap">
+        <header class="section-head">
+          <h2 id="watch-title">See it in action</h2>
+          <p class="section-sub">Thirty-five seconds in the meadow, word by word.</p>
+        </header>
+        <figure class="paper paper--c video">
+          <div class="video__frame" data-video-id="uiITPBejQWE">
+            <picture>
+              <source srcset="assets/art/promo-poster-800.webp 800w, assets/art/promo-poster-1600.webp 1600w" sizes="(max-width: 699px) calc(100vw - 64px), 920px" type="image/webp">
+              <img src="assets/art/promo-poster.jpg" width="1600" height="900" alt="" loading="lazy" decoding="async">
+            </picture>
+            <button class="video__play" type="button" aria-label="Play the Hop Tales video">
+              <span class="video__disc" aria-hidden="true"><svg width="34" height="38" viewBox="0 0 34 38"><path fill="currentColor" d="M4 3.5c0-2.3 2.5-3.7 4.5-2.5l23 14.5c1.8 1.2 1.8 3.8 0 5L8.5 37c-2 1.2-4.5-.2-4.5-2.5z"/></svg></span>
+            </button>
+            <noscript><a class="video__fallback" href="https://www.youtube.com/watch?v=uiITPBejQWE">Watch the Hop Tales video on YouTube</a></noscript>
+          </div>
+          <figcaption class="video__note">The video loads from YouTube only when you press play.</figcaption>
+        </figure>
       </div>
     </section>
 
