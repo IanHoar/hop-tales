@@ -17,6 +17,7 @@ struct RootTests {
     }
     store.send(.intro(.started(reduceMotion: true)))
     await store.receive(\.intro.finished, timeout: .seconds(2)) { $0.intro = nil }
+    await store.dismount()
   }
 
   @Test func tappingSkipsTheIntro() async {
@@ -26,6 +27,7 @@ struct RootTests {
     store.send(.intro(.started(reduceMotion: false)))
     store.send(.intro(.skipTapped))
     await store.receive(\.intro.finished) { $0.intro = nil }
+    await store.dismount()
   }
 
   @Test func tappingAStoryPushesTheReadingScreen() async {
