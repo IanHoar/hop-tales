@@ -2,11 +2,13 @@
 
 Reads build/store-screenshots/raw (from StoreScreenshotTests) and writes
 build/store-screenshots/out/{phone,pad}-<n>-<screen>.png at 1320 x 2868 and 2064 x 2752.
-The play set reads the Android app's Roborazzi references instead and writes
+The play set reads raw/android-<screen>.png (from the Android StoreScreenshotTest) and writes
 play-<n>-<screen>.png at 1080 x 1920, the 9:16 Google Play phone size.
 
 Each PANELS row is (screen, headline, subline, background RGB, stickers), where a sticker is
-(World/Resources art name, side of the device, width as a share of the canvas[, flipped]).
+(World/Resources art name, side of the device, width as a share of the canvas[, flipped[, lift]]),
+where lift raises the sticker by a share of the canvas height. PLAY_STICKERS overrides a row's
+stickers in the play set, where the Android screens put words in different places.
 """
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import os, sys
@@ -16,10 +18,14 @@ OUT = f'{ROOT}/build/store-screenshots/out'
 FONTS = f'{ROOT}/ios/HopTalesPackage/Sources/DesignSystem/Resources/Fonts'
 ART = f'{ROOT}/ios/HopTalesPackage/Sources/World/Resources'
 CREAM = (255, 246, 226)
-ANDROID = f'{ROOT}/android/app/src/test/screenshots'
 PLAY_SHOTS = {
     'bob-bug': 'reading', 'button-big-story': 'mood-night-clear', 'new-friend': 'new-friend',
     'barnacle-shells': 'world-crab', 'home': 'home-midway', 'rain-on-the-field': 'mood-day-rain',
+}
+PLAY_STICKERS = {
+    'button-big-story': [('friend-cat', 'left', 0.27)],
+    'new-friend': [('friend-crow', 'left', 0.30, False, 0.10), ('friend-crab', 'right', 0.36)],
+    'home': [('friend-frog', 'left', 0.27)],
 }
 
 PANELS = [
@@ -67,14 +73,14 @@ def device(canvas, shot, left, top, width, kind):
     canvas.alpha_composite(frame, (left, top))
     return box
 
-def sticker(canvas, name, side, scale, box, kind, flip=False):
+def sticker(canvas, name, side, scale, box, kind, flip=False, lift=0.0):
     im = Image.open(f'{ART}/{name}.webp').convert('RGBA')
     if flip: im = im.transpose(Image.FLIP_LEFT_RIGHT)
     W, H = canvas.size
     w = int(W * scale)
     im = im.resize((w, int(im.height * w / im.width)), Image.LANCZOS)
     x0, y0, x1, y1 = box
-    y = H - im.height - int(H * 0.012)
+    y = H - im.height - int(H * (0.012 + lift))
     x = x0 - int(w * 0.42) if side == 'left' else x1 - int(w * 0.58)
     x = max(-int(w * 0.10), min(W - int(w * 0.90), x))
     sh = Image.new('RGBA', canvas.size, (0, 0, 0, 0))
@@ -122,7 +128,18 @@ def titles(kind, W):
         out.append(title)
     return out
 
+def source(kind, shot):
+    return f'{RAW}/android-{PLAY_SHOTS[shot]}.png' if kind == 'play' else f'{RAW}/shot.{kind}-{shot}.png'
+
+def check(kind):
+    missing = [os.path.basename(source(kind, shot)) for shot, *_ in PANELS if not os.path.exists(source(kind, shot))]
+    if missing:
+        how = ('cd android && ./gradlew :app:testDebugUnitTest --tests \'*StoreScreenshotTest\' -PstoreScreenshots --rerun'
+               if kind == 'play' else 'StoreScreenshotTests (see docs/store-screenshots.md)')
+        sys.exit(f'Missing {kind} screens in {RAW}: {", ".join(missing)}\nRender them first: {how}')
+
 def build(kind):
+    check(kind)
     W, H = {'phone': (1320, 2868), 'pad': (2064, 2752), 'play': (1080, 1920)}[kind]
     heads = titles(kind, W)
     lowest = max(headline(Image.new('RGBA', (W, H)), t, p[2], kind) for t, p in zip(heads, PANELS))
@@ -131,18 +148,18 @@ def build(kind):
         canvas = background((W, H), colour)
         headline(canvas, title, sub, kind)
         bottom = lowest
-        if kind == 'play':
-            img = Image.open(f'{ANDROID}/{PLAY_SHOTS[shot]}-light.png').convert('RGB')
-        else:
-            img = Image.open(f'{RAW}/shot.{kind}-{shot}.png').convert('RGB')
+        img = Image.open(source(kind, shot)).convert('RGB')
         width = int(W * (0.80 if kind == 'pad' else 0.76))
         top = bottom + int(H * 0.035)
         if kind == 'play':
             room = H - top - int(H * 0.03)
             width = min(width, int(room / (img.height / img.width * 0.932 + 0.068)))
         box = device(canvas, img, (W - width) // 2, top, width, kind)
-        for name, side, scale, *flip in stickers:
-            sticker(canvas, name, side, scale * 0.62 if kind == 'pad' else scale * (0.85 if kind == 'play' else 1), box, kind, bool(flip and flip[0]))
+        if kind == 'play':
+            stickers = PLAY_STICKERS.get(shot, stickers)
+        for name, side, scale, *extra in stickers:
+            flip, lift = (list(extra) + [False, 0.0][len(extra):])[:2]
+            sticker(canvas, name, side, scale * 0.62 if kind == 'pad' else scale * (0.85 if kind == 'play' else 1), box, kind, flip, lift)
         canvas.convert('RGB').save(f'{OUT}/{kind}-{n}-{shot}.png')
 
 if __name__ == '__main__':
