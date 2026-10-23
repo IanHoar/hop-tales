@@ -396,6 +396,107 @@ p {
   right: clamp(40px, 4.2vw, 60px);
 }
 
+.watch {
+  padding: 110px 0 0;
+}
+
+.video {
+  max-width: 960px;
+  margin: 50px auto 0;
+  padding: 20px 20px 16px;
+}
+
+.video::after {
+  content: "";
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  width: 128px;
+  height: 30px;
+  background: rgba(247, 215, 116, 0.78);
+  box-shadow: 0 1px 2px rgba(60, 40, 20, 0.15);
+  transform: translateX(-50%) rotate(-3deg);
+  pointer-events: none;
+}
+
+.video__frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--footer);
+}
+
+.video__frame img,
+.video__frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: cover;
+}
+
+.video__play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.video__play:focus-visible {
+  outline-offset: -6px;
+  border-radius: 6px;
+}
+
+.video__disc {
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  padding-left: 7px;
+  border: 5px solid #FFFFFF;
+  border-radius: 50%;
+  background: var(--red);
+  color: #FFFFFF;
+  box-shadow: 0 8px 20px rgba(40, 30, 20, 0.35);
+}
+
+.video__fallback {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: var(--paper);
+  font-weight: 600;
+  transform: translateX(-50%);
+}
+
+.video__note {
+  margin-top: 12px;
+  font-size: 15px;
+  text-align: center;
+  color: var(--muted-text);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .video__disc {
+    transition: transform 0.2s ease;
+  }
+
+  .video__play:hover .video__disc,
+  .video__play:focus-visible .video__disc {
+    transform: scale(1.06);
+  }
+}
+
 .how {
   padding: 110px 0;
 }
@@ -1031,6 +1132,38 @@ p {
     bottom: 34px;
     width: 280px;
     transform: translateX(-50%) rotate(-6deg);
+  }
+
+  .watch {
+    padding-top: 56px;
+  }
+
+  .video {
+    margin-top: 30px;
+    padding: 12px 12px 10px;
+  }
+
+  .video::after {
+    top: -12px;
+    width: 96px;
+    height: 24px;
+  }
+
+  .video__disc {
+    width: 68px;
+    height: 68px;
+    padding-left: 5px;
+    border-width: 4px;
+  }
+
+  .video__disc svg {
+    width: 24px;
+    height: 27px;
+  }
+
+  .video__note {
+    margin-top: 8px;
+    font-size: 14px;
   }
 
   .how {

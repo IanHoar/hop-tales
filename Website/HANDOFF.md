@@ -32,9 +32,9 @@ Website/
       icon.png             1254² app icon → favicon, apple-touch-icon, OG
 ```
 
-- Plain HTML and one stylesheet. Page structure uses semantic landmarks (`header`, `main`, `section`, `footer`).
+- Plain HTML and one stylesheet, plus `video.js` for the video facade (§3). Page structure uses semantic landmarks (`header`, `main`, `section`, `footer`).
 - Host it on any static host pointed at `Website/public`. GitHub Pages or Cloudflare Pages both work; the choice is open.
-- The site uses Vercel Web Analytics (`/_vercel/insights/script.js`, enabled per project in Vercel): cookie-free, first-party page-view counts. There are no cookies, ads or other third-party scripts. The Privacy Policy and Terms cover the app only, not the website.
+- The site uses Vercel Web Analytics (`/_vercel/insights/script.js`, enabled per project in Vercel): cookie-free, first-party page-view counts. There are no cookies, ads or other third-party scripts. The one third-party embed is the promo video (§3 **See it in action**), and it loads nothing from YouTube until the visitor presses play. The Privacy Policy covers the app, plus a short "This website" paragraph on the analytics and the video; Terms cover the app only.
 - Self-host the fonts. Don't use Google Fonts, because that would send visitor IPs to a third party.
 
 ## 2. Tokens
@@ -104,6 +104,13 @@ Letter-spacing on Lilita is 0.01em. For outlined headings, use `-webkit-text-str
   - Copy: "Hop Tales listens while your child reads aloud. Every word they say bounces the ball forward — and carries Pip the fox from a sunny meadow to a dragon's hill."
   - Below it, a row: the App Store badge (64 tall) and two lines in muted 15: "iPhone & iPad / Plays on your TV with AirPlay".
 - Phones: `inkheard` 320 wide, rotated −4°, at (840, 120), in front. `inkdragon` 290 wide, rotated 7°, at (1052, 150), behind.
+
+**See it in action** (`#watch`, `--page`, between the hero and How it works)
+- H2 "See it in action" centred, sub "Thirty-five seconds in the meadow, word by word." in muted 20.
+- The 35 s promo (YouTube `uiITPBejQWE`, 16:9, music, no voiceover) in a paper card (`paper--c`, 960 max, padding 20/20/16, 50 below the heading) with a gold tape strip across the top edge, like the about photo. Caption under it, muted 15, centred: "The video loads from YouTube only when you press play."
+- **Click-to-load facade.** The page shows a local poster (`assets/art/promo-poster-{800,1600}.webp`, JPEG fallback; the end card at 33.5 s of `promo/hop-tales-promo.mp4`) and a 96 px red play disc with a 5 px white ring (68 px on mobile). The whole poster is one `<button>` labelled "Play the Hop Tales video". `video.js` swaps in the iframe on click, from `https://www.youtube-nocookie.com/embed/uiITPBejQWE?autoplay=1&rel=0&modestbranding=1&playsinline=1`, titled "Hop Tales promo video", and moves focus to it. Nothing contacts YouTube before the click. Without JS a `<noscript>` link goes to the video on YouTube.
+- The disc's hover/focus scale sits behind `prefers-reduced-motion: no-preference`. If a Content-Security-Policy is ever added, it needs `frame-src https://www.youtube-nocookie.com`.
+- Mobile: 56 top padding, the card at full width with 12 px padding.
 
 **How it works** (`#how`, `--page`, 700 tall)
 - H2 centred, with the sub "Three beats, over and over, until the story is done." in muted 20.
