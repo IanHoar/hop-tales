@@ -1,7 +1,7 @@
 import Foundation
 
 public enum Plus {
-  public static let locksStories = false
+  public static let locksStories = true
 
   public static let freeLevel = 1
 

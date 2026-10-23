@@ -89,7 +89,7 @@ struct PlusOfferTests {
     await store.dismount()
   }
 
-  @Test func theReleaseSwitchSkipsTheOffer() {
+  @Test func theReleaseSwitchSkipsTheOffer() async {
     #expect(Root.State().home.locksStories == Plus.locksStories)
     let saved = LockIsolated<Profile?>(nil)
     let store = TestStore(initialState: Self.root(locksStories: false)) {
@@ -102,15 +102,17 @@ struct PlusOfferTests {
       $0.home.childName = "Maya"
     }
     #expect(saved.value?.plusOffered == false)
+    await store.dismount()
   }
 
-  @Test func closingTheGateStartsOnHome() {
+  @Test func closingTheGateStartsOnHome() async {
     let store = TestStore(initialState: Self.offering()) {
       Root()
     }
     store.send(.plusOffer(.gate(.closeTapped))) { $0.plusOffer = nil }
     #expect(store.state.onboarding == nil)
     #expect(store.state.path.isEmpty)
+    await store.dismount()
   }
 
   @Test func tryLevelOneFreeStartsOnHome() async {

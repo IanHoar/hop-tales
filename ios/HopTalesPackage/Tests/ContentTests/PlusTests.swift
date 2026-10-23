@@ -39,7 +39,7 @@ struct PlusTests {
 
   @Test func theSwitchOffSkipsTheOnboardingOffer() {
     #expect(!Plus.offersAtOnboarding(Profile(), isPlus: false, locksStories: false))
-    #expect(!Plus.offersAtOnboarding(Profile(), isPlus: false))
+    #expect(Plus.offersAtOnboarding(Profile(), isPlus: false))
   }
 
   @Test func appStoreProductsMapOntoPlans() {

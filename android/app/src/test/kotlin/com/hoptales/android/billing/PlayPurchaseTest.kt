@@ -109,11 +109,13 @@ class PlayPurchaseTest {
     }
 
     @Test
-    fun everyStoryStaysOpenUntilTheStoresAreLive() {
-        assertFalse(BuildConfig.PLUS_LOCKS_STORIES)
-        val source = FakePlusSource(isPlus = false)
+    fun onlyLevelOneIsOpenWithoutPlus() {
+        assertTrue(BuildConfig.PLUS_LOCKS_STORIES)
         val stories = (1..7).map { Story(id = "level-$it", title = "Level $it", sentences = emptyList(), level = it) }
-        assertTrue(stories.none(source::isLocked))
+        val free = FakePlusSource(isPlus = false)
+        assertEquals(stories.filter { it.level != 1 }, stories.filter(free::isLocked))
+        val plus = FakePlusSource(isPlus = true)
+        assertTrue(stories.none(plus::isLocked))
     }
 
     @Test
