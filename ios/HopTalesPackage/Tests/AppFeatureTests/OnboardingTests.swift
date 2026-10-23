@@ -18,16 +18,17 @@ struct OnboardingTests {
     speak: { _, _, _ in }
   )
 
-  @Test func aFirstRunOpensOnboarding() {
+  @Test func aFirstRunOpensOnboarding() async {
     let store = TestStore(initialState: Root.State()) {
       Root().dependency(ProfileStore.firstRun)
     } changes: {
       $0.onboarding = Onboarding.State.DebugSnapshot()
     }
     #expect(store.state.onboarding != nil)
+    await store.dismount()
   }
 
-  @Test func aSavedProfileSkipsOnboardingAndGreetsTheChild() {
+  @Test func aSavedProfileSkipsOnboardingAndGreetsTheChild() async {
     let profile = Profile(childName: "Maya", startingFriend: .hare)
     let store = TestStore(initialState: Root.State()) {
       Root().dependency(ProfileStore(load: { profile }, save: { _ in }))
@@ -35,6 +36,7 @@ struct OnboardingTests {
       $0.home.childName = "Maya"
     }
     #expect(store.state.onboarding == nil)
+    await store.dismount()
   }
 
   @Test func theGrownUpWalksThroughEveryStep() async {
@@ -168,9 +170,11 @@ struct OnboardingTests {
     store.send(.primaryTapped) { $0.path = [.name, .listening, .ahead] }
   }
 
-  @Test func finishingSavesTheProfileAndShowsTheStories() {
+  @Test func finishingSavesTheProfileAndShowsTheStories() async {
     let saved = LockIsolated<Profile?>(nil)
-    let store = TestStore(initialState: Root.State()) {
+    var state = Root.State()
+    state.home.locksStories = false
+    let store = TestStore(initialState: state) {
       Root().dependency(ProfileStore(load: { nil }, save: { profile in saved.setValue(profile) }))
     } changes: {
       $0.onboarding = Onboarding.State.DebugSnapshot()
@@ -181,10 +185,12 @@ struct OnboardingTests {
       $0.home.childName = "Maya"
     }
     #expect(saved.value == profile)
+    await store.dismount()
   }
 
   @Test func theStartingStoryIsOfferedFirstUntilOneIsUnderway() {
     var home = Home.State()
+    home.locksStories = false
     home.apply(Content.Progress(journey: Journey(starting: .hare)))
     #expect(home.keepGoing?.story.id == StoryLibrary.all[1].id)
   }
@@ -236,7 +242,33 @@ struct OnboardingTests {
     await store.dismount()
   }
 
-  @Test func aFullyAnsweredDraftOpensStraightToTheStories() {
+}
+
+extension OnboardingTests {
+  @Test func resettingOnboardingForgetsTheProfile() async {
+    let erased = LockIsolated(false)
+    let profile = Profile(childName: "Maya")
+    var state = Root.State()
+    state.settings = Settings.State()
+    let store = TestStore(initialState: state) {
+      Root().dependency(
+        ProfileStore(load: { profile }, save: { _ in }, erase: { erased.setValue(true) })
+      )
+    } changes: {
+      $0.home.childName = "Maya"
+      $0.settings?.childName = "Maya"
+      $0.settings?.profile = profile
+    }
+    store.send(.settings(.resetOnboardingTapped)) {
+      $0.home.childName = nil
+      $0.onboarding = Onboarding.State.DebugSnapshot()
+      $0.settings = nil
+    }
+    #expect(erased.value)
+    await store.dismount()
+  }
+
+  @Test func aFullyAnsweredDraftOpensStraightToTheStories() async {
     let draft = ProfileDraft(
       childName: "Maya",
       startingFriend: .hare,
@@ -257,27 +289,6 @@ struct OnboardingTests {
     #expect(saved.value?.accent == .american)
     #expect(saved.value?.soundButtons == true)
     #expect(saved.value?.startingFriend == Friend.at(level: 1))
-  }
-
-  @Test func resettingOnboardingForgetsTheProfile() {
-    let erased = LockIsolated(false)
-    let profile = Profile(childName: "Maya")
-    var state = Root.State()
-    state.settings = Settings.State()
-    let store = TestStore(initialState: state) {
-      Root().dependency(
-        ProfileStore(load: { profile }, save: { _ in }, erase: { erased.setValue(true) })
-      )
-    } changes: {
-      $0.home.childName = "Maya"
-      $0.settings?.childName = "Maya"
-      $0.settings?.profile = profile
-    }
-    store.send(.settings(.resetOnboardingTapped)) {
-      $0.home.childName = nil
-      $0.onboarding = Onboarding.State.DebugSnapshot()
-      $0.settings = nil
-    }
-    #expect(erased.value)
+    await store.dismount()
   }
 }
