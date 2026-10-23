@@ -172,7 +172,9 @@ struct OnboardingTests {
 
   @Test func finishingSavesTheProfileAndShowsTheStories() async {
     let saved = LockIsolated<Profile?>(nil)
-    let store = TestStore(initialState: Root.State()) {
+    var state = Root.State()
+    state.home.locksStories = false
+    let store = TestStore(initialState: state) {
       Root().dependency(ProfileStore(load: { nil }, save: { profile in saved.setValue(profile) }))
     } changes: {
       $0.onboarding = Onboarding.State.DebugSnapshot()
@@ -188,6 +190,7 @@ struct OnboardingTests {
 
   @Test func theStartingStoryIsOfferedFirstUntilOneIsUnderway() {
     var home = Home.State()
+    home.locksStories = false
     home.apply(Content.Progress(journey: Journey(starting: .hare)))
     #expect(home.keepGoing?.story.id == StoryLibrary.all[1].id)
   }

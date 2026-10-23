@@ -144,6 +144,7 @@ struct LockedStoryTests {
   @Test func subscribingClosesTheCard() async {
     var state = Home.State()
     state.hour = 9
+    state.locksStories = false
     state.showLocked(Self.plusStory)
     state.locked?.grownUp = GrownUpPaywall.State(seed: 1)
     state.locked?.grownUp?.gate = nil
