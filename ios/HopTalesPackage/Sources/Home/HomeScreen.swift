@@ -85,7 +85,6 @@ extension EnvironmentValues {
     case lockedLevelTapped(Friend)
     case plusChanged(Bool)
     case wardrobeTapped
-    case playOnTVTapped
     case storyTapped(Story)
   }
 
@@ -111,7 +110,7 @@ extension EnvironmentValues {
         .grownUp(.paywall(.tryLevelOneTapped)):
         state.grownUp = nil
       case .bookTapped, .friendsTapped, .grownUp, .grownUpsTapped, .journeyTapped, .locked,
-        .playOnTVTapped, .storyTapped, .wardrobeTapped:
+        .storyTapped, .wardrobeTapped:
         break
       }
     }
@@ -364,16 +363,6 @@ public struct HomeScreen: View {
           LockedLevelRow(friend: friend) { store.send(.lockedLevelTapped(friend)) }
         }
       }
-      Button { store.send(.playOnTVTapped) } label: {
-        Label("Play on the TV", systemImage: "tv")
-          .font(Typography.ui(16))
-          .foregroundStyle(Paper.ink)
-          .frame(maxWidth: .infinity)
-          .frame(height: 50)
-          .paperChip(Capsule())
-      }
-      .buttonStyle(.plain)
-      .padding(.top, 10)
     }
     .padding(.horizontal, 24)
     .padding(.top, 26)
