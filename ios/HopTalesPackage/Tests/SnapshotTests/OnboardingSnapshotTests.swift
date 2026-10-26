@@ -9,6 +9,11 @@ import Testing
 @Suite(.snapshots(record: .missing, diffTool: .ksdiff))
 struct OnboardingSnapshotTests {
   @Test(arguments: [ColorScheme.light, .dark])
+  func welcomingTheGrownUp(scheme: ColorScheme) {
+    expectSnapshot(of: OnboardingPreview(welcomeOn: Metrics.phone.reference), scheme: scheme)
+  }
+
+  @Test(arguments: [ColorScheme.light, .dark])
   func askingForAName(scheme: ColorScheme) {
     expectSnapshot(of: OnboardingPreview(.name), scheme: scheme)
   }

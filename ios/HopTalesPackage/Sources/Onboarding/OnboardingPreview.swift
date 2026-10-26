@@ -7,10 +7,18 @@ import SwiftUI
 struct OnboardingPreview: View {
   let step: Onboarding.Step
   let size: CGSize
+  let welcoming: Bool
 
   init(_ step: Onboarding.Step, size: CGSize = Metrics.phone.reference) {
     self.step = step
     self.size = size
+    welcoming = false
+  }
+
+  init(welcomeOn size: CGSize = Metrics.phone.reference) {
+    step = .cloud
+    self.size = size
+    welcoming = true
   }
 
   var body: some View {
@@ -23,7 +31,8 @@ struct OnboardingPreview: View {
   }
 
   private var state: Onboarding.State {
-    var state = Onboarding.State()
+    var state = Onboarding.State(welcoming: welcoming)
+    if welcoming { return state }
     state.childName = "Wren"
     state.path = Onboarding.Step.allCases.filter { $0 != .cloud && $0.rawValue <= step.rawValue }
     if step.rawValue > Onboarding.Step.listening.rawValue { state.authorization = .authorized }
@@ -37,6 +46,7 @@ struct OnboardingPreview: View {
   }
 }
 
+#Preview("Welcome") { OnboardingPreview(welcomeOn: Metrics.phone.reference) }
 #Preview("iCloud") { OnboardingPreview(.cloud) }
 #Preview("Name") { OnboardingPreview(.name) }
 #Preview("Microphone") { OnboardingPreview(.listening) }

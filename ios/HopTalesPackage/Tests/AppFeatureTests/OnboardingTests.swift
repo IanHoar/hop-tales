@@ -23,6 +23,7 @@ struct OnboardingTests {
       Root().dependency(ProfileStore.firstRun)
     } changes: {
       $0.onboarding = Onboarding.State.DebugSnapshot()
+      $0.onboarding?.isWelcoming = true
     }
     #expect(store.state.onboarding != nil)
     await store.dismount()
@@ -178,6 +179,7 @@ struct OnboardingTests {
       Root().dependency(ProfileStore(load: { nil }, save: { profile in saved.setValue(profile) }))
     } changes: {
       $0.onboarding = Onboarding.State.DebugSnapshot()
+      $0.onboarding?.isWelcoming = true
     }
     let profile = Profile(childName: "Maya", startingFriend: .hare)
     store.send(.onboarding(.finished(profile))) {
@@ -205,7 +207,7 @@ struct OnboardingTests {
     store.send(.backTapped) { $0.path = [.name, .listening] }
     store.send(.backTapped) { $0.path = [.name] }
     store.send(.backTapped) { $0.path = [] }
-    store.send(.backTapped)
+    store.send(.backTapped) { $0.isWelcoming = true }
     await store.dismount()
   }
 
@@ -262,6 +264,7 @@ extension OnboardingTests {
     store.send(.settings(.resetOnboardingTapped)) {
       $0.home.childName = nil
       $0.onboarding = Onboarding.State.DebugSnapshot()
+      $0.onboarding?.isWelcoming = true
       $0.settings = nil
     }
     #expect(erased.value)

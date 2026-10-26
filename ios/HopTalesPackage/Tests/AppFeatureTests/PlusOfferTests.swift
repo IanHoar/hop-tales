@@ -45,6 +45,7 @@ struct PlusOfferTests {
       Root().dependency(Self.profiles(saved))
     } changes: {
       $0.onboarding = Onboarding.State.DebugSnapshot()
+      $0.onboarding?.isWelcoming = true
     }
     store.send(.onboarding(.finished(Self.maya))) {
       $0.onboarding = nil
@@ -80,6 +81,7 @@ struct PlusOfferTests {
         .dependency(PurchasesClient.fixed(true))
     } changes: {
       $0.onboarding = Onboarding.State.DebugSnapshot()
+      $0.onboarding?.isWelcoming = true
     }
     store.send(.onboarding(.finished(Self.maya))) {
       $0.onboarding = nil
@@ -96,6 +98,7 @@ struct PlusOfferTests {
       Root().dependency(Self.profiles(saved))
     } changes: {
       $0.onboarding = Onboarding.State.DebugSnapshot()
+      $0.onboarding?.isWelcoming = true
     }
     store.send(.onboarding(.finished(Self.maya))) {
       $0.onboarding = nil
@@ -189,6 +192,7 @@ struct PlusOfferTests {
     store.send(.settings(.resetOnboardingTapped)) {
       $0.home.childName = nil
       $0.onboarding = Onboarding.State.DebugSnapshot()
+      $0.onboarding?.isWelcoming = true
       $0.settings = nil
     }
     #expect(saved.value == nil)

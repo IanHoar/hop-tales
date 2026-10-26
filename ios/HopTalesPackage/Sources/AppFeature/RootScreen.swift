@@ -165,7 +165,7 @@ import SwiftUI
           home.locksStories = state.home.locksStories
           state.home = home
           state.plusOffer = nil
-          state.onboarding = Onboarding.State()
+          state.onboarding = Onboarding.State(welcoming: true)
         case .path(_, .reading(.backToStoriesTapped)):
           state.path.removeLast()
           state.home.apply(progressStore.load())
@@ -211,7 +211,7 @@ import SwiftUI
       }
       let resumed = profileStore.loadDraft().map(Onboarding.State.init(resuming:))
       guard let resumed, resumed.isComplete else {
-        state.onboarding = resumed ?? Onboarding.State()
+        state.onboarding = resumed ?? Onboarding.State(welcoming: true)
         return
       }
       profileStore.save(resumed.profile)
