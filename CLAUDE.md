@@ -56,7 +56,7 @@ at the root are shared. Paths below under `HopTales…` and `project.yml` are in
 
 ## Architecture
 
-- State is ComposableArchitecture2 ("TCA26", private `pointfreeco/TCA26`, pinned to `main`).
+- State is ComposableArchitecture ("TCA26", private `pointfreeco/TCA26`, pinned to `main`).
   Features are `@Feature` types with `Update`/`onMount`; views are logicless and read from `store`.
 - TCA26's current API takes a single scope key path — `Scope(\.home)`, `store.scope(\.home)`,
   `.forEach(\.path, dismissStyle: .stack)`. The `action:` label in older Point-Free docs and in

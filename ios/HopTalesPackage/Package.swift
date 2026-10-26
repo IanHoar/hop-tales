@@ -31,7 +31,7 @@ let package = Package(
         "Onboarding",
         "Reading",
         "World",
-        .product(name: "ComposableArchitecture2", package: "TCA26"),
+        .product(name: "ComposableArchitecture", package: "TCA26"),
         .product(name: "Dependencies", package: "swift-dependencies"),
       ]
     ),
@@ -42,7 +42,7 @@ let package = Package(
         "DesignSystem",
         "SpeechRecognition",
         "World",
-        .product(name: "ComposableArchitecture2", package: "TCA26"),
+        .product(name: "ComposableArchitecture", package: "TCA26"),
         .product(name: "Dependencies", package: "swift-dependencies"),
       ]
     ),
@@ -65,7 +65,7 @@ let package = Package(
         "DesignSystem",
         "SpeechRecognition",
         "World",
-        .product(name: "ComposableArchitecture2", package: "TCA26"),
+        .product(name: "ComposableArchitecture", package: "TCA26"),
         .product(name: "Dependencies", package: "swift-dependencies"),
       ]
     ),
@@ -76,7 +76,7 @@ let package = Package(
         "DesignSystem",
         "GrownUps",
         "World",
-        .product(name: "ComposableArchitecture2", package: "TCA26"),
+        .product(name: "ComposableArchitecture", package: "TCA26"),
         .product(name: "Dependencies", package: "swift-dependencies"),
       ]
     ),
@@ -87,7 +87,7 @@ let package = Package(
         "DesignSystem",
         "SpeechRecognition",
         "World",
-        .product(name: "ComposableArchitecture2", package: "TCA26"),
+        .product(name: "ComposableArchitecture", package: "TCA26"),
         .product(name: "Dependencies", package: "swift-dependencies"),
       ]
     ),
@@ -95,7 +95,7 @@ let package = Package(
       name: "SpeechRecognition",
       dependencies: [
         "Content",
-        .product(name: "ComposableArchitecture2", package: "TCA26"),
+        .product(name: "ComposableArchitecture", package: "TCA26"),
         .product(name: "Dependencies", package: "swift-dependencies"),
       ]
     ),

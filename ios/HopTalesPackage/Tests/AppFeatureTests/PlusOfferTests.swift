@@ -1,4 +1,4 @@
-import ComposableArchitecture2
+import ComposableArchitecture
 import Content
 import Dependencies
 import Testing
@@ -102,6 +102,17 @@ struct PlusOfferTests {
       $0.home.childName = "Maya"
     }
     #expect(saved.value?.plusOffered == false)
+    await store.dismount()
+  }
+
+  @Test func plusArrivingFromTheStoreClosesTheOffer() async {
+    let store = TestStore(initialState: Self.offering()) {
+      Root()
+    }
+    store.send(.home(.plusChanged(true))) {
+      $0.home.isPlus = true
+      $0.plusOffer = nil
+    }
     await store.dismount()
   }
 

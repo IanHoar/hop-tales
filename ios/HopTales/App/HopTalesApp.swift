@@ -1,5 +1,5 @@
 import AppFeature
-import ComposableArchitecture2
+import ComposableArchitecture
 import SwiftUI
 import UIKit
 

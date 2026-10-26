@@ -228,74 +228,17 @@ extension PurchasesClient: DependencyKey {
     restores: Bool = false,
     status: PlusStatus? = nil
   ) -> PurchasesClient {
-    let store = FakeStore(isPlus: isPlus)
-    return PurchasesClient(
+    PurchasesClient(
       start: {},
-      isPlus: { store.stream() },
+      isPlus: fixed(isPlus).isPlus,
       offers: {
         guard let offers else { throw PurchasesUnavailable() }
         return offers
       },
-      purchase: { _ in
-        if outcome == .purchased { store.own() }
-        return outcome
-      },
-      restore: {
-        if restores { store.own() }
-        store.refresh()
-        return store.isPlus
-      },
-      refresh: { store.refresh() },
+      purchase: { _ in outcome },
+      restore: { isPlus || restores },
       status: { status }
     )
-  }
-}
-
-final class FakeStore: Sendable {
-  private struct State {
-    var isPlus: Bool
-    var owns = false
-    var subscribers: [UUID: AsyncStream<Bool>.Continuation] = [:]
-  }
-
-  private let state: Mutex<State>
-
-  init(isPlus: Bool) {
-    state = Mutex(State(isPlus: isPlus))
-  }
-
-  var isPlus: Bool { state.withLock(\.isPlus) }
-
-  func stream() -> AsyncStream<Bool> {
-    let id = UUID()
-    let (stream, continuation) = AsyncStream.makeStream(
-      of: Bool.self,
-      bufferingPolicy: .bufferingNewest(1)
-    )
-    continuation.onTermination = { [weak self] _ in
-      self?.state.withLock { _ = $0.subscribers.removeValue(forKey: id) }
-    }
-    state.withLock { state in
-      state.subscribers[id] = continuation
-      continuation.yield(state.isPlus)
-    }
-    return stream
-  }
-
-  func own() {
-    state.withLock { $0.owns = true }
-  }
-
-  func refresh() {
-    if state.withLock(\.owns) { publish(true) }
-  }
-
-  func publish(_ isPlus: Bool) {
-    state.withLock { state in
-      guard state.isPlus != isPlus else { return }
-      state.isPlus = isPlus
-      for subscriber in state.subscribers.values { subscriber.yield(isPlus) }
-    }
   }
 }
 

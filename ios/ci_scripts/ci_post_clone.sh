@@ -7,7 +7,7 @@
 #      validation expects a one-time human approval that does not exist on a build machine, and
 #      Xcode Cloud gives us no way to pass -skipMacroValidation, so the script sets the same default.
 #
-#   2. ComposableArchitecture2 lives in the private pointfreeco/TCA26 repository. Xcode Cloud can
+#   2. ComposableArchitecture lives in the private pointfreeco/TCA26 repository. Xcode Cloud can
 #      only clone repositories its GitHub App is installed on, which we cannot do for someone
 #      else's repository — so CI authenticates as us instead, with a token from a secret
 #      environment variable on the workflow. Nothing is vendored or redistributed.

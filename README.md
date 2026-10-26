@@ -64,6 +64,6 @@ docs/HANDOFF.md           the spec
 scripts/                  asset export and CI helpers, shared by both apps
 ```
 
-State is [ComposableArchitecture2 (TCA26)](https://github.com/pointfreeco/TCA26).
+State is [ComposableArchitecture (TCA26)](https://github.com/pointfreeco/TCA26).
 
 CI is Xcode Cloud — see [`docs/xcode-cloud.md`](docs/xcode-cloud.md).
