@@ -124,8 +124,7 @@ import SwiftUI
           state.theme = theme
         case .home(.plusChanged(true)):
           state.plusOffer = nil
-        case .home(.grownUp), .home(.locked), .home(.lockedLevelTapped), .home(.plusChanged),
-          .home(.playOnTVTapped):
+        case .home(.grownUp), .home(.locked), .home(.lockedLevelTapped), .home(.plusChanged):
           break
         case .intro(.finished):
           state.intro = nil
