@@ -109,7 +109,7 @@ class JourneyTest {
 
     @Test
     fun theNextFriendIsAFewGoodReadsAwayAndTheRoutesStayBalanced() {
-        assertEquals(mapOf(1 to 160, 2 to 200, 3 to 250, 4 to 320, 5 to 390, 6 to 460), library.levels.stepsToNextFriend)
+        assertEquals(mapOf(1 to 170, 2 to 210, 3 to 270, 4 to 320, 5 to 400, 6 to 470), library.levels.stepsToNextFriend)
         for (level in 1 until Levels.top) {
             val reads = (library.levels.stepsToNextFriend[level] ?: 0) / library.levels.goodRead(level)
             assertTrue("level $level", reads in 3.0..6.0)
@@ -224,7 +224,7 @@ class JourneyTest {
             "trail":0,"storiesReadWell":0,"recentHelpRates":[],"cleanStreak":0}
         """.trimIndent()
         val json = """
-            {"completedSentences":{"bob-bug":6,"meadow-walk":2},"stars":4,"wordsRead":{},
+            {"completedSentences":{"bob-bug":7,"meadow-walk":2},"stars":4,"wordsRead":{},
             "journey":$journey}
         """.trimIndent()
         val progress = StoryLibrary.json.decodeFromString(Progress.serializer(), json).creditingFinishedStories(library)

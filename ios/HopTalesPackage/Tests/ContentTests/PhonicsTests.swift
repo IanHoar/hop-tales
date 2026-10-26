@@ -10,7 +10,8 @@ struct PhonicsTests {
     ("sat", 1), ("cats", 1), ("the", 1), ("frog", 2), ("ship", 2), ("ducks", 2),
     ("lake", 3), ("homes", 3), ("dance", 3), ("jumped", 4), ("hopping", 4), ("farm", 4),
     ("rabbit", 4), ("rain", 5), ("house", 5), ("bounced", 5), ("tiny", 6), ("climbing", 6),
-    ("wedged", 6), ("little", 6), ("station", 7), ("enormous", 7), ("Bartholomew", 1)
+    ("wedged", 6), ("yellow", 1), ("please", 3), ("eight", 6), ("station", 7), ("enormous", 7),
+    ("Bartholomew", 1)
   ])
   func wordsDecodeAtTheLevelThatTeachesThem(word: String, level: Int) {
     #expect(phonics.level(of: word) == level)
@@ -69,6 +70,24 @@ struct PhonicsTests {
     #expect(jumped.last == SoundMark(start: 4, end: 6, kind: .bar))
     let night = try #require(phonics.soundMarks(for: "night"))
     #expect(night.contains(SoundMark(start: 1, end: 4, kind: .bar)))
+  }
+
+  @Test func everySightWordReadsByItsLevel() {
+    for level in phonics.levels {
+      for word in level.sightWords {
+        #expect((phonics.level(of: word) ?? .max) <= level.level, "\(word) at level \(level.level)")
+      }
+    }
+  }
+
+  @Test func theDolchListsSitOnTheirLevels() {
+    #expect(phonics.levels.map(\.sightWords.count) == [40, 0, 52, 41, 45, 41, 93])
+  }
+
+  @Test func sightWordsKeepSoundButtonsWhereTheyDecode() {
+    #expect(phonics.soundMarks(for: "jump") == nil)
+    #expect(phonics.soundMarks(for: "yellow") == nil)
+    #expect(phonics.soundMarks(for: "big") != nil)
   }
 
   @Test func heartWordsAndNamesHaveNoSoundButtons() {

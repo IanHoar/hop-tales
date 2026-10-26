@@ -126,9 +126,9 @@ class StoryPropsTest {
     @Test fun aPropRestsBesideTheWordAfterItsOwn() {
         val story = library["golden-hour"]!!
         val layout = StoryPropLayout(Stage(), story.sentences, props, Friend.HARE)
-        assertTrue(layout.items(HopTarget(3, 1), cameraX = 0f, cues = emptyMap(), now = null).none { it.name == "thrush" })
-        val thrush = layout.items(HopTarget(3, 2), cameraX = 100f, cues = emptyMap(), now = null).single { it.name == "thrush" }
-        assertEquals(1000f * 3 + 2 + 48 - 100, thrush.anchor)
+        assertTrue(layout.items(HopTarget(3, 2), cameraX = 0f, cues = emptyMap(), now = null).none { it.name == "thrush" })
+        val thrush = layout.items(HopTarget(3, 3), cameraX = 100f, cues = emptyMap(), now = null).single { it.name == "thrush" }
+        assertEquals(1000f * 3 + 3 + 48 - 100, thrush.anchor)
         assertEquals(500f, thrush.baseline)
     }
 

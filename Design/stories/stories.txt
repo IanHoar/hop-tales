@@ -42,26 +42,27 @@ Bob and the bug run.
 
 == golden-hour | Golden Hour | level 2 | day clouds
 The sun is big and red.
-[golden dragonfly] Skip hops past the ^pond.
+[golden dragonfly] Skip hops past the blue ^pond.
 He stops to sniff the *herbs*.
-[thrush@thrush] A ^thrush sings on a stump.
-[butterfly] The long grass is soft and pink.
+[thrush@thrush] Look! A ^thrush sings on a stump.
+[butterfly] The long grass is soft and yellow.
 Skip hops on up the path.
 
 == storm-on-the-hill | Storm on the Hill | level 3 | day clouds
 Big black *clouds* drift up the hill.
-[storm] The wind shakes the long grass.
+[storm] Now the wind shakes all the long grass.
 [rain] Big wet ^drops splash on the grass.
-[log@log] Oggy hides in a hole in a log.
-[clouds] At last, the *storm* is gone.
-[clear] The sun is back, and Oggy hops on.
+[log@log] Oggy hides under a big log.
+[clouds] Soon, the wind and *rain* are gone.
+[clear] The sun is out, so Oggy hops out.
 
 == moonlight-hop | Moonlight Hop | level 3 | golden clear
 [dusk] The sun sets on the hills.
-[hedgehog] Oggy hops home up the ^lane.
-[night] One by one, the *stars* shine.
+[hedgehog] Oggy must hop home up the ^lane.
+[night] One by one, the *stars* come out.
 The *moon* is up, and it is white.
-[owl@owl pine@pine] A big *owl* sits on a pine.
+[owl@owl pine@pine] A big brown *owl* sits on a pine.
+“Good *night*, Oggy!” she says to him.
 Oggy is *tired*, and he naps at home.
 
 # Level 1 · Bob · single letters, short vowels, no blends · 3 to 5 words
@@ -71,42 +72,44 @@ Oggy is *tired*, and he naps at home.
 #   Opens under a cloudy sky.
 #   1. Bob hops past a log lying beside the path.
 #   2. The red bug from The Meadow Walk comes out and runs beside Bob from here on.
-#   4. They hop along together. On "sun" the clouds part and the sun comes out.
-#   5. A butterfly drifts through the sunshine.
-#   6. The light turns golden, and at The end the bug dashes off ahead.
+#   4. They hop along together.
+#   5. On "sun" the clouds part and the sun comes out.
+#   6. A butterfly drifts through the sunshine.
+#   7. The light turns golden, and at the end the bug dashes off ahead.
 [log@log] Bob hops by the log.
-[bug@bug:alongside] The bug is *back*!
-The bug *wants* to hop.
+[bug@bug:alongside] Look! The bug is *back*!
+“We can hop!” said Bob.
+One, two, three, hop!
 [clear@sun] Hop, hop, in the sun!
-[butterfly] The bug *loves* it.
-[golden] It is fun for Bob!
+[butterfly] It is fun for Bob!
+[golden] “See you!” said the bug.
 
 == big-nap | The Big Nap | level 1 | golden clear | stretch
 # Scene direction:
 #   Opens in warm golden evening light.
-#   1. A butterfly drifts slowly past.
-#   2. A thought bubble over Bob's head shows a little bed of hay.
+#   2. A butterfly drifts slowly past. A thought bubble over Bob's head shows a little bed of hay.
 #   3. A hen struts in along the path and runs up past Bob.
-#   6. The hen runs off, and the sky dims to dusk.
+#   6. The hen runs away, and the sky dims to dusk.
 “Nap *time*!” said Bob.
 [butterfly bed@bed:thought] He hops to his bed.
-[hen@hen] A hen runs by Bob.
-“Bok, bok!” *says* the hen.
-“*Hush*!” said Bob. “Nap *time*!”
-[dusk] The hen runs. Bob naps!
+[hen@hen] A little hen runs up.
+“Come and play!” she said.
+“*Hush*! Not *now*!” said Bob.
+[dusk] The hen runs away.
+Bob naps in his bed.
 
 == mud-and-jam | Bob and the Mud | level 1 | day rain | stretch
 # Scene direction:
 #   Opens in the rain.
 #   3. A big mud puddle lies on the path as Bob hops through the mud.
-#   5. Mum comes in, with bubbles. A bucket and a bar of soap stand in front of the path, and Bob
-#      runs behind them.
+#   5. Mum comes in, with bubbles, calling Bob for his bath. A bucket and a bar of soap stand in
+#      front of the path, and Bob runs behind them.
 #   6. The sun comes out after the bath.
 *Drip*, *drip*, *drop*!
 Lots and lots of mud!
 [puddle@mud] Bob hops in the mud.
 Oh no, Bob!
-[mum bubbles bucket soap] “*Time* for a *bath*, Bob!”
+[mum bubbles bucket soap] “Come here, Bob! *Bath* *time*!”
 [clear] No mud on Bob!
 
 # Level 2 · Skip · sh ch th ck ng nk, ll ss ff, blends · 5 to 7 words
@@ -114,60 +117,62 @@ Oh no, Bob!
 == skip-and-frog | Skip and the Frog | level 2 | day clear
 [bee] Skip hops up to the *hilltop*.
 [frog@frog] A fat frog sits on a stump.
-“Can you swim?” asks the frog.
-[splash@pond] Then the frog jumps into the pond.
+“Look! I can jump!” says the frog.
+[splash@pond] The frog jumps down into the pond.
 Splash! That is a big splash!
-Skip grins and flicks his *whiskers*.
+“You are funny!” says Skip.
 
 == crunchy-carrot | The Crunchy Carrot | level 2 | day clouds | stretch
-[worm] Skip digs in the soft black mud.
+Skip wants to find a *carrot*.
+[worm] He digs in the soft black mud.
 He gets a big fat *carrot*.
-It is the best one yet.
-[butterfly] He brings it back to his den.
+[butterfly] He brings it down to his den.
 [bee] Crunch, crunch, crunch! It is fresh.
 Skip is full, so he naps.
 
 == chat-on-the-hill | Chat on the Hill | level 2 | golden clear | stretch
 [thrush@thrush] Skip and the thrush sit still.
 [dusk] They chat as the sun sets.
+“Sing for me!” says Skip.
 The thrush sings a *splendid* song.
-Skip thumps and claps to the song.
+Skip thumps and thumps to the song.
 [moth@moth] A moth flaps past in the dusk.
-Then they rush back to bed.
+Then Skip and the thrush go *home*.
 
 == skip-big-story | Skip and the Log | level 2 | day clear | big
-[dragonfly] Skip hops up to the pond.
-The pond is wet and big.
-[log@log] He spots a log on top.
+[dragonfly] Skip hops down to the pond.
+[log@log] A big log bobs in the pond.
 Skip steps on the log.
-[splash@splash] Drip, drop, splash! It rocks a bit.
+[splash@splash] The log rocks. Splash, splash, splash!
+“Help! Help me!” yells Skip.
 Skip jumps and lands on the bank.
 
 # Level 3 · Oggy · magic e, soft c and g · 6 to 8 words
 
 == oggy-kite | Oggy and the Kite | level 3 | day clear | stretch
 [dragonfly] Oggy the frog sits by the lake.
-[kite@kite] A red kite *floats* up and up.
-The wind takes the kite past the lake.
+[kite@kite] A pretty red kite *floats* up and up.
+“What is that up there?” says Oggy.
+The wind takes the kite over the lake.
 It lands on a pad next to Oggy.
 Oggy hops up and grabs the *ribbon*.
-[kite@kite] He waves as the kite rises up again.
+[kite@kite] He hops with the kite, and it rises.
 
 == home-by-the-lake | A Home by the Lake | level 3 | golden clouds | stretch
-Oggy wants a home by the lake.
+Oggy wants a new home by the lake.
 [stone@stone] He hops in a hole by a stone.
-The hole is damp and much *colder*.
-[dragonfly] He tests a *hollow* stem, but it bends.
+The hole is too damp and *dark*.
+[dragonfly] He sits on a stick, but it bends.
 [lilypad@pad] At last, he spots a wide, flat pad.
-Oggy makes it his home and *yawns*.
+“Yes! This will be my home,” says Oggy.
 
 == oggy-big-story | The Lily Pad Race | level 3 | day clear | big
-[frog*3@frogs] The frogs line up on the pads.
-They race to the end of the lake.
-Oggy puffs up and is still.
-[frog*3@frogs] Then the frogs jump from pad to pad.
+[frog*3@frogs] Four frogs want to have a race.
+“Get set, go!” they all yell.
+[frog*3@frogs] The frogs jump from pad to pad.
 Oggy slips, but he gets up and hops.
-[dragonfly] He is last, but he still smiles!
+[dragonfly] Oggy is last, but he still smiles.
+“You did well, Oggy!” say the other frogs.
 
 # Level 4 · Button · -s -ed -ing, two beats, ar or er ir ur · 7 to 9 words
 
@@ -175,125 +180,129 @@ Oggy slips, but he gets up and hops.
 [bee] Button, the black bird, zips over the corn.
 He spots *something* shining in the mud.
 [worm] He dives and picks it up in his bill.
-It is a small, red button from a jacket.
+It is an old, round, red button.
 [nest@nest] Button hides it in his *secret* nest.
-Button has seven buttons lined up in his nest!
+“I just love my new button!” says Button.
 
 == rain-on-the-field | Rain on the Field | level 4 | day clouds
 [hen] Dark *clouds* gather over the corn and the barn.
 [rain] Then big, cold drops start falling on the farm.
 Button tucks his neck under his black wing.
-[farmer@farmer] The farmer runs to the barn with a bucket.
-[clouds] After the storm, the farm smells fresh and wet.
+[farmer@farmer] The farmer and her hens run into the barn.
+[clouds] When the *rain* stops, the farm smells fresh.
 [clear] Button shakes his *feathers* and lifts off again.
 
 == scarecrow-coat | The Scarecrow Coat | level 4 | golden clear | stretch
-[scarecrow@scarecrow] The old *scarecrow* stands alone in the garden.
-His jacket has a hole and a missing button.
+[scarecrow@scarecrow] The *scarecrow* stands alone in the garden.
+His old jacket is missing its top button.
 [bee] Button is sad for his *lonely* friend.
+“I know how to help him!” says Button.
 He brings a red button from his nest.
 He pokes it into the jacket with his bill.
-[butterfly] The *scarecrow* is smart, and Button *chuckles*.
+[butterfly] Now the *scarecrow* has every button again.
 
 == paper-boat | The Paper Boat | level 4 | day clouds | stretch
 [child@child] A child makes a paper *boat* by the pond.
-[boat@ship] The paper ship drifts off on the rushing water.
+[boat@boat] The wind takes the *boat* away from her.
 Button spots it spinning next to a big rock.
-He flaps his wings and lifts the ship up.
+He flaps his wings and lifts the *boat* up.
 He brings it back to the child.
-[child@child] The child *cheers* and hugs Button in the *sunshine*.
+[child@child] “Thank you, Button!” the child says with a grin.
 
 == button-big-story | The Lost Hamster | level 4 | dusk clear | big
-[firefly] The sun sets over the golden farm.
-[night] Button sits on a post, singing to the stars.
-[hamster@hamster] A lost hamster is sobbing in the corn.
-Button calls to the hamster from his post.
-[hamster@hamster] He helps the hamster find its den.
-Then Button zips home to his nest of buttons.
+[firefly] As the sun sets, Button sings on a post.
+[night hamster@hamster] A lost hamster is sobbing in the corn.
+[hamster@hamster] “Where do you live?” Button asks the hamster.
+“Under the big barn,” says the hamster.
+“I will take you there!” says Button.
+[hamster@hamster] Button and the hamster walk to the barn.
+After that, Button can fly home to his nest.
 
 # Level 5 · Marmalade · vowel teams: ai ay ee ea oa ow oo ou oi · 8 to 10 words
 
 == marmalade-sunflower | The Tallest Sunflower | level 5 | day clear
 [butterfly] Marmalade the cat was napping under the garden bench.
-[clouds] She yawned, *stretched* and looked up at the clouds.
-[sunflower@sunflower] A sunflower was reaching higher than the cottage roof.
-Marmalade wanted to see the sunflower from the top.
-She hopped up the fence and jumped onto the *windowsill*.
-From there, she smiled at the tallest sunflower in town.
+[clouds] When she woke, she *stretched* and looked at the clouds.
+[sunflower@sunflower] She saw a sunflower growing higher than the cottage roof.
+Marmalade wanted to see the very top of the sunflower.
+First she hopped up the fence, then onto the *windowsill*.
+From there, she saw five bees right on the top!
 
 == wool-in-the-wind | Wool in the Wind | level 5 | day clouds
 [wool@wool] Marmalade was playing with a ball of green wool.
 [wool@rolling] The wind picked up, and the wool started rolling away.
 [roses@roses] It bounced along the path and *tangled* around the roses.
-Marmalade followed the trail of wool through the garden.
-She found the ball resting beside the old *watering* can.
-She carried it home and curled up for a rest.
+Marmalade had to pull and pull to get it free.
+The wool was a mess, but Marmalade did not mind.
+She carried it home and went to sleep beside it.
 
 == garden-party | The Garden Party | level 5 | golden clear | stretch
-The children were planning a picnic in the cottage garden.
-[lantern@lanterns] They hung *lanterns* and baked cupcakes with pink icing.
-Marmalade sat high on the wall to see it all.
-[child*2@friends] When the friends arrived, she jumped down to say “hello”.
-[bubbles@bubbles] The children laughed as she chased *bubbles* across the grass.
-It was the best picnic the garden had ever seen!
+The children were planning a *party* in their garden.
+[lantern@lanterns] They hung *lanterns* and made cupcakes with pink icing.
+Marmalade sat high on the wall to see them work.
+[child*2@friends] Many friends came, and she jumped down to say “hello”.
+[bubbles@bubbles] “Come and chase *bubbles* with us!” called the children.
+They all laughed as she chased them across the grass.
+It was the best *party* the garden had ever seen!
 
 == rainy-afternoon | A Rainy Afternoon | level 5 | day clouds | stretch
 [rain] Raindrops were tapping on the window of the cottage.
-[puddle@puddles] Marmalade stayed indoors and saw the *puddles* getting bigger.
-She heard the *kettle* sing out from the cooker.
-[grandma@Grandma] Grandma was making a scarf beside the hot fire.
-[wool@wool] Marmalade pounced on the green wool and rolled it away.
-Grandma laughed, and they spent the *afternoon* playing together.
+[puddle@puddles] Marmalade stayed in, because she does not like wet *puddles*.
+[grandma@Grandma] Grandma sat by the hot fire to *knit* and sing.
+[wool@wool] Her scarf was made from a ball of green wool.
+Marmalade pounced on the wool and rolled it away.
+“Wet days are always fun with you!” laughed Grandma.
 
 == marmalade-big-story | The Lost Kitten | level 5 | golden clouds | big
 One morning, Marmalade heard a soft “meow” from the bushes.
 She searched between the flowerpots and behind the shed.
-[kitten@kitten] At last, she discovered a kitten hiding under a bucket.
-The kitten was shivering and wanted to find its mother.
+[kitten@kitten] At last, she found a kitten hiding under a bucket.
+“Can you tell me where your home is?” asked Marmalade.
+“The first house down the lane,” said the kitten.
 [kitten@walked] Marmalade walked beside it all the way down the lane.
-[cat@mother] Its mother was waiting, and they purred at the gate.
+[cat@mother] Its mother was waiting, and gave them both a wash.
 
 # Level 6 · Barnacle · kn wr mb tch dge, -le, y as a vowel · 9 to 12 words
 
 == barnacle-shells | Barnacle and the Shells | level 6 | day clear
 [gull] Barnacle the crab lives in a rock pool beside the sea.
-Every morning, he searches the sand for *beautiful* shells.
-[shell@shell] Today he found a spiral shell as pink as a sunset!
-He carried it carefully because the waves were getting stronger.
-[starfish] He placed it on a flat rock with the other shells.
-Now his *collection* shines like treasure when the sun comes out.
+Every morning, he likes to pick up shells on the sand.
+[shell@shell] Today he found a *spiral* shell as pink as a sunset!
+He had to carry it home before the big waves came in.
+[starfish] He put it on a flat rock with the six other shells.
+Now he has seven shells, but only one of them is pink.
 
 == tide-comes-in | When the Tide Comes In | level 6 | golden clouds
 [gull] Twice every day, the tide comes in and covers the rocks.
 Barnacle knows *exactly* when the water will start to rise.
 [seaweed@seaweed] He watches the seaweed begin to float and sway gently.
 [fish*2@fish] Tiny fish arrive and dart through the clear salty water.
-Barnacle hides in his *favourite* crack until the tide goes out.
-Then he climbs out again to see what the sea has left.
+To keep safe, Barnacle hides in a crack in the rocks.
+[clear@sun] Later the tide goes out, and he sits in the warm sun.
 
 == island-adventure | The Island Across the Bay | level 6 | day clear | stretch
 Barnacle could see a small island across the sparkling bay.
-[lighthouse@lighthouse] Did anyone live on the rocks beneath the tall *lighthouse*?
-One calm morning, he decided to walk along the sandbar.
-The journey was longer than he *expected*, but he kept going.
-[seal*2@seals] On the island he met a family of seals sunbathing together.
-[dusk] They told him stories about the ocean until the sun went down.
+[lighthouse@lighthouse] He wanted to know if anyone lived beneath the tall *lighthouse*.
+One morning at low tide, he walked across on the sand.
+It was far, and his legs got tired, but he kept going.
+[seal*2@seals] On the island he met a kind family of seals sunbathing together.
+[dusk] They told him stories about the sea until the sun went down.
 
 == barnacle-storm | The Night of the Storm | level 6 | dusk clouds | stretch
 [storm] The sky turned dark, and the wind began to howl.
 *Enormous* waves crashed against the rocks and sprayed white foam.
-[seaweed@seaweed] Barnacle held on tightly to the seaweed in his rock pool.
-*Although* he was frightened, he remembered the storm would pass.
+[seaweed@seaweed] Barnacle had to hold on tightly to the seaweed in his pool.
+He was scared, but he knew that storms never last for long.
 [rain] Thunder rumbled while the rain poured down for hours.
-[clear gull] By morning, the sea was calm and the beach was *peaceful* again.
+[clear gull] In the morning light, the sea was calm and *peaceful* again.
 
 == barnacle-big-story | The Message in a Bottle | level 6 | day clear | big
 [bottle@bottle] One morning, Barnacle noticed a glass bottle wedged between two rocks.
 Inside the bottle there was a rolled up piece of paper.
 [gull] He pulled and twisted until the cork finally popped out!
-The message was a drawing of a smiling crab waving hello.
-[starfish] Someone far across the ocean had sent it just for him.
-Barnacle kept the drawing and dreamed about his faraway friend.
+The paper had a drawing of a crab waving hello.
+[starfish] It looked just like Barnacle, with eight long legs!
+Barnacle wanted to draw his own crab and send it back.
 
 # Level 7 · Bartholomew · -tion -sion -ture -ous, longer words · 10 to 14 words
 
@@ -303,10 +312,10 @@ Bartholomew the grasshopper lives where the grass grows taller than a house.
 [day] From up there, the meadow looks like an *enormous* green ocean.
 [butterfly] He practises his jumping until he can leap across three stems at once.
 [ladybird*2@ladybirds] The ladybirds cheer whenever he lands without wobbling on the clover.
-Bartholomew believes that every day brings a brand new *adventure*.
+When the sun is high, he rests in the shade of a yellow flower.
 
 == bartholomew-fiddle | The Evening Concert | level 7 | dusk clear
-When the sun sets, Bartholomew takes out his tiny wooden fiddle.
+When the sun sets, Bartholomew takes out his tiny fiddle made of wood.
 [cricket*3@crickets] The crickets gather beneath the dandelions to listen very quietly.
 He plays a gentle *melody* that drifts across the whole meadow.
 [bee@bumblebees] Even the sleepy bumblebees stop buzzing to hear the music.
@@ -315,11 +324,11 @@ He plays a gentle *melody* that drifts across the whole meadow.
 
 == bartholomew-journey | The Journey to the Old Oak | level 7 | golden clouds | stretch
 [oak@oak] Bartholomew had heard stories about an *ancient* oak at the edge of the meadow.
-[snail] He packed his leather satchel with clover and set off before breakfast.
+[snail] He packed some bread in his leather satchel and set off early.
 The journey was *difficult* because the grass was thick and tangled.
 [twig@twig] He crossed a trickling stream by balancing carefully on a fallen twig.
 By afternoon, he finally reached the enormous tree with its twisted roots.
-Resting in its shade, he felt proud of how far he had travelled.
+He sat in its shade, ate his bread, and felt very proud.
 
 == bartholomew-rainbow | Chasing the Rainbow | level 7 | day clouds | stretch
 [rain rainbow@rainbow] After a heavy shower, a *magnificent* rainbow appeared above the meadow.
@@ -327,12 +336,13 @@ Bartholomew was curious to discover where the colourful arch touched the ground.
 [puddle@puddles] He hopped and scrambled through puddles that reflected the brightening sky.
 Every time he came closer, the rainbow seemed to move further away.
 [clear] Eventually the warm sunshine returned and the colours slowly *disappeared*.
-[butterfly] Bartholomew laughed because the adventure had been the treasure all along.
+[butterfly] Bartholomew did not mind, because splashing through puddles had been a fun game.
 
 == bartholomew-big-story | The Great Meadow Festival | level 7 | golden clear | big
 Once a year, every creature in the meadow gathers for a festival.
-[beetle*2@beetles] The beetles decorate the stems with petals and shimmering spider silk.
-Bob brings strawberries and Skip arrives with a basket of carrots.
-Oggy and Button organise races while Marmalade and Barnacle tell stories.
+[beetle*2@beetles] The beetles decorate a table with petals and shimmering spider silk.
+Bob brings strawberries, and Skip arrives with a big carrot cake.
+Oggy and Button organise races, and Marmalade rings a bell to start them.
+Barnacle tells stories about the sea to a squirrel and a robin.
 [night mushroom@mushroom] When the moon rises, Bartholomew climbs onto a mushroom to play his fiddle.
 [firefly*3] All his friends dance together, and it is the happiest night of the year!

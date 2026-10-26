@@ -7,6 +7,7 @@ public struct Phonics: Sendable {
     public var graphemes: [String]
     public var endGraphemes: [String]
     public var heartWords: [String]
+    public var sightWords: [String]
   }
 
   struct Rules: Decodable, Sendable {

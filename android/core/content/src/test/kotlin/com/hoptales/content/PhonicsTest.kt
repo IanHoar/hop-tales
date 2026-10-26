@@ -17,9 +17,31 @@ class PhonicsTest {
             "sat" to 1, "cats" to 1, "the" to 1, "frog" to 2, "ship" to 2, "ducks" to 2,
             "lake" to 3, "homes" to 3, "dance" to 3, "jumped" to 4, "hopping" to 4, "farm" to 4,
             "rabbit" to 4, "rain" to 5, "house" to 5, "bounced" to 5, "tiny" to 6, "climbing" to 6,
-            "wedged" to 6, "little" to 6, "station" to 7, "enormous" to 7, "Bartholomew" to 1,
+            "wedged" to 6, "yellow" to 1, "please" to 3, "eight" to 6, "station" to 7, "enormous" to 7, "Bartholomew" to 1,
         )
         for ((word, level) in cases) assertEquals(word, level, phonics.level(word))
+    }
+
+    @Test
+    fun everySightWordReadsByItsLevel() {
+        for (level in phonics.levels) {
+            for (word in level.sightWords) {
+                val read = phonics.level(word) ?: Int.MAX_VALUE
+                assertTrue("$word at level ${level.level}", read <= level.level)
+            }
+        }
+    }
+
+    @Test
+    fun theDolchListsSitOnTheirLevels() {
+        assertEquals(listOf(40, 0, 52, 41, 45, 41, 93), phonics.levels.map { it.sightWords.size })
+    }
+
+    @Test
+    fun sightWordsKeepSoundButtonsWhereTheyDecode() {
+        assertNull(phonics.soundMarks("jump"))
+        assertNull(phonics.soundMarks("yellow"))
+        assertTrue(phonics.soundMarks("big") != null)
     }
 
     @Test
