@@ -6,12 +6,10 @@ import SwiftUI
 
   public struct State: Identifiable {
     public var id = "grown-up-paywall"
-    public var isOnboarding: Bool
     public var gate: ParentGate.State?
     public var paywall: Paywall.State?
 
-    public init(seed: UInt64, isOnboarding: Bool = false) {
-      self.isOnboarding = isOnboarding
+    public init(seed: UInt64) {
       gate = ParentGate.State(seed: seed)
     }
   }
@@ -26,7 +24,7 @@ import SwiftUI
       switch action {
       case .gate(.passed):
         state.gate = nil
-        state.paywall = Paywall.State(isOnboarding: state.isOnboarding)
+        state.paywall = Paywall.State()
       case .gate, .paywall:
         break
       }

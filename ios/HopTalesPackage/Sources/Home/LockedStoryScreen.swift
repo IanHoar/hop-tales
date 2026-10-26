@@ -41,8 +41,7 @@ import SwiftUI
       switch action {
       case .askAGrownUpTapped:
         state.grownUp = GrownUpPaywall.State(seed: gateSeed.draw())
-      case .grownUp(.gate(.closeTapped)), .grownUp(.paywall(.closeTapped)),
-        .grownUp(.paywall(.tryLevelOneTapped)):
+      case .grownUp(.gate(.closeTapped)), .grownUp(.paywall(.closeTapped)):
         state.grownUp = nil
       case .closeTapped, .grownUp:
         break

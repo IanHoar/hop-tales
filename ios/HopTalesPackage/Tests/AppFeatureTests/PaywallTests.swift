@@ -81,8 +81,8 @@ struct PaywallTests {
     await store.dismount()
   }
 
-  @Test func passingTheGateOpensTheOnboardingPaywall() async {
-    let store = TestStore(initialState: GrownUpPaywall.State(seed: 1, isOnboarding: true)) {
+  @Test func passingTheGateOpensThePaywall() async {
+    let store = TestStore(initialState: GrownUpPaywall.State(seed: 1)) {
       GrownUpPaywall()
         .dependency(PurchasesClient.fake(offers: nil))
     }
@@ -91,7 +91,7 @@ struct PaywallTests {
     store.send(.gate(.answerTapped))
     await store.receive(\.gate.passed) {
       $0.gate = nil
-      $0.paywall = Paywall.State.DebugSnapshot(isOnboarding: true)
+      $0.paywall = Paywall.State.DebugSnapshot()
     }
     await store.receive(\.paywall.offersFailed) { $0.paywall?.offers = .unavailable }
     await store.dismount()

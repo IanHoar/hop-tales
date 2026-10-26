@@ -19,7 +19,6 @@ import SwiftUI
     public var home = Home.State()
     public var intro: Intro.State? = Intro.State()
     public var onboarding: Onboarding.State?
-    public var plusOffer: GrownUpPaywall.State?
     public var path: [Path.State] = []
     public var settings: Settings.State?
     public var journeyMap: JourneyMap.State?
@@ -39,7 +38,6 @@ import SwiftUI
     case home(Home.Action)
     case intro(Intro.Action)
     case onboarding(Onboarding.Action)
-    case plusOffer(GrownUpPaywall.Action)
     case path(Path.State.ID, Path.Action)
     case settings(Settings.Action)
     case journeyMap(JourneyMap.Action)
@@ -50,7 +48,6 @@ import SwiftUI
 
   @Dependency(ProfileStore.self) var profileStore
   @Dependency(ProgressStore.self) var progressStore
-  @Dependency(GateSeed.self) var gateSeed
 
   private func open(_ story: Story, _ state: inout State) {
     guard !state.home.isLocked(story) else {
@@ -122,8 +119,6 @@ import SwiftUI
           state.home.apply(progressStore.load())
         case let .settings(.themePicked(theme)):
           state.theme = theme
-        case .home(.plusChanged(true)):
-          state.plusOffer = nil
         case .home(.grownUp), .home(.locked), .home(.lockedLevelTapped), .home(.plusChanged):
           break
         case .intro(.finished):
@@ -131,29 +126,14 @@ import SwiftUI
         case .intro:
           break
         case let .onboarding(.finished(answered)):
-          var profile = profileStore.load() ?? answered
-          let offersPlus = Plus.offersAtOnboarding(
-            profile, isPlus: state.home.isPlus, locksStories: state.home.locksStories
-          )
-          if offersPlus { profile.plusOffered = true }
+          let profile = profileStore.load() ?? answered
           profileStore.save(profile)
           state.theme = profile.theme
           startJourney(with: profile.startingFriend)
           state.home.apply(progressStore.load())
           state.home.apply(profile)
           state.onboarding = nil
-          if offersPlus {
-            state.plusOffer = GrownUpPaywall.State(seed: gateSeed.draw(), isOnboarding: true)
-          }
         case .onboarding:
-          break
-        case .plusOffer(.paywall(.subscribed)):
-          state.plusOffer = nil
-          state.home.isPlus = true
-        case .plusOffer(.gate(.closeTapped)), .plusOffer(.paywall(.closeTapped)),
-          .plusOffer(.paywall(.tryLevelOneTapped)):
-          state.plusOffer = nil
-        case .plusOffer:
           break
         case .settings(.resetOnboardingTapped):
           profileStore.erase()
@@ -163,7 +143,6 @@ import SwiftUI
           home.isPlus = state.home.isPlus
           home.locksStories = state.home.locksStories
           state.home = home
-          state.plusOffer = nil
           state.onboarding = Onboarding.State(welcoming: true)
         case .path(_, .reading(.backToStoriesTapped)):
           state.path.removeLast()
@@ -181,9 +160,6 @@ import SwiftUI
     }
     .ifLet(\.onboarding) {
       Onboarding()
-    }
-    .ifLet(\.plusOffer) {
-      GrownUpPaywall()
     }
     .ifLet(\.settings) {
       Settings()
@@ -302,10 +278,6 @@ public struct RootScreen: View {
     }
     .sheet(item: $store.scope(\.book)) { book in
       BookScreen(store: book)
-        .interactiveDismissDisabled()
-    }
-    .sheet(item: $store.scope(\.plusOffer)) { plusOffer in
-      GrownUpPaywallScreen(store: plusOffer)
         .interactiveDismissDisabled()
     }
   }

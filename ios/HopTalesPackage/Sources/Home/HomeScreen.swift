@@ -106,8 +106,7 @@ extension EnvironmentValues {
         state.locked = nil
       case .plusChanged(false):
         state.isPlus = false
-      case .grownUp(.gate(.closeTapped)), .grownUp(.paywall(.closeTapped)),
-        .grownUp(.paywall(.tryLevelOneTapped)):
+      case .grownUp(.gate(.closeTapped)), .grownUp(.paywall(.closeTapped)):
         state.grownUp = nil
       case .bookTapped, .friendsTapped, .grownUp, .grownUpsTapped, .journeyTapped, .locked,
         .storyTapped, .wardrobeTapped:

@@ -17,14 +17,11 @@ public enum PaywallOffers: Hashable, Sendable {
 
   public struct State: Identifiable {
     public var id = "paywall"
-    public var isOnboarding: Bool
     public var offers = PaywallOffers.loading
     public var isPending = false
     public var foundNothingToRestore = false
 
-    public init(isOnboarding: Bool = false) {
-      self.isOnboarding = isOnboarding
-    }
+    public init() {}
 
     var usesAppStoreView: Bool {
       guard case let .loaded(offers) = offers else { return false }
@@ -41,7 +38,6 @@ public enum PaywallOffers: Hashable, Sendable {
     case purchaseCompleted(PurchaseOutcome)
     case restoreTapped
     case subscribed
-    case tryLevelOneTapped
   }
 
   @Dependency(PurchasesClient.self) var purchases
@@ -84,7 +80,7 @@ public enum PaywallOffers: Hashable, Sendable {
           try store.send(isPlus ? .subscribed : .nothingToRestore)
         }
 
-      case .closeTapped, .subscribed, .tryLevelOneTapped:
+      case .closeTapped, .subscribed:
         break
       }
     }
@@ -124,15 +120,6 @@ public struct PaywallScreen: View {
 
   private var header: some View {
     HStack(spacing: 12) {
-      PaperLabel(seed: 11) {
-        Text("For grown-ups")
-          .font(Typography.display(22))
-          .foregroundStyle(Paper.ink)
-          .padding(.horizontal, 16)
-          .padding(.vertical, 8)
-      }
-      .rotationEffect(.degrees(-2))
-      .accessibilityAddTraits(.isHeader)
       Spacer()
       Button("Close") { store.send(.closeTapped) }
         .font(Typography.display(17))
@@ -163,6 +150,7 @@ public struct PaywallScreen: View {
             VStack(spacing: 18) {
               PaywallPitch()
               PlanList(offers: offers) { store.send(.planTapped($0)) }
+              Spacer(minLength: 0)
               footer
             }
           }
@@ -191,47 +179,51 @@ public struct PaywallScreen: View {
   }
 
   private func sheet(@ViewBuilder _ content: () -> some View) -> some View {
-    ScrollView {
-      content()
-        .padding(24)
-        .frame(maxWidth: .infinity)
-        .background { PaperSheet() }
-        .frame(maxWidth: 460)
-        .padding(.horizontal, 20)
-        .padding(.top, 8)
-        .padding(.bottom, 30)
-        .frame(maxWidth: .infinity)
+    let content = content()
+    return GeometryReader { proxy in
+      ScrollView {
+        content
+          .padding(24)
+          .frame(maxWidth: .infinity, minHeight: max(proxy.size.height - 38, 0), alignment: .top)
+          .background { PaperSheet() }
+          .frame(maxWidth: 460)
+          .padding(.horizontal, 20)
+          .padding(.top, 8)
+          .padding(.bottom, 30)
+          .frame(maxWidth: .infinity)
+      }
     }
   }
 
   private var footer: some View {
-    VStack(spacing: 14) {
-      if store.isOnboarding {
-        Button("Try Level 1 free") { store.send(.tryLevelOneTapped) }
-          .buttonStyle(.paperQuiet)
-      }
+    VStack(spacing: 4) {
       Text(Self.disclosure)
-        .font(Typography.ui(13))
+        .font(Typography.ui(11))
         .foregroundStyle(Paper.muted)
         .multilineTextAlignment(.center)
         .fixedSize(horizontal: false, vertical: true)
-      Button("Restore purchases") { store.send(.restoreTapped) }
-        .buttonStyle(.paperChip)
       if store.foundNothingToRestore {
         Text("There's no Hop Tales Plus subscription to restore on this Apple Account.")
-          .font(Typography.ui(14, weight: .medium))
-          .foregroundStyle(Paper.muted)
+          .font(Typography.ui(12, weight: .medium))
+          .foregroundStyle(Paper.ink)
           .multilineTextAlignment(.center)
           .fixedSize(horizontal: false, vertical: true)
       }
-      HStack(spacing: 18) {
+      HStack(spacing: 16) {
+        Button("Restore purchases") { store.send(.restoreTapped) }
+          .fontWeight(.semibold)
+          .foregroundStyle(Paper.ink)
         Link("Terms of Use", destination: PlusLinks.terms)
+          .underline()
         Link("Privacy Policy", destination: PlusLinks.privacy)
+          .underline()
       }
-      .font(Typography.ui(14, weight: .semibold))
-      .foregroundStyle(Paper.ink)
-      .underline()
+      .buttonStyle(.plain)
+      .font(Typography.ui(12, weight: .medium))
+      .foregroundStyle(Paper.muted)
+      .frame(minHeight: 44)
     }
+    .frame(maxWidth: 460)
   }
 
   static let disclosure = """
@@ -291,22 +283,15 @@ public struct PaywallScreen: View {
     }
   }
 
-  @ViewBuilder private var leaveButton: some View {
-    if store.isOnboarding {
-      Button("Try Level 1 free") { store.send(.tryLevelOneTapped) }
-        .buttonStyle(.paper)
-        .padding(.top, 6)
-    } else {
-      Button("Back to stories") { store.send(.closeTapped) }
-        .buttonStyle(.paperQuiet)
-        .padding(.top, 6)
-    }
+  private var leaveButton: some View {
+    Button("Back to stories") { store.send(.closeTapped) }
+      .buttonStyle(.paperQuiet)
+      .padding(.top, 6)
   }
 }
 
 #if DEBUG
 struct PaywallPreview: View {
-  var isOnboarding = false
   var offers = PaywallOffers.loaded(PlusOffer.samples)
   var isPending = false
 
@@ -326,7 +311,7 @@ struct PaywallPreview: View {
   }
 
   private var state: Paywall.State {
-    var state = Paywall.State(isOnboarding: isOnboarding)
+    var state = Paywall.State()
     state.offers = offers
     state.isPending = isPending
     return state
@@ -334,7 +319,6 @@ struct PaywallPreview: View {
 }
 
 #Preview("Paywall") { PaywallPreview() }
-#Preview("Paywall, onboarding") { PaywallPreview(isOnboarding: true) }
 #Preview("Paywall, store unavailable") { PaywallPreview(offers: .unavailable) }
 #Preview("Paywall, waiting for the store") { PaywallPreview(isPending: true) }
 #endif
