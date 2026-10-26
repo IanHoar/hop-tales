@@ -158,8 +158,10 @@ struct LockedStoryTests {
     }
     store.send(.locked(.grownUp(.paywall(.planTapped(.yearly)))))
     await store.receive(\.locked.grownUp.paywall.purchaseCompleted)
-    await store.receive(\.locked.grownUp.paywall.subscribed) { $0.locked = nil }
-    await store.dismount()
+    await TestExhaustivity.$current.withValue(.off) {
+      await store.receive(\.locked.grownUp.paywall.subscribed) { $0.locked = nil }
+      await store.dismount()
+    }
   }
 
   @Test func tryLevelOneFreeClosesTheOnboardingPaywall() async {
@@ -260,7 +262,9 @@ struct LockedStoryTests {
     store.send(.grownUp(.gate(.closeTapped))) { $0.grownUp = nil }
     await store.dismount()
   }
+}
 
+extension LockedStoryTests {
   @Test func subscribingFromALockedLevelClosesThePaywall() async {
     var state = Home.State()
     state.hour = 9
@@ -276,7 +280,9 @@ struct LockedStoryTests {
     }
     store.send(.grownUp(.paywall(.planTapped(.yearly))))
     await store.receive(\.grownUp.paywall.purchaseCompleted)
-    await store.receive(\.grownUp.paywall.subscribed) { $0.grownUp = nil }
-    await store.dismount()
+    await TestExhaustivity.$current.withValue(.off) {
+      await store.receive(\.grownUp.paywall.subscribed) { $0.grownUp = nil }
+      await store.dismount()
+    }
   }
 }
