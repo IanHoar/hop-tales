@@ -44,6 +44,24 @@ struct WordPathTests {
     #expect(path.startSign - path.stops[0].centre == WordPath.startSign)
   }
 
+  @Test func theLastWordRisesBesideTheSignWhenTheStoryEnds() throws {
+    let last = try #require(path.stops.last)
+    let end = path.camera(at: HopTarget(sentence: Self.story.sentences.count, word: 0))
+    let lift = path.lastWordLift(of: last, cameraX: end)
+    let x = last.centre - end + lift.width
+    let y = path.wordY + lift.height
+    #expect(x - last.width / 2 >= path.geometry.path(WordPath.lastWordMargin) - 0.001)
+    #expect(x + last.width / 2 < path.endSign - end)
+    #expect(y + path.wordHeight / 2 < path.hareFeetY - path.hareHeight(hopping: false))
+  }
+
+  @Test func onlyTheLastWordRisesAndOnlyOnceTheStoryEnds() throws {
+    let last = try #require(path.stops.last)
+    #expect(path.lastWordLift(of: last, cameraX: path.camera(at: last.target)) == .zero)
+    let end = path.camera(at: HopTarget(sentence: Self.story.sentences.count, word: 0))
+    #expect(path.lastWordLift(of: path.stops[0], cameraX: end) == .zero)
+  }
+
   @Test func thePathSitsLowOnTheReferencePhone() {
     #expect(Self.phone.pathCentre == 640)
     #expect(path.hareFeetY == 670)

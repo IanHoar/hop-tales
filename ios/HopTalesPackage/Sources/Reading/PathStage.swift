@@ -303,6 +303,7 @@ struct PathScene: View {
           chalk: path.style.chalk
         )
         .position(x: stop.centre - cameraX, y: path.wordY)
+        .offset(path.lastWordLift(of: stop, cameraX: cameraX))
       }
       treatOnPath
       hare
