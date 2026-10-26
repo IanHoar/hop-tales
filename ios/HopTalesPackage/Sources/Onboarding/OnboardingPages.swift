@@ -44,14 +44,6 @@ struct WelcomePage: View {
     "Your child reads each word out loud, and the hare hops along the path to the next one. "
     + "Hop Tales listens on this device. Nothing is recorded or sent anywhere."
 
-  static let steps = [
-    "Bring back a reader from iCloud, if you have one",
-    "Your reader's name",
-    "Let Hop Tales listen",
-    "How reading grows",
-    "Dots and dashes under the sounds"
-  ]
-
   var body: some View {
     VStack(alignment: .leading, spacing: 14) {
       Text("Before you start")
@@ -68,37 +60,12 @@ struct WelcomePage: View {
         .font(Typography.ui(16, weight: .medium))
         .foregroundStyle(Paper.ink.opacity(0.85))
         .fixedSize(horizontal: false, vertical: true)
-      VStack(alignment: .leading, spacing: 10) {
-        Text("Setting up takes about a minute:")
-          .font(Typography.ui(16, weight: .semibold))
-          .foregroundStyle(Paper.ink)
-        ForEach(Array(Self.steps.enumerated()), id: \.offset) { index, step in
-          WelcomeStep(number: index + 1, text: step)
-        }
-      }
-      .padding(.top, 4)
+      Text("Setting up takes about a minute.")
+        .font(Typography.ui(16, weight: .semibold))
+        .foregroundStyle(Paper.ink)
+        .padding(.top, 4)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
-  }
-}
-
-struct WelcomeStep: View {
-  let number: Int
-  let text: String
-
-  var body: some View {
-    HStack(spacing: 12) {
-      Text("\(number)")
-        .font(Typography.ui(14, weight: .bold))
-        .foregroundStyle(Paper.ink)
-        .frame(width: 26, height: 26)
-        .background(Paper.rim.opacity(0.7), in: Circle())
-      Text(text)
-        .font(Typography.ui(16, weight: .medium))
-        .foregroundStyle(Paper.ink.opacity(0.85))
-        .fixedSize(horizontal: false, vertical: true)
-    }
-    .accessibilityElement(children: .combine)
   }
 }
 

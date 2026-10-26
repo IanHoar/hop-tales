@@ -284,14 +284,6 @@ private const val WELCOME_SUMMARY =
     "Your child reads each word out loud, and the hare hops along the path to the next one. " +
         "Hop Tales listens on this device. Nothing is recorded or sent anywhere."
 
-private val welcomeSteps = listOf(
-    "Back up to your Google account, if you like",
-    "Your reader's name",
-    "Let Hop Tales listen",
-    "How reading grows",
-    "Dots and dashes under the sounds",
-)
-
 @Composable
 private fun WelcomePage() {
     val paper = LocalPaper.current
@@ -300,26 +292,12 @@ private fun WelcomePage() {
         Text("BEFORE YOU START", style = type.caps(13.sp).copy(letterSpacing = 1.sp), color = paper.muted)
         Text("Welcome to Hop Tales", style = type.display(28.sp), color = paper.ink, modifier = Modifier.semantics { heading() })
         Text(WELCOME_SUMMARY, style = type.ui(16.sp, FontWeight.Medium), color = paper.ink.copy(alpha = 0.85f))
-        Column(Modifier.padding(top = 4.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text("Setting up takes about a minute:", style = type.ui(16.sp, FontWeight.SemiBold), color = paper.ink)
-            welcomeSteps.forEachIndexed { index, step -> WelcomeStep(index + 1, step) }
-        }
-    }
-}
-
-@Composable
-private fun WelcomeStep(number: Int, text: String) {
-    val paper = LocalPaper.current
-    val type = LocalTypography.current
-    Row(
-        Modifier.clearAndSetSemantics { contentDescription = "$number. $text" },
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(Modifier.size(26.dp).background(paper.rim.copy(alpha = 0.7f), CircleShape), contentAlignment = Alignment.Center) {
-            Text("$number", style = type.ui(14.sp, FontWeight.Bold), color = paper.ink)
-        }
-        Text(text, style = type.ui(16.sp, FontWeight.Medium), color = paper.ink.copy(alpha = 0.85f))
+        Text(
+            "Setting up takes about a minute.",
+            style = type.ui(16.sp, FontWeight.SemiBold),
+            color = paper.ink,
+            modifier = Modifier.padding(top = 4.dp),
+        )
     }
 }
 
