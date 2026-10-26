@@ -27,7 +27,12 @@ import World
     public var cloudAccount: CloudSync.Account?
     public var isCatchingUp = false
     public var restored: Profile?
+    public var isWelcoming = false
     public init() {}
+
+    public init(welcoming: Bool) {
+      isWelcoming = welcoming
+    }
 
     public init(resuming draft: ProfileDraft) {
       childName = draft.childName
@@ -74,6 +79,7 @@ import World
     public var needsMicrophone: Bool { step == .listening && authorization == nil }
 
     public var primaryTitle: String {
+      if isWelcoming { return "Get started" }
       if needsMicrophone { return "Allow microphone" }
       if isCatchingUp { return "Checking iCloud…" }
       let isLast = step == Step.allCases.last || (restored != nil && step == .listening)
@@ -81,7 +87,7 @@ import World
     }
 
     public var primaryEnabled: Bool {
-      needsMicrophone || (canContinue(from: step) && !isCatchingUp)
+      isWelcoming || needsMicrophone || (canContinue(from: step) && !isCatchingUp)
     }
 
     func canContinue(from step: Step) -> Bool {
@@ -118,7 +124,10 @@ import World
         state.authorization = authorization
 
       case .backTapped:
-        guard !state.path.isEmpty else { break }
+        guard !state.path.isEmpty else {
+          state.isWelcoming = true
+          break
+        }
         state.path.removeLast()
         if state.path.isEmpty { state.restored = nil }
 
@@ -138,6 +147,10 @@ import World
         break
 
       case .primaryTapped:
+        if state.isWelcoming {
+          state.isWelcoming = false
+          break
+        }
         if state.needsMicrophone {
           let locale = state.listeningLocale
           store.addTask {
@@ -293,33 +306,44 @@ struct OnboardingSheet: View {
   }
 
   private var page: some View {
-    StepPage(store: store)
-      .id(store.step)
-      .transition(
-        .asymmetric(insertion: .offset(x: 18).combined(with: .opacity), removal: .opacity)
-      )
-      .animation(.easeOut(duration: 0.35), value: store.step)
+    Group {
+      if store.isWelcoming {
+        WelcomePage()
+      } else {
+        StepPage(store: store)
+      }
+    }
+    .id(store.isWelcoming ? nil : store.step)
+    .transition(
+      .asymmetric(insertion: .offset(x: 18).combined(with: .opacity), removal: .opacity)
+    )
+    .animation(.easeOut(duration: 0.35), value: store.step)
+    .animation(.easeOut(duration: 0.35), value: store.isWelcoming)
   }
 
   private var header: some View {
     ZStack {
-      ProgressPills(current: store.stepNumber - 1, count: store.steps.count)
-      if store.step != Onboarding.Step.allCases.first {
-        Button {
-          store.send(.backTapped)
-        } label: {
-          Image(systemName: "chevron.backward")
-            .font(.system(size: 17, weight: .bold))
-            .foregroundStyle(Paper.ink)
-            .frame(width: 44, height: 44)
-            .contentShape(Rectangle())
-        }
-        .accessibilityLabel("Back")
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.leading, -12)
+      if !store.isWelcoming {
+        ProgressPills(current: store.stepNumber - 1, count: store.steps.count)
+        backButton
       }
     }
     .frame(height: 24)
+  }
+
+  private var backButton: some View {
+    Button {
+      store.send(.backTapped)
+    } label: {
+      Image(systemName: "chevron.backward")
+        .font(.system(size: 17, weight: .bold))
+        .foregroundStyle(Paper.ink)
+        .frame(width: 44, height: 44)
+        .contentShape(Rectangle())
+    }
+    .accessibilityLabel("Back")
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .padding(.leading, -12)
   }
 }
 

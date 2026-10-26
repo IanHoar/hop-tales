@@ -84,7 +84,8 @@ class OnboardingTest {
         assertTrue(onboarding.backTapped())
         assertEquals(OnboardingStep.BACKUP, onboarding.state.step)
         assertTrue(onboarding.state.isFirstStep)
-        assertFalse(onboarding.backTapped())
+        assertTrue(onboarding.backTapped())
+        assertTrue(onboarding.state.isWelcoming)
         assertEquals(OnboardingStep.BACKUP, onboarding.state.step)
     }
 

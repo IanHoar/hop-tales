@@ -231,6 +231,10 @@ class ScreenshotTest {
 
     @Test fun listeningUnavailableDark() = listeningUnavailable(dark = true)
 
+    @Test fun onboardingWelcomeLight() = onboardingWelcome(dark = false)
+
+    @Test fun onboardingWelcomeDark() = onboardingWelcome(dark = true)
+
     @Test fun onboardingBackupLight() = onboarding(OnboardingStep.BACKUP, dark = false)
 
     @Test fun onboardingBackupDark() = onboarding(OnboardingStep.BACKUP, dark = true)
@@ -302,6 +306,13 @@ class ScreenshotTest {
             HopTalesTheme { IntroContent(art, time = { time }, showsTitle = true) }
         }
         compose.onRoot().captureRoboImage("src/test/screenshots/$name.png", options)
+    }
+
+    private fun onboardingWelcome(dark: Boolean) {
+        compose.setContent {
+            HopTalesTheme(dark = dark) { OnboardingContent(OnboardingState(isWelcoming = true), OnboardingActions()) }
+        }
+        compose.onRoot().captureRoboImage(path("onboarding-welcome", dark), options)
     }
 
     private fun onboarding(step: OnboardingStep, dark: Boolean) {
