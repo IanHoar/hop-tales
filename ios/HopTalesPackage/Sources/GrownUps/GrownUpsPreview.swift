@@ -1,5 +1,5 @@
 #if DEBUG
-import ComposableArchitecture2
+import ComposableArchitecture
 import Content
 import Dependencies
 import DesignSystem

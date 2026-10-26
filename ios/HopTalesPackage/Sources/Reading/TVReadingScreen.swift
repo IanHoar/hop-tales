@@ -1,4 +1,4 @@
-import ComposableArchitecture2
+import ComposableArchitecture
 import DesignSystem
 import SwiftUI
 import World

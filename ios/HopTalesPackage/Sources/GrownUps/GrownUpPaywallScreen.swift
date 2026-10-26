@@ -1,4 +1,4 @@
-import ComposableArchitecture2
+import ComposableArchitecture
 import SwiftUI
 
 @Feature public struct GrownUpPaywall {
