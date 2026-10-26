@@ -64,12 +64,9 @@ Back on every step after the first:
    Continue is always enabled.
 5. **Sound buttons.**
 
-After the last step, the grown-up is offered Hop Tales Plus once (`docs/SUBSCRIPTIONS.md` §3): the
-parent gate, then the paywall with both plans and **Try Level 1 free**. Leaving the gate, Try Level 1
-free or closing the paywall starts the app on Home with the free stories; a purchase starts it as
-Plus. The profile's `plusOffered` records that it was shown, so it never comes back on its own;
-Reset onboarding erases the profile and shows it again. It's skipped for a reader who already has
-Plus, and entirely while the release switch keeps every story open.
+After the last step the app starts on Home. Set-up never offers Hop Tales Plus: the paywall is
+reached only from a locked story or level, or from Grown-ups (`docs/SUBSCRIPTIONS.md` §3). The
+profile's `plusOffered` column stays, since synced columns are never dropped, but nothing sets it.
 
 ### The end of a story
 

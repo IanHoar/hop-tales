@@ -14,9 +14,6 @@ object Plus {
             .filter { it.level >= first && library.stories(it.level).isNotEmpty() }
             .take(LOCKED_LEVELS_SHOWN)
     }
-
-    fun offersAtOnboarding(profile: Profile, isPlus: Boolean, locksStories: Boolean): Boolean =
-        locksStories && !isPlus && !profile.plusOffered
 }
 
 object PlusLinks {

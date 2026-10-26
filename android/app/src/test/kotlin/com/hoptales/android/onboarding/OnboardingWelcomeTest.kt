@@ -1,7 +1,6 @@
 package com.hoptales.android.onboarding
 
 import com.hoptales.android.HopTalesApplication
-import com.hoptales.android.billing.FakePlusSource
 import com.hoptales.content.ProfileDraft
 import com.hoptales.onboarding.OnboardingNext
 import com.hoptales.onboarding.OnboardingStep
@@ -27,7 +26,7 @@ class OnboardingWelcomeTest {
     @After
     fun forget() = app.profileStore.erase()
 
-    private fun model() = OnboardingViewModel(app, hasMicrophone = false, plus = FakePlusSource())
+    private fun model() = OnboardingViewModel(app, hasMicrophone = false)
 
     @Test
     fun aFirstRunOpensOnTheWelcome() {

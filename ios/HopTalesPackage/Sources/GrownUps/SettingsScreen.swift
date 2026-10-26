@@ -186,7 +186,7 @@ import World
         state.gatedRequest = nil
 
       case .grownUp(.gate(.closeTapped)), .grownUp(.paywall(.closeTapped)),
-        .grownUp(.paywall(.subscribed)), .grownUp(.paywall(.tryLevelOneTapped)):
+        .grownUp(.paywall(.subscribed)):
         state.grownUp = nil
 
       case .gate, .grownUp:

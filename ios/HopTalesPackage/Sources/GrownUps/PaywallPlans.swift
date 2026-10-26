@@ -22,14 +22,24 @@ struct PaywallTitle: View {
 }
 
 struct PaywallPitch: View {
+  static let benefits = [
+    "Unlock all reading levels",
+    "More characters",
+    "More settings",
+    "More costumes"
+  ]
+
   var body: some View {
     VStack(spacing: 8) {
       PaywallTitle()
-      Text("Every story in the meadow, with a new one every month and something new each season.")
-        .font(Typography.ui(17, weight: .medium))
-        .foregroundStyle(Paper.ink)
-        .multilineTextAlignment(.center)
-        .fixedSize(horizontal: false, vertical: true)
+      VStack(alignment: .leading, spacing: 6) {
+        ForEach(Self.benefits, id: \.self) { benefit in
+          Label(benefit, systemImage: "checkmark")
+            .font(Typography.ui(17, weight: .medium))
+            .foregroundStyle(Paper.ink)
+        }
+      }
+      .padding(.vertical, 4)
       Text("One subscription covers your whole family.")
         .font(Typography.ui(15))
         .foregroundStyle(Paper.muted)

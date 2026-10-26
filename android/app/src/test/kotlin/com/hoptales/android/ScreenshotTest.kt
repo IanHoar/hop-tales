@@ -114,10 +114,6 @@ class ScreenshotTest {
 
     @Test fun paywallDark() = paywall("paywall", FakePlusSource(), dark = true)
 
-    @Test fun paywallOnboardingLight() = paywall("paywall-onboarding", FakePlusSource(), dark = false, onboarding = true)
-
-    @Test fun paywallOnboardingDark() = paywall("paywall-onboarding", FakePlusSource(), dark = true, onboarding = true)
-
     @Test fun paywallUnavailableLight() = paywall("paywall-unavailable", FakePlusSource(offers = null), dark = false)
 
     @Test fun paywallUnavailableDark() = paywall("paywall-unavailable", FakePlusSource(offers = null), dark = true)
@@ -434,9 +430,9 @@ class ScreenshotTest {
         compose.onRoot().captureRoboImage(path(name, dark), options)
     }
 
-    private fun paywall(name: String, plus: FakePlusSource, dark: Boolean, onboarding: Boolean = false) {
+    private fun paywall(name: String, plus: FakePlusSource, dark: Boolean) {
         compose.setContent {
-            HopTalesTheme(dark = dark) { Paywall(plus, onClose = {}, onboarding = onboarding, live = false) }
+            HopTalesTheme(dark = dark) { Paywall(plus, onClose = {}, live = false) }
         }
         compose.onRoot().captureRoboImage(path(name, dark), options)
     }

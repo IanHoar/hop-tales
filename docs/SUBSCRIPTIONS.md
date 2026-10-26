@@ -119,7 +119,7 @@ the release switch keeps every story open. `Plus.lockedLevels` (Swift) and `Plus
   a refund and any future outside link all go through it.
 - Build step 2 (#346) added it on both apps, with the locked story card as its first use. Since
   #347, passing the gate opens the paywall. `GrownUpPaywall` (iOS, in `GrownUps`) and `Paywall`
-  (Android, in `settings`) are the one entry point, with an onboarding flag for #349.
+  (Android, in `settings`) are the one entry point.
 
 **The paywall (grown-up-facing, behind the gate).**
 - **iOS.** StoreKit's `SubscriptionStoreView` for the `hop_tales_plus` group, styled as a paper
@@ -147,15 +147,10 @@ the release switch keeps every story open. `Plus.lockedLevels` (Swift) and `Plus
    - Subscribe, Restore purchases, Manage subscription and Request a refund.
    - What subscribers get: every story above Level 1 and the content rhythm.
    - The rest of Settings still opens without the gate. Only this section's buttons ask first.
-3. **The end of onboarding**, once:
-   - After the last onboarding step, the paywall opens in its onboarding form: both plans, yearly
-     leading, and a clear secondary button, **Try Level 1 free**, which closes it and starts the
-     app on the free stories.
-   - It goes through the gate first, like every other way to the paywall. Onboarding is filled in
-     by a grown-up, so the question goes to the person holding the phone; leaving the gate also
-     starts the app on the free stories, with no further prompt.
-   - This is the one moment a grown-up is guaranteed to be holding the phone. It's shown once and
-     never comes back on its own; resetting onboarding (a grown-up action) shows it again.
+
+Onboarding doesn't offer Plus. It used to end on a one-time paywall (#349), but that put the parent
+gate in front of a new family before they had read anything, and the Kids Category rules wouldn't
+let the gate go. Set-up now ends on Home, and the locked levels are the way in.
 **"You finished Level 1!" (child-facing).** When a free reader has finished every Level 1 story
 at least once, the app celebrates it and points to what's next. It doesn't sell anything; the
 locked levels on Home are the way in:
@@ -371,8 +366,8 @@ so a shipped build never locks a story nobody can buy yet.
    - Status, Subscribe, Restore, Manage and Refund, all behind the gate; the payment-problem line
      on iOS and the pending line on Android; the content rhythm.
 5. **The end-of-onboarding offer** — #349
-   - The one-time paywall after the last onboarding step, behind the gate: both plans, yearly
-     leading, and Try Level 1 free as the secondary.
+   - Shipped, then removed: set-up ends on Home, and Plus is offered only from locked stories,
+     locked levels and Grown-ups.
 6. **"You finished Level 1!"** — #355
    - The once-only journey moment at The end, with the Skip and trickier-words preview; its flag
      on the reader's progress, and ported tests for when it appears.

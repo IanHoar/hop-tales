@@ -13,11 +13,6 @@ struct PaywallSnapshotTests {
   }
 
   @Test(arguments: [ColorScheme.light, .dark])
-  func theOnboardingPaywallOffersLevelOneFree(scheme: ColorScheme) {
-    expectSnapshot(of: PaywallPreview(isOnboarding: true), scheme: scheme)
-  }
-
-  @Test(arguments: [ColorScheme.light, .dark])
   func theStoreIsNotAnswering(scheme: ColorScheme) {
     expectSnapshot(of: PaywallPreview(offers: .unavailable), scheme: scheme)
   }

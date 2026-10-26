@@ -76,7 +76,7 @@ struct PlusSettingsTests {
     let store = settings(.fake())
     store.send(.subscription(.subscribeTapped)) {
       $0.grownUp = GrownUpPaywall.State.DebugSnapshot(
-        isOnboarding: false, gate: ParentGate.State.DebugSnapshot(seed: 1)
+        gate: ParentGate.State.DebugSnapshot(seed: 1)
       )
     }
     store.send(.grownUp(.gate(.digitTapped(1)))) { $0.grownUp?.gate?.entry = "1" }
@@ -84,7 +84,7 @@ struct PlusSettingsTests {
     store.send(.grownUp(.gate(.answerTapped)))
     await store.receive(\.grownUp.gate.passed) {
       $0.grownUp?.gate = nil
-      $0.grownUp?.paywall = Paywall.State.DebugSnapshot(isOnboarding: false)
+      $0.grownUp?.paywall = Paywall.State.DebugSnapshot()
     }
     await store.receive(\.grownUp.paywall.offersLoaded) {
       $0.grownUp?.paywall?.offers = .loaded(PlusOffer.samples)

@@ -122,7 +122,7 @@ struct LockedStoryTests {
     }
     store.send(.locked(.askAGrownUpTapped)) {
       $0.locked?.grownUp = GrownUpPaywall.State.DebugSnapshot(
-        isOnboarding: false, gate: ParentGate.State.DebugSnapshot(seed: 1)
+        gate: ParentGate.State.DebugSnapshot(seed: 1)
       )
     }
     store.send(.locked(.grownUp(.gate(.digitTapped(1))))) { $0.locked?.grownUp?.gate?.entry = "1" }
@@ -130,7 +130,7 @@ struct LockedStoryTests {
     store.send(.locked(.grownUp(.gate(.answerTapped))))
     await store.receive(\.locked.grownUp.gate.passed) {
       $0.locked?.grownUp?.gate = nil
-      $0.locked?.grownUp?.paywall = Paywall.State.DebugSnapshot(isOnboarding: false)
+      $0.locked?.grownUp?.paywall = Paywall.State.DebugSnapshot()
     }
     await store.receive(\.locked.grownUp.paywall.offersLoaded) {
       $0.locked?.grownUp?.paywall?.offers = .loaded(PlusOffer.samples)
@@ -164,24 +164,6 @@ struct LockedStoryTests {
     await store.dismount()
   }
 
-  @Test func tryLevelOneFreeClosesTheOnboardingPaywall() async {
-    var state = Home.State()
-    state.hour = 9
-    state.showLocked(Self.plusStory)
-    state.locked?.grownUp = GrownUpPaywall.State(seed: 1, isOnboarding: true)
-    state.locked?.grownUp?.gate = nil
-    state.locked?.grownUp?.paywall = Paywall.State(isOnboarding: true)
-    let store = TestStore(initialState: state) {
-      Home()
-        .dependency(PurchasesClient.fake())
-    }
-    await store.receive(\.locked.grownUp.paywall.offersLoaded) {
-      $0.locked?.grownUp?.paywall?.offers = .loaded(PlusOffer.samples)
-    }
-    store.send(.locked(.grownUp(.paywall(.tryLevelOneTapped)))) { $0.locked?.grownUp = nil }
-    await store.dismount()
-  }
-
   @Test func closingTheGateGoesBackToTheCard() async {
     var state = Home.State()
     state.hour = 9
@@ -191,7 +173,7 @@ struct LockedStoryTests {
     }
     store.send(.locked(.askAGrownUpTapped)) {
       $0.locked?.grownUp = GrownUpPaywall.State.DebugSnapshot(
-        isOnboarding: false, gate: ParentGate.State.DebugSnapshot(seed: 1)
+        gate: ParentGate.State.DebugSnapshot(seed: 1)
       )
     }
     store.send(.locked(.grownUp(.gate(.closeTapped)))) { $0.locked?.grownUp = nil }
@@ -229,7 +211,7 @@ struct LockedStoryTests {
     }
     store.send(.lockedLevelTapped(.hare)) {
       $0.grownUp = GrownUpPaywall.State.DebugSnapshot(
-        isOnboarding: false, gate: ParentGate.State.DebugSnapshot(seed: 1)
+        gate: ParentGate.State.DebugSnapshot(seed: 1)
       )
     }
     store.send(.grownUp(.gate(.digitTapped(1)))) { $0.grownUp?.gate?.entry = "1" }
@@ -237,7 +219,7 @@ struct LockedStoryTests {
     store.send(.grownUp(.gate(.answerTapped)))
     await store.receive(\.grownUp.gate.passed) {
       $0.grownUp?.gate = nil
-      $0.grownUp?.paywall = Paywall.State.DebugSnapshot(isOnboarding: false)
+      $0.grownUp?.paywall = Paywall.State.DebugSnapshot()
     }
     await store.receive(\.grownUp.paywall.offersLoaded) {
       $0.grownUp?.paywall?.offers = .loaded(PlusOffer.samples)
@@ -256,7 +238,7 @@ struct LockedStoryTests {
     }
     store.send(.lockedLevelTapped(.frog)) {
       $0.grownUp = GrownUpPaywall.State.DebugSnapshot(
-        isOnboarding: false, gate: ParentGate.State.DebugSnapshot(seed: 1)
+        gate: ParentGate.State.DebugSnapshot(seed: 1)
       )
     }
     store.send(.grownUp(.gate(.closeTapped))) { $0.grownUp = nil }

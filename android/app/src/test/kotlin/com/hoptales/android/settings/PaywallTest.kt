@@ -34,7 +34,6 @@ class PaywallTest {
 
     private var closed = 0
     private var subscribed = 0
-    private var triedFree = 0
 
     @Before
     fun freezeMotion() {
@@ -42,15 +41,13 @@ class PaywallTest {
         Settings.Global.putFloat(app.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 0f)
     }
 
-    private fun show(plus: FakePlusSource, onboarding: Boolean = false) {
+    private fun show(plus: FakePlusSource) {
         compose.setContent {
             HopTalesTheme {
                 Paywall(
                     plus,
                     onClose = { closed += 1 },
                     onSubscribed = { subscribed += 1 },
-                    onboarding = onboarding,
-                    onTryFree = { triedFree += 1 },
                     live = false,
                 )
             }
@@ -62,7 +59,15 @@ class PaywallTest {
         show(FakePlusSource(offers = PlusOffer.SAMPLES.reversed()))
         compose.onNodeWithContentDescription("Yearly, $29.99 a year. Just $2.50 a month, the better value.").assertIsDisplayed()
         compose.onNodeWithContentDescription("Monthly, $4.99 a month. The flexible option.").assertIsDisplayed()
-        compose.onNodeWithText("Try Level 1 free").assertDoesNotExist()
+    }
+
+    @Test
+    fun thePitchListsWhatPlusUnlocks() {
+        show(FakePlusSource())
+        listOf("Unlock all reading levels", "More characters", "More settings", "More costumes").forEach {
+            compose.onNodeWithText(it).assertIsDisplayed()
+        }
+        compose.onNodeWithText("For grown-ups").assertDoesNotExist()
     }
 
     @Test
@@ -117,14 +122,6 @@ class PaywallTest {
         compose.onNodeWithText("Restore purchases").performScrollTo().performClick()
         compose.onNodeWithText("There's no Hop Tales Plus subscription to restore on this Google account.").assertExists()
         assertEquals(0, subscribed)
-    }
-
-    @Test
-    fun tryLevelOneFreeLeavesTheOnboardingPaywall() {
-        show(FakePlusSource(), onboarding = true)
-        compose.onNodeWithText("Try Level 1 free").performScrollTo().performClick()
-        assertEquals(1, triedFree)
-        assertEquals(0, closed)
     }
 
     @Test
