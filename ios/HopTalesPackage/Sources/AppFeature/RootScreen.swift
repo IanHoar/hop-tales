@@ -122,7 +122,9 @@ import SwiftUI
           state.home.apply(progressStore.load())
         case let .settings(.themePicked(theme)):
           state.theme = theme
-        case .home(.grownUp), .home(.locked), .home(.lockedLevelTapped),
+        case .home(.plusChanged(true)):
+          state.plusOffer = nil
+        case .home(.grownUp), .home(.locked), .home(.lockedLevelTapped), .home(.plusChanged),
           .home(.playOnTVTapped):
           break
         case .intro(.finished):

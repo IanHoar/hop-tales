@@ -61,6 +61,7 @@ public enum PaywallOffers: Hashable, Sendable {
         store.addTask {
           let outcome = (try? await purchases.purchase(plan)) ?? .failed
           try store.send(.purchaseCompleted(outcome))
+          if outcome == .purchased { try store.send(.subscribed) }
         }
 
       case let .purchaseCompleted(outcome):
@@ -80,7 +81,7 @@ public enum PaywallOffers: Hashable, Sendable {
         state.foundNothingToRestore = false
         store.addTask {
           let isPlus = (try? await purchases.restore()) ?? false
-          if !isPlus { try store.send(.nothingToRestore) }
+          try store.send(isPlus ? .subscribed : .nothingToRestore)
         }
 
       case .closeTapped, .subscribed, .tryLevelOneTapped:
@@ -95,13 +96,6 @@ public enum PaywallOffers: Hashable, Sendable {
         } catch is CancellationError {
         } catch {
           try store.send(.offersFailed)
-        }
-      }
-      store.addTask {
-        var wasPlus: Bool?
-        for await isPlus in purchases.isPlus() {
-          if isPlus, wasPlus == false { try store.send(.subscribed) }
-          wasPlus = isPlus
         }
       }
     }

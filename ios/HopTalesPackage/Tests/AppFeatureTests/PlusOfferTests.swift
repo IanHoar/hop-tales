@@ -105,6 +105,17 @@ struct PlusOfferTests {
     await store.dismount()
   }
 
+  @Test func plusArrivingFromTheStoreClosesTheOffer() async {
+    let store = TestStore(initialState: Self.offering()) {
+      Root()
+    }
+    store.send(.home(.plusChanged(true))) {
+      $0.home.isPlus = true
+      $0.plusOffer = nil
+    }
+    await store.dismount()
+  }
+
   @Test func closingTheGateStartsOnHome() async {
     let store = TestStore(initialState: Self.offering()) {
       Root()

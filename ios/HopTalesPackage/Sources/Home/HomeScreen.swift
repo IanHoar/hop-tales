@@ -83,6 +83,7 @@ extension EnvironmentValues {
     case journeyTapped
     case locked(LockedStory.Action)
     case lockedLevelTapped(Friend)
+    case plusChanged(Bool)
     case wardrobeTapped
     case playOnTVTapped
     case storyTapped(Story)
@@ -95,12 +96,19 @@ extension EnvironmentValues {
   public var body: some Feature {
     Update { state, action in
       switch action {
-      case .locked(.closeTapped), .locked(.grownUp(.paywall(.subscribed))):
+      case .locked(.closeTapped):
         state.locked = nil
       case .lockedLevelTapped:
         state.grownUp = GrownUpPaywall.State(seed: gateSeed.draw())
+      case .grownUp(.paywall(.subscribed)), .locked(.grownUp(.paywall(.subscribed))),
+        .plusChanged(true):
+        state.isPlus = true
+        state.grownUp = nil
+        state.locked = nil
+      case .plusChanged(false):
+        state.isPlus = false
       case .grownUp(.gate(.closeTapped)), .grownUp(.paywall(.closeTapped)),
-        .grownUp(.paywall(.tryLevelOneTapped)), .grownUp(.paywall(.subscribed)):
+        .grownUp(.paywall(.tryLevelOneTapped)):
         state.grownUp = nil
       case .bookTapped, .friendsTapped, .grownUp, .grownUpsTapped, .journeyTapped, .locked,
         .playOnTVTapped, .storyTapped, .wardrobeTapped:
@@ -119,9 +127,12 @@ extension EnvironmentValues {
         state.hour = Calendar.current.component(.hour, from: Date())
       }
       guard state.locksStories else { return }
+      let wasPlus = state.isPlus
       store.addTask {
-        for await isPlus in purchases.isPlus() {
-          try store.modify { $0.isPlus = isPlus }
+        var current = wasPlus
+        for await isPlus in purchases.isPlus() where isPlus != current {
+          current = isPlus
+          try store.send(.plusChanged(isPlus))
         }
       }
     }
@@ -374,17 +385,6 @@ public struct HomeScreen: View {
         .padding(.bottom, -40)
         .shadow(color: Paper.shadow, radius: 10, y: -4)
     }
-  }
-}
-
-struct StarBadge: View {
-  let size: CGFloat
-
-  var body: some View {
-    Star()
-      .fill(Paper.wash)
-      .overlay(Star().stroke(Paper.washRing, lineWidth: max(1, size * 0.07)))
-      .frame(width: size, height: size)
   }
 }
 

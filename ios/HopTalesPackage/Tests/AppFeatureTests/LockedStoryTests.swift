@@ -80,8 +80,7 @@ struct LockedStoryTests {
       Home()
         .dependency(PurchasesClient.fixed(true))
     }
-    for _ in 0..<100 where !store.state.isPlus { await Task.yield() }
-    store.expect { $0.isPlus = true }
+    await store.receive(\.plusChanged) { $0.isPlus = true }
     #expect(StoryLibrary.all.allSatisfy { !store.state.isLocked($0) })
     await store.dismount()
   }
@@ -156,12 +155,13 @@ struct LockedStoryTests {
     await store.receive(\.locked.grownUp.paywall.offersLoaded) {
       $0.locked?.grownUp?.paywall?.offers = .loaded(PlusOffer.samples)
     }
-    await TestExhaustivity.$current.withValue(.off) {
-      store.send(.locked(.grownUp(.paywall(.planTapped(.yearly)))))
-      await store.receive(\.locked.grownUp.paywall.purchaseCompleted)
-      await store.receive(\.locked.grownUp.paywall.subscribed) { $0.locked = nil }
-      await store.dismount()
+    store.send(.locked(.grownUp(.paywall(.planTapped(.yearly)))))
+    await store.receive(\.locked.grownUp.paywall.purchaseCompleted)
+    await store.receive(\.locked.grownUp.paywall.subscribed) {
+      $0.isPlus = true
+      $0.locked = nil
     }
+    await store.dismount()
   }
 
   @Test func tryLevelOneFreeClosesTheOnboardingPaywall() async {
@@ -278,11 +278,30 @@ extension LockedStoryTests {
     await store.receive(\.grownUp.paywall.offersLoaded) {
       $0.grownUp?.paywall?.offers = .loaded(PlusOffer.samples)
     }
-    await TestExhaustivity.$current.withValue(.off) {
-      store.send(.grownUp(.paywall(.planTapped(.yearly))))
-      await store.receive(\.grownUp.paywall.purchaseCompleted)
-      await store.receive(\.grownUp.paywall.subscribed) { $0.grownUp = nil }
-      await store.dismount()
+    store.send(.grownUp(.paywall(.planTapped(.yearly))))
+    await store.receive(\.grownUp.paywall.purchaseCompleted)
+    await store.receive(\.grownUp.paywall.subscribed) {
+      $0.grownUp = nil
+      $0.isPlus = true
     }
+    await store.dismount()
+  }
+
+  @Test func plusArrivingLaterClosesTheOpenPaywall() async {
+    let (plus, arrives) = AsyncStream.makeStream(of: Bool.self)
+    var state = Home.State()
+    state.hour = 9
+    state.grownUp = GrownUpPaywall.State(seed: 1)
+    let store = TestStore(initialState: state) {
+      Home()
+        .dependency(PurchasesClient.streaming(plus))
+    }
+    arrives.yield(true)
+    await store.receive(\.plusChanged) {
+      $0.grownUp = nil
+      $0.isPlus = true
+    }
+    arrives.finish()
+    await store.dismount()
   }
 }
