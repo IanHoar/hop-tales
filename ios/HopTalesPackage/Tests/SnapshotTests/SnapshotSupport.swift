@@ -7,6 +7,8 @@ import UIKit
 
 let snapshotRuntime = "27.0"
 let snapshotRuntimeBuild = "24A434"
+let snapshotScale: CGFloat = 2
+let snapshotTraits = UITraitCollection(displayScale: snapshotScale)
 
 func snapshotDirectory(file: StaticString = #filePath) -> String {
   let file = URL(fileURLWithPath: "\(file)")
@@ -81,7 +83,10 @@ func expectSnapshot(
     of: view.environment(\.colorScheme, scheme).environment(\.freezesMotion, true),
     as: .image(
       layout: .sizeThatFits,
-      traits: UITraitCollection(userInterfaceStyle: scheme == .dark ? .dark : .light)
+      traits: UITraitCollection {
+        $0.displayScale = snapshotScale
+        $0.userInterfaceStyle = scheme == .dark ? .dark : .light
+      }
     ),
     named: "\(scheme)",
     fileID: fileID,
