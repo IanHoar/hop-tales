@@ -123,7 +123,7 @@ fun OnboardingScreen(key: String, onFinished: (offersPlus: Boolean) -> Unit = {}
     }
     val state by model.state.collectAsStateWithLifecycle()
     val request = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission(), model::microphoneAnswered)
-    BackHandler(enabled = !state.isFirstStep, onBack = model::backTapped)
+    BackHandler(enabled = !state.isWelcoming, onBack = model::backTapped)
     OnboardingContent(
         state,
         OnboardingActions(
@@ -188,7 +188,7 @@ fun OnboardingContent(state: OnboardingState, actions: OnboardingActions) {
                         Header(state, actions.backTapped)
                         Spacer(Modifier.height(16.dp))
                         AnimatedContent(
-                            targetState = state.step,
+                            targetState = state.step.takeUnless { state.isWelcoming },
                             transitionSpec = {
                                 (
                                     slideInHorizontally(tween(STEP_MILLIS, easing = EaseOut)) { slide } +
@@ -199,7 +199,7 @@ fun OnboardingContent(state: OnboardingState, actions: OnboardingActions) {
                             },
                             modifier = Modifier.verticalScroll(rememberScrollState()),
                             label = "step",
-                        ) { step -> StepPage(state.copy(step = step), actions) }
+                        ) { step -> if (step == null) WelcomePage() else StepPage(state.copy(step = step), actions) }
                     }
                     Spacer(Modifier.height(16.dp))
                     PaperButton(state.primaryTitle, enabled = state.primaryEnabled, onClick = actions.primaryTapped)
@@ -226,8 +226,8 @@ private fun StandingHare(stage: Rect) {
 private fun Header(state: OnboardingState, onBack: () -> Unit) {
     val paper = LocalPaper.current
     Box(Modifier.fillMaxWidth().height(24.dp), contentAlignment = Alignment.Center) {
-        ProgressPills(current = state.stepNumber - 1, count = state.stepCount)
-        if (!state.isFirstStep) {
+        if (!state.isWelcoming) {
+            ProgressPills(current = state.stepNumber - 1, count = state.stepCount)
             Box(
                 Modifier
                     .align(Alignment.CenterStart)
@@ -279,6 +279,49 @@ private val OnboardingStep.detail: String
             "Sound buttons put a dot under each sound and a dash under letters that make one sound together, like sh. " +
                 "Many schools teach blending this way. You can change this later."
     }
+
+private const val WELCOME_SUMMARY =
+    "Your child reads each word out loud, and the hare hops along the path to the next one. " +
+        "Hop Tales listens on this device. Nothing is recorded or sent anywhere."
+
+private val welcomeSteps = listOf(
+    "Back up to your Google account, if you like",
+    "Your reader's name",
+    "Let Hop Tales listen",
+    "How reading grows",
+    "Dots and dashes under the sounds",
+)
+
+@Composable
+private fun WelcomePage() {
+    val paper = LocalPaper.current
+    val type = LocalTypography.current
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Text("BEFORE YOU START", style = type.caps(13.sp).copy(letterSpacing = 1.sp), color = paper.muted)
+        Text("Welcome to Hop Tales", style = type.display(28.sp), color = paper.ink, modifier = Modifier.semantics { heading() })
+        Text(WELCOME_SUMMARY, style = type.ui(16.sp, FontWeight.Medium), color = paper.ink.copy(alpha = 0.85f))
+        Column(Modifier.padding(top = 4.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("Setting up takes about a minute:", style = type.ui(16.sp, FontWeight.SemiBold), color = paper.ink)
+            welcomeSteps.forEachIndexed { index, step -> WelcomeStep(index + 1, step) }
+        }
+    }
+}
+
+@Composable
+private fun WelcomeStep(number: Int, text: String) {
+    val paper = LocalPaper.current
+    val type = LocalTypography.current
+    Row(
+        Modifier.clearAndSetSemantics { contentDescription = "$number. $text" },
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(Modifier.size(26.dp).background(paper.rim.copy(alpha = 0.7f), CircleShape), contentAlignment = Alignment.Center) {
+            Text("$number", style = type.ui(14.sp, FontWeight.Bold), color = paper.ink)
+        }
+        Text(text, style = type.ui(16.sp, FontWeight.Medium), color = paper.ink.copy(alpha = 0.85f))
+    }
+}
 
 @Composable
 private fun StepPage(state: OnboardingState, actions: OnboardingActions) {

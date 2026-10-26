@@ -22,7 +22,7 @@ class OnboardingViewModel(
     private val locksStories: Boolean = BuildConfig.PLUS_LOCKS_STORIES,
 ) : ViewModel() {
     private val onboarding = Onboarding(
-        app.profileStore.loadDraft()?.let(OnboardingState::resuming) ?: OnboardingState(),
+        app.profileStore.loadDraft()?.let(OnboardingState::resuming) ?: OnboardingState(isWelcoming = true),
         Locale.getDefault().country,
     )
     private val mutableState = MutableStateFlow(onboarding.state)
@@ -55,7 +55,7 @@ class OnboardingViewModel(
     fun primaryTapped(): OnboardingNext {
         val leaving = onboarding.state
         val next = onboarding.primaryTapped()
-        if (leaving.step == OnboardingStep.BACKUP && next == OnboardingNext.Advanced) {
+        if (!leaving.isWelcoming && leaving.step == OnboardingStep.BACKUP && next == OnboardingNext.Advanced) {
             app.backupChoice.isOn = leaving.backup == true
         }
         if (next is OnboardingNext.Finished) {

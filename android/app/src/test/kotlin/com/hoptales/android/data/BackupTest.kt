@@ -65,6 +65,7 @@ class BackupTest {
     @Test
     fun choosingYesInOnboardingTurnsBackupOn() {
         val model = OnboardingViewModel(app, hasMicrophone = true)
+        model.primaryTapped()
         assertEquals(OnboardingStep.BACKUP, model.state.value.step)
         model.backupPicked(true)
         assertFalse(app.backupChoice.isOn)
@@ -75,6 +76,7 @@ class BackupTest {
     @Test
     fun choosingNotNowLeavesBackupOff() {
         val model = OnboardingViewModel(app, hasMicrophone = true)
+        model.primaryTapped()
         model.backupPicked(false)
         model.primaryTapped()
         assertFalse(app.backupChoice.isOn)

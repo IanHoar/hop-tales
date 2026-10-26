@@ -28,6 +28,7 @@ data class OnboardingState(
     val accent: Profile.Accent? = null,
     val soundButtons: Boolean? = null,
     val backup: Boolean? = null,
+    val isWelcoming: Boolean = false,
 ) {
     val stepNumber: Int get() = step.number
     val stepCount: Int get() = OnboardingStep.entries.size
@@ -37,12 +38,13 @@ data class OnboardingState(
 
     val primaryTitle: String
         get() = when {
+            isWelcoming -> "Get started"
             needsMicrophone -> "Allow microphone"
             isLastStep -> "Start reading"
             else -> "Continue"
         }
 
-    val primaryEnabled: Boolean get() = needsMicrophone || canContinue(step)
+    val primaryEnabled: Boolean get() = isWelcoming || needsMicrophone || canContinue(step)
 
     val isComplete: Boolean
         get() = isLastStep && OnboardingStep.entries.filter { it != OnboardingStep.LISTENING }.all(::canContinue)
@@ -107,12 +109,17 @@ class Onboarding(var state: OnboardingState = OnboardingState(), private val reg
     }
 
     fun backTapped(): Boolean {
-        val previous = OnboardingStep.numbered(state.step.number - 1) ?: return false
-        state = state.copy(step = previous)
+        if (state.isWelcoming) return false
+        val previous = OnboardingStep.numbered(state.step.number - 1)
+        state = if (previous == null) state.copy(isWelcoming = true) else state.copy(step = previous)
         return true
     }
 
     fun primaryTapped(): OnboardingNext {
+        if (state.isWelcoming) {
+            state = state.copy(isWelcoming = false)
+            return OnboardingNext.Advanced
+        }
         if (state.needsMicrophone) return OnboardingNext.RequestMicrophone
         if (!state.primaryEnabled) return OnboardingNext.Stay
         val next = OnboardingStep.numbered(state.step.number + 1) ?: return OnboardingNext.Finished(state.profile(region))
