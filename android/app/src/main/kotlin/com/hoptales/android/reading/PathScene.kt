@@ -90,6 +90,9 @@ data class PathGeometry(
         const val WORD_APEX = 30f
         const val SENTENCE_APEX = 60f
         const val OVERSHOOT = 200f
+        const val LAST_WORD_BEFORE_SIGN = 90f
+        const val LAST_WORD_ON_BOARD = 49.5f
+        const val LAST_WORD_MARGIN = 16f
         const val RISE = 0.58f
         const val PAN_MILLIS = 620
         const val SIDE_SCALE = 0.7f
@@ -157,6 +160,20 @@ class WordPath(
         stop(sentence, word)?.let { return it.centre - geometry.path(PathGeometry.FOCUS_X) }
         val last = stops.lastOrNull() ?: return 0f
         return last.centre + geometry.path(PathGeometry.OVERSHOOT) - geometry.path(PathGeometry.FOCUS_X)
+    }
+
+    fun lastWordLift(stop: Stop, cameraX: Float): Offset {
+        val last = stops.lastOrNull()
+        if (last == null || last.sentence != stop.sentence || last.word != stop.word) return Offset.Zero
+        val reading = camera(last.sentence, last.word)
+        val ended = camera(last.sentence + 1, 0)
+        if (ended <= reading) return Offset.Zero
+        val progress = ((cameraX - reading) / (ended - reading)).coerceIn(0f, 1f)
+        val endSign = last.centre + geometry.path(PathGeometry.END_SIGN)
+        val settled = endSign - ended - geometry.path(PathGeometry.LAST_WORD_BEFORE_SIGN) - last.width / 2
+        val x = maxOf(settled, geometry.path(PathGeometry.LAST_WORD_MARGIN) + last.width / 2)
+        val y = signFeetY - geometry.path(PathGeometry.SIGN_HEIGHT) + geometry.path(PathGeometry.LAST_WORD_ON_BOARD)
+        return Offset((x - (last.centre - ended)) * progress, (y - wordCentreY(last)) * progress)
     }
 
     override val width: Float get() = geometry.width
@@ -240,12 +257,13 @@ fun DrawScope.drawWords(path: WordPath, cameraX: Float, marks: WordMarks?, isBig
     val overhang = path.geometry.path(PathGeometry.WASH_OVERHANG)
     val blend = if (path.world.chalk) BlendMode.Screen else BlendMode.Multiply
     for (stop in path.stops) {
-        val x = stop.centre - cameraX
+        val lift = path.lastWordLift(stop, cameraX)
+        val x = stop.centre - cameraX + lift.x
         val full = stop.layout.size.width.toFloat()
         if (x + full < 0 || x - full > size.width) continue
         val look = look(stop)
         val height = stop.layout.size.height.toFloat()
-        val word = Rect(Offset(x - stop.width / 2, path.wordCentreY(stop) - height / 2), Size(stop.width, height))
+        val word = Rect(Offset(x - stop.width / 2, path.wordCentreY(stop) + lift.y - height / 2), Size(stop.width, height))
         val frame = Rect(Offset(word.left - stop.marksLeft, word.top), Size(full, height))
         val colour = if (path.world.chalk) look.chalk else look.ink
         lying(word, look.scale) {
