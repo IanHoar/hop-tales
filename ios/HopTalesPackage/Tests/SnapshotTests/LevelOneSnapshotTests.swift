@@ -16,7 +16,8 @@ struct LevelOneSnapshotTests {
       as: .image(
         layout: .device(config: ReadingScreenSnapshotTests.device(
           ReadingScreenSnapshotTests.smallPhone, scheme
-        ))
+        )),
+        traits: snapshotTraits
       ),
       named: "\(scheme)"
     )

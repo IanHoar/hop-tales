@@ -18,7 +18,8 @@ struct PathSnapshotTests {
       as: .image(
         layout: .device(config: ReadingScreenSnapshotTests.device(
           ReadingScreenSnapshotTests.smallPhone, .light
-        ))
+        )),
+        traits: snapshotTraits
       ),
       named: "\(moment)"
     )
@@ -35,7 +36,8 @@ struct PathSnapshotTests {
       as: .image(
         layout: .device(config: ReadingScreenSnapshotTests.device(
           ReadingScreenSnapshotTests.smallPhone, .light
-        ))
+        )),
+        traits: snapshotTraits
       ),
       named: "sound-buttons-\(id)"
     )
@@ -49,7 +51,8 @@ struct PathSnapshotTests {
       as: .image(
         layout: .device(config: ReadingScreenSnapshotTests.device(
           ReadingScreenSnapshotTests.smallPhone, .light
-        ))
+        )),
+        traits: snapshotTraits
       ),
       named: "\(friend)"
     )

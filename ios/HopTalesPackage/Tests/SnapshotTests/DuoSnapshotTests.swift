@@ -79,7 +79,10 @@ struct DuoSnapshotTests {
         .environment(\.colorScheme, scheme)
         .environment(\.horizontalSizeClass, fold.horizontalSizeClass)
         .environment(\.verticalSizeClass, .regular),
-      as: .image(layout: .device(config: config)),
+      as: .image(
+        layout: .device(config: config),
+        traits: snapshotTraits
+      ),
       named: "\(name)-\(fold.rawValue)-\(scheme)",
       testName: testName
     )

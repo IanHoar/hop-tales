@@ -36,6 +36,7 @@ struct ReadingScreenSnapshotTests {
   static func device(_ config: ViewImageConfig, _ scheme: ColorScheme) -> ViewImageConfig {
     var config = config
     config.traits = config.traits.modifyingTraits {
+      $0.displayScale = snapshotScale
       $0.userInterfaceStyle = scheme == .dark ? .dark : .light
     }
     return config
@@ -47,7 +48,10 @@ struct ReadingScreenSnapshotTests {
       of: ReadingScreenPreview()
         .environment(\.freezesMotion, true)
         .environment(\.colorScheme, scheme),
-      as: .image(layout: .device(config: Self.device(Self.largePhone, scheme))),
+      as: .image(
+        layout: .device(config: Self.device(Self.largePhone, scheme)),
+        traits: snapshotTraits
+      ),
       named: "large-\(scheme)"
     )
   }
@@ -58,7 +62,10 @@ struct ReadingScreenSnapshotTests {
       of: ReadingScreenPreview()
         .environment(\.freezesMotion, true)
         .environment(\.colorScheme, scheme),
-      as: .image(layout: .device(config: Self.device(Self.smallPhone, scheme))),
+      as: .image(
+        layout: .device(config: Self.device(Self.smallPhone, scheme)),
+        traits: snapshotTraits
+      ),
       named: "small-\(scheme)"
     )
   }
@@ -71,7 +78,10 @@ struct ReadingScreenSnapshotTests {
         .environment(\.colorScheme, scheme)
         .environment(\.horizontalSizeClass, .regular)
         .environment(\.verticalSizeClass, .regular),
-      as: .image(layout: .device(config: Self.device(Self.padLandscape, scheme))),
+      as: .image(
+        layout: .device(config: Self.device(Self.padLandscape, scheme)),
+        traits: snapshotTraits
+      ),
       named: "pad-landscape-\(scheme)"
     )
   }
@@ -84,7 +94,10 @@ struct ReadingScreenSnapshotTests {
         .environment(\.colorScheme, scheme)
         .environment(\.horizontalSizeClass, .regular)
         .environment(\.verticalSizeClass, .regular),
-      as: .image(layout: .device(config: Self.device(Self.padPortrait, scheme))),
+      as: .image(
+        layout: .device(config: Self.device(Self.padPortrait, scheme)),
+        traits: snapshotTraits
+      ),
       named: "pad-portrait-\(scheme)"
     )
   }
