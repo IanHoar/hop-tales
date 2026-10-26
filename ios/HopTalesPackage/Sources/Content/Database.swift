@@ -160,8 +160,8 @@ public enum HopTalesDatabase {
       INSERT OR REPLACE INTO "profiles"
         ("id", "childName", "startingFriend", "accent", "voiceID", "theme", "soundButtons")
       VALUES (
-        \(record.id), \(record.childName), \(record.startingFriend), \(record.accent),
-        \(record.voiceID), \(record.theme), \(record.soundButtons)
+        \(bind: record.id), \(bind: record.childName), \(record.startingFriend), \(record.accent),
+        \(record.voiceID.queryBinding), \(record.theme), \(record.soundButtons)
       )
       """
     )
