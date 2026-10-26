@@ -85,7 +85,7 @@ schemes:
         HopTales: all
     run:
       config: Debug
-      storeKitConfiguration: HopTales.storekit
+      storeKitConfiguration: ios/HopTales.storekit
     test:
       config: Debug
       testPlans:
