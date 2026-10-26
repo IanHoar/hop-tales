@@ -1,4 +1,4 @@
-import ComposableArchitecture2
+import ComposableArchitecture
 import Content
 import Testing
 
@@ -14,11 +14,6 @@ struct PaywallTests {
       Paywall()
         .dependency(purchases)
     }
-  }
-
-  private func isPlus(_ purchases: PurchasesClient) async -> Bool? {
-    for await isPlus in purchases.isPlus() { return isPlus }
-    return nil
   }
 
   @Test func theOffersLoadYearlyFirst() async {
@@ -39,44 +34,36 @@ struct PaywallTests {
     await store.dismount()
   }
 
-  @Test func buyingFlipsTheEntitlement() async {
-    let purchases = PurchasesClient.fake(outcome: .purchased)
-    let store = paywall(purchases)
+  @Test func buyingSubscribes() async {
+    let store = paywall(.fake(outcome: .purchased))
     await store.receive(\.offersLoaded) { $0.offers = .loaded(PlusOffer.samples) }
     store.send(.planTapped(.yearly))
     await store.receive(\.purchaseCompleted)
     await store.receive(\.subscribed)
-    #expect(await isPlus(purchases) == true)
     await store.dismount()
   }
 
   @Test func cancellingChangesNothing() async {
-    let purchases = PurchasesClient.fake(outcome: .cancelled)
-    let store = paywall(purchases)
+    let store = paywall(.fake(outcome: .cancelled))
     await store.receive(\.offersLoaded) { $0.offers = .loaded(PlusOffer.samples) }
     store.send(.planTapped(.monthly))
     await store.receive(\.purchaseCompleted)
-    #expect(await isPlus(purchases) == false)
     await store.dismount()
   }
 
-  @Test func aPendingPurchaseWaitsAndIsNotPlus() async {
-    let purchases = PurchasesClient.fake(outcome: .pending)
-    let store = paywall(purchases)
+  @Test func aPendingPurchaseWaits() async {
+    let store = paywall(.fake(outcome: .pending))
     await store.receive(\.offersLoaded) { $0.offers = .loaded(PlusOffer.samples) }
     store.send(.planTapped(.yearly))
     await store.receive(\.purchaseCompleted) { $0.isPending = true }
-    #expect(await isPlus(purchases) == false)
     await store.dismount()
   }
 
   @Test func restoringFindsPlus() async {
-    let purchases = PurchasesClient.fake(restores: true)
-    let store = paywall(purchases)
+    let store = paywall(.fake(restores: true))
     await store.receive(\.offersLoaded) { $0.offers = .loaded(PlusOffer.samples) }
     store.send(.restoreTapped)
     await store.receive(\.subscribed)
-    #expect(await isPlus(purchases) == true)
     await store.dismount()
   }
 

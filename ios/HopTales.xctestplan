@@ -9,6 +9,7 @@
     }
   ],
   "defaultOptions" : {
+    "codeCoverage" : false,
     "defaultTestExecutionTimeAllowance" : 60,
     "maximumTestExecutionTimeAllowance" : 60,
     "testRepetitionMode" : "none",

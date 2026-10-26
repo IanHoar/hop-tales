@@ -1,5 +1,5 @@
 {
-  "originHash" : "87ac09062f11edc0506b186f417d74642841d3fb13c87064a739a2169956c03d",
+  "originHash" : "8b934a5970cc7f07cc480b59e60eda827f889f78423b61c2f00e31807f024f5c",
   "pins" : [
     {
       "identity" : "combine-schedulers",
@@ -87,8 +87,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-dependencies",
       "state" : {
-        "revision" : "b476cc5761057d8d857de063fe7ac8daecf5c06b",
-        "version" : "1.17.1"
+        "branch" : "clocks-2",
+        "revision" : "50c6b3a2d35a512802c6717a8781f48dd039ebda"
       }
     },
     {
@@ -169,7 +169,7 @@
       "location" : "https://github.com/pointfreeco/TCA26",
       "state" : {
         "branch" : "main",
-        "revision" : "8e5651088215ac75879a31866a1ce5e110a886c8"
+        "revision" : "5059cf3ea4ddcd3f3102f3a96b46a569d6ac9335"
       }
     }
   ],

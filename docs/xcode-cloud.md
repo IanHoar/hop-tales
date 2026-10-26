@@ -81,7 +81,7 @@ requests** — there is no separate step for it, and no webhook to configure.
 
 ### 3. Add the token for the private dependency
 
-`ComposableArchitecture2` comes from the private `pointfreeco/TCA26`. Xcode Cloud can only clone
+`ComposableArchitecture` comes from the private `pointfreeco/TCA26`. Xcode Cloud can only clone
 repositories its GitHub App is installed on, and we cannot install it on someone else's repository,
 so CI authenticates as you instead.
 
