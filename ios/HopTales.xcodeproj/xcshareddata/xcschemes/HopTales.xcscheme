@@ -72,7 +72,7 @@
       <CommandLineArguments>
       </CommandLineArguments>
       <StoreKitConfigurationFileReference
-         identifier = "../../HopTales.storekit">
+         identifier = "../../ios/HopTales.storekit">
       </StoreKitConfigurationFileReference>
    </LaunchAction>
    <ProfileAction
