@@ -92,9 +92,12 @@ import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.PaperButton
 import com.hoptales.android.design.PaperChoice
+import com.hoptales.android.design.PaperQuietButton
 import com.hoptales.android.design.ProgressPills
 import com.hoptales.android.design.paperField
 import com.hoptales.android.design.pressable
+import com.hoptales.android.speech.SpeechDownloadProgress
+import com.hoptales.android.speech.SpeechModel
 import com.hoptales.android.world.FriendSticker
 import com.hoptales.android.world.IdleFriend
 import com.hoptales.android.world.MeadowBackdrop
@@ -111,6 +114,7 @@ class OnboardingActions(
     val backupPicked: (Boolean) -> Unit = {},
     val backTapped: () -> Unit = {},
     val primaryTapped: () -> Unit = {},
+    val downloadSpeech: () -> Unit = {},
 )
 
 @Composable
@@ -122,15 +126,20 @@ fun OnboardingScreen(key: String, onFinished: () -> Unit = {}) {
         OnboardingViewModel(app, granted)
     }
     val state by model.state.collectAsStateWithLifecycle()
+    val speech by model.speech.collectAsStateWithLifecycle()
+    val speechProgress by model.speechProgress.collectAsStateWithLifecycle()
     val request = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission(), model::microphoneAnswered)
     BackHandler(enabled = !state.isWelcoming, onBack = model::backTapped)
     OnboardingContent(
         state,
-        OnboardingActions(
+        speech = speech,
+        speechProgress = speechProgress,
+        actions = OnboardingActions(
             nameChanged = model::nameChanged,
             soundButtonsPicked = model::soundButtonsPicked,
             backupPicked = model::backupPicked,
             backTapped = model::backTapped,
+            downloadSpeech = model::downloadSpeech,
             primaryTapped = {
                 when (model.primaryTapped()) {
                     OnboardingNext.RequestMicrophone -> request.launch(Manifest.permission.RECORD_AUDIO)
@@ -146,7 +155,7 @@ private const val STEP_MILLIS = 350
 private val STEP_SLIDE = 18.dp
 
 @Composable
-fun OnboardingContent(state: OnboardingState, actions: OnboardingActions) {
+fun OnboardingContent(state: OnboardingState, actions: OnboardingActions, speech: SpeechModel? = null, speechProgress: Int? = null) {
     val paper = LocalPaper.current
     val statusBar = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -199,7 +208,15 @@ fun OnboardingContent(state: OnboardingState, actions: OnboardingActions) {
                             },
                             modifier = Modifier.verticalScroll(rememberScrollState()),
                             label = "step",
-                        ) { step -> if (step == null) WelcomePage() else StepPage(state.copy(step = step), actions) }
+                        ) { step ->
+                            if (step ==
+                                null
+                            ) {
+                                WelcomePage()
+                            } else {
+                                StepPage(state.copy(step = step), actions, speech, speechProgress)
+                            }
+                        }
                     }
                     Spacer(Modifier.height(16.dp))
                     PaperButton(state.primaryTitle, enabled = state.primaryEnabled, onClick = actions.primaryTapped)
@@ -302,7 +319,7 @@ private fun WelcomePage() {
 }
 
 @Composable
-private fun StepPage(state: OnboardingState, actions: OnboardingActions) {
+private fun StepPage(state: OnboardingState, actions: OnboardingActions, speech: SpeechModel?, speechProgress: Int?) {
     val paper = LocalPaper.current
     val type = LocalTypography.current
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -322,7 +339,7 @@ private fun StepPage(state: OnboardingState, actions: OnboardingActions) {
                     if (state.primaryEnabled) actions.primaryTapped()
                 }
 
-                OnboardingStep.LISTENING -> MicrophoneNote(state.authorization)
+                OnboardingStep.LISTENING -> MicrophoneNote(state.authorization, speech, speechProgress, actions.downloadSpeech)
 
                 OnboardingStep.AHEAD -> ReadingAhead(state.childName)
 
@@ -375,7 +392,7 @@ fun NameField(name: String, onChange: (String) -> Unit, onSubmit: () -> Unit) {
 }
 
 @Composable
-private fun MicrophoneNote(authorization: Authorization?) {
+private fun MicrophoneNote(authorization: Authorization?, speech: SpeechModel?, speechProgress: Int?, download: () -> Unit) {
     val paper = LocalPaper.current
     val type = LocalTypography.current
     when (authorization) {
@@ -385,12 +402,33 @@ private fun MicrophoneNote(authorization: Authorization?) {
             color = paper.muted,
         )
 
-        Authorization.AUTHORIZED -> Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(22.dp).background(paper.sage, CircleShape), contentAlignment = Alignment.Center) {
-                Icon(Glyphs.check, contentDescription = null, tint = paper.onRed, modifier = Modifier.size(15.dp))
+        Authorization.AUTHORIZED -> when (speech) {
+            SpeechModel.MISSING -> Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Allowed("Microphone allowed.")
+                Text(
+                    "One more thing: to listen without the internet, this phone needs Google's English speech " +
+                        "download. It's free and takes a minute or two.",
+                    style = type.ui(15.sp, FontWeight.Medium),
+                    color = paper.ink,
+                )
+                PaperQuietButton("Get English speech", onClick = download)
             }
-            Spacer(Modifier.width(8.dp))
-            Text("Microphone allowed.", style = type.ui(16.sp), color = paper.sageDeep)
+
+            SpeechModel.DOWNLOADING -> Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Allowed("Microphone allowed.")
+                SpeechDownloadProgress(speechProgress)
+                Text(
+                    "You can keep going. It finishes on its own.",
+                    style = type.ui(15.sp, FontWeight.Medium),
+                    color = paper.ink,
+                )
+            }
+
+            SpeechModel.UNAVAILABLE -> Note("This device can't recognise speech on its own, so stories use tap to hear instead.")
+
+            SpeechModel.READY -> Allowed("Microphone allowed. Ready to listen.")
+
+            null -> Allowed("Microphone allowed.")
         }
 
         Authorization.DENIED -> Note(
@@ -399,6 +437,18 @@ private fun MicrophoneNote(authorization: Authorization?) {
         )
 
         Authorization.UNSUPPORTED -> Note("This device can't recognise speech on its own, so stories use tap to hear instead.")
+    }
+}
+
+@Composable
+private fun Allowed(text: String) {
+    val paper = LocalPaper.current
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(22.dp).background(paper.sage, CircleShape), contentAlignment = Alignment.Center) {
+            Icon(Glyphs.check, contentDescription = null, tint = paper.onRed, modifier = Modifier.size(15.dp))
+        }
+        Spacer(Modifier.width(8.dp))
+        Text(text, style = LocalTypography.current.ui(16.sp), color = paper.sageDeep)
     }
 }
 

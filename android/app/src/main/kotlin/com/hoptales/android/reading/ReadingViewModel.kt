@@ -7,6 +7,7 @@ import com.hoptales.android.BuildConfig
 import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.speech.SpeechEvent
 import com.hoptales.android.speech.SpeechLogEntry
+import com.hoptales.android.speech.SpeechModel
 import com.hoptales.content.Friend
 import com.hoptales.content.Profile
 import com.hoptales.content.Story
@@ -58,6 +59,9 @@ class ReadingViewModel(
         .stateIn(viewModelScope, SharingStarted.Eagerly, app.progressStore.load().outfit(story.friend, app.wardrobe).firstOrNull()?.id)
     private val mutableState = MutableStateFlow(reading.state)
     private val mutableListening = MutableStateFlow<Listening>(Listening.Waiting)
+    private val mutableSpeech = MutableStateFlow<SpeechModel?>(null)
+    private val mutableSpeechProgress = MutableStateFlow<Int?>(null)
+    private var downloadJob: Job? = null
     private var listenJob: Job? = null
     private var supportJob: Job? = null
     private var listeningLocale: Locale? = null
@@ -71,6 +75,8 @@ class ReadingViewModel(
     val soundButtons: Boolean get() = profile.soundButtons
     val state: StateFlow<ReadingState> = mutableState.asStateFlow()
     val listening: StateFlow<Listening> = mutableListening.asStateFlow()
+    val speech: StateFlow<SpeechModel?> = mutableSpeech.asStateFlow()
+    val speechProgress: StateFlow<Int?> = mutableSpeechProgress.asStateFlow()
 
     fun start(permission: Boolean) {
         hasPermission = permission
@@ -89,6 +95,7 @@ class ReadingViewModel(
                     }
                     if (!isStarted) return@launch
                     if (listeningLocale == null) {
+                        if (downloadJob?.isActive != true) mutableSpeech.value = app.listener.model(locale)
                         mutableListening.value = Listening.Unsupported
                         return@launch
                     }
@@ -97,6 +104,18 @@ class ReadingViewModel(
                     watchSilence()
                 }
             }
+        }
+    }
+
+    fun downloadSpeech() {
+        mutableSpeech.value = SpeechModel.DOWNLOADING
+        mutableSpeechProgress.value = null
+        downloadJob?.cancel()
+        downloadJob = viewModelScope.launch {
+            if (!app.listener.downloadUntilReady(locale) { mutableSpeechProgress.value = it }) return@launch
+            mutableSpeech.value = SpeechModel.READY
+            hasCheckedSupport = false
+            if (isStarted) start(hasPermission)
         }
     }
 

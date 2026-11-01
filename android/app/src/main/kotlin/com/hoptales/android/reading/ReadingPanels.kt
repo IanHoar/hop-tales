@@ -53,6 +53,8 @@ import com.hoptales.android.design.Press
 import com.hoptales.android.design.headingGroup
 import com.hoptales.android.design.paperChip
 import com.hoptales.android.design.pressable
+import com.hoptales.android.speech.SpeechDownloadProgress
+import com.hoptales.android.speech.SpeechModel
 import kotlin.math.roundToInt
 
 @Composable
@@ -99,8 +101,39 @@ fun AskToListen(onAllow: () -> Unit) {
 }
 
 @Composable
-fun ListeningUnavailable(listening: Listening, onBack: () -> Unit) {
+fun ListeningUnavailable(
+    listening: Listening,
+    onBack: () -> Unit,
+    speech: SpeechModel? = null,
+    speechProgress: Int? = null,
+    onDownload: () -> Unit = {},
+) {
     val denied = listening == Listening.Denied
+    if (!denied && speech == SpeechModel.MISSING) {
+        PaperNotice(
+            icon = Glyphs.mic,
+            title = "One more thing to set up",
+            body = "A grown-up can download English speech so Hop Tales can listen right here on this phone. " +
+                "It's free and takes a minute or two.",
+            action = "Get English speech",
+            onAction = onDownload,
+            secondary = "Back to stories",
+            onSecondary = onBack,
+        )
+        return
+    }
+    if (!denied && speech == SpeechModel.DOWNLOADING) {
+        PaperNotice(
+            icon = Glyphs.mic,
+            title = "Getting ready to listen",
+            body = "Reading starts on its own as soon as English speech is ready.",
+            action = "Back to stories",
+            actionIcon = Glyphs.house,
+            onAction = onBack,
+            progress = { SpeechDownloadProgress(speechProgress, alignment = Alignment.CenterHorizontally) },
+        )
+        return
+    }
     PaperNotice(
         icon = if (denied) Glyphs.micSlash else Glyphs.phoneSlash,
         title = if (denied) "The microphone is off" else "This device can’t listen yet",
@@ -116,7 +149,17 @@ fun ListeningUnavailable(listening: Listening, onBack: () -> Unit) {
 }
 
 @Composable
-private fun PaperNotice(icon: ImageVector, title: String, body: String, action: String, actionIcon: ImageVector, onAction: () -> Unit) {
+private fun PaperNotice(
+    icon: ImageVector,
+    title: String,
+    body: String,
+    action: String,
+    onAction: () -> Unit,
+    actionIcon: ImageVector? = null,
+    secondary: String? = null,
+    onSecondary: () -> Unit = {},
+    progress: (@Composable () -> Unit)? = null,
+) {
     val paper = LocalPaper.current
     val type = LocalTypography.current
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -156,7 +199,9 @@ private fun PaperNotice(icon: ImageVector, title: String, body: String, action: 
                 color = paper.ink.copy(alpha = 0.85f),
                 textAlign = TextAlign.Center,
             )
+            progress?.invoke()
             PaperButton(action, Modifier.padding(top = 6.dp), icon = actionIcon, onClick = onAction)
+            if (secondary != null) PaperQuietButton(secondary, icon = Glyphs.house, onClick = onSecondary)
         }
     }
 }

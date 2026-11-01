@@ -121,6 +121,8 @@ fun ReadingScreen(
     val model: ReadingViewModel = viewModel(owner) { ReadingViewModel(story, app, locksStories) }
     val state by model.state.collectAsStateWithLifecycle()
     val listening by model.listening.collectAsStateWithLifecycle()
+    val speech by model.speech.collectAsStateWithLifecycle()
+    val speechProgress by model.speechProgress.collectAsStateWithLifecycle()
     val look by model.look.collectAsStateWithLifecycle()
     var permission by remember {
         mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
@@ -176,7 +178,15 @@ fun ReadingScreen(
         }
         when (listening) {
             Listening.NeedsPermission -> AskToListen { request.launch(Manifest.permission.RECORD_AUDIO) }
-            Listening.Denied, Listening.Unsupported -> ListeningUnavailable(listening, onBack = onDone)
+
+            Listening.Denied, Listening.Unsupported -> ListeningUnavailable(
+                listening,
+                onBack = onDone,
+                speech = speech,
+                speechProgress = speechProgress,
+                onDownload = model::downloadSpeech,
+            )
+
             else -> Unit
         }
         AnimatedVisibility(state.isFinished, enter = finishedFade, exit = finishedFadeOut) {
