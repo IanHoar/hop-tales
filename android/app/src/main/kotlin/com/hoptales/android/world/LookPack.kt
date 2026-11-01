@@ -32,8 +32,8 @@ class LookPack(private val delivery: PackDelivery) {
     val sheets: StateFlow<File?> = folder.asStateFlow()
 
     fun start() {
-        delivery.listen { pack, status -> if (pack == NAME) heard(status) }
-        if (!located()) delivery.status(NAME, ::heard)
+        attempt { delivery.listen { pack, status -> if (pack == NAME) heard(status) } }
+        if (!located()) attempt { delivery.status(NAME, ::heard) }
     }
 
     private fun heard(status: PackStatus) {
@@ -42,7 +42,7 @@ class LookPack(private val delivery: PackDelivery) {
 
             PackStatus.MISSING -> if (!fetched && !located()) {
                 fetched = true
-                delivery.fetch(NAME)
+                attempt { delivery.fetch(NAME) }
             }
 
             PackStatus.ON_THE_WAY, PackStatus.UNAVAILABLE -> Unit
@@ -50,10 +50,12 @@ class LookPack(private val delivery: PackDelivery) {
     }
 
     private fun located(): Boolean {
-        val path = delivery.assetsPath(NAME) ?: return false
+        val path = attempt { delivery.assetsPath(NAME) } ?: return false
         folder.value = File(path)
         return true
     }
+
+    private inline fun <T> attempt(call: () -> T): T? = runCatching(call).getOrNull()
 
     companion object {
         const val NAME = "looks"
@@ -73,14 +75,14 @@ class LookPack(private val delivery: PackDelivery) {
 }
 
 class PlayPackDelivery(context: Context) : PackDelivery {
-    private val manager = AssetPackManagerFactory.getInstance(context)
+    private val manager by lazy { AssetPackManagerFactory.getInstance(context.applicationContext) }
 
-    override fun assetsPath(pack: String): String? = runCatching { manager.getPackLocation(pack)?.assetsPath() }.getOrNull()
+    override fun assetsPath(pack: String): String? = manager.getPackLocation(pack)?.assetsPath()
 
     override fun status(pack: String, onStatus: (PackStatus) -> Unit) {
-        manager.getPackStates(listOf(pack)).addOnSuccessListener { states ->
-            states.packStates()[pack]?.let { onStatus(packStatus(it.status())) }
-        }
+        manager.getPackStates(listOf(pack))
+            .addOnSuccessListener { states -> states.packStates()[pack]?.let { onStatus(packStatus(it.status())) } }
+            .addOnFailureListener { onStatus(PackStatus.UNAVAILABLE) }
     }
 
     override fun fetch(pack: String) {
