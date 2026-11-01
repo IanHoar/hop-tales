@@ -78,6 +78,46 @@ class LookPackTest {
     }
 
     @Test
+    fun aDeliveryThatThrowsLeavesTheBundledLooks() {
+        val delivery = object : PackDelivery {
+            override fun assetsPath(pack: String): String? = throw IllegalStateException("assetsPath")
+
+            override fun status(pack: String, onStatus: (PackStatus) -> Unit) = throw IllegalStateException("status")
+
+            override fun fetch(pack: String) = throw IllegalStateException("fetch")
+
+            override fun listen(onStatus: (pack: String, status: PackStatus) -> Unit) = throw IllegalStateException("listen")
+        }
+        val pack = LookPack(delivery).apply { start() }
+        assertNull(pack.sheets.value)
+    }
+
+    @Test
+    fun aFetchThatThrowsIsNotRetried() {
+        val delivery = object : PackDelivery {
+            var fetches = 0
+            var listener: ((String, PackStatus) -> Unit)? = null
+
+            override fun assetsPath(pack: String): String? = null
+
+            override fun status(pack: String, onStatus: (PackStatus) -> Unit) = onStatus(PackStatus.MISSING)
+
+            override fun fetch(pack: String) {
+                fetches += 1
+                throw IllegalStateException("fetch")
+            }
+
+            override fun listen(onStatus: (pack: String, status: PackStatus) -> Unit) {
+                listener = onStatus
+            }
+        }
+        val pack = LookPack(delivery).apply { start() }
+        delivery.listener?.invoke(LookPack.NAME, PackStatus.MISSING)
+        assertEquals(1, delivery.fetches)
+        assertNull(pack.sheets.value)
+    }
+
+    @Test
     fun aSheetInThePackComesFromThePack() {
         val pack = temporary.newFolder("looks")
         pack.resolve("look-hare-crown-idle.webp").writeText("pack")
