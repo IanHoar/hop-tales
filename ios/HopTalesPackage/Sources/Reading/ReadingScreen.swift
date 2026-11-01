@@ -357,6 +357,8 @@ public struct ReadingScreen: View {
     .onChange(of: scenePhase) { _, phase in
       store.send(.scenePhaseChanged(isActive: phase != .background))
     }
+    .onAppear { UIApplication.shared.isIdleTimerDisabled = true }
+    .onDisappear { UIApplication.shared.isIdleTimerDisabled = false }
     .sensoryFeedback(.impact(flexibility: .soft), trigger: store.recognised) { _, word in
       word != nil
     }
