@@ -191,6 +191,6 @@ private fun IconLabel(text: String, icon: ImageVector?, colour: Color) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (icon != null) Icon(icon, contentDescription = null, tint = colour, modifier = Modifier.size(24.dp))
-        Text(text, style = LocalTypography.current.ui(18.sp), color = colour)
+        FitText(text, LocalTypography.current.ui(18.sp), colour, minimumScale = 0.75f, Modifier.weight(1f, fill = false))
     }
 }

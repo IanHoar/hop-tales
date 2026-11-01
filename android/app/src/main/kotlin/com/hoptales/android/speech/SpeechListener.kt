@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
+import android.speech.ModelDownloadListener
 import android.speech.RecognitionListener
 import android.speech.RecognitionSupport
 import android.speech.RecognitionSupportCallback
@@ -46,22 +47,68 @@ class SpeechListener(private val context: Context, private val audio: ReadingAud
         return OnDeviceSupport.listeningTag(accent.toLanguageTag(), installed)?.let { Locale.forLanguageTag(it.replace('_', '-')) }
     }
 
-    private suspend fun installedLanguages(locale: Locale): List<String>? = suspendCancellableCoroutine { continuation ->
+    suspend fun model(accent: Locale): SpeechModel {
+        if (!isAvailable) return SpeechModel.UNAVAILABLE
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return SpeechModel.READY
+        val support = withTimeoutOrNull(SUPPORT_CHECK_TIMEOUT_MILLIS) { support(accent) } ?: return SpeechModel.READY
+        return SpeechModel.of(
+            accent.toLanguageTag(),
+            support.installedOnDeviceLanguages,
+            support.pendingOnDeviceLanguages,
+            support.supportedOnDeviceLanguages,
+        )
+    }
+
+    suspend fun downloadUntilReady(accent: Locale, progress: (Int) -> Unit = {}): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return false
+        val supported = withTimeoutOrNull(SUPPORT_CHECK_TIMEOUT_MILLIS) { support(accent) }?.supportedOnDeviceLanguages.orEmpty()
+        val tag = OnDeviceSupport.listeningTag(accent.toLanguageTag(), supported) ?: OnDeviceSupport.FALLBACK_TAG
+        val recognizer = runCatching { SpeechRecognizer.createOnDeviceSpeechRecognizer(context) }.getOrNull() ?: return false
+        val download = intent(emptyList(), Locale.forLanguageTag(tag.replace('_', '-')))
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                runCatching {
+                    recognizer.triggerModelDownload(
+                        download,
+                        context.mainExecutor,
+                        object : ModelDownloadListener {
+                            override fun onProgress(completedPercent: Int) = progress(completedPercent)
+                            override fun onSuccess() = progress(DONE_PERCENT)
+                            override fun onScheduled() = Unit
+                            override fun onError(error: Int) = Unit
+                        },
+                    )
+                }
+            } else {
+                runCatching { recognizer.triggerModelDownload(download) }
+            }
+            return withTimeoutOrNull(DOWNLOAD_WAIT_MILLIS) {
+                while (model(accent) != SpeechModel.READY) delay(DOWNLOAD_POLL_MILLIS)
+                true
+            } ?: false
+        } finally {
+            recognizer.destroy()
+        }
+    }
+
+    private suspend fun installedLanguages(locale: Locale): List<String>? = support(locale)?.installedOnDeviceLanguages
+
+    private suspend fun support(locale: Locale): RecognitionSupport? = suspendCancellableCoroutine { continuation ->
         val recognizer = runCatching { SpeechRecognizer.createOnDeviceSpeechRecognizer(context) }.getOrNull()
         if (recognizer == null) {
-            continuation.resume(emptyList())
+            continuation.resume(null)
             return@suspendCancellableCoroutine
         }
-        fun answer(installed: List<String>?) {
+        fun answer(support: RecognitionSupport?) {
             recognizer.destroy()
-            if (continuation.isActive) continuation.resume(installed)
+            if (continuation.isActive) continuation.resume(support)
         }
         continuation.invokeOnCancellation { recognizer.destroy() }
         recognizer.checkRecognitionSupport(
             intent(emptyList(), locale),
             context.mainExecutor,
             object : RecognitionSupportCallback {
-                override fun onSupportResult(support: RecognitionSupport) = answer(support.installedOnDeviceLanguages)
+                override fun onSupportResult(support: RecognitionSupport) = answer(support)
 
                 override fun onError(error: Int) = answer(null)
             },
@@ -159,6 +206,9 @@ class SpeechListener(private val context: Context, private val audio: ReadingAud
 
     private companion object {
         const val SUPPORT_CHECK_TIMEOUT_MILLIS = 2_000L
+        const val DOWNLOAD_POLL_MILLIS = 2_000L
+        const val DOWNLOAD_WAIT_MILLIS = 10 * 60_000L
+        const val DONE_PERCENT = 100
         val QUIET_ENDINGS = setOf(SpeechRecognizer.ERROR_NO_MATCH, SpeechRecognizer.ERROR_SPEECH_TIMEOUT)
     }
 }
