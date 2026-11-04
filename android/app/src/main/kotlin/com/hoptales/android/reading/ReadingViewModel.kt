@@ -8,6 +8,7 @@ import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.speech.SpeechEvent
 import com.hoptales.android.speech.SpeechLogEntry
 import com.hoptales.android.speech.SpeechModel
+import com.hoptales.android.speech.SpeechTrace
 import com.hoptales.content.Friend
 import com.hoptales.content.Profile
 import com.hoptales.content.Story
@@ -138,6 +139,7 @@ class ReadingViewModel(
                         is SpeechEvent.Partial -> heard(event.tokens, isFinal = false)
                         is SpeechEvent.Final -> heard(event.tokens, isFinal = true)
                         is SpeechEvent.Level -> level = event.decibels
+                        SpeechEvent.Began -> heardAt = SystemClock.elapsedRealtime()
                         is SpeechEvent.Ended -> end = event.reason
                     }
                 }
@@ -173,6 +175,10 @@ class ReadingViewModel(
                 outcome = reading.lastHeard,
                 level = level,
             ),
+        )
+        SpeechTrace.log(
+            "${if (isFinal) "final" else "partial"} want='${before.currentWord?.text}' heard=$tokens -> ${reading.lastHeard.label}" +
+                if (match != null) " HOP to word ${reading.state.wordIndex} (sentence ${reading.state.sentenceIndex})" else "",
         )
         match ?: return
         publish()

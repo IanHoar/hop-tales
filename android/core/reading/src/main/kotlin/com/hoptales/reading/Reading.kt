@@ -122,8 +122,10 @@ class Reading(story: Story, strictness: Strictness = Strictness.GENTLE, bigWords
             lastHeard = Heard.SPEAKING
             return null
         }
-        val eligible = debouncer.confirm(tokens, isFinal)
         val current = state.currentWord
+        val confirmed = debouncer.confirm(tokens, isFinal)
+        val exact = current?.let { WordMatcher.normalize(it.text).singleOrNull() }
+        val eligible = if (exact != null && tokens.lastOrNull() == exact) listOf(exact) else confirmed
         val match = current?.let { WordMatcher.match(eligible, it, state.nextWord, state.strictness) }
         lastHeard = when {
             match?.target == WordMatcher.Target.NEXT -> Heard.NEXT
