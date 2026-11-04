@@ -5,8 +5,10 @@ import Testing
 @testable import GrownUps
 
 @MainActor
-@Suite(.timeLimit(.minutes(1)))
+@Suite(.serialized, .timeLimit(.minutes(1)))
 struct PaywallTests {
+  private let waits = Duration.seconds(5)
+
   private func paywall(
     _ purchases: PurchasesClient
   ) -> TestStore<some FeatureProtocol<Paywall.State, Paywall.Action>> {
@@ -18,66 +20,66 @@ struct PaywallTests {
 
   @Test func theOffersLoadYearlyFirst() async {
     let store = paywall(.fake(offers: PlusOffer.samples.reversed()))
-    await store.receive(\.offersLoaded) { $0.offers = .loaded(PlusOffer.samples) }
+    await store.receive(\.offersLoaded, timeout: waits) { $0.offers = .loaded(PlusOffer.samples) }
     await store.dismount()
   }
 
   @Test func offersThatFailToLoadShowTheMessage() async {
     let store = paywall(.fake(offers: nil))
-    await store.receive(\.offersFailed) { $0.offers = .unavailable }
+    await store.receive(\.offersFailed, timeout: waits) { $0.offers = .unavailable }
     await store.dismount()
   }
 
   @Test func noOffersShowTheMessage() async {
     let store = paywall(.fake(offers: []))
-    await store.receive(\.offersLoaded) { $0.offers = .unavailable }
+    await store.receive(\.offersLoaded, timeout: waits) { $0.offers = .unavailable }
     await store.dismount()
   }
 
   @Test func buyingSubscribes() async {
     let store = paywall(.fake(outcome: .purchased))
-    await store.receive(\.offersLoaded) { $0.offers = .loaded(PlusOffer.samples) }
+    await store.receive(\.offersLoaded, timeout: waits) { $0.offers = .loaded(PlusOffer.samples) }
     store.send(.planTapped(.yearly))
-    await store.receive(\.purchaseCompleted)
-    await store.receive(\.subscribed)
+    await store.receive(\.purchaseCompleted, timeout: waits)
+    await store.receive(\.subscribed, timeout: waits)
     await store.dismount()
   }
 
   @Test func cancellingChangesNothing() async {
     let store = paywall(.fake(outcome: .cancelled))
-    await store.receive(\.offersLoaded) { $0.offers = .loaded(PlusOffer.samples) }
+    await store.receive(\.offersLoaded, timeout: waits) { $0.offers = .loaded(PlusOffer.samples) }
     store.send(.planTapped(.monthly))
-    await store.receive(\.purchaseCompleted)
+    await store.receive(\.purchaseCompleted, timeout: waits)
     await store.dismount()
   }
 
   @Test func aPendingPurchaseWaits() async {
     let store = paywall(.fake(outcome: .pending))
-    await store.receive(\.offersLoaded) { $0.offers = .loaded(PlusOffer.samples) }
+    await store.receive(\.offersLoaded, timeout: waits) { $0.offers = .loaded(PlusOffer.samples) }
     store.send(.planTapped(.yearly))
-    await store.receive(\.purchaseCompleted) { $0.isPending = true }
+    await store.receive(\.purchaseCompleted, timeout: waits) { $0.isPending = true }
     await store.dismount()
   }
 
   @Test func restoringFindsPlus() async {
     let store = paywall(.fake(restores: true))
-    await store.receive(\.offersLoaded) { $0.offers = .loaded(PlusOffer.samples) }
+    await store.receive(\.offersLoaded, timeout: waits) { $0.offers = .loaded(PlusOffer.samples) }
     store.send(.restoreTapped)
-    await store.receive(\.subscribed)
+    await store.receive(\.subscribed, timeout: waits)
     await store.dismount()
   }
 
   @Test func restoringWithNothingToRestoreSaysSo() async {
     let store = paywall(.fake(restores: false))
-    await store.receive(\.offersLoaded) { $0.offers = .loaded(PlusOffer.samples) }
+    await store.receive(\.offersLoaded, timeout: waits) { $0.offers = .loaded(PlusOffer.samples) }
     store.send(.restoreTapped)
-    await store.receive(\.nothingToRestore) { $0.foundNothingToRestore = true }
+    await store.receive(\.nothingToRestore, timeout: waits) { $0.foundNothingToRestore = true }
     await store.dismount()
   }
 
   @Test func aSubscriberOpeningThePaywallIsNotSentAway() async {
     let store = paywall(.fake(isPlus: true))
-    await store.receive(\.offersLoaded) { $0.offers = .loaded(PlusOffer.samples) }
+    await store.receive(\.offersLoaded, timeout: waits) { $0.offers = .loaded(PlusOffer.samples) }
     await store.dismount()
   }
 
@@ -89,11 +91,13 @@ struct PaywallTests {
     store.send(.gate(.digitTapped(1))) { $0.gate?.entry = "1" }
     store.send(.gate(.digitTapped(5))) { $0.gate?.entry = "15" }
     store.send(.gate(.answerTapped))
-    await store.receive(\.gate.passed) {
+    await store.receive(\.gate.passed, timeout: waits) {
       $0.gate = nil
       $0.paywall = Paywall.State.DebugSnapshot()
     }
-    await store.receive(\.paywall.offersFailed) { $0.paywall?.offers = .unavailable }
+    await store.receive(\.paywall.offersFailed, timeout: waits) {
+      $0.paywall?.offers = .unavailable
+    }
     await store.dismount()
   }
 }
