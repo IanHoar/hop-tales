@@ -27,15 +27,23 @@ struct WordMatcherTests {
     )
   }
 
-  @Test func droppedFinalConsonantIsForgivenWhenGentle() {
-    #expect(WordMatcher.match(tokens: ["sap"], current: sat, next: nil)?.target == .current)
-    #expect(
-      WordMatcher.match(tokens: ["sap"], current: sat, next: nil, strictness: .standard) == nil
-    )
+  @Test func aRecognisersSlipOnAFinalStopIsForgiven() {
+    let bug = Word(text: "bug")
+    let log = Word(text: "log")
+    #expect(WordMatcher.match(tokens: ["lot"], current: log, next: nil)?.target == .current)
+    #expect(WordMatcher.match(tokens: ["but"], current: bug, next: nil)?.target == .current)
+    #expect(WordMatcher.match(tokens: ["sam"], current: sat, next: nil) == nil)
+    #expect(WordMatcher.match(tokens: ["bus"], current: bug, next: nil) == nil)
   }
 
-  @Test func aDoubledFinalLetterIsForgivenWhenGentle() {
-    #expect(WordMatcher.match(tokens: ["bob", "sapp"], current: sat, next: nil)?.target == .current)
+  @Test func aLongerWordForgivesOnlyAnAddedOrDroppedLetter() {
+    let hops = Word(text: "hops")
+    #expect(WordMatcher.match(tokens: ["hop"], current: hops, next: nil)?.target == .current)
+    #expect(WordMatcher.match(tokens: ["hope"], current: hops, next: nil) == nil)
+    let strict = WordMatcher.match(
+      tokens: ["hope"], current: hops, next: nil, strictness: .standard
+    )
+    #expect(strict == nil)
   }
 
   @Test(arguments: ["oh", "awn"])

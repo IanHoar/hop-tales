@@ -25,6 +25,8 @@ object WordMatcher {
 
     private val vowels = "aeiouy".toSet()
 
+    private val stops = "bdgkpt".toSet()
+
     private val voicing = mapOf(
         't' to 'd',
         'd' to 't',
@@ -75,13 +77,10 @@ object WordMatcher {
         if (letterNames[heard]?.contains(text) == true) return true
 
         if (heard == text) return true
-        if (text.length >= 4 && levenshtein(heard, text) <= 1) return true
+        if (text.length >= 4 && oneLetterAddedOrDropped(heard, text)) return true
         if (strictness != Strictness.GENTLE) return false
 
         val squeezed = collapsed(heard)
-        for (candidate in setOf(heard, squeezed)) {
-            if (candidate.length == text.length && candidate.take(2) == text.take(2)) return true
-        }
         if (target.homophones.any { it.lowercase() == heard }) return true
         if (soundsAlike[text]?.contains(heard) == true) return true
         if (soundsAlike[text]?.contains(collapsed(heard)) == true) return true
@@ -94,23 +93,13 @@ object WordMatcher {
         if (!opens || text[1] !in vowels || text[2] in vowels) return false
         if (token.length !in 3..4) return false
         if (token.first() != text[0]) return false
-        if (token.last() != text[2] && token.last() != voicing[text[2]]) return false
+        if (token.last() != text[2] && token.last() != voicing[text[2]] && !(token.last() in stops && text[2] in stops)) return false
         return token.drop(1).dropLast(1).all { it in vowels }
     }
 
-    internal fun levenshtein(lhs: String, rhs: String): Int {
-        if (lhs.isEmpty()) return rhs.length
-        if (rhs.isEmpty()) return lhs.length
-        var previous = IntArray(rhs.length + 1) { it }
-        var current = IntArray(rhs.length + 1)
-        for (i in 1..lhs.length) {
-            current[0] = i
-            for (j in 1..rhs.length) {
-                val substitution = previous[j - 1] + if (lhs[i - 1] == rhs[j - 1]) 0 else 1
-                current[j] = minOf(previous[j] + 1, current[j - 1] + 1, substitution)
-            }
-            previous = current.also { current = previous }
-        }
-        return previous[rhs.length]
+    internal fun oneLetterAddedOrDropped(lhs: String, rhs: String): Boolean {
+        val (short, long) = if (lhs.length < rhs.length) lhs to rhs else rhs to lhs
+        if (long.length != short.length + 1) return false
+        return long.indices.any { long.removeRange(it, it + 1) == short }
     }
 }
