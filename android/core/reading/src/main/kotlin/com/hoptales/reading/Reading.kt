@@ -28,6 +28,7 @@ data class ReadingState(
     val completionCount: Int = 0,
     val recognised: Recognised? = null,
     val isSpeaking: Boolean = false,
+    val isOfferingHint: Boolean = false,
     val isConfirmingStop: Boolean = false,
     val strictness: Strictness = Strictness.GENTLE,
     val bigWords: Set<WordRef> = emptySet(),
@@ -135,6 +136,7 @@ class Reading(story: Story, strictness: Strictness = Strictness.GENTLE, bigWords
         val count = if (match.target == WordMatcher.Target.NEXT) 2 else 1
         for (offset in 0 until count) wordsRead += WordRef(before.sentenceIndex, before.wordIndex + offset)
         state = state.advanced(count).copy(
+            isOfferingHint = false,
             recognised = ReadingState.Recognised(
                 count = (before.recognised?.count ?: 0) + 1,
                 sentenceIndex = before.sentenceIndex,
@@ -147,11 +149,16 @@ class Reading(story: Story, strictness: Strictness = Strictness.GENTLE, bigWords
         return match
     }
 
+    fun hintOffered() {
+        if (state.currentWord == null || state.isSpeaking) return
+        state = state.copy(isOfferingHint = true)
+    }
+
     fun helpRequested(): String? {
         val word = state.currentWord?.text ?: return null
         if (state.isSpeaking) return null
         wordsHelped += WordRef(state.sentenceIndex, state.wordIndex)
-        state = state.copy(usedHelp = true, isSpeaking = true)
+        state = state.copy(usedHelp = true, isSpeaking = true, isOfferingHint = false)
         return word
     }
 

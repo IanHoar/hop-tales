@@ -154,7 +154,7 @@ class ReadingViewModel(
             while (isActive) {
                 delay(1_000)
                 val quiet = SystemClock.elapsedRealtime() - heardAt
-                if (quiet >= ReadingState.OFFER_HELP_AFTER_MILLIS && !reading.state.isFinished) help()
+                if (quiet >= ReadingState.OFFER_HELP_AFTER_MILLIS && !reading.state.isFinished) offerHint()
             }
         }
     }
@@ -177,6 +177,12 @@ class ReadingViewModel(
         match ?: return
         publish()
         if (reading.state.sentenceIndex != before.sentenceIndex) sentenceChanged(before)
+    }
+
+    private fun offerHint() {
+        if (reading.state.isOfferingHint) return
+        reading.hintOffered()
+        publish()
     }
 
     fun help() {

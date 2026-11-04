@@ -175,6 +175,18 @@ fun ReadingScreen(
                 scale = geometry.chipScale,
                 at = DpOffset(geometry.dp(BACK_CHIP_X), geometry.dp(BACK_CHIP_Y)),
             ) { if (model.backTapped()) onDone() }
+            AnimatedVisibility(
+                state.isOfferingHint,
+                Modifier.align(Alignment.TopEnd),
+                enter = fadeIn() + scaleIn(initialScale = 0.9f),
+                exit = fadeOut(),
+            ) {
+                HintChip(
+                    scale = geometry.chipScale,
+                    at = DpOffset(-geometry.dp(BACK_CHIP_X), geometry.dp(BACK_CHIP_Y) - 3.dp * geometry.chipScale),
+                    onClick = model::help,
+                )
+            }
             val word = state.currentWord
             if (showsDebugControls && word != null) {
                 Box(Modifier.align(Alignment.BottomCenter).padding(bottom = 10.dp).semantics { hideFromAccessibility() }) {
