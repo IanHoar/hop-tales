@@ -8,6 +8,8 @@ struct StoryFinished: View {
   let stars: Int
   let geometry: ReadingGeometry
   var leadsHome = true
+  var finishedAt: Date?
+  var onStarChip: (CGPoint) -> Void = { _ in }
   let readAgain: () -> Void
   let done: () -> Void
 
@@ -67,6 +69,21 @@ struct StoryFinished: View {
   }
 
   private var starChip: some View {
+    TimelineView(.animation(paused: finishedAt == nil)) { context in
+      starChipBody
+        .scaleEffect(
+          FinishCheer.chipScale(at: finishedAt.map { context.date.timeIntervalSince($0) })
+        )
+    }
+    .onGeometryChange(for: CGPoint.self) { proxy in
+      let frame = proxy.frame(in: .named(FinishCheer.space))
+      return CGPoint(x: frame.midX, y: frame.midY)
+    } action: { centre in
+      onStarChip(centre)
+    }
+  }
+
+  private var starChipBody: some View {
     HStack(spacing: geometry.path(6)) {
       PaperStar(size: geometry.path(20))
       Text("+\(stars)")

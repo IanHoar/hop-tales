@@ -18,8 +18,7 @@ struct WordPath: Equatable {
   static let startSign: CGFloat = 80
   static let endSign: CGFloat = 270
   static let overshoot: CGFloat = 200
-  static let lastWordBeforeSign: CGFloat = 90
-  static let lastWordOnBoard: CGFloat = 49.5
+  static let lastWordBeforeSign: CGFloat = 16
   static let lastWordMargin: CGFloat = 16
   static let signHeight: CGFloat = 172
   static let signFeetAbovePath: CGFloat = 40
@@ -85,19 +84,21 @@ struct WordPath: Equatable {
   var startSign: CGFloat { (stops.first?.centre ?? 0) + geometry.path(Self.startSign) }
   var endSign: CGFloat { (stops.last?.centre ?? 0) + geometry.path(Self.endSign) }
 
-  func lastWordLift(of stop: Stop, cameraX: CGFloat) -> CGSize {
-    guard let last = stops.last, stop.target == last.target else { return .zero }
+  func lastWordShift(of stop: Stop, cameraX: CGFloat) -> CGFloat {
+    guard let last = stops.last, stop.target == last.target else { return 0 }
     let reading = camera(at: last.target)
     let ended = camera(at: HopTarget(sentence: last.target.sentence + 1, word: 0))
-    guard ended > reading else { return .zero }
+    guard ended > reading else { return 0 }
     let progress = min(max((cameraX - reading) / (ended - reading), 0), 1)
-    let settled = endSign - ended - geometry.path(Self.lastWordBeforeSign) - last.width / 2
-    let x = max(settled, geometry.path(Self.lastWordMargin) + last.width / 2)
-    let y = signFeetY - signHeight + geometry.path(Self.lastWordOnBoard)
-    return CGSize(
-      width: (x - (last.centre - ended)) * progress,
-      height: (y - wordY) * progress
-    )
+    return (lastWordX(last) - (last.centre - ended)) * progress
+  }
+
+  func lastWordX(_ last: Stop) -> CGFloat {
+    let half = last.width * Self.sideScale / 2
+    let post = geometry.path(Self.focusX - Self.overshoot + Self.endSign)
+    let beforePost = post - geometry.path(Self.lastWordBeforeSign) - half
+    let leftmost = geometry.path(Self.lastWordMargin) + half
+    return max(min(geometry.path(Self.focusX), beforePost), leftmost)
   }
 
   func stop(at target: HopTarget) -> Stop? {

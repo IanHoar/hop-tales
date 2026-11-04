@@ -41,14 +41,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -76,6 +82,7 @@ import com.hoptales.android.design.BackChip
 import com.hoptales.android.design.LocalPalette
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
+import com.hoptales.android.design.Star
 import com.hoptales.android.design.rememberReducedMotion
 import com.hoptales.android.world.Art
 import com.hoptales.android.world.HareSheet
@@ -152,6 +159,21 @@ fun ReadingScreen(
         }
     }
 
+    var cheer by remember(story) { mutableStateOf<Double?>(null) }
+    var chipCentre by remember { mutableStateOf<Offset?>(null) }
+    LaunchedEffect(state.isFinished) {
+        cheer = null
+        if (!state.isFinished) return@LaunchedEffect
+        val start = System.nanoTime() / 1e9
+        while (true) {
+            withFrameNanos { }
+            val elapsed = System.nanoTime() / 1e9 - start
+            if (elapsed >= FinishCheer.end) break
+            cheer = elapsed
+        }
+        cheer = null
+    }
+
     val haptics = LocalHapticFeedback.current
     LaunchedEffect(state.recognised) {
         if (state.recognised != null) haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
@@ -168,6 +190,8 @@ fun ReadingScreen(
             soundButtons = model.soundButtons,
             onWordTapped = model::help,
             onMeadowTapped = if (showsDebugControls) model::skipWord else null,
+            cheer = cheer,
+            chipCentre = chipCentre,
         )
         Box(Modifier.fillMaxSize().safeDrawingPadding()) {
             BackChip(
@@ -215,6 +239,8 @@ fun ReadingScreen(
                 readAgain = model::readAgain,
                 done = onDone,
                 leadsHome = state.callout == null,
+                cheer = cheer,
+                onStarChip = { chipCentre = it },
             )
         }
         AnimatedVisibility(state.isFinished, enter = finishedFade, exit = finishedFadeOut) {
@@ -243,6 +269,8 @@ private fun PathStage(
     soundButtons: Boolean,
     onWordTapped: () -> Unit,
     onMeadowTapped: (() -> Unit)?,
+    cheer: Double? = null,
+    chipCentre: Offset? = null,
 ) {
     val context = LocalContext.current
     val reduceMotion = rememberReducedMotion()
@@ -288,7 +316,8 @@ private fun PathStage(
         while (true) withFrameNanos { propTime = it / 1e9 }
     }
 
-    BoxWithConstraints(Modifier.fillMaxSize().background(palette.page)) {
+    var origin by remember { mutableStateOf(Offset.Zero) }
+    BoxWithConstraints(Modifier.fillMaxSize().background(palette.page).onGloballyPositioned { origin = it.positionInRoot() }) {
         val density = LocalDensity.current
         val geometry = with(density) { PathGeometry(constraints.maxWidth.toFloat(), constraints.maxHeight.toFloat(), this.density) }
         val wordStyle = type.word((geometry.path(PathGeometry.WORD_SIZE) / density.density).sp)
@@ -419,7 +448,12 @@ private fun PathStage(
                     val cameraX = stepX ?: camera.value
                     drawWords(path, cameraX, wordMarks, { state.isBig(it.sentence, it.word) }) { stop ->
                         val target = HopTarget(stop.sentence, stop.word)
-                        WordMotion.look(target, isChallenge(target), move, speech, wordNow)
+                        val look = WordMotion.look(target, isChallenge(target), move, speech, wordNow)
+                        if (cheer != null && !reduceMotion && stop === path.stops.last()) {
+                            look.copy(scale = look.scale * FinishCheer.wordScale(cheer))
+                        } else {
+                            look
+                        }
                     }
                     drawTreatOnPath(path, marks, cameraX, state, look().tint(MeadowLayer.NEAR))
                 }
@@ -458,6 +492,24 @@ private fun PathStage(
                 motion.arc(now) * path.apex(motion.hop?.carried ?: false) * if (bigHop) PathMarks.BIG_WORD_LIFT else 1f
             }
             drawHare(hare, path, pose, lift, paper.shadow)
+        }
+        val lastStop = path.stops.lastOrNull()
+        if (cheer != null && !reduceMotion && lastStop != null && chipCentre != null) {
+            val shape = remember { Star() }
+            Canvas(Modifier.fillMaxSize()) {
+                val from = Offset(path.lastWordX(lastStop), path.wordCentreY(lastStop))
+                val to = chipCentre - origin
+                val size = geometry.path(CHEER_STAR_SIZE)
+                repeat(FinishCheer.STARS) { index ->
+                    val star = FinishCheer.star(index, cheer, from, to, geometry.path(CHEER_REACH)) ?: return@repeat
+                    val side = size * star.scale
+                    translate(star.centre.x - side / 2, star.centre.y - side / 2) {
+                        val outline = shape.createOutline(Size(side, side), layoutDirection, this)
+                        drawOutline(outline, paper.wash)
+                        drawOutline(outline, paper.washRing, style = Stroke(side * CHEER_RING))
+                    }
+                }
+            }
         }
         PickupLayer(state, geometry, reduceMotion)
         var shownTip by remember { mutableStateOf<ChallengeTipState?>(null) }
@@ -590,6 +642,9 @@ object CurrentWord {
 }
 
 private const val FINISHED_FADE_MILLIS = 400
+private const val CHEER_STAR_SIZE = 26f
+private const val CHEER_REACH = 54f
+private const val CHEER_RING = 0.07f
 private const val STOP_FADE_MILLIS = 200
 private const val PLUS_FIVE_SIZE = 0.4f
 private const val BACK_CHIP_X = 18f

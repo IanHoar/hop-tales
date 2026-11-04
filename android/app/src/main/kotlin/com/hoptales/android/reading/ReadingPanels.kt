@@ -25,10 +25,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.hideFromAccessibility
@@ -207,7 +211,16 @@ private fun PaperNotice(
 }
 
 @Composable
-fun StoryFinished(title: String, stars: Int, geometry: PathGeometry, readAgain: () -> Unit, done: () -> Unit, leadsHome: Boolean = true) {
+fun StoryFinished(
+    title: String,
+    stars: Int,
+    geometry: PathGeometry,
+    readAgain: () -> Unit,
+    done: () -> Unit,
+    leadsHome: Boolean = true,
+    cheer: Double? = null,
+    onStarChip: (Offset) -> Unit = {},
+) {
     val paper = LocalPaper.current
     val type = LocalTypography.current
     Box(Modifier.fillMaxSize()) {
@@ -236,6 +249,12 @@ fun StoryFinished(title: String, stars: Int, geometry: PathGeometry, readAgain: 
                 }
                 Row(
                     Modifier
+                        .onGloballyPositioned { onStarChip(it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)) }
+                        .graphicsLayer {
+                            val bump = cheer?.let(FinishCheer::chipScale) ?: 1f
+                            scaleX = bump
+                            scaleY = bump
+                        }
                         .rotate(4f)
                         .clearAndSetSemantics { contentDescription = "$stars stars" }
                         .height(geometry.dp(44f))

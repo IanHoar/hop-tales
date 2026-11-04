@@ -70,6 +70,10 @@ profile's `plusOffered` column stays, since synced columns are never dropped, bu
 
 ### The end of a story
 
+The last word stays on the path where it was read, nudged left only to clear the end sign. Once
+the pan to the sign settles it pops in place, six stars burst out of it and arc onto the stars
+sticker, which bumps as they land (about a second). With Reduce Motion only the sticker bumps.
+
 The end of a story, or of a level, always leads back to Home (the stories page), never straight
 into another story or level. The end card's primary button says **Back to my stories**, under
 **Read it again** and the stars sticker; it's held back while a callout is up, so there's one
