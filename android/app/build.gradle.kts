@@ -1,3 +1,6 @@
+import java.net.URI
+import java.security.MessageDigest
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -40,6 +43,65 @@ val baseWorldArt = tasks.register<BaseWorldArt>("baseWorldArt") {
     art.set(shared.resolve("World/Resources"))
     looks.set(baseLooks)
     output.set(layout.buildDirectory.dir("generated/baseWorldArt"))
+}
+
+abstract class SpeechModel : DefaultTask() {
+    @get:Input
+    abstract val url: Property<String>
+
+    @get:Input
+    abstract val sha256: Property<String>
+
+    @get:Internal
+    abstract val cache: DirectoryProperty
+
+    @get:OutputDirectory
+    abstract val output: DirectoryProperty
+
+    @get:Inject
+    abstract val files: FileSystemOperations
+
+    @get:Inject
+    abstract val archives: ArchiveOperations
+
+    @TaskAction
+    fun unpack() {
+        val zip = cache.file("${sha256.get()}.zip").get().asFile
+        if (!zip.exists() || digest(zip) != sha256.get()) {
+            zip.parentFile.mkdirs()
+            val partial = File(zip.parentFile, "${zip.name}.part")
+            URI(url.get()).toURL().openStream().use { input -> partial.outputStream().use { input.copyTo(it) } }
+            val actual = digest(partial)
+            if (actual != sha256.get()) throw GradleException("Speech model checksum mismatch: expected ${sha256.get()}, got $actual")
+            partial.renameTo(zip)
+        }
+        files.sync {
+            from(archives.zipTree(zip)) { eachFile { relativePath = RelativePath(true, *relativePath.segments.drop(1).toTypedArray()) } }
+            includeEmptyDirs = false
+            into(output.dir("vosk-model"))
+        }
+        output.file("vosk-model/version").get().asFile.writeText(sha256.get())
+    }
+
+    private fun digest(file: File): String {
+        val sha = MessageDigest.getInstance("SHA-256")
+        file.inputStream().use { input ->
+            val buffer = ByteArray(1 shl 16)
+            while (true) {
+                val read = input.read(buffer)
+                if (read < 0) break
+                sha.update(buffer, 0, read)
+            }
+        }
+        return sha.digest().joinToString("") { "%02x".format(it) }
+    }
+}
+
+val speechModel = tasks.register<SpeechModel>("speechModel") {
+    url.set("https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip")
+    sha256.set("30f26242c4eb449f948e42cb302dd7a686cb29a3423a8367f99ff41780942498")
+    cache.set(File(gradle.gradleUserHomeDir, "caches/hoptales/speech-model"))
+    output.set(layout.buildDirectory.dir("generated/speechModel"))
 }
 
 data class ReleaseVersion(val code: Int, val name: String)
@@ -145,6 +207,9 @@ android {
 }
 
 androidComponents {
+    onVariants { variant ->
+        variant.sources.assets?.addGeneratedSourceDirectory(speechModel, SpeechModel::output)
+    }
     onVariants(selector().withBuildType("release")) { variant ->
         variant.sources.assets?.addGeneratedSourceDirectory(baseWorldArt, BaseWorldArt::output)
     }
@@ -167,6 +232,8 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.play.asset.delivery)
     implementation(libs.billing.ktx)
+    implementation(libs.vosk.android) { exclude(group = "net.java.dev.jna") }
+    implementation(libs.jna) { artifact { type = "aar" } }
     debugImplementation(libs.compose.ui.tooling)
     testImplementation(libs.junit)
     testImplementation(platform(libs.compose.bom))

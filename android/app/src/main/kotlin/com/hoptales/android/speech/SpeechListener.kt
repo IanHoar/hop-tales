@@ -38,10 +38,6 @@ sealed interface SpeechEvent {
 class SpeechListener(private val context: Context, private val audio: ReadingAudio) {
     private val meter = NoiseMeter()
 
-    init {
-        SpeechTrace.folder = context.filesDir
-    }
-
     val isAvailable: Boolean
         get() = SpeechRecognizer.isOnDeviceRecognitionAvailable(context)
 
@@ -174,16 +170,6 @@ class SpeechListener(private val context: Context, private val audio: ReadingAud
                 override fun onBufferReceived(buffer: ByteArray?) = Unit
                 override fun onEndOfSpeech() = SpeechTrace.log("speech ended")
                 override fun onEvent(eventType: Int, params: Bundle?) = Unit
-
-                override fun onSegmentResults(segmentResults: Bundle) {
-                    SpeechTrace.log("segment raw=${segmentResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)}")
-                    tokens(segmentResults)?.let { trySend(SpeechEvent.Final(it)) }
-                }
-
-                override fun onEndOfSegmentedSession() {
-                    SpeechTrace.log("segmented session ended")
-                    end(ListenEnd.FINISHED)
-                }
             },
         )
         launch {
@@ -212,9 +198,8 @@ class SpeechListener(private val context: Context, private val audio: ReadingAud
             audio.interruptions.first()
             end(ListenEnd.INTERRUPTED)
         }
-        val experiment = SpeechTrace.experiment()
-        SpeechTrace.started("listen $locale bias=$biasing exp=$experiment")
-        recognizer.startListening(intent(biasing, locale, experiment))
+        SpeechTrace.started("listen $locale bias=$biasing")
+        recognizer.startListening(intent(biasing, locale))
         awaitClose {
             SpeechTrace.log("closed")
             recognizer.cancel()
@@ -223,33 +208,17 @@ class SpeechListener(private val context: Context, private val audio: ReadingAud
         }
     }
 
-    private fun intent(biasing: List<String>, locale: Locale, experiment: Map<String, String> = emptyMap()) =
-        Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            val model = if (experiment["model"] ==
-                "web"
-            ) {
-                RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH
-            } else {
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-            }
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, model)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, locale.toLanguageTag())
-            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
-            putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
-            experiment["silence"]?.toLongOrNull().let { silence ->
-                if (silence != 0L) {
-                    putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, silence ?: 4_000L)
-                    putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, silence ?: 4_000L)
-                }
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && experiment["segmented"] == "1") {
-                putExtra(RecognizerIntent.EXTRA_SEGMENTED_SESSION, RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS)
-                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 60_000)
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && biasing.isNotEmpty() && experiment["bias"] != "0") {
-                putExtra(RecognizerIntent.EXTRA_BIASING_STRINGS, ArrayList(biasing))
-            }
+    private fun intent(biasing: List<String>, locale: Locale) = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+        putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+        putExtra(RecognizerIntent.EXTRA_LANGUAGE, locale.toLanguageTag())
+        putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+        putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
+        putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 4_000L)
+        putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 4_000L)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && biasing.isNotEmpty()) {
+            putExtra(RecognizerIntent.EXTRA_BIASING_STRINGS, ArrayList(biasing))
         }
+    }
 
     private fun tokens(bundle: Bundle): List<String>? = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
         ?.firstOrNull()

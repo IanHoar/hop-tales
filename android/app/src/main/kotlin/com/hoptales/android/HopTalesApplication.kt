@@ -15,14 +15,25 @@ import com.hoptales.android.speech.ReadingAudio
 import com.hoptales.android.speech.Speaker
 import com.hoptales.android.speech.SpeechListener
 import com.hoptales.android.speech.SpeechLog
+import com.hoptales.android.speech.VoskListener
 import com.hoptales.android.world.LookPack
 import com.hoptales.android.world.PlayPackDelivery
 import com.hoptales.content.Phonics
 import com.hoptales.content.StoryLibrary
 import com.hoptales.content.StoryProps
 import com.hoptales.content.WardrobeLibrary
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
 class HopTalesApplication : Application() {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    override fun onCreate() {
+        super.onCreate()
+        vosk.prepare(scope)
+    }
+
     val library: StoryLibrary by lazy {
         StoryLibrary.decode(assets.open("stories.json").bufferedReader().use { it.readText() })
     }
@@ -45,6 +56,7 @@ class HopTalesApplication : Application() {
     val listeningPreferences: ListeningPreferences by lazy { ListeningPreferences(this) }
     val speaker: Speaker by lazy { Speaker(this) }
     val listener: SpeechListener by lazy { SpeechListener(this, readingAudio) }
+    val vosk: VoskListener by lazy { VoskListener(this, readingAudio) }
     val readingAudio: ReadingAudio by lazy { ReadingAudio(this) }
     val chord: ChordPlayer by lazy { ChordPlayer() }
     val soundPreference: SoundPreference by lazy { SoundPreference(this) }

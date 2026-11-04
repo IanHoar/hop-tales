@@ -67,6 +67,7 @@ class ReadingViewModel(
     private var supportJob: Job? = null
     private var listeningLocale: Locale? = null
     private var hasCheckedSupport = false
+    private var usesVosk = false
     private var watchJob: Job? = null
     private var heardAt = SystemClock.elapsedRealtime()
     private var level: Float? = null
@@ -91,11 +92,12 @@ class ReadingViewModel(
                 supportJob?.cancel()
                 supportJob = viewModelScope.launch {
                     if (!hasCheckedSupport) {
-                        listeningLocale = app.listener.listeningLocale(locale)
+                        usesVosk = app.vosk.isReady()
+                        if (!usesVosk) listeningLocale = app.listener.listeningLocale(locale)
                         hasCheckedSupport = true
                     }
                     if (!isStarted) return@launch
-                    if (listeningLocale == null) {
+                    if (!usesVosk && listeningLocale == null) {
                         if (downloadJob?.isActive != true) mutableSpeech.value = app.listener.model(locale)
                         mutableListening.value = Listening.Unsupported
                         return@launch
@@ -129,12 +131,15 @@ class ReadingViewModel(
     }
 
     private fun listen() {
-        listenJob?.cancel()
+        val previous = listenJob
+        previous?.cancel()
         listenJob = viewModelScope.launch {
+            previous?.join()
             while (isActive && !reading.state.isFinished) {
                 val biasing = reading.state.sentence?.words?.map { it.text }.orEmpty()
                 var end = ListenEnd.FINISHED
-                app.listener.listen(biasing, listeningLocale ?: locale).collect { event ->
+                val events = if (usesVosk) app.vosk.listen(biasing, decoys) else app.listener.listen(biasing, listeningLocale ?: locale)
+                events.collect { event ->
                     when (event) {
                         is SpeechEvent.Partial -> heard(event.tokens, isFinal = false)
                         is SpeechEvent.Final -> heard(event.tokens, isFinal = true)
@@ -182,7 +187,14 @@ class ReadingViewModel(
         )
         match ?: return
         publish()
-        if (reading.state.sentenceIndex != before.sentenceIndex) sentenceChanged(before)
+        if (reading.state.sentenceIndex != before.sentenceIndex) {
+            sentenceChanged(before)
+            if (usesVosk && !reading.state.isFinished) listen()
+        }
+    }
+
+    private val decoys: List<String> by lazy {
+        app.library.all.flatMap { story -> story.sentences.flatMap { sentence -> sentence.words.map { it.text } } }.distinct()
     }
 
     private fun offerHint() {
@@ -201,7 +213,7 @@ class ReadingViewModel(
             reading.speechFinished()
             heardAt = SystemClock.elapsedRealtime()
             publish()
-            if (isStarted && hasPermission && listeningLocale != null) listen()
+            if (isStarted && hasPermission && (usesVosk || listeningLocale != null)) listen()
         }
     }
 

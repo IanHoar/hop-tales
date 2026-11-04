@@ -67,6 +67,10 @@ class OnboardingViewModel(private val app: HopTalesApplication, hasMicrophone: B
     private fun checkSpeech() {
         speechJob?.cancel()
         speechJob = viewModelScope.launch {
+            if (app.vosk.isReady()) {
+                mutableSpeech.value = SpeechModel.READY
+                return@launch
+            }
             val model = app.listener.model(accent)
             mutableSpeech.value = model
             if (model == SpeechModel.DOWNLOADING) downloadSpeech()
