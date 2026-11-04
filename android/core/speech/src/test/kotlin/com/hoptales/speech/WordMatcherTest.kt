@@ -94,6 +94,8 @@ class WordMatcherTest {
 
     @Test fun readingAheadMarksTheCurrentWordReadToo() = assertEquals(Target.NEXT, target("mat", current = sat, next = mat))
 
+    @Test fun aRepeatedWordIsReadOnce() = assertEquals(Target.CURRENT, target("hop", current = Word("Hop"), next = Word("hop")))
+
     @Test fun normalizeStripsPunctuationAndCase() = assertEquals(listOf("the", "cat", "sat"), WordMatcher.normalize("The cat, SAT!"))
 
     @Test fun partialsMustRepeatBeforeTheyCount() {
