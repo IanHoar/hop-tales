@@ -1,6 +1,7 @@
 package com.hoptales.android
 
 import android.app.Application
+import android.os.Build
 import com.hoptales.android.billing.PlayKeyVerifier
 import com.hoptales.android.billing.PlayPlusSource
 import com.hoptales.android.billing.PlusSource
@@ -31,7 +32,7 @@ class HopTalesApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        vosk.prepare(scope)
+        if (Build.FINGERPRINT != ROBOLECTRIC) vosk.prepare(scope)
     }
 
     val library: StoryLibrary by lazy {
@@ -64,5 +65,9 @@ class HopTalesApplication : Application() {
     val plus: PlusSource by lazy { PlayPlusSource(this, PlayKeyVerifier(BuildConfig.PLAY_PUBLIC_KEY)) }
     val looks: LookPack by lazy {
         if (BuildConfig.DEBUG) LookPack.bundled else LookPack(PlayPackDelivery(this)).also(LookPack::start)
+    }
+
+    private companion object {
+        const val ROBOLECTRIC = "robolectric"
     }
 }

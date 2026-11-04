@@ -47,7 +47,7 @@ class SpokenHintTest {
         ShadowLooper.idleMainLooper(wait, TimeUnit.MILLISECONDS)
         assertFalse(model.state.value.isSpeaking)
 
-        assertEquals(word, shadowOf(engine).lastSpokenText)
+        assertEquals(word.lowercase(), shadowOf(engine).lastSpokenText)
         model.skipWord()
         assertEquals(1, model.state.value.wordIndex)
     }

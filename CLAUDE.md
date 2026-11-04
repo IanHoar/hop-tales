@@ -49,8 +49,13 @@ at the root are shared. Paths below under `HopTales…` and `project.yml` are in
   request; `WordMatcherTest` mirrors `WordMatcherTests` case for case.
 - Content, art and fonts are not copied: `app/build.gradle.kts` reads them from
   `ios/HopTalesPackage/Sources/*/Resources`. Don't duplicate them under `android/`.
-- Recognition uses `SpeechRecognizer.createOnDeviceSpeechRecognizer` only — never the network
-  recogniser — so `minSdk` is 31.
+- Recognition is on-device only, with Vosk: the small English model is bundled (Gradle's
+  `speechModel` task downloads and checksums it at build time; it is not committed), unpacked and
+  loaded at launch, and each sentence gets a grammar of its own words plus the story vocabulary as
+  decoys (`speech/Grammar.kt`). If the model can't load, it falls back to
+  `SpeechRecognizer.createOnDeviceSpeechRecognizer` — never the network recogniser — so `minSdk`
+  is 31. Bundled open-source code is credited in Settings › Licences; add to `Licences.all`
+  when you bundle more.
 - Build with `./gradlew test` and `./gradlew :app:installDebug` from `android/`. The emulator has an
   on-device recogniser, but test the real loop on a device.
 
