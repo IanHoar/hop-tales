@@ -220,6 +220,7 @@ public struct OnboardingScreen: View {
   let store: StoreOf<Onboarding>
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.simulatedFold) private var simulatedFold
+  @State private var natural = CGFloat.zero
 
   public init(store: StoreOf<Onboarding>) {
     self.store = store
@@ -239,12 +240,14 @@ public struct OnboardingScreen: View {
         if let fold, !fold.runsAcross {
           hare(on: fold.stage(in: area))
         }
-        ViewThatFits(in: .vertical) {
-          OnboardingSheet(store: store, bottomInset: insets.bottom, scrolls: false)
-            .frame(minHeight: fill, alignment: .top)
-            .fixedSize(horizontal: false, vertical: true)
-          OnboardingSheet(store: store, bottomInset: insets.bottom, scrolls: true)
-        }
+        OnboardingSheet(store: store, bottomInset: insets.bottom, scrolls: true)
+          .frame(maxHeight: max(fill, natural))
+          .background(alignment: .top) {
+            OnboardingSheet(store: store, bottomInset: insets.bottom, scrolls: false)
+              .fixedSize(horizontal: false, vertical: true)
+              .hidden()
+              .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { natural = $0 }
+          }
         .frame(maxWidth: 560)
         .frame(maxWidth: .infinity)
         .liftsAboveKeyboard()
