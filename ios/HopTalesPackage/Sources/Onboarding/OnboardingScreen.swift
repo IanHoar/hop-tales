@@ -279,6 +279,9 @@ struct OnboardingSheet: View {
   let store: StoreOf<Onboarding>
   let bottomInset: CGFloat
   let scrolls: Bool
+  @State private var shown = 0
+
+  private var position: Int { store.isWelcoming ? 0 : store.stepNumber }
 
   var body: some View {
     VStack(spacing: 16) {
@@ -309,19 +312,20 @@ struct OnboardingSheet: View {
   }
 
   private var page: some View {
-    Group {
-      if store.isWelcoming {
-        WelcomePage()
-      } else {
-        StepPage(store: store)
+    ZStack(alignment: .top) {
+      Group {
+        if store.isWelcoming {
+          WelcomePage()
+        } else {
+          StepPage(store: store)
+        }
       }
+      .id(position)
+      .transition(.push(from: position >= shown ? .trailing : .leading))
     }
-    .id(store.isWelcoming ? nil : store.step)
-    .transition(
-      .asymmetric(insertion: .offset(x: 18).combined(with: .opacity), removal: .opacity)
-    )
-    .animation(.easeOut(duration: 0.35), value: store.step)
-    .animation(.easeOut(duration: 0.35), value: store.isWelcoming)
+    .clipped()
+    .animation(.easeInOut(duration: 0.35), value: position)
+    .onChange(of: position) { _, now in shown = now }
   }
 
   private var header: some View {
