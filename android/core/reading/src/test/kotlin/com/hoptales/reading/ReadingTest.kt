@@ -80,6 +80,25 @@ class ReadingTest {
         assertEquals(Heard.SPEAKING, reading.lastHeard)
     }
 
+    @Test fun silenceOffersAHintWithoutSpeaking() {
+        val reading = Reading(story)
+        reading.hintOffered()
+        assertTrue(reading.state.isOfferingHint)
+        assertFalse(reading.state.isSpeaking)
+        assertEquals("The", reading.helpRequested())
+        assertFalse(reading.state.isOfferingHint)
+        assertTrue(reading.state.isSpeaking)
+        assertTrue(reading.state.usedHelp)
+    }
+
+    @Test fun readingTheWordPutsTheHintAway() {
+        val reading = Reading(story)
+        reading.hintOffered()
+        reading.read("the")
+        assertFalse(reading.state.isOfferingHint)
+        assertEquals(1, reading.state.wordIndex)
+    }
+
     @Test fun askingToHearAWordTwiceOverDoesNotStack() {
         val reading = Reading(story)
         assertEquals("The", reading.helpRequested())

@@ -29,6 +29,7 @@ import World
     public var hasTriedItOn = false
     public var isConfirmingStop = false
     public var isNoisy = false
+    public var isOfferingHint = false
     public var listeningEpoch = 0
     public var isSpeaking = false
     public var recognised: Recognised?
@@ -77,7 +78,8 @@ import World
     case currentWordTapped
     case backToMyStoriesTapped
     case readAgainTapped
-    case helpOffered
+    case hintOffered
+    case hintTapped
     case keepReadingTapped
     case tryItOnTapped(Friend)
     case momentDismissed
@@ -122,6 +124,7 @@ import World
         state.wordIndex = 0
         state.stars = 0
         state.usedHelp = false
+        state.isOfferingHint = false
         state.journeyMoments = []
         wordsHelped = []
         wordsRead = []
@@ -149,8 +152,13 @@ import World
         guard state.callout == nil else { break }
         store.addTask { try store.send(.backToStoriesTapped) }
 
-      case .currentWordTapped, .helpOffered:
+      case .hintOffered:
+        guard state.currentWord != nil, !state.isSpeaking else { break }
+        state.isOfferingHint = true
+
+      case .currentWordTapped, .hintTapped:
         guard let word = state.currentWord?.text, !state.isSpeaking else { break }
+        state.isOfferingHint = false
         wordsHelped.insert(WordRef(sentence: state.sentenceIndex, word: state.wordIndex))
         state.usedHelp = true
         state.isSpeaking = true
@@ -197,6 +205,7 @@ import World
         if match == nil { missed(tokens) }
         guard let match else { break }
         matched(&state)
+        state.isOfferingHint = false
         let sentenceBefore = state.sentenceIndex
         let starsBefore = state.stars
         let readIndex = state.wordIndex
@@ -261,7 +270,7 @@ import World
             case .silence:
               guard ContinuousClock.now - heardAt >= Reading.offerHelpAfter else { break }
               heardAt = .now
-              try store.send(.helpOffered)
+              try store.send(.hintOffered)
             case let .level(level):
               try store.send(.noiseLevel(level))
             }
@@ -340,6 +349,11 @@ public struct ReadingScreen: View {
           .padding(.top, chrome.path(4))
         NoiseCueSlot(isNoisy: store.isNoisy, geometry: chrome)
           .padding(.top, chrome.path(4))
+        HintChipSlot(isOffering: store.isOfferingHint, geometry: chrome) {
+          store.send(.hintTapped)
+        }
+        .padding(.trailing, chrome.path(18))
+        .padding(.top, chrome.path(4))
         #if DEBUG
           if store.currentWord != nil {
             DebugControls(store: store)
