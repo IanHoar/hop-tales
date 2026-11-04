@@ -26,11 +26,18 @@ class WordMatcherTest {
 
     @Test fun levenshteinIsNotAppliedToShortWords() = assertNull(target("sad", current = sat, strictness = Strictness.STANDARD))
 
-    @Test fun aDifferentFinalConsonantIsNotForgiven() {
-        assertNull(target("sap", current = sat))
-        assertNull(target("bob", "sapp", current = sat))
-        assertNull(target("but", current = Word("bug")))
-        assertNull(target("butt", current = Word("bug")))
+    @Test fun aRecognisersSlipOnAFinalStopIsForgiven() {
+        assertEquals(Target.CURRENT, target("lot", current = Word("log")))
+        assertEquals(Target.CURRENT, target("but", current = Word("bug")))
+        assertNull(target("sam", current = sat))
+        assertNull(target("bus", current = Word("bug")))
+    }
+
+    @Test fun aLongerWordForgivesOnlyAnAddedOrDroppedLetter() {
+        val hops = Word("hops")
+        assertEquals(Target.CURRENT, target("hop", current = hops))
+        assertNull(target("hope", current = hops))
+        assertNull(target("hope", current = hops, strictness = Strictness.STANDARD))
     }
 
     @Test fun onIsHeardWithoutItsN() {

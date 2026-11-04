@@ -36,6 +36,8 @@ public enum WordMatcher {
   ]
 
   static let vowels = Set("aeiouy")
+  static let stops: Set<Character> = ["b", "d", "g", "k", "p", "t"]
+
   static let voicing: [Character: Character] = [
     "t": "d", "d": "t", "p": "b", "b": "p", "k": "g", "g": "k", "s": "z", "z": "s"
   ]
@@ -92,7 +94,7 @@ public enum WordMatcher {
     if letterNames[token]?.contains(text) == true { return true }
 
     if token == text { return true }
-    if text.count >= 4, levenshtein(token, text) <= 1 { return true }
+    if text.count >= 4, oneLetterAddedOrDropped(token, text) { return true }
     guard strictness == .gentle else { return false }
 
     let squeezed = collapsed(token)
@@ -110,25 +112,18 @@ public enum WordMatcher {
       !vowels.contains(target[2]), (3...4).contains(heard.count),
       let first = heard.first, let last = heard.last, first == target[0],
       last == target[2] || last == voicing[target[2]]
+        || (stops.contains(last) && stops.contains(target[2]))
     else { return false }
     return heard.dropFirst().dropLast().allSatisfy(vowels.contains)
   }
 
-  static func levenshtein(_ lhs: String, _ rhs: String) -> Int {
-    let lhs = Array(lhs), rhs = Array(rhs)
-    guard !lhs.isEmpty else { return rhs.count }
-    guard !rhs.isEmpty else { return lhs.count }
-
-    var previous = Array(0...rhs.count)
-    var current = [Int](repeating: 0, count: rhs.count + 1)
-    for i in 1...lhs.count {
-      current[0] = i
-      for j in 1...rhs.count {
-        let substitution = previous[j - 1] + (lhs[i - 1] == rhs[j - 1] ? 0 : 1)
-        current[j] = min(previous[j] + 1, current[j - 1] + 1, substitution)
-      }
-      swap(&previous, &current)
+  static func oneLetterAddedOrDropped(_ lhs: String, _ rhs: String) -> Bool {
+    let (short, long) = lhs.count < rhs.count ? (Array(lhs), Array(rhs)) : (Array(rhs), Array(lhs))
+    guard long.count == short.count + 1 else { return false }
+    return long.indices.contains { index in
+      var trimmed = long
+      trimmed.remove(at: index)
+      return trimmed == short
     }
-    return previous[rhs.count]
   }
 }
