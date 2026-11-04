@@ -132,6 +132,15 @@ struct WordMatcherTests {
     #expect(WordMatcher.match(tokens: ["mat"], current: sat, next: mat)?.target == .next)
   }
 
+  @Test func aRepeatedWordIsReadOnce() {
+    let match = WordMatcher.match(
+      tokens: ["hop"],
+      current: Word(text: "Hop"),
+      next: Word(text: "hop")
+    )
+    #expect(match?.target == .current)
+  }
+
   @Test func normalizeStripsPunctuationAndCase() {
     #expect(WordMatcher.normalize("The cat, SAT!") == ["the", "cat", "sat"])
   }

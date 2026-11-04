@@ -67,7 +67,8 @@ public enum WordMatcher {
 
     if let next {
       for token in tail.reversed() {
-        guard accepts(token: token, target: next, strictness: strictness) else { continue }
+        guard accepts(token: token, target: next, strictness: strictness),
+              !accepts(token: token, target: current, strictness: strictness) else { continue }
         return Match(target: .next, token: token)
       }
     }

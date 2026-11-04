@@ -55,7 +55,7 @@ object WordMatcher {
         if (tail.isEmpty()) return null
 
         if (next != null) {
-            tail.asReversed().firstOrNull { accepts(it, next, strictness) }
+            tail.asReversed().firstOrNull { accepts(it, next, strictness) && !accepts(it, current, strictness) }
                 ?.let { return Match(Target.NEXT, it) }
         }
         return tail.asReversed().firstOrNull { accepts(it, current, strictness) }
