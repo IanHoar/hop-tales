@@ -221,6 +221,7 @@ fun SettingsContent(state: SettingsState, actions: SettingsActions, onPlus: (Plu
                 }
                 Section("Backup") { BackupRow(state, actions.backupToggled) }
                 Section("Speech log") { SpeechLogRow(state, actions) }
+                Section("Licences") { LicencesRows() }
                 Section("Testing") {
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         ActionChip("Reset onboarding", Glyphs.counterclockwise, actions.resetOnboarding)

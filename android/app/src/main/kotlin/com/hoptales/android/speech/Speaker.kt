@@ -80,7 +80,7 @@ class Speaker(context: Context) {
                     synchronized(pending) { pending.remove(id) }
                     engine.stop()
                 }
-                engine.speak(word, TextToSpeech.QUEUE_FLUSH, null, id)
+                engine.speak(word.lowercase(locale), TextToSpeech.QUEUE_FLUSH, null, id)
             }
         }
     }

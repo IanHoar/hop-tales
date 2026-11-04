@@ -18,8 +18,17 @@ cd android
 
 `local.properties` (ignored) holds `sdk.dir`; Android Studio writes it for you.
 
-Speech recognition is on-device only — `SpeechRecognizer.createOnDeviceSpeechRecognizer`, never the
-network recogniser — so the app needs Android 12 (API 31) or later. Listening uses the on-device model for the
+Speech recognition is on-device only. It uses [Vosk](https://alphacephei.com/vosk/) with the small
+US English model (Apache 2.0), which ships inside the app: the `speechModel` Gradle task downloads it
+from alphacephei.com once, checks its SHA-256 and adds it to the assets, and the app copies it to
+`no_backup/` and loads it in the background at launch. Each sentence is listened for with a grammar
+of that sentence (and its endings, so the sentence's own word order wins), its words, and the rest
+of the story vocabulary as decoys that near-miss and nonsense words land on instead. Audio is read in
+0.1 s chunks, and a word counts once it has appeared in two chunks in a row, so a tap or cough
+doesn't (`WordStream`). The recogniser streams continuously and only restarts between sentences.
+
+If the model can't be loaded, listening falls back to `SpeechRecognizer.createOnDeviceSpeechRecognizer`,
+never the network recogniser — so the app needs Android 12 (API 31) or later. The fallback uses the on-device model for the
 chosen accent; where that one isn't installed it borrows another installed English model (American
 first, then any English), checked with `checkRecognitionSupport` on Android 13 and later (Android 12
 can only ask whether any on-device model exists, and if the check fails or takes over 2 s the accent's
@@ -172,7 +181,7 @@ The dressed-friend sheets go in the `looks` fast-follow asset pack rather than t
 ## Privacy
 
 Same rules as iOS: on-device recognition only, nothing recorded or sent, no analytics, no third-party
-SDKs. The only copy that can leave the device is Android's own backup into the family's Google
+SDKs. Vosk is an open-source library that runs entirely on the device; it makes no network calls. The only copy that can leave the device is Android's own backup into the family's Google
 account, and only after a grown-up opts in, in onboarding or in Settings.
 
 `HopTalesBackupAgent` decides each backup pass (`BackupPlan`):

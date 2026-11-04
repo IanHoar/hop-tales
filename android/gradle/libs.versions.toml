@@ -17,6 +17,8 @@ play-publisher = "4.1.1"
 window = "1.5.0"
 asset-delivery = "2.3.0"
 billing = "9.1.0"
+vosk = "0.3.47"
+jna = "5.13.0"
 
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
@@ -42,6 +44,8 @@ robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectr
 roborazzi = { module = "io.github.takahirom.roborazzi:roborazzi", version.ref = "roborazzi" }
 play-asset-delivery = { module = "com.google.android.play:asset-delivery", version.ref = "asset-delivery" }
 billing-ktx = { module = "com.android.billingclient:billing-ktx", version.ref = "billing" }
+vosk-android = { module = "com.alphacephei:vosk-android", version.ref = "vosk" }
+jna = { module = "net.java.dev.jna:jna", version.ref = "jna" }
 roborazzi-compose = { module = "io.github.takahirom.roborazzi:roborazzi-compose", version.ref = "roborazzi" }
 
 [plugins]

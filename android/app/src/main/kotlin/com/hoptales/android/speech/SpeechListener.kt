@@ -31,6 +31,7 @@ sealed interface SpeechEvent {
     data class Partial(val tokens: List<String>) : SpeechEvent
     data class Final(val tokens: List<String>) : SpeechEvent
     data class Level(val decibels: Float) : SpeechEvent
+    data object Began : SpeechEvent
     data class Ended(val reason: ListenEnd) : SpeechEvent
 }
 
@@ -135,38 +136,56 @@ class SpeechListener(private val context: Context, private val audio: ReadingAud
         }
 
         val settling = SettledPartial()
+        var peak = -100f
         recognizer.setRecognitionListener(
             object : RecognitionListener {
                 override fun onPartialResults(partialResults: Bundle) {
+                    SpeechTrace.log("partial raw=${partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)}")
                     val heard = tokens(partialResults) ?: return
                     settling.heard(heard, SystemClock.elapsedRealtime())
                     trySend(SpeechEvent.Partial(heard))
                 }
 
                 override fun onResults(results: Bundle) {
+                    SpeechTrace.log("final raw=${results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)}")
                     tokens(results)?.let { trySend(SpeechEvent.Final(it)) }
                     end(ListenEnd.FINISHED)
                 }
 
                 override fun onError(error: Int) {
+                    SpeechTrace.log("error $error")
                     end(if (error in QUIET_ENDINGS) ListenEnd.FINISHED else ListenEnd.FAILED)
                 }
 
                 override fun onRmsChanged(rmsdB: Float) {
+                    peak = maxOf(peak, rmsdB)
                     meter.add(rmsdB, SystemClock.elapsedRealtime())
                 }
 
-                override fun onReadyForSpeech(params: Bundle?) = Unit
-                override fun onBeginningOfSpeech() = Unit
+                override fun onReadyForSpeech(params: Bundle?) = SpeechTrace.log("ready")
+                override fun onBeginningOfSpeech() {
+                    SpeechTrace.log("speech began")
+                    trySend(SpeechEvent.Began)
+                }
                 override fun onBufferReceived(buffer: ByteArray?) = Unit
-                override fun onEndOfSpeech() = Unit
+                override fun onEndOfSpeech() = SpeechTrace.log("speech ended")
                 override fun onEvent(eventType: Int, params: Bundle?) = Unit
             },
         )
         launch {
             while (true) {
                 delay(SettledPartial.STABILITY_TICK_MILLIS)
-                settling.settled(SystemClock.elapsedRealtime())?.let { send(SpeechEvent.Partial(it)) }
+                settling.settled(SystemClock.elapsedRealtime())?.let {
+                    SpeechTrace.log("settled $it")
+                    send(SpeechEvent.Partial(it))
+                }
+            }
+        }
+        launch {
+            while (true) {
+                delay(LEVEL_TRACE_MILLIS)
+                SpeechTrace.log("level peak=${peak.toInt()} floor=${meter.floor.toInt()}")
+                peak = -100f
             }
         }
         launch {
@@ -179,8 +198,10 @@ class SpeechListener(private val context: Context, private val audio: ReadingAud
             audio.interruptions.first()
             end(ListenEnd.INTERRUPTED)
         }
+        SpeechTrace.started("listen $locale bias=$biasing")
         recognizer.startListening(intent(biasing, locale))
         awaitClose {
+            SpeechTrace.log("closed")
             recognizer.cancel()
             recognizer.destroy()
             audio.releaseLater()
@@ -209,6 +230,7 @@ class SpeechListener(private val context: Context, private val audio: ReadingAud
         const val DOWNLOAD_POLL_MILLIS = 2_000L
         const val DOWNLOAD_WAIT_MILLIS = 10 * 60_000L
         const val DONE_PERCENT = 100
+        const val LEVEL_TRACE_MILLIS = 500L
         val QUIET_ENDINGS = setOf(SpeechRecognizer.ERROR_NO_MATCH, SpeechRecognizer.ERROR_SPEECH_TIMEOUT)
     }
 }
