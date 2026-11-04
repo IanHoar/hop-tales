@@ -27,15 +27,12 @@ struct WordMatcherTests {
     )
   }
 
-  @Test func droppedFinalConsonantIsForgivenWhenGentle() {
-    #expect(WordMatcher.match(tokens: ["sap"], current: sat, next: nil)?.target == .current)
-    #expect(
-      WordMatcher.match(tokens: ["sap"], current: sat, next: nil, strictness: .standard) == nil
-    )
-  }
-
-  @Test func aDoubledFinalLetterIsForgivenWhenGentle() {
-    #expect(WordMatcher.match(tokens: ["bob", "sapp"], current: sat, next: nil)?.target == .current)
+  @Test func aDifferentFinalConsonantIsNotForgiven() {
+    let bug = Word(text: "bug")
+    #expect(WordMatcher.match(tokens: ["sap"], current: sat, next: nil) == nil)
+    #expect(WordMatcher.match(tokens: ["bob", "sapp"], current: sat, next: nil) == nil)
+    #expect(WordMatcher.match(tokens: ["but"], current: bug, next: nil) == nil)
+    #expect(WordMatcher.match(tokens: ["butt"], current: bug, next: nil) == nil)
   }
 
   @Test(arguments: ["oh", "awn"])

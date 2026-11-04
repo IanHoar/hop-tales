@@ -79,9 +79,6 @@ object WordMatcher {
         if (strictness != Strictness.GENTLE) return false
 
         val squeezed = collapsed(heard)
-        for (candidate in setOf(heard, squeezed)) {
-            if (candidate.length == text.length && candidate.take(2) == text.take(2)) return true
-        }
         if (target.homophones.any { it.lowercase() == heard }) return true
         if (soundsAlike[text]?.contains(heard) == true) return true
         if (soundsAlike[text]?.contains(collapsed(heard)) == true) return true

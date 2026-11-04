@@ -96,9 +96,6 @@ public enum WordMatcher {
     guard strictness == .gentle else { return false }
 
     let squeezed = collapsed(token)
-    for heard in Set([token, squeezed]) where heard.count == text.count {
-      if heard.prefix(2) == text.prefix(2) { return true }
-    }
     if target.homophones.contains(where: { $0.lowercased() == token }) { return true }
     if soundsAlike[text]?.contains(token) == true { return true }
     if soundsAlike[text]?.contains(collapsed(token)) == true { return true }
