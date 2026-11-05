@@ -10,7 +10,6 @@ struct SettingsPreview: View {
   var width = Metrics.phone.reference.width
   var height = Metrics.phone.reference.height
   var plus = PlusStatus.free
-  var foundNothingToRestore = false
 
   var body: some View {
     SettingsScreen(store: store)
@@ -22,7 +21,6 @@ struct SettingsPreview: View {
   private var state: Settings.State {
     var state = Settings.State()
     state.plusStatus = plus
-    state.foundNothingToRestore = foundNothingToRestore
     return state
   }
 
@@ -51,12 +49,9 @@ struct SettingsPreview: View {
 
 struct PlusSectionPreview: View {
   var plus = PlusStatus.free
-  var foundNothingToRestore = false
 
   var body: some View {
-    SettingsPreview(
-      height: 520, plus: plus, foundNothingToRestore: foundNothingToRestore
-    )
+    SettingsPreview(height: 520, plus: plus)
   }
 
   static let renewal = Date(timeIntervalSince1970: 1_772_496_000)

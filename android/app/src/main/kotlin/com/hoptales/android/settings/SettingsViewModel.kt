@@ -29,7 +29,6 @@ data class SettingsState(
     val speechLogOn: Boolean = false,
     val speechLogLines: Int = 0,
     val plusStatus: PlusStatus = PlusStatus.Free,
-    val foundNothingToRestore: Boolean = false,
 ) {
     val readingFriends: List<Friend> get() = Friend.entries.filter { it in journey.met || it in Friend.starters }
 
@@ -63,14 +62,6 @@ class SettingsViewModel(private val app: HopTalesApplication) : ViewModel() {
         }
         viewModelScope.launch {
             app.plus.status.collect { status -> mutableState.update { it.copy(plusStatus = status) } }
-        }
-    }
-
-    fun restore() {
-        mutableState.update { it.copy(foundNothingToRestore = false) }
-        viewModelScope.launch {
-            val found = app.plus.restore()
-            mutableState.update { it.copy(foundNothingToRestore = !found) }
         }
     }
 

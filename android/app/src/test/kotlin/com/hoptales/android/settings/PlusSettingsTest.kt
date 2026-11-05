@@ -30,7 +30,6 @@ class PlusSettingsTest {
     val compose = createComposeRule()
 
     private val app get() = RuntimeEnvironment.getApplication() as HopTalesApplication
-    private var restores = 0
     private val links = mutableListOf<String>()
 
     @Before
@@ -45,7 +44,6 @@ class PlusSettingsTest {
                     SettingsState(plusStatus = status),
                     SettingsActions(),
                     plus,
-                    onRestore = { restores += 1 },
                     openLink = { links += it },
                     gate = ParentGateState(seed = 1),
                 )
@@ -63,37 +61,27 @@ class PlusSettingsTest {
     @Test
     fun theStatusIsShownInPlainWords() {
         show(PlusStatus.Free)
-        compose.onNodeWithText("Free: the Level 1 stories").assertIsDisplayed()
-        compose.onNodeWithText(PlusStatus.RHYTHM).assertIsDisplayed()
+        compose.onNodeWithText("Unlock now").assertIsDisplayed()
+        compose.onNodeWithText("Restore purchases").assertDoesNotExist()
     }
 
     @Test
     fun aPendingPurchaseIsWaiting() {
         show(PlusStatus.Pending)
         compose.onNodeWithText("Waiting for your payment to go through").assertIsDisplayed()
-        compose.onNodeWithText("Subscribe").assertDoesNotExist()
+        compose.onNodeWithText("Unlock now").assertDoesNotExist()
         compose.onNodeWithText("Request a refund").assertDoesNotExist()
     }
 
     @Test
     fun subscribeGoesThroughTheGateToThePaywall() {
         show(PlusStatus.Free)
-        compose.onNodeWithText("Subscribe").performClick()
+        compose.onNodeWithText("Unlock now").performClick()
         answerTheGate()
         compose.onNodeWithText("Hop Tales Plus").assertIsDisplayed()
         compose.onNodeWithContentDescription("Yearly", substring = true).assertIsDisplayed()
         compose.onNodeWithText("Close").performClick()
-        compose.onNodeWithText("Free: the Level 1 stories").assertIsDisplayed()
-    }
-
-    @Test
-    fun restoreGoesThroughTheGate() {
-        show(PlusStatus.Free)
-        compose.onNodeWithText("Restore purchases").performClick()
-        assertEquals(0, restores)
-        answerTheGate()
-        assertEquals(1, restores)
-        compose.onNodeWithText("Free: the Level 1 stories").assertIsDisplayed()
+        compose.onNodeWithText("Unlock now").assertIsDisplayed()
     }
 
     @Test

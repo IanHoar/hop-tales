@@ -259,9 +259,9 @@ class ScreenshotTest {
     @Config(qualifiers = "w412dp-h2540dp-xhdpi")
     fun settingsDark() = settings(dark = true)
 
-    @Test fun plusFreeLight() = plusSection("plus-free", PlusStatus.Free, dark = false, nothingToRestore = true)
+    @Test fun plusFreeLight() = plusSection("plus-free", PlusStatus.Free, dark = false)
 
-    @Test fun plusFreeDark() = plusSection("plus-free", PlusStatus.Free, dark = true, nothingToRestore = true)
+    @Test fun plusFreeDark() = plusSection("plus-free", PlusStatus.Free, dark = true)
 
     @Test fun plusRenewsLight() = plusSection("plus-renews", PlusStatus.Renews(), dark = false)
 
@@ -324,7 +324,7 @@ class ScreenshotTest {
         compose.onRoot().captureRoboImage(path("onboarding-${step.name.lowercase().replace('_', '-')}", dark), options)
     }
 
-    private fun plusSection(name: String, status: PlusStatus, dark: Boolean, nothingToRestore: Boolean = false) {
+    private fun plusSection(name: String, status: PlusStatus, dark: Boolean) {
         val profile = Profile("Maya", Friend.HARE, Profile.Accent.CANADIAN)
         compose.setContent {
             HopTalesTheme(dark = dark) {
@@ -334,7 +334,6 @@ class ScreenshotTest {
                         profile = profile,
                         journey = Journey.starting(Friend.HARE),
                         plusStatus = status,
-                        foundNothingToRestore = nothingToRestore,
                     ),
                     SettingsActions(),
                 )

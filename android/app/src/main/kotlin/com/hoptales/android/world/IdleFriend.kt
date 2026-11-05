@@ -26,7 +26,9 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.hoptales.android.design.rememberReducedMotion
 import com.hoptales.content.Friend
+import kotlin.math.PI
 import kotlin.math.roundToInt
+import kotlin.math.sin
 
 data class IdlePose(val frame: Int, val scaleX: Float, val scaleY: Float) {
     companion object {
@@ -41,7 +43,15 @@ data class IdlePose(val frame: Int, val scaleX: Float, val scaleY: Float) {
 }
 
 @Composable
-fun IdleFriend(friend: Friend, look: String?, height: Dp, modifier: Modifier = Modifier, shadow: Color? = null) {
+fun IdleFriend(
+    friend: Friend,
+    look: String?,
+    height: Dp,
+    modifier: Modifier = Modifier,
+    shadow: Color? = null,
+    hopStart: Double? = null,
+    hopLift: Dp = 0.dp,
+) {
     val assets = LocalContext.current.assets
     val looks = LocalLooks.current
     val still = rememberReducedMotion()
@@ -50,6 +60,7 @@ fun IdleFriend(friend: Friend, look: String?, height: Dp, modifier: Modifier = M
     val image = remember(friend, look, looks) {
         look?.let { Art.image(assets, sheets.dressed(friend, it, HareSheet.IDLE), looks) } ?: Art.image(assets, sheet.asset)
     }
+    val hopImage = remember(friend) { Art.image(assets, sheets.hop.asset) }
     var time by remember { mutableDoubleStateOf(System.nanoTime() / 1e9) }
     LaunchedEffect(still) {
         if (still) return@LaunchedEffect
@@ -57,19 +68,23 @@ fun IdleFriend(friend: Friend, look: String?, height: Dp, modifier: Modifier = M
     }
     val width = height / HareSheet.REST_HEIGHT * sheet.scale * sheet.cellWidth.toFloat()
     val draw: DrawScope.(ColorFilter?) -> Unit = draw@{ filter ->
-        val art = image ?: return@draw
-        val pose = IdlePose.at(time, still)
-        val scale = size.height / HareSheet.REST_HEIGHT * sheet.scale
-        val drawn = IntSize((sheet.cellWidth * scale * pose.scaleX).roundToInt(), (sheet.cellHeight * scale * pose.scaleY).roundToInt())
+        val hopFrame = hopStart?.let { ((time - it) * HOP_FPS).toInt() }?.takeIf { !still && it in 0 until HareSheet.HOP.frames }
+        val drawn = if (hopFrame != null) sheets.hop else sheet
+        val art = (if (hopFrame != null) hopImage else image) ?: return@draw
+        val pose = hopFrame?.let { IdlePose(it, 1f, 1f) } ?: IdlePose.at(time, still)
+        val arc = hopFrame?.let { sin(PI * ((time - (hopStart ?: time)) * HOP_FPS - 1).div(6).coerceIn(0.0, 1.0)).toFloat() } ?: 0f
+        val lift = hopLift.toPx() * arc
+        val scale = size.height / HareSheet.REST_HEIGHT * drawn.scale
+        val frameSize = IntSize((drawn.cellWidth * scale * pose.scaleX).roundToInt(), (drawn.cellHeight * scale * pose.scaleY).roundToInt())
         drawImage(
             art,
-            srcOffset = IntOffset(pose.frame.coerceIn(0, sheet.frames - 1) * sheet.cellWidth, 0),
-            srcSize = IntSize(sheet.cellWidth, sheet.cellHeight),
+            srcOffset = IntOffset(pose.frame.coerceIn(0, drawn.frames - 1) * drawn.cellWidth, 0),
+            srcSize = IntSize(drawn.cellWidth, drawn.cellHeight),
             dstOffset = IntOffset(
-                (size.width / 2 - drawn.width * sheet.anchorX).roundToInt(),
-                (size.height - drawn.height * sheet.anchorY).roundToInt(),
+                (size.width / 2 - frameSize.width * drawn.anchorX).roundToInt(),
+                (size.height - frameSize.height * drawn.anchorY - lift).roundToInt(),
             ),
-            dstSize = drawn,
+            dstSize = frameSize,
             colorFilter = filter,
             filterQuality = FilterQuality.Medium,
         )
@@ -88,5 +103,6 @@ fun IdleFriend(friend: Friend, look: String?, height: Dp, modifier: Modifier = M
     }
 }
 
+private const val HOP_FPS = 14.0
 private val SHADOW_DROP = 4.dp
 private val SHADOW_BLUR = 6.dp

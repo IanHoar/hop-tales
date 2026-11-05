@@ -31,7 +31,6 @@ import World
     public var strictness: WordMatcher.Strictness = .gentle
     public var voices: [Voice] = []
     public var plusStatus = PlusStatus.free
-    public var foundNothingToRestore = false
     public var isManagingSubscription = false
     public var isRequestingRefund = false
     public var gatedRequest: GatedRequest?
@@ -130,13 +129,6 @@ import World
     store.addTask {
       let account = await cloudSync.account()
       try store.send(.cloud(.accountResolved(account)))
-    }
-  }
-
-  func restore() {
-    store.addTask {
-      let isPlus = (try? await purchases.restore()) ?? false
-      try store.send(.subscription(.restored(isPlus)))
     }
   }
 

@@ -3,6 +3,7 @@ import Content
 import DesignSystem
 import StoreKit
 import SwiftUI
+import World
 
 extension Settings {
   @CasePathable
@@ -11,14 +12,11 @@ extension Settings {
     case manageTapped
     case refundClosed
     case refundTapped
-    case restoreTapped
-    case restored(Bool)
     case statusResolved(PlusStatus)
     case subscribeTapped
   }
 
   public enum GatedRequest: Hashable, Sendable {
-    case restore
     case manage
     case refund
   }
@@ -35,11 +33,6 @@ extension Settings {
       reloadStatus()
     case .refundTapped:
       ask(.refund, &state)
-    case .restoreTapped:
-      ask(.restore, &state)
-    case let .restored(isPlus):
-      state.foundNothingToRestore = !isPlus
-      reloadStatus()
     case let .statusResolved(status):
       state.plusStatus = status
     case .subscribeTapped:
@@ -57,9 +50,6 @@ extension Settings {
     state.gate = nil
     state.gatedRequest = nil
     switch request {
-    case .restore:
-      state.foundNothingToRestore = false
-      restore()
     case .manage:
       state.isManagingSubscription = true
     case .refund:
@@ -82,6 +72,48 @@ extension Settings {
 
 struct PlusRow: View {
   let store: StoreOf<Settings>
+
+  var body: some View {
+    Group {
+      if store.plusStatus.canSubscribe {
+        PlusUpsell { store.send(.subscription(.subscribeTapped)) }
+      } else {
+        PlusMembership(store: store)
+      }
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .padding(.horizontal, 16)
+    .padding(.vertical, 14)
+    .settingsField()
+  }
+}
+
+struct PlusUpsell: View {
+  let unlock: () -> Void
+
+  var body: some View {
+    VStack(spacing: 16) {
+      PlusTaste()
+      VStack(spacing: 4) {
+        Text("Hop Tales Plus")
+          .font(Typography.display(28))
+          .foregroundStyle(Paper.ink)
+        Text("Unlock more stories and characters.")
+          .font(Typography.ui(16, weight: .medium))
+          .foregroundStyle(Paper.muted)
+      }
+      .multilineTextAlignment(.center)
+      .fixedSize(horizontal: false, vertical: true)
+      Button(action: unlock) {
+        Label("Unlock now", systemImage: "lock.fill")
+      }
+      .buttonStyle(.paper)
+    }
+  }
+}
+
+struct PlusMembership: View {
+  let store: StoreOf<Settings>
   @Environment(\.locale) private var locale
   @Environment(\.timeZone) private var timeZone
 
@@ -98,25 +130,9 @@ struct PlusRow: View {
         }
       }
       .fixedSize(horizontal: false, vertical: true)
-      VStack(alignment: .leading, spacing: 4) {
-        Text(PlusStatus.gives)
-        Text(PlusStatus.rhythm)
-      }
-      .font(Typography.ui(15))
-      .foregroundStyle(Paper.muted)
-      .fixedSize(horizontal: false, vertical: true)
-      if store.plusStatus.canSubscribe {
-        Button("Subscribe") { store.send(.subscription(.subscribeTapped)) }
-          .buttonStyle(.paper)
-      }
       VStack(alignment: .leading, spacing: 10) {
-        Button("Restore purchases", systemImage: "arrow.clockwise") {
-          store.send(.subscription(.restoreTapped))
-        }
-        if store.plusStatus.canManage {
-          Button("Manage subscription", systemImage: "creditcard") {
-            store.send(.subscription(.manageTapped))
-          }
+        Button("Manage subscription", systemImage: "creditcard") {
+          store.send(.subscription(.manageTapped))
         }
         if store.plusStatus.canRequestRefund {
           Button("Request a refund", systemImage: "arrow.uturn.backward.circle") {
@@ -125,17 +141,7 @@ struct PlusRow: View {
         }
       }
       .buttonStyle(.paperChip)
-      if store.foundNothingToRestore {
-        Text("There's no Hop Tales Plus subscription to restore on this Apple Account.")
-          .font(Typography.ui(14, weight: .medium))
-          .foregroundStyle(Paper.muted)
-          .fixedSize(horizontal: false, vertical: true)
-      }
     }
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .padding(.horizontal, 16)
-    .padding(.vertical, 14)
-    .settingsField()
   }
 }
 

@@ -106,39 +106,6 @@ struct PlusSettingsTests {
     await store.dismount()
   }
 
-  @Test func restoreGoesThroughTheGateAndFindsPlus() async {
-    let store = settings(PurchasesClient(start: {}, isPlus: { Self.plus() }, restore: { true }))
-    await store.receive(\.subscription.statusResolved) { $0.plusStatus = PlusStatus(.plus) }
-    store.send(.subscription(.restoreTapped)) {
-      $0.gatedRequest = .restore
-      $0.gate = ParentGate.State.DebugSnapshot(seed: 1)
-    }
-    answerTheGate(store)
-    await store.receive(\.gate.passed) {
-      $0.gatedRequest = nil
-      $0.gate = nil
-    }
-    await store.receive(\.subscription.restored)
-    await store.receive(\.subscription.statusResolved)
-    await store.dismount()
-  }
-
-  @Test func restoringWithNothingToRestoreSaysSo() async {
-    let store = settings(.fake(restores: false))
-    store.send(.subscription(.restoreTapped)) {
-      $0.gatedRequest = .restore
-      $0.gate = ParentGate.State.DebugSnapshot(seed: 1)
-    }
-    answerTheGate(store)
-    await store.receive(\.gate.passed) {
-      $0.gatedRequest = nil
-      $0.gate = nil
-    }
-    await store.receive(\.subscription.restored) { $0.foundNothingToRestore = true }
-    await store.receive(\.subscription.statusResolved)
-    await store.dismount()
-  }
-
   @Test func manageGoesThroughTheGate() async {
     let store = settings(.fake(isPlus: true, status: Self.renewing), Self.renewing)
     await store.receive(\.subscription.statusResolved)
