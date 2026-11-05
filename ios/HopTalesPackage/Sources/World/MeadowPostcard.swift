@@ -1,7 +1,7 @@
 import Content
+import Synchronization
 import UIKit
 
-@MainActor
 public enum MeadowPostcard {
   private struct Key: Hashable {
     let mood: Mood
@@ -12,8 +12,25 @@ public enum MeadowPostcard {
     let world: Friend
   }
 
-  private static var cache: [Key: UIImage] = [:]
-  private static var tinted: [String: UIImage] = [:]
+  private static let cache = Mutex<[Key: UIImage]>([:])
+  private static let tinted = Mutex<[String: UIImage]>([:])
+
+  public static func cached(mood: Mood, size: CGSize) -> UIImage? {
+    let key = Key(
+      mood: mood, width: Int(size.width), height: Int(size.height), progress: 0, framing: .wide,
+      world: .hare
+    )
+    return cache.withLock { $0[key] }
+  }
+
+  public static func ground(for mood: Mood) -> UIColor {
+    mood.sky.style.gradient.last ?? .clear
+  }
+
+  @concurrent
+  public static func rendered(mood: Mood, size: CGSize) async -> UIImage {
+    image(mood: mood, size: size)
+  }
 
   public static func image(
     mood: Mood,
@@ -30,7 +47,7 @@ public enum MeadowPostcard {
       framing: framing,
       world: world
     )
-    if let cached = cache[key] { return cached }
+    if let cached = cache.withLock({ $0[key] }) { return cached }
     let layout = MeadowLayout(size: size, framing: framing)
     let format = UIGraphicsImageRendererFormat.default()
     format.scale = 2
@@ -52,7 +69,7 @@ public enum MeadowPostcard {
       if weather.rain { drawRain(size) }
       if weather.snow { drawSnow(size) }
     }
-    cache[key] = image
+    cache.withLock { $0[key] = image }
     return image
   }
 
@@ -159,8 +176,8 @@ public enum MeadowPostcard {
 
   private static func tintedProp(_ asset: String, mood: Mood) -> UIImage? {
     let key = "\(asset)-\(mood.sky.rawValue)-\(mood.weather.rawValue)"
-    if let cached = tinted[key] { return cached }
-    guard let source = MeadowArt.image(asset) else { return nil }
+    if let cached = tinted.withLock({ $0[key] }) { return cached }
+    guard let source = MeadowArt.decoded(asset) else { return nil }
     let format = UIGraphicsImageRendererFormat.default()
     format.scale = source.scale
     let image = UIGraphicsImageRenderer(size: source.size, format: format).image { context in
@@ -170,7 +187,7 @@ public enum MeadowPostcard {
       context.fill(rect, blendMode: .multiply)
       source.draw(in: rect, blendMode: .destinationIn, alpha: 1)
     }
-    tinted[key] = image
+    tinted.withLock { $0[key] = image }
     return image
   }
 
@@ -182,8 +199,8 @@ public enum MeadowPostcard {
   ) -> UIImage? {
     let asset = layer.asset(in: world)
     let key = "\(asset)-\(mood.sky.rawValue)-\(mood.weather.rawValue)-\(detail)"
-    if let cached = tinted[key] { return cached }
-    guard let source = MeadowArt.image(asset) else { return nil }
+    if let cached = tinted.withLock({ $0[key] }) { return cached }
+    guard let source = MeadowArt.decoded(asset) else { return nil }
     let size = CGSize(width: source.size.width / detail, height: source.size.height / detail)
     let format = UIGraphicsImageRendererFormat.default()
     format.scale = 1
@@ -194,7 +211,7 @@ public enum MeadowPostcard {
       context.fill(rect, blendMode: .multiply)
       source.draw(in: rect, blendMode: .destinationIn, alpha: 1)
     }
-    tinted[key] = image
+    tinted.withLock { $0[key] = image }
     return image
   }
 

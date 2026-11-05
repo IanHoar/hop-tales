@@ -1,21 +1,27 @@
 import SpriteKit
+import Synchronization
 import UIKit
 
-@MainActor
 enum MeadowArt {
-  private static var images: [String: UIImage] = [:]
-  private static var textures: [String: SKTexture] = [:]
+  private static let images = Mutex<[String: UIImage]>([:])
+  @MainActor private static var textures: [String: SKTexture] = [:]
 
   static func image(_ name: String) -> UIImage? {
-    if let cached = images[name] { return cached }
+    if let cached = images.withLock({ $0[name] }) { return cached }
     let url = ["png", "webp"].lazy
       .compactMap { Bundle.module.url(forResource: name, withExtension: $0) }
       .first
     guard let url, let image = UIImage(contentsOfFile: url.path) else { return nil }
-    images[name] = image
+    images.withLock { $0[name] = image }
     return image
   }
 
+  static func decoded(_ name: String) -> UIImage? {
+    guard let image = image(name) else { return nil }
+    return image.preparingForDisplay() ?? image
+  }
+
+  @MainActor
   static func texture(_ name: String) -> SKTexture {
     if let cached = textures[name] { return cached }
     let texture = image(name).map(SKTexture.init(image:)) ?? SKTexture()
@@ -23,10 +29,10 @@ enum MeadowArt {
     return texture
   }
 
-  private static var silhouettes: [String: UIImage] = [:]
+  private static let silhouettes = Mutex<[String: UIImage]>([:])
 
   static func silhouette(_ name: String) -> UIImage? {
-    if let cached = silhouettes[name] { return cached }
+    if let cached = silhouettes.withLock({ $0[name] }) { return cached }
     guard let source = image(name) else { return nil }
     let rect = CGRect(origin: .zero, size: source.size)
     let format = UIGraphicsImageRendererFormat.default()
@@ -36,7 +42,7 @@ enum MeadowArt {
       UIColor.white.setFill()
       context.fill(rect, blendMode: .sourceAtop)
     }
-    silhouettes[name] = shape
+    silhouettes.withLock { $0[name] = shape }
     return shape
   }
 

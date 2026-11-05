@@ -78,21 +78,17 @@ public struct MeadowUnderstory: View {
       let cg = context.cgContext
       cg.translateBy(x: 0, y: size.height)
       cg.scaleBy(x: 1, y: -1)
-      let fade = size.height * Self.fade
-      cg.saveGState()
-      cg.clip(to: CGRect(x: 0, y: 0, width: size.width, height: size.height - fade))
       cg.draw(cropped, in: CGRect(origin: .zero, size: size))
-      cg.restoreGState()
-      let steps = 24
-      for index in 0..<steps {
-        let slice = fade / CGFloat(steps)
-        let y = size.height - fade + CGFloat(index) * slice
-        cg.saveGState()
-        cg.clip(to: CGRect(x: 0, y: y, width: size.width, height: slice + 0.5))
-        cg.setAlpha(1 - CGFloat(index + 1) / CGFloat(steps + 1))
-        cg.draw(cropped, in: CGRect(origin: .zero, size: size))
-        cg.restoreGState()
-      }
+      let colors = [UIColor.black.cgColor, UIColor.clear.cgColor] as CFArray
+      guard let gradient = CGGradient(colorsSpace: nil, colors: colors, locations: [0, 1])
+      else { return }
+      cg.setBlendMode(.destinationIn)
+      cg.drawLinearGradient(
+        gradient,
+        start: CGPoint(x: 0, y: size.height * (1 - Self.fade)),
+        end: CGPoint(x: 0, y: size.height),
+        options: [.drawsBeforeStartLocation, .drawsAfterEndLocation]
+      )
     }
     faded[name] = image
     return image
