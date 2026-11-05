@@ -1,5 +1,13 @@
 package com.hoptales.android.reading
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -25,10 +33,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.hideFromAccessibility
@@ -207,7 +219,17 @@ private fun PaperNotice(
 }
 
 @Composable
-fun StoryFinished(title: String, stars: Int, geometry: PathGeometry, readAgain: () -> Unit, done: () -> Unit, leadsHome: Boolean = true) {
+fun StoryFinished(
+    title: String,
+    stars: Int,
+    geometry: PathGeometry,
+    readAgain: () -> Unit,
+    done: () -> Unit,
+    leadsHome: Boolean = true,
+    cheer: Double? = null,
+    countsUp: Boolean = true,
+    onStarChip: (Offset) -> Unit = {},
+) {
     val paper = LocalPaper.current
     val type = LocalTypography.current
     Box(Modifier.fillMaxSize()) {
@@ -236,6 +258,12 @@ fun StoryFinished(title: String, stars: Int, geometry: PathGeometry, readAgain: 
                 }
                 Row(
                     Modifier
+                        .onGloballyPositioned { onStarChip(it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)) }
+                        .graphicsLayer {
+                            val bump = cheer?.let(FinishCheer::chipScale) ?: 1f
+                            scaleX = bump
+                            scaleY = bump
+                        }
                         .rotate(4f)
                         .clearAndSetSemantics { contentDescription = "$stars stars" }
                         .height(geometry.dp(44f))
@@ -245,11 +273,21 @@ fun StoryFinished(title: String, stars: Int, geometry: PathGeometry, readAgain: 
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     PaperStar(geometry.dp(20f))
-                    Text(
-                        "+$stars",
-                        style = type.display(geometry.sp(18f)).copy(fontFeatureSettings = "tnum"),
-                        color = paper.ink,
-                    )
+                    AnimatedContent(
+                        targetState = if (countsUp) FinishCheer.shownStars(stars, cheer) else stars,
+                        transitionSpec = {
+                            (slideInVertically { it / 2 } + fadeIn(tween(200)))
+                                .togetherWith(slideOutVertically { -it / 2 } + fadeOut(tween(200)))
+                                .using(SizeTransform(clip = false))
+                        },
+                        label = "stars",
+                    ) { shown ->
+                        Text(
+                            "+$shown",
+                            style = type.display(geometry.sp(18f)).copy(fontFeatureSettings = "tnum"),
+                            color = paper.ink,
+                        )
+                    }
                 }
             }
             if (!leadsHome) {

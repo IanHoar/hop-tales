@@ -44,22 +44,22 @@ struct WordPathTests {
     #expect(path.startSign - path.stops[0].centre == WordPath.startSign)
   }
 
-  @Test func theLastWordRisesBesideTheSignWhenTheStoryEnds() throws {
+  @Test func theLastWordStaysOnThePathBeforeTheSignWhenTheStoryEnds() throws {
     let last = try #require(path.stops.last)
     let end = path.camera(at: HopTarget(sentence: Self.story.sentences.count, word: 0))
-    let lift = path.lastWordLift(of: last, cameraX: end)
-    let x = last.centre - end + lift.width
-    let y = path.wordY + lift.height
-    #expect(x - last.width / 2 >= path.geometry.path(WordPath.lastWordMargin) - 0.001)
-    #expect(x + last.width / 2 < path.endSign - end)
-    #expect(y + path.wordHeight / 2 < path.hareFeetY - path.hareHeight(hopping: false))
+    let x = last.centre - end + path.lastWordShift(of: last, cameraX: end)
+    let half = last.width * WordPath.sideScale / 2
+    #expect(x == path.lastWordX(last))
+    #expect(x <= path.geometry.path(WordPath.focusX))
+    #expect(x - half >= path.geometry.path(WordPath.lastWordMargin) - 0.001)
+    #expect(x + half < path.endSign - end)
   }
 
-  @Test func onlyTheLastWordRisesAndOnlyOnceTheStoryEnds() throws {
+  @Test func onlyTheLastWordShiftsAndOnlyOnceTheStoryEnds() throws {
     let last = try #require(path.stops.last)
-    #expect(path.lastWordLift(of: last, cameraX: path.camera(at: last.target)) == .zero)
+    #expect(path.lastWordShift(of: last, cameraX: path.camera(at: last.target)) == 0)
     let end = path.camera(at: HopTarget(sentence: Self.story.sentences.count, word: 0))
-    #expect(path.lastWordLift(of: path.stops[0], cameraX: end) == .zero)
+    #expect(path.lastWordShift(of: path.stops[0], cameraX: end) == 0)
   }
 
   @Test func thePathSitsLowOnTheReferencePhone() {
