@@ -119,7 +119,9 @@ struct PlusSettingsTests {
       $0.gate = nil
       $0.isManagingSubscription = true
     }
-    store.send(.subscription(.manageClosed)) { $0.isManagingSubscription = false }
+    store.modify { $0.isManagingSubscription = false } changes: {
+      $0.isManagingSubscription = false
+    }
     await store.receive(\.subscription.statusResolved)
     await store.dismount()
   }
@@ -137,7 +139,9 @@ struct PlusSettingsTests {
       $0.gate = nil
       $0.isRequestingRefund = true
     }
-    store.send(.subscription(.refundClosed)) { $0.isRequestingRefund = false }
+    store.modify { $0.isRequestingRefund = false } changes: {
+      $0.isRequestingRefund = false
+    }
     await store.receive(\.subscription.statusResolved)
     await store.dismount()
   }

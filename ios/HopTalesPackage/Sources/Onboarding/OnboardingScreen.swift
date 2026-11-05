@@ -152,6 +152,8 @@ import World
       case .primaryTapped:
         if state.isWelcoming {
           state.isWelcoming = false
+          let draft = state.draft
+          store.addTask { profileStore.saveDraft(draft) }
           break
         }
         if state.needsMicrophone {
@@ -185,7 +187,9 @@ import World
         state.soundButtons = isOn
 
       }
-      profileStore.saveDraft(state.draft)
+    }
+    .onChange(of: store.draft) { _, draft, _ in
+      store.addTask { profileStore.saveDraft(draft) }
     }
     .onMount { state in
       if state.step.rawValue > Step.listening.rawValue {

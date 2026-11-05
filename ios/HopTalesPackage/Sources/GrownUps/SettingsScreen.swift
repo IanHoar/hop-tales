@@ -87,7 +87,9 @@ import World
   private func refreshSpeechLog(_ state: inout State) {
     let entries = speechLog.entries()
     state.speechLogLines = entries.count
-    try? SpeechLog.csv(entries).write(to: Self.speechLogFile, atomically: true, encoding: .utf8)
+    store.addTask {
+      try SpeechLog.csv(entries).write(to: Self.speechLogFile, atomically: true, encoding: .utf8)
+    }
   }
 
   private func cloud(_ action: Cloud, _ state: inout State) {
@@ -246,6 +248,12 @@ import World
     }
     .ifLet(\.grownUp) {
       GrownUpPaywall()
+    }
+    .onChange(of: store.isManagingSubscription) { wasOpen, isOpen, _ in
+      if wasOpen, !isOpen { reloadStatus() }
+    }
+    .onChange(of: store.isRequestingRefund) { wasOpen, isOpen, _ in
+      if wasOpen, !isOpen { reloadStatus() }
     }
     .onEvent(PlusSubscribed.self) { _, state in
       state.grownUp = nil
