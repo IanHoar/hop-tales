@@ -186,10 +186,15 @@ android {
 
     assetPacks += ":looks"
 
+    val testForks =
+        (findProperty("testForks") as String?)?.toInt()
+            ?: (Runtime.getRuntime().availableProcessors() / 3).coerceAtLeast(1)
+
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
             all {
+                it.maxParallelForks = testForks
                 it.systemProperty("robolectric.pixelCopyRenderMode", "hardware")
                 it.jvmArgs("--add-opens=java.base/jdk.internal.access=ALL-UNNAMED")
                 it.systemProperty("hoptales.database", shared.resolve("Content/Database.swift").absolutePath)

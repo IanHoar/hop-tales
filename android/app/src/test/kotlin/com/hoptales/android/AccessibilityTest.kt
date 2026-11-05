@@ -264,9 +264,9 @@ class AccessibilityTest {
     @Test
     fun finishedPanelNamesTheStoryAndTheStars() {
         showReading()
-        val hear = compose.onNodeWithText("Read “", substring = true)
-        while (hear.exists()) {
-            hear.performClick()
+        val rest = compose.onNodeWithText("Rest of sentence")
+        while (rest.exists()) {
+            rest.performClick()
             compose.waitForIdle()
         }
         compose.onNodeWithContentDescription("You finished ${story.title}.").assertExists()
