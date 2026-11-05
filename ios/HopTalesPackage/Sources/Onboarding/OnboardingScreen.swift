@@ -356,6 +356,7 @@ struct OnboardingSheet: View {
         StepPage(store: store, step: step).scrolling()
       }
     }
+    .padding(.horizontal, -24)
   }
 
   private var header: some View {
