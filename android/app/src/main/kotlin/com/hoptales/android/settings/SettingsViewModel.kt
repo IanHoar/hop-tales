@@ -26,7 +26,6 @@ data class SettingsState(
     val backupWasOn: Boolean = false,
     val voices: List<VoiceOption> = emptyList(),
     val journey: Journey = Journey(),
-    val speechLogOn: Boolean = false,
     val speechLogLines: Int = 0,
     val plusStatus: PlusStatus = PlusStatus.Free,
 ) {
@@ -45,7 +44,6 @@ class SettingsViewModel(private val app: HopTalesApplication) : ViewModel() {
                 backupOn = app.backupChoice.isOn,
                 backupWasOn = app.backupChoice.wasEverOn,
                 journey = app.progressStore.load().journey,
-                speechLogOn = app.speechLog.isOn,
                 speechLogLines = app.speechLog.entries.size,
                 plusStatus = app.plus.status.value,
             )
@@ -99,18 +97,12 @@ class SettingsViewModel(private val app: HopTalesApplication) : ViewModel() {
         mutableState.update { it.copy(backupOn = isOn, backupWasOn = app.backupChoice.wasEverOn) }
     }
 
-    fun speechLogToggled(isOn: Boolean) {
-        app.speechLog.isOn = isOn
-        refreshSpeechLog()
-    }
-
     fun speechLogCleared() {
         app.speechLog.clear()
         refreshSpeechLog()
     }
 
-    private fun refreshSpeechLog() =
-        mutableState.update { it.copy(speechLogOn = app.speechLog.isOn, speechLogLines = app.speechLog.entries.size) }
+    private fun refreshSpeechLog() = mutableState.update { it.copy(speechLogLines = app.speechLog.entries.size) }
 
     fun done() = save()
 

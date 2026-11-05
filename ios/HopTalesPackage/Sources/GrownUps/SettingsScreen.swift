@@ -25,9 +25,7 @@ import World
     public var journey = Journey()
     public var profile = Profile()
     public var soundOn = true
-    public var speechLogOn = false
     public var speechLogLines = 0
-    public var speechLogFile: URL?
     public var strictness: WordMatcher.Strictness = .gentle
     public var voices: [Voice] = []
     public var plusStatus = PlusStatus.free
@@ -62,7 +60,6 @@ import World
     case soundButtonsToggled(Bool)
     case soundToggled(Bool)
     case speechLogCleared
-    case speechLogToggled(Bool)
     case strictnessPicked(WordMatcher.Strictness)
     case subscription(Subscription)
     case themePicked(Profile.Theme)
@@ -85,17 +82,12 @@ import World
     progressStore.save(progress)
   }
 
+  static let speechLogFile = URL.temporaryDirectory.appending(path: "hop-tales-speech-log.csv")
+
   private func refreshSpeechLog(_ state: inout State) {
     let entries = speechLog.entries()
-    state.speechLogOn = speechLog.isEnabled()
     state.speechLogLines = entries.count
-    guard !entries.isEmpty else {
-      state.speechLogFile = nil
-      return
-    }
-    let url = URL.temporaryDirectory.appending(path: "hop-tales-speech-log.csv")
-    try? SpeechLog.csv(entries).write(to: url, atomically: true, encoding: .utf8)
-    state.speechLogFile = url
+    try? SpeechLog.csv(entries).write(to: Self.speechLogFile, atomically: true, encoding: .utf8)
   }
 
   private func cloud(_ action: Cloud, _ state: inout State) {
@@ -222,10 +214,6 @@ import World
         speechLog.clear()
         refreshSpeechLog(&state)
 
-      case let .speechLogToggled(isOn):
-        speechLog.setEnabled(isOn)
-        refreshSpeechLog(&state)
-
       case let .themePicked(theme):
         state.profile.theme = theme
         save(state)
@@ -276,7 +264,10 @@ public struct SettingsScreen: View {
       } else if let gate = store.scope(\.gate) {
         ParentGateScreen(store: gate)
       } else {
-        settings
+        NavigationStack {
+          settings
+            .toolbar(.hidden, for: .navigationBar)
+        }
       }
     }
     .subscriptionSheets(store)
@@ -296,8 +287,9 @@ public struct SettingsScreen: View {
           SettingsSection("Help voice") { VoiceRow(store: store) }
           SettingsSection("Sounds") { SoundRow(store: store) }
           SettingsSection("iCloud") { CloudRow(store: store) }
-          SettingsSection("Speech log") { SpeechLogRow(store: store) }
-          SettingsSection("Testing") { TestingButtons(store: store) }
+          #if DEBUG
+            SettingsSection("Debug") { DebugToolsLink(store: store) }
+          #endif
           Text(Phonics.standard)
             .font(Typography.ui(13))
             .foregroundStyle(Paper.muted)

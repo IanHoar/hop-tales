@@ -16,18 +16,20 @@ struct SpeechLogTests {
     )
   }
 
-  @Test func nothingIsKeptUntilTheLogIsSwitchedOn() {
-    let log = SpeechLog.inMemory(suiteName: UUID().uuidString)
+  @Test func aLogThatIsNotRecordingKeepsNothing() {
+    let log = SpeechLog.inMemory(recording: false)
     log.record(entry("set"))
     #expect(log.entries().isEmpty)
-    log.setEnabled(true)
+  }
+
+  @Test func aRecordingLogKeepsWhatIsHeard() {
+    let log = SpeechLog.inMemory(recording: true)
     log.record(entry("set"))
     #expect(log.entries().count == 1)
   }
 
   @Test func clearingEmptiesTheLog() {
-    let log = SpeechLog.inMemory(suiteName: UUID().uuidString)
-    log.setEnabled(true)
+    let log = SpeechLog.inMemory(recording: true)
     log.record(entry("sad"))
     log.clear()
     #expect(log.entries().isEmpty)
