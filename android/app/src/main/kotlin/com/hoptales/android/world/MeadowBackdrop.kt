@@ -6,6 +6,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
@@ -20,6 +22,9 @@ import com.hoptales.android.world.MeadowProps.drawProps
 import com.hoptales.content.Friend
 import com.hoptales.content.Mood
 import com.hoptales.content.Sky
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.util.concurrent.ConcurrentHashMap
 
 fun interface MeadowFraming {
     fun layout(width: Float, height: Float, density: Float): MeadowLayout
@@ -39,11 +44,11 @@ fun MeadowBackdrop(
     val mood = Mood(sky = if (palette == Palette.dark) Sky.NIGHT else Sky.DAY)
     val look = rememberSkyLook(mood, still)
     val time = rememberSkyTime(running = live && !still)
-    val layers = remember(world) { meadowLayers(context.assets, world) }
-    val skyArt = remember { SkyArt.load(context.assets) }
-    val ground = remember(world) { meadowGround(context.assets, world, layers) }
-    val props = remember(world) { if (world == Friend.HARE) MeadowProps.load(context.assets) else emptyMap() }
+    val art by produceState(BackdropArt.cached(world), world) {
+        value = withContext(Dispatchers.IO) { BackdropArt.load(context.assets, world) }
+    }
     BoxWithConstraints(modifier.fillMaxSize().background(palette.page)) {
+        val (layers, skyArt, ground, props) = art ?: return@BoxWithConstraints
         val density = LocalDensity.current.density
         val width = constraints.maxWidth.toFloat()
         val height = constraints.maxHeight.toFloat()
@@ -72,4 +77,27 @@ fun meadowGround(assets: AssetManager, world: Friend, layers: Map<MeadowLayer, I
     val own = MeadowLayer.entries.all { Art.image(assets, it.asset(world)) != null }
     val name = MeadowLayer.NEAR.asset(if (own) world else Friend.HARE)
     return MeadowGround.of(WorldStyle.of(world), layers[MeadowLayer.NEAR], name)
+}
+
+data class BackdropArt(
+    val layers: Map<MeadowLayer, ImageBitmap?>,
+    val sky: SkyArt,
+    val ground: MeadowGround,
+    val props: Map<String, ImageBitmap>,
+) {
+    companion object {
+        private val loaded = ConcurrentHashMap<Friend, BackdropArt>()
+
+        fun cached(world: Friend): BackdropArt? = loaded[world]
+
+        fun load(assets: AssetManager, world: Friend): BackdropArt = loaded.getOrPut(world) {
+            val layers = meadowLayers(assets, world)
+            BackdropArt(
+                layers = layers,
+                sky = SkyArt.load(assets),
+                ground = meadowGround(assets, world, layers),
+                props = if (world == Friend.HARE) MeadowProps.load(assets) else emptyMap(),
+            )
+        }
+    }
 }

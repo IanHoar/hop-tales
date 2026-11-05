@@ -2,8 +2,11 @@ package com.hoptales.android.world
 
 import android.content.res.AssetManager
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
@@ -22,14 +25,24 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import com.hoptales.content.Friend
 import com.hoptales.content.Mood
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.roundToInt
 
 @Composable
 fun MeadowPostcard(mood: Mood, modifier: Modifier = Modifier) {
     val assets = LocalContext.current.assets
-    val image = remember(mood) { MeadowPostcards.image(assets, mood) }
+    val image by produceState(MeadowPostcards.cached(mood), mood) {
+        value = withContext(Dispatchers.Default) { MeadowPostcards.image(assets, mood) }
+    }
+    val postcard = image
+    if (postcard == null) {
+        Box(modifier.background(SkyLook.of(mood).gradient.last()))
+        return
+    }
     Image(
-        image,
+        postcard,
         contentDescription = null,
         modifier = modifier,
         contentScale = ContentScale.Crop,
@@ -41,7 +54,9 @@ fun MeadowPostcard(mood: Mood, modifier: Modifier = Modifier) {
 object MeadowPostcards {
     private const val WIDTH = 390
     private const val HEIGHT = 520
-    private val cache = mutableMapOf<Mood, ImageBitmap>()
+    private val cache = ConcurrentHashMap<Mood, ImageBitmap>()
+
+    fun cached(mood: Mood): ImageBitmap? = cache[mood]
 
     fun image(assets: AssetManager, mood: Mood): ImageBitmap = cache.getOrPut(mood) { render(assets, mood) }
 
