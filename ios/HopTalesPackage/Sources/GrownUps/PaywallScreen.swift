@@ -2,7 +2,6 @@ import ComposableArchitecture
 import Content
 import Dependencies
 import DesignSystem
-import StoreKit
 import SwiftUI
 import World
 
@@ -22,11 +21,6 @@ public enum PaywallOffers: Hashable, Sendable {
     public var foundNothingToRestore = false
 
     public init() {}
-
-    var usesAppStoreView: Bool {
-      guard case let .loaded(offers) = offers else { return false }
-      return offers.allSatisfy(\.isFromAppStore)
-    }
   }
 
   public enum Action {
@@ -41,6 +35,9 @@ public enum PaywallOffers: Hashable, Sendable {
   }
 
   @Dependency(PurchasesClient.self) var purchases
+  @Dependency(\.continuousClock) var clock
+
+  static let placeholderSeconds = 1.5
 
   public var body: some Feature {
     Update { state, action in
@@ -86,9 +83,11 @@ public enum PaywallOffers: Hashable, Sendable {
     }
     .onMount { _ in
       store.addTask {
+        let fetch = purchases.offers
         do {
-          let offers = try await purchases.offers()
-          try store.send(.offersLoaded(offers))
+          async let offers = fetch()
+          try await clock.sleep(for: .seconds(Self.placeholderSeconds))
+          try store.send(.offersLoaded(try await offers))
         } catch is CancellationError {
         } catch {
           try store.send(.offersFailed)
@@ -111,12 +110,11 @@ public struct PaywallScreen: View {
       MeadowBackdrop(progress: 900, mood: Mood(sky: colorScheme == .dark ? .night : .day))
         .ignoresSafeArea()
         .accessibilityHidden(true)
-      VStack(spacing: 0) {
-        header
-        content
-      }
+      content
     }
   }
+
+  static let headerHeight: CGFloat = 64
 
   private var header: some View {
     HStack(spacing: 12) {
@@ -130,52 +128,36 @@ public struct PaywallScreen: View {
         .buttonStyle(.plain)
     }
     .padding(.horizontal, 20)
-    .padding(.vertical, 12)
+    .frame(height: Self.headerHeight)
   }
 
   @ViewBuilder private var content: some View {
     if store.isPending {
       sheet { pending }
+    } else if case .unavailable = store.offers {
+      sheet { unavailable }
     } else {
-      switch store.offers {
-      case .loading:
-        sheet { loading }
-      case .unavailable:
-        sheet { unavailable }
-      case let .loaded(offers):
-        if store.usesAppStoreView {
-          appStore
-        } else {
-          sheet {
-            VStack(spacing: 18) {
-              PaywallPitch()
-              PlanList(offers: offers) { store.send(.planTapped($0)) }
-              Spacer(minLength: 0)
-              footer
-            }
-          }
+      sheet {
+        VStack(spacing: 18) {
+          PaywallPitch()
+          plans
+            .animation(.easeOut(duration: 0.3), value: store.offers)
+          Spacer(minLength: 0)
+          footer
         }
       }
     }
   }
 
-  private var appStore: some View {
-    SubscriptionStoreView(productIDs: PlusPlan.paywallOrder.map(\.appStoreProductID)) {
-      PaywallPitch()
-        .padding(24)
-        .frame(maxWidth: .infinity)
-        .mask { PaperSheet.shape }
-        .background { PaperSheet() }
-        .frame(maxWidth: 460)
-        .padding(.horizontal, 20)
-    }
-    .subscriptionStoreControlStyle(PaperPlansStyle(footer: footer))
-    .subscriptionStoreControlBackground(Paper.paper)
-    .storeButton(.hidden, for: .cancellation, .policies, .restorePurchases, .redeemCode, .signIn)
-    .containerBackground(Color.clear, for: .subscriptionStoreFullHeight)
-    .onInAppPurchaseCompletion { _, result in
-      let outcome = await PurchaseOutcome.settling(result)
-      store.send(.purchaseCompleted(outcome))
+  @ViewBuilder private var plans: some View {
+    if case let .loaded(offers) = store.offers {
+      PlanList(offers: offers) { store.send(.planTapped($0)) }
+    } else {
+      PlanList(offers: PlusOffer.samples) { _ in }
+        .redacted(reason: .placeholder)
+        .disabled(true)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Finding the plans")
     }
   }
 
@@ -183,13 +165,18 @@ public struct PaywallScreen: View {
     let content = content()
     return GeometryReader { proxy in
       ScrollView {
+        header
         content
           .padding(24)
-          .frame(maxWidth: .infinity, minHeight: max(proxy.size.height - 38, 0), alignment: .top)
-          .mask { PaperSheet.shape }
+          .frame(
+            maxWidth: .infinity,
+            minHeight: max(proxy.size.height - Self.headerHeight - 38, 0),
+            alignment: .top
+          )
+          .clipShape(PaperSheet.shape)
           .background { PaperSheet() }
           .frame(maxWidth: 460)
-          .padding(.horizontal, 20)
+          .padding(.horizontal, 12)
           .padding(.top, 8)
           .padding(.bottom, 30)
           .frame(maxWidth: .infinity)
@@ -233,17 +220,6 @@ public struct PaywallScreen: View {
     Account, and each plan renews at the same price unless you cancel at least 24 hours before \
     the period ends. Cancel any time in your App Store settings.
     """
-
-  private var loading: some View {
-    VStack(spacing: 14) {
-      PaywallTitle()
-      ProgressView()
-        .tint(Paper.muted)
-      Text("Finding the plans…")
-        .font(Typography.ui(16, weight: .medium))
-        .foregroundStyle(Paper.muted)
-    }
-  }
 
   private var unavailable: some View {
     VStack(spacing: 14) {

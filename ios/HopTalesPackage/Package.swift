@@ -115,6 +115,7 @@ let package = Package(
         "GrownUps",
         "Onboarding",
         "SpeechRecognition",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
       ]
     ),
     .testTarget(
@@ -129,6 +130,7 @@ let package = Package(
     .testTarget(
       name: "SnapshotTests",
       dependencies: [
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
         "AppFeature",
         "Content",
         "DesignSystem",

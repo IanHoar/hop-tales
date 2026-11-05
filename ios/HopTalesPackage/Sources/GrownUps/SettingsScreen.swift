@@ -251,7 +251,7 @@ import World
 }
 
 public struct SettingsScreen: View {
-  let store: StoreOf<Settings>
+  @Bindable var store: StoreOf<Settings>
 
   public init(store: StoreOf<Settings>) {
     self.store = store
@@ -259,9 +259,7 @@ public struct SettingsScreen: View {
 
   public var body: some View {
     Group {
-      if let grownUp = store.scope(\.grownUp) {
-        GrownUpPaywallScreen(store: grownUp)
-      } else if let gate = store.scope(\.gate) {
+      if let gate = store.scope(\.gate) {
         ParentGateScreen(store: gate)
       } else {
         NavigationStack {
@@ -271,6 +269,9 @@ public struct SettingsScreen: View {
       }
     }
     .subscriptionSheets(store)
+    .fullScreenCover(item: $store.scope(\.grownUp)) { grownUp in
+      GrownUpPaywallScreen(store: grownUp)
+    }
   }
 
   private var settings: some View {

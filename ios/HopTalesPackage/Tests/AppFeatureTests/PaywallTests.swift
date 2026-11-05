@@ -1,11 +1,12 @@
 import ComposableArchitecture
 import Content
+import DependenciesTestSupport
 import Testing
 
 @testable import GrownUps
 
 @MainActor
-@Suite(.serialized, .timeLimit(.minutes(1)))
+@Suite(.serialized, .dependency(\.continuousClock, .immediate), .timeLimit(.minutes(1)))
 struct PaywallTests {
   private let waits = Duration.seconds(5)
 
@@ -92,7 +93,6 @@ struct PaywallTests {
     store.send(.gate(.digitTapped(5))) { $0.gate?.entry = "15" }
     store.send(.gate(.answerTapped))
     await store.receive(\.gate.passed, timeout: waits) {
-      $0.gate = nil
       $0.paywall = Paywall.State.DebugSnapshot()
     }
     await store.receive(\.paywall.offersFailed, timeout: waits) {

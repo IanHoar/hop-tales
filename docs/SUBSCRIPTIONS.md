@@ -122,14 +122,15 @@ the release switch keeps every story open. `Plus.lockedLevels` (Swift) and `Plus
   (Android, in `settings`) are the one entry point.
 
 **The paywall (grown-up-facing, behind the gate).**
-- **iOS.** StoreKit's `SubscriptionStoreView` for the `hop_tales_plus` group, styled as a paper
-  sheet over the meadow.
+- **iOS.** A paper sheet over the meadow, presented with the parent gate as a full-screen cover;
+  passing the gate pushes the paywall, which has no back button.
   - It shows the two plans, auto-renewal wording, and links to Terms of Use and the Privacy
     Policy, which App Review requires for subscriptions.
-  - Our paper plan rows are its custom control style, so tapping a plan runs Apple's purchase.
+  - Our paper plan rows buy with StoreKit's `Product.purchase()` through `PurchasesClient`.
     Restore purchases (`AppStore.sync()`), the auto-renewal wording and the Terms and Privacy
-    links sit under the plans in the same paper footer as on Android, so Apple's own buttons are
-    hidden.
+    links sit under the plans in the same paper footer as on Android.
+  - While the plans load, and for at least 1.5 seconds, the same rows show redacted, so the page
+    never changes layout. Android does the same.
   - Previews and snapshots draw the same rows from fake offers in `PurchasesClient.fake()`.
 - **Android.** A Compose sheet drawn in the same paper style, listing the two base plans from
   `queryProductDetailsAsync`, with the yearly plan first. Buying calls `launchBillingFlow` with the
@@ -359,7 +360,8 @@ so a shipped build never locks a story nobody can buy yet.
      grown-up.
    - Amend `docs/HANDOFF.md` rule 6, since the gate now exists.
 3. **The paywall** — #347
-   - iOS: `SubscriptionStoreView` behind the gate, with a `.storekit` file for local runs.
+   - iOS: the paper paywall behind the gate, buying with StoreKit, with a `.storekit` file for
+     local runs.
    - Android: the paper paywall sheet and `launchBillingFlow`.
    - Snapshots in light and dark on both apps.
 4. **The Grown-ups Plus section** — #348

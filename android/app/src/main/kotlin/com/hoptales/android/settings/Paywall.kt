@@ -1,6 +1,8 @@
 package com.hoptales.android.settings
 
 import androidx.activity.compose.LocalActivity
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,8 +37,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.dropShadow
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalUriHandler
@@ -71,6 +76,7 @@ import com.hoptales.android.world.MeadowBackdrop
 import com.hoptales.content.Friend
 import com.hoptales.content.PlusLinks
 import com.hoptales.content.PlusPlan
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 sealed interface PaywallOffers {
@@ -117,7 +123,12 @@ fun Paywall(
     val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
     val subscribed by rememberUpdatedState(onSubscribed)
+    var placeholderDone by remember { mutableStateOf(!live) }
     LaunchedEffect(state) { state.load() }
+    LaunchedEffect(Unit) {
+        delay(PLACEHOLDER_MILLIS)
+        placeholderDone = true
+    }
     LaunchedEffect(state) { plus.outcomes.collect(state::settle) }
     LaunchedEffect(plus) {
         var was: Boolean? = null
@@ -128,29 +139,42 @@ fun Paywall(
     }
     Box(Modifier.fillMaxSize()) {
         MeadowBackdrop(live = live)
-        Column(Modifier.fillMaxSize()) {
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Spacer(Modifier.weight(1f))
-                DoneChip(onClose, label = "Close")
-            }
-            PaperSheet {
-                val offers = state.offers
-                when {
-                    state.pending -> Waiting(onClose)
+        PaperSheet(
+            header = {
+                Row(
+                    Modifier.fillMaxWidth().height(HEADER_HEIGHT).padding(end = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Spacer(Modifier.weight(1f))
+                    DoneChip(onClose, label = "Close")
+                }
+            },
+        ) {
+            val offers = state.offers
+            when {
+                state.pending -> Waiting(onClose)
 
-                    offers is PaywallOffers.Loading -> Loading()
+                offers is PaywallOffers.Unavailable -> Unavailable(onClose)
 
-                    offers is PaywallOffers.Unavailable -> Unavailable(onClose)
-
-                    offers is PaywallOffers.Loaded -> {
-                        Pitch()
-                        offers.offers.forEach { offer -> PlanRow(offer) { plus.buy(activity, offer) } }
-                        Spacer(Modifier.weight(1f))
-                        Footer(state) { scope.launch { state.restore() } }
+                else -> {
+                    Pitch()
+                    val loaded = (offers as? PaywallOffers.Loaded)?.offers?.takeIf { placeholderDone }
+                    Crossfade(loaded, animationSpec = tween(300), label = "plans") { shown ->
+                        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                            if (shown == null) {
+                                Column(
+                                    Modifier.clearAndSetSemantics { contentDescription = "Finding the plans" },
+                                    verticalArrangement = Arrangement.spacedBy(14.dp),
+                                ) {
+                                    PlusOffer.SAMPLES.forEach { offer -> PlanRow(offer, placeholder = true) {} }
+                                }
+                            } else {
+                                shown.forEach { offer -> PlanRow(offer) { plus.buy(activity, offer) } }
+                            }
+                        }
                     }
+                    Spacer(Modifier.weight(1f))
+                    Footer(state) { scope.launch { state.restore() } }
                 }
             }
         }
@@ -158,23 +182,26 @@ fun Paywall(
 }
 
 @Composable
-private fun PaperSheet(content: @Composable ColumnScope.() -> Unit) {
+private fun PaperSheet(header: @Composable () -> Unit, content: @Composable ColumnScope.() -> Unit) {
     val paper = LocalPaper.current
     val shape = remember { Deckle(seed = 29, jitter = 3.dp, step = 14.dp) }
     BoxWithConstraints(Modifier.fillMaxSize()) {
-        val fill = (maxHeight - SHEET_TOP - SHEET_BOTTOM).coerceAtLeast(0.dp)
+        val fill = (maxHeight - HEADER_HEIGHT - SHEET_TOP - SHEET_BOTTOM).coerceAtLeast(0.dp)
         Column(
             Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .padding(start = 20.dp, end = 20.dp, top = SHEET_TOP, bottom = SHEET_BOTTOM),
+                .padding(start = 12.dp, end = 12.dp, bottom = SHEET_BOTTOM),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            header()
+            Spacer(Modifier.height(SHEET_TOP))
             Column(
                 Modifier
                     .widthIn(max = 460.dp)
                     .fillMaxWidth()
                     .heightIn(min = fill)
+                    .graphicsLayer()
                     .dropShadow(shape, Shadow(8.dp, paper.shadow, offset = DpOffset(0.dp, 5.dp)))
                     .background(paper.paper, shape)
                     .clip(shape)
@@ -187,6 +214,7 @@ private fun PaperSheet(content: @Composable ColumnScope.() -> Unit) {
     }
 }
 
+private val HEADER_HEIGHT = 64.dp
 private val SHEET_TOP = 8.dp
 private val SHEET_BOTTOM = 30.dp
 
@@ -206,7 +234,7 @@ private fun Body(text: String) {
     Text(text, style = LocalTypography.current.ui(17.sp, FontWeight.Medium), color = LocalPaper.current.muted, textAlign = TextAlign.Center)
 }
 
-val PLUS_BENEFITS = listOf("Unlock all reading levels", "More characters", "More settings", "More costumes")
+val PLUS_BENEFITS = listOf("Unlock all reading levels", "More characters", "More stories", "More costumes")
 
 @Composable
 private fun PaywallScene() {
@@ -216,6 +244,7 @@ private fun PaywallScene() {
             .padding(bottom = 6.dp)
             .height(174.dp)
             .clipToBounds()
+            .graphicsLayer()
             .clearAndSetSemantics {},
     ) {
         MeadowBackdrop(progress = 450f, world = Friend.GRASSHOPPER, framing = halfWide, live = false)
@@ -255,7 +284,7 @@ private fun Pitch() {
 }
 
 @Composable
-private fun PlanRow(offer: PlusOffer, onClick: () -> Unit) {
+private fun PlanRow(offer: PlusOffer, placeholder: Boolean = false, onClick: () -> Unit) {
     val paper = LocalPaper.current
     val type = LocalTypography.current
     val leads = offer.plan == PlusPlan.YEARLY
@@ -268,7 +297,7 @@ private fun PlanRow(offer: PlusOffer, onClick: () -> Unit) {
             .clearAndSetSemantics {
                 contentDescription = "$name, $price. $detail."
                 role = Role.Button
-            }.pressable(onClick, press = Press.PAPER)
+            }.then(if (placeholder) Modifier else Modifier.pressable(onClick, press = Press.PAPER))
             .paperField(selected = leads)
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -276,20 +305,29 @@ private fun PlanRow(offer: PlusOffer, onClick: () -> Unit) {
     ) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(name, style = type.display(21.sp), color = paper.ink)
+                Text(name, style = type.display(21.sp), color = paper.ink, modifier = Modifier.redacted(placeholder))
                 if (leads) {
                     Text(
                         "Best value",
                         style = type.ui(13.sp, FontWeight.Bold),
                         color = paper.onRed,
                         maxLines = 1,
-                        modifier = Modifier.background(paper.red, CircleShape).padding(horizontal = 10.dp, vertical = 4.dp),
+                        modifier = Modifier
+                            .background(paper.red, CircleShape)
+                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                            .redacted(placeholder),
                     )
                 }
             }
-            Text(detail, style = type.ui(14.sp, FontWeight.Medium), color = paper.muted)
+            Text(detail, style = type.ui(14.sp, FontWeight.Medium), color = paper.muted, modifier = Modifier.redacted(placeholder))
         }
-        Text(price, style = type.ui(17.sp, FontWeight.Bold), color = paper.ink, textAlign = TextAlign.End)
+        Text(
+            price,
+            style = type.ui(17.sp, FontWeight.Bold),
+            color = paper.ink,
+            textAlign = TextAlign.End,
+            modifier = Modifier.redacted(placeholder),
+        )
     }
 }
 
@@ -341,10 +379,13 @@ private fun FooterButton(text: String, style: TextStyle, color: Color, onClick: 
     )
 }
 
+const val PLACEHOLDER_MILLIS = 1500L
+
 @Composable
-private fun Loading() {
-    Title("Hop Tales Plus")
-    Body("Finding the plans…")
+private fun Modifier.redacted(on: Boolean): Modifier {
+    if (!on) return this
+    val bar = LocalPaper.current.muted.copy(alpha = 0.22f)
+    return drawWithContent { drawRoundRect(bar, cornerRadius = CornerRadius(4.dp.toPx())) }
 }
 
 @Composable
