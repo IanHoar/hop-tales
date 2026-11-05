@@ -50,7 +50,7 @@ object PlusTaste {
     const val START = 900f
 }
 
-private val halfWide = MeadowFraming { width, height, density ->
+internal val halfWide = MeadowFraming { width, height, density ->
     val wide = MeadowLayout.wide(width * 2, height * 2, density)
     MeadowLayout(width, wide.pathScale / 2, wide.pathCentre / 2, wideBottom = height)
 }
