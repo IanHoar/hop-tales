@@ -54,36 +54,33 @@ import SwiftUI
 }
 
 public struct LockedStoryScreen: View {
-  let store: StoreOf<LockedStory>
+  @Bindable var store: StoreOf<LockedStory>
 
   public init(store: StoreOf<LockedStory>) {
     self.store = store
   }
 
   public var body: some View {
-    Group {
-      if let grownUp = store.scope(\.grownUp) {
-        GrownUpPaywallScreen(store: grownUp)
-      } else {
-        VStack(spacing: 0) {
-          SheetHeader(title: "Hop Tales Plus") { store.send(.closeTapped) }
-          ScrollView {
-            card
-            .padding(24)
-            .frame(maxWidth: .infinity)
-            .background {
-              Deckle(seed: 23, jitter: 3, step: 14)
-                .fill(Paper.paper)
-                .shadow(color: Paper.shadow, radius: 8, y: 5)
-            }
-            .frame(maxWidth: 460)
-            .padding(.horizontal, 20)
-            .padding(.top, 8)
-            .padding(.bottom, 30)
-          }
+    VStack(spacing: 0) {
+      SheetHeader(title: "Hop Tales Plus") { store.send(.closeTapped) }
+      ScrollView {
+        card
+        .padding(24)
+        .frame(maxWidth: .infinity)
+        .background {
+          Deckle(seed: 23, jitter: 3, step: 14)
+            .fill(Paper.paper)
+            .shadow(color: Paper.shadow, radius: 8, y: 5)
         }
-        .background(Paper.page.ignoresSafeArea())
+        .frame(maxWidth: 460)
+        .padding(.horizontal, 20)
+        .padding(.top, 8)
+        .padding(.bottom, 30)
       }
+    }
+    .background(Paper.page.ignoresSafeArea())
+    .fullScreenCover(item: $store.scope(\.grownUp)) { grownUp in
+      GrownUpPaywallScreen(store: grownUp)
     }
   }
 

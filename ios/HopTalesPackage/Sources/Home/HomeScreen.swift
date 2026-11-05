@@ -246,7 +246,7 @@ public struct HomeScreen: View {
     .sheet(item: $store.scope(\.locked)) { locked in
       LockedStoryScreen(store: locked)
     }
-    .sheet(item: $store.scope(\.grownUp)) { grownUp in
+    .fullScreenCover(item: $store.scope(\.grownUp)) { grownUp in
       GrownUpPaywallScreen(store: grownUp)
     }
   }

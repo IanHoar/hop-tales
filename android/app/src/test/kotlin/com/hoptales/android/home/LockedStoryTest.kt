@@ -10,6 +10,7 @@ import androidx.compose.ui.test.performScrollTo
 import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.billing.FakePlusSource
 import com.hoptales.android.design.HopTalesTheme
+import com.hoptales.android.settings.PLACEHOLDER_MILLIS
 import com.hoptales.android.settings.ParentGateState
 import com.hoptales.content.Friend
 import com.hoptales.content.Journey
@@ -136,6 +137,7 @@ class LockedStoryTest {
                 LockedStoryScreen(StoryStanding.of(plusStory, Progress()), plus, onDone = { done += 1 }, step = LockedStep.PAYWALL)
             }
         }
+        compose.mainClock.advanceTimeBy(PLACEHOLDER_MILLIS)
         compose.onNodeWithContentDescription("Yearly", substring = true).performClick()
         compose.waitForIdle()
         assertTrue(plus.isPlus.value)
@@ -223,6 +225,7 @@ class LockedStoryTest {
         compose.setContent {
             HopTalesTheme { LockedLevelScreen(plus, onDone = { done += 1 }, step = LockedLevelStep.PAYWALL) }
         }
+        compose.mainClock.advanceTimeBy(PLACEHOLDER_MILLIS)
         compose.onNodeWithContentDescription("Yearly", substring = true).performClick()
         compose.waitForIdle()
         assertTrue(plus.isPlus.value)

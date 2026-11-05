@@ -1,13 +1,14 @@
 import ComposableArchitecture
 import Content
 import Dependencies
+import DependenciesTestSupport
 import Foundation
 import Testing
 
 @testable import GrownUps
 
 @MainActor
-@Suite(.timeLimit(.minutes(1)))
+@Suite(.dependency(\.continuousClock, .immediate), .timeLimit(.minutes(1)))
 struct PlusSettingsTests {
   static let renewing = PlusStatus(
     .renews(Date(timeIntervalSince1970: 1_772_496_000)), refundableTransactionID: 7
@@ -83,7 +84,6 @@ struct PlusSettingsTests {
     store.send(.grownUp(.gate(.digitTapped(5)))) { $0.grownUp?.gate?.entry = "15" }
     store.send(.grownUp(.gate(.answerTapped)))
     await store.receive(\.grownUp.gate.passed) {
-      $0.grownUp?.gate = nil
       $0.grownUp?.paywall = Paywall.State.DebugSnapshot()
     }
     await store.receive(\.grownUp.paywall.offersLoaded) {

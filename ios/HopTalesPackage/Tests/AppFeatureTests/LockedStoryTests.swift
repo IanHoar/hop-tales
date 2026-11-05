@@ -1,5 +1,6 @@
 import ComposableArchitecture
 import Content
+import DependenciesTestSupport
 import Testing
 
 @testable import AppFeature
@@ -7,7 +8,7 @@ import Testing
 @testable import Home
 
 @MainActor
-@Suite(.timeLimit(.minutes(1)))
+@Suite(.dependency(\.continuousClock, .immediate), .timeLimit(.minutes(1)))
 struct LockedStoryTests {
   private static let plusStory = StoryLibrary.stories(at: 2)[0]
 
@@ -129,7 +130,6 @@ struct LockedStoryTests {
     store.send(.locked(.grownUp(.gate(.digitTapped(5))))) { $0.locked?.grownUp?.gate?.entry = "15" }
     store.send(.locked(.grownUp(.gate(.answerTapped))))
     await store.receive(\.locked.grownUp.gate.passed) {
-      $0.locked?.grownUp?.gate = nil
       $0.locked?.grownUp?.paywall = Paywall.State.DebugSnapshot()
     }
     await store.receive(\.locked.grownUp.paywall.offersLoaded) {
@@ -218,7 +218,6 @@ struct LockedStoryTests {
     store.send(.grownUp(.gate(.digitTapped(5)))) { $0.grownUp?.gate?.entry = "15" }
     store.send(.grownUp(.gate(.answerTapped)))
     await store.receive(\.grownUp.gate.passed) {
-      $0.grownUp?.gate = nil
       $0.grownUp?.paywall = Paywall.State.DebugSnapshot()
     }
     await store.receive(\.grownUp.paywall.offersLoaded) {
