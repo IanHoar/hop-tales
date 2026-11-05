@@ -45,6 +45,7 @@ class FontScaleScreenshotTest {
     @Before
     fun largestText() {
         RuntimeEnvironment.setFontScale(LARGEST)
+        paintMeadows(app)
         app.progressStore.save(Progress())
         Settings.Global.putFloat(app.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 0f)
         shadowOf(app).grantPermissions(Manifest.permission.RECORD_AUDIO)

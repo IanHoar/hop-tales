@@ -34,8 +34,10 @@ import com.hoptales.android.settings.Paywall
 import com.hoptales.android.settings.SettingsActions
 import com.hoptales.android.settings.SettingsContent
 import com.hoptales.android.settings.SettingsState
+import com.hoptales.android.world.BackdropArt
 import com.hoptales.android.world.IntroArt
 import com.hoptales.android.world.IntroTimeline
+import com.hoptales.android.world.MeadowPostcards
 import com.hoptales.content.Basket
 import com.hoptales.content.Friend
 import com.hoptales.content.Journey
@@ -71,6 +73,9 @@ abstract class ScreenshotFixture {
     protected val app get() = RuntimeEnvironment.getApplication() as HopTalesApplication
 
     protected val story get() = app.library.stories(Friend.HARE.level).first()
+
+    @Before
+    fun paintMeadows() = paintMeadows(app)
 
     @Before
     fun freezeMotion() {
@@ -400,4 +405,9 @@ abstract class ScreenshotFixture {
     protected val options = RoborazziOptions(
         compareOptions = RoborazziOptions.CompareOptions(changeThreshold = 0.005f),
     )
+}
+
+fun paintMeadows(app: HopTalesApplication) {
+    Friend.entries.forEach { BackdropArt.load(app.assets, it) }
+    app.library.all.map { it.mood }.toSet().forEach { MeadowPostcards.image(app.assets, it) }
 }
