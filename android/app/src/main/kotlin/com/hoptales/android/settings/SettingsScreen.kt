@@ -171,17 +171,6 @@ fun SettingsContent(state: SettingsState, actions: SettingsActions, onPlus: (Plu
             ) {
                 Section("Hop Tales Plus") { PlusRow(state, onPlus) }
                 Section("Reader") { SettingsName(state.childName, actions) }
-                Section("Reading with") {
-                    for (friend in state.readingFriends) {
-                        ReadingWith(friend, selected = friend == state.journey.activeFriend) { actions.friendPicked(friend) }
-                    }
-                    Text(
-                        Phonics.STANDARD,
-                        style = LocalTypography.current.ui(13.sp),
-                        color = paper.muted,
-                        modifier = Modifier.padding(horizontal = 4.dp),
-                    )
-                }
                 Section("Accent") {
                     for (accent in Profile.Accent.entries) {
                         PaperChoice(accent.accentName, selected = accent == state.profile.accent) { actions.accentPicked(accent) }
@@ -220,7 +209,6 @@ fun SettingsContent(state: SettingsState, actions: SettingsActions, onPlus: (Plu
                 }
                 Section("Backup") { BackupRow(state, actions.backupToggled) }
                 Section("Speech log") { SpeechLogRow(state, actions) }
-                Section("Licences") { LicencesRows() }
                 Section("Testing") {
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         ActionChip("Reset onboarding", Glyphs.counterclockwise, actions.resetOnboarding)
@@ -228,6 +216,7 @@ fun SettingsContent(state: SettingsState, actions: SettingsActions, onPlus: (Plu
                         ActionChip("Unlock everything", Glyphs.lockOpen, actions.unlockEverything)
                     }
                 }
+                SettingsFooter()
             }
         }
     }

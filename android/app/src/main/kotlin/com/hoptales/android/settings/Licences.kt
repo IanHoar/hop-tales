@@ -20,14 +20,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.hoptales.android.design.Glyphs
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
+import com.hoptales.android.design.pressable
 import com.hoptales.android.home.SheetHeader
+import com.hoptales.content.Phonics
 
 data class Licence(val name: String, val copyright: String)
 
@@ -44,23 +47,19 @@ object Licences {
 }
 
 @Composable
-fun LicencesRows() {
+fun SettingsFooter() {
     val paper = LocalPaper.current
     val type = LocalTypography.current
     var isReading by rememberSaveable { mutableStateOf(false) }
-    Text(
-        "Hop Tales listens on this device with open-source software, used under the Apache License 2.0.",
-        style = type.ui(14.sp),
-        color = paper.muted,
-        modifier = Modifier.padding(horizontal = 4.dp),
-    )
-    for (licence in Licences.all) {
-        Column(Modifier.padding(horizontal = 4.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(licence.name, style = type.ui(16.sp), color = paper.ink)
-            Text(licence.copyright, style = type.ui(14.sp), color = paper.muted)
-        }
+    Column(Modifier.padding(horizontal = 4.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(Phonics.STANDARD, style = type.ui(13.sp), color = paper.muted)
+        Text(
+            "Open-source licences",
+            style = type.ui(13.sp, FontWeight.SemiBold).copy(textDecoration = TextDecoration.Underline),
+            color = paper.muted,
+            modifier = Modifier.pressable({ isReading = true }),
+        )
     }
-    ActionChip("Apache License 2.0", Glyphs.book) { isReading = true }
     if (isReading) LicenceText { isReading = false }
 }
 
@@ -72,15 +71,30 @@ private fun LicenceText(done: () -> Unit) {
     val insets = WindowInsets.safeDrawing.asPaddingValues()
     Dialog(onDismissRequest = done, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Column(Modifier.fillMaxSize().background(paper.page).padding(top = insets.calculateTopPadding())) {
-            SheetHeader("Apache License 2.0", done)
-            Text(
-                text,
-                style = LocalTypography.current.ui(13.sp).copy(fontFamily = FontFamily.Monospace),
-                color = paper.ink,
-                modifier = Modifier
+            SheetHeader("Licences", done)
+            Column(
+                Modifier
                     .verticalScroll(rememberScrollState())
                     .padding(start = 20.dp, end = 20.dp, bottom = insets.calculateBottomPadding() + 24.dp),
-            )
+                verticalArrangement = Arrangement.spacedBy(14.dp),
+            ) {
+                Text(
+                    "Hop Tales listens on this device with open-source software, used under the Apache License 2.0.",
+                    style = LocalTypography.current.ui(14.sp),
+                    color = paper.muted,
+                )
+                for (licence in Licences.all) {
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text(licence.name, style = LocalTypography.current.ui(16.sp), color = paper.ink)
+                        Text(licence.copyright, style = LocalTypography.current.ui(14.sp), color = paper.muted)
+                    }
+                }
+                Text(
+                    text,
+                    style = LocalTypography.current.ui(13.sp).copy(fontFamily = FontFamily.Monospace),
+                    color = paper.ink,
+                )
+            }
         }
     }
 }

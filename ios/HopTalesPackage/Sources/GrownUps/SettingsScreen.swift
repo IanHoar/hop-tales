@@ -298,7 +298,6 @@ public struct SettingsScreen: View {
         VStack(alignment: .leading, spacing: 28) {
           SettingsSection("Hop Tales Plus") { PlusRow(store: store) }
           SettingsSection("Reader") { NameField(store: store) }
-          SettingsSection("Reading with") { FriendChoices(store: store) }
           SettingsSection("Accent") { AccentChoices(store: store) }
           SettingsSection("Theme") { ThemeChoices(store: store) }
           SettingsSection("Listening") { StrictnessChoices(store: store) }
@@ -308,6 +307,11 @@ public struct SettingsScreen: View {
           SettingsSection("iCloud") { CloudRow(store: store) }
           SettingsSection("Speech log") { SpeechLogRow(store: store) }
           SettingsSection("Testing") { TestingButtons(store: store) }
+          Text(Phonics.standard)
+            .font(Typography.ui(13))
+            .foregroundStyle(Paper.muted)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 4)
         }
         .padding(.horizontal, 20)
         .padding(.top, 8)
