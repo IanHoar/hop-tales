@@ -61,7 +61,7 @@ class PlusSettingsTest {
     @Test
     fun theStatusIsShownInPlainWords() {
         show(PlusStatus.Free)
-        compose.onNodeWithText("Unlock Hop Tales Plus").assertIsDisplayed()
+        compose.onNodeWithText("Unlock now").assertIsDisplayed()
         compose.onNodeWithText("Restore purchases").assertDoesNotExist()
     }
 
@@ -69,19 +69,19 @@ class PlusSettingsTest {
     fun aPendingPurchaseIsWaiting() {
         show(PlusStatus.Pending)
         compose.onNodeWithText("Waiting for your payment to go through").assertIsDisplayed()
-        compose.onNodeWithText("Unlock Hop Tales Plus").assertDoesNotExist()
+        compose.onNodeWithText("Unlock now").assertDoesNotExist()
         compose.onNodeWithText("Request a refund").assertDoesNotExist()
     }
 
     @Test
     fun subscribeGoesThroughTheGateToThePaywall() {
         show(PlusStatus.Free)
-        compose.onNodeWithText("Unlock Hop Tales Plus").performClick()
+        compose.onNodeWithText("Unlock now").performClick()
         answerTheGate()
         compose.onNodeWithText("Hop Tales Plus").assertIsDisplayed()
         compose.onNodeWithContentDescription("Yearly", substring = true).assertIsDisplayed()
         compose.onNodeWithText("Close").performClick()
-        compose.onNodeWithText("Unlock Hop Tales Plus").assertIsDisplayed()
+        compose.onNodeWithText("Unlock now").assertIsDisplayed()
     }
 
     @Test

@@ -93,10 +93,22 @@ struct PlusUpsell: View {
   @Environment(\.colorScheme) private var colorScheme
 
   var body: some View {
-    VStack(spacing: 14) {
+    VStack(spacing: 16) {
       meadow
-      Button("Unlock Hop Tales Plus", action: unlock)
-        .buttonStyle(.paper)
+      VStack(spacing: 4) {
+        Text("Hop Tales Plus")
+          .font(Typography.display(28))
+          .foregroundStyle(Paper.ink)
+        Text("Unlock more stories and characters.")
+          .font(Typography.ui(16, weight: .medium))
+          .foregroundStyle(Paper.muted)
+      }
+      .multilineTextAlignment(.center)
+      .fixedSize(horizontal: false, vertical: true)
+      Button(action: unlock) {
+        Label("Unlock now", systemImage: "lock.fill")
+      }
+      .buttonStyle(.paper)
     }
   }
 

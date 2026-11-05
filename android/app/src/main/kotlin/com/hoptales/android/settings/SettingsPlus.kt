@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hoptales.android.billing.PlusSource
@@ -100,6 +101,8 @@ fun PlusRow(state: SettingsState, onPlus: (PlusRequest) -> Unit) {
 
 @Composable
 private fun PlusUpsell(unlock: () -> Unit) {
+    val paper = LocalPaper.current
+    val type = LocalTypography.current
     BoxWithConstraints(
         Modifier
             .fillMaxWidth()
@@ -124,7 +127,20 @@ private fun PlusUpsell(unlock: () -> Unit) {
             for (friend in Friend.starters) IdleFriend(friend, look = null, height = 76.dp)
         }
     }
-    PaperButton("Unlock Hop Tales Plus", onClick = unlock)
+    Column(
+        Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Text("Hop Tales Plus", style = type.display(28.sp), color = paper.ink, textAlign = TextAlign.Center)
+        Text(
+            "Unlock more stories and characters.",
+            style = type.ui(16.sp, FontWeight.Medium),
+            color = paper.muted,
+            textAlign = TextAlign.Center,
+        )
+    }
+    PaperButton("Unlock now", icon = Glyphs.lock, onClick = unlock)
 }
 
 @Composable
