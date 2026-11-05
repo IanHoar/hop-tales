@@ -232,15 +232,6 @@ public struct Journey: Codable, Hashable, Sendable {
     guard met.contains(friend) else { return }
     activeFriend = friend
   }
-
-  public mutating func grownUpMoves(to friend: Friend) {
-    guard met.contains(friend) || Friend.starters.contains(friend) else { return }
-    if friend.level > level {
-      self = Journey(starting: friend)
-      return
-    }
-    activeFriend = friend
-  }
 }
 
 extension Journey {

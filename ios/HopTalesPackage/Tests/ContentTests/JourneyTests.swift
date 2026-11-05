@@ -176,17 +176,6 @@ struct JourneyTests {
     #expect(journey.bigWords(in: try #require(StoryLibrary["oggy-big-story"])).isEmpty)
   }
 
-  @Test func aGrownUpCanMoveBetweenMetFriendsButNotSkipPastLevelThree() {
-    var journey = Journey(starting: .bunny)
-    journey.grownUpMoves(to: .frog)
-    #expect(journey.level == 3)
-    journey.grownUpMoves(to: .crow)
-    #expect(journey.activeFriend == .frog)
-    journey.grownUpMoves(to: .bunny)
-    #expect(journey.activeFriend == .bunny)
-    #expect(journey.level == 3)
-  }
-
   @Test func aSavedJourneyCountsTheStoriesAlreadyFinished() throws {
     let journey = """
       {"level":1,"steps":40,"met":["bunny"],"activeFriend":"bunny","bigStoryAttempts":0,

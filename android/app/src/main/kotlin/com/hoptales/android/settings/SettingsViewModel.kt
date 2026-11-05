@@ -30,7 +30,6 @@ data class SettingsState(
     val speechLogLines: Int = 0,
     val plusStatus: PlusStatus = PlusStatus.Free,
 ) {
-    val readingFriends: List<Friend> get() = Friend.entries.filter { it in journey.met || it in Friend.starters }
 
     val voiceName: String get() = voices.firstOrNull { it.id == profile.voiceID }?.name ?: "Automatic"
 }
@@ -68,11 +67,6 @@ class SettingsViewModel(private val app: HopTalesApplication) : ViewModel() {
     fun nameChanged(name: String) = mutableState.update { it.copy(childName = Profile.trimmedName(name)) }
 
     fun nameSubmitted() = save()
-
-    fun friendPicked(friend: Friend) {
-        app.progressStore.update { it.copy(journey = it.journey.grownUpMovedTo(friend)) }
-        mutableState.update { it.copy(journey = app.progressStore.load().journey) }
-    }
 
     fun accentPicked(accent: Profile.Accent) = changeProfile { copy(accent = accent) }
 

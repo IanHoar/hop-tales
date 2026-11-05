@@ -81,7 +81,6 @@ class SettingsViewModelTest {
         model.unlockEverything()
         val progress = app.progressStore.load()
         assertEquals(Friend.entries.toSet(), progress.journey.met)
-        assertEquals(Friend.entries.toSet(), model.state.value.readingFriends.toSet())
         for (friend in Friend.entries) assertEquals(app.wardrobe.items(friend).size, progress.baskets[friend]?.filled)
 
         model.resetJourney()
