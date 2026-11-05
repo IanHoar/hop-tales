@@ -29,6 +29,8 @@ extension Reading.State {
     return nil
   }
 
+  var isLastCallout: Bool { journeyMoments.count(where: \.isCallout) <= 1 }
+
   public var callout: JourneyMoment? {
     journeyMoments.first(where: \.isCallout)
   }

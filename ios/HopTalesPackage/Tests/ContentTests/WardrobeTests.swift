@@ -1,8 +1,9 @@
+import DependenciesTestSupport
 import Testing
 
 @testable import Content
 
-@Suite(.everyLookPainted)
+@Suite(.steady, .everyLookPainted)
 struct WardrobeTests {
   @Test(.noLooksPainted) func onlyFullyPaintedLooksAreOffered() {
     for friend in Friend.allCases {

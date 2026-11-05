@@ -80,21 +80,25 @@ struct PathStage: View {
       cue(from: old, to: new)
     }
     .onAppear { cue(from: position, to: position) }
+    .task(id: pickup) { await playPickup() }
+    .task(id: tip) { await holdTip() }
     .onChange(of: geometry) { self.camera = nil }
   }
 
   private func pickUp(_ treat: StoryTreat) {
     pickup = treat
     pickupLanded = false
-    Task { @MainActor in
-      try? await Task.sleep(for: .seconds(WordPath.pickupDelay))
-      withAnimation(.spring(duration: 0.6, bounce: 0.25)) { pickupLanded = true }
-      withAnimation(.easeOut(duration: 0.2).delay(0.5)) { showsBasket = true }
-      try? await Task.sleep(for: .seconds(0.6 + WordPath.basketHold))
-      withAnimation(.easeIn(duration: 0.4)) {
-        showsBasket = false
-        pickup = nil
-      }
+  }
+
+  private func playPickup() async {
+    guard pickup != nil else { return }
+    do { try await Task.sleep(for: .seconds(WordPath.pickupDelay)) } catch { return }
+    withAnimation(.spring(duration: 0.6, bounce: 0.25)) { pickupLanded = true }
+    withAnimation(.easeOut(duration: 0.2).delay(0.5)) { showsBasket = true }
+    do { try await Task.sleep(for: .seconds(0.6 + WordPath.basketHold)) } catch { return }
+    withAnimation(.easeIn(duration: 0.4)) {
+      showsBasket = false
+      pickup = nil
     }
   }
 
@@ -148,10 +152,11 @@ struct PathStage: View {
         }
         .transition(.scale(scale: 0.9).combined(with: .opacity))
       } else if let callout = store.callout {
-        let last = store.journeyMoments.count(where: \.isCallout) <= 1
-        CalloutCard(moment: callout, geometry: geometry, isDone: store.hasTriedItOn, isLast: last) {
-          if callout.story != nil { store.send(.backToMyStoriesTapped) }
-          if case let .basketFull(friend, _) = callout { store.send(.tryItOnTapped(friend)) }
+        CalloutCard(
+          moment: callout, geometry: geometry, isDone: store.hasTriedItOn,
+          isLast: store.isLastCallout
+        ) {
+          store.send(.calloutPrimaryTapped)
         } dismiss: {
           store.send(.momentDismissed)
         }
@@ -225,13 +230,13 @@ struct PathStage: View {
   }
 
   private func explain(_ target: HopTarget) {
-    let shown = ChallengeTipState(target: target)
-    withAnimation(.easeOut(duration: 0.2)) { tip = shown }
-    Task { @MainActor in
-      try? await Task.sleep(for: ChallengeTip.hold)
-      guard tip == shown else { return }
-      withAnimation(.easeIn(duration: 0.3)) { tip = nil }
-    }
+    withAnimation(.easeOut(duration: 0.2)) { tip = ChallengeTipState(target: target) }
+  }
+
+  private func holdTip() async {
+    guard tip != nil else { return }
+    do { try await Task.sleep(for: ChallengeTip.hold) } catch { return }
+    withAnimation(.easeIn(duration: 0.3)) { tip = nil }
   }
 
   private func cue(from old: HopTarget, to new: HopTarget) {

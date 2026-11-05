@@ -1,3 +1,4 @@
+import DependenciesTestSupport
 import Foundation
 import SpriteKit
 import Testing
@@ -6,7 +7,7 @@ import UIKit
 @testable import World
 
 @MainActor
-@Suite(.enabled(if: ProcessInfo.processInfo.environment["LAUNCH_ART"] == "1"))
+@Suite(.steady, .enabled(if: ProcessInfo.processInfo.environment["LAUNCH_ART"] == "1"))
 struct LaunchArtTests {
   static let landscape = CGSize(width: 951, height: 669)
   static let reference = CGSize(width: 669, height: 951)

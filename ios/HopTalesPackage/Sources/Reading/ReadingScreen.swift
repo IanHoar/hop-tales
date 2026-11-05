@@ -7,11 +7,6 @@ import SwiftUI
 import World
 
 @Feature public struct Reading {
-  public static let settleAfterSpeaking = Duration.milliseconds(300)
-  public static let offerHelpAfter = Duration.seconds(6)
-  public static let relistenAfterEnd = Duration.milliseconds(150)
-  public static let relistenAfterFailure = Duration.seconds(1)
-
   public init() {}
 
   public struct State: Identifiable {
@@ -49,26 +44,6 @@ import World
       self.bigWords = bigWords
       self.treat = treat
     }
-
-    public var currentWord: Word? {
-      sentence?.words[safe: wordIndex]
-    }
-
-    public var nextWord: Word? {
-      sentence?.words[safe: wordIndex + 1]
-    }
-
-    public var sentence: Sentence? {
-      story.sentences[safe: sentenceIndex]
-    }
-
-    public var worldProgress: Double {
-      Double(wordsCompleted) * Story.stepPerWord
-    }
-
-    public var wordsCompleted: Int {
-      story.sentences.prefix(sentenceIndex).reduce(0) { $0 + $1.words.count } + wordIndex
-    }
   }
 
   public enum Action {
@@ -81,7 +56,7 @@ import World
     case hintOffered
     case hintTapped
     case keepReadingTapped
-    case tryItOnTapped(Friend)
+    case calloutPrimaryTapped
     case momentDismissed
     case speechFinished
     case scenePhaseChanged(isActive: Bool)
@@ -91,13 +66,15 @@ import World
 
   @FeatureState var debouncer = PartialDebouncer()
   @FeatureState var savedStars = 0
-  @FeatureState var chimedSentence: Int?
   @FeatureState var profile = Profile()
   @FeatureState var wordsHelped: Set<WordRef> = []
   @FeatureState var wordsRead: Set<WordRef> = []
   @FeatureState var noiseLevel: Double?
   @FeatureState var ticksSinceMatch = 0
   @FeatureState var heardSinceMatch = false
+  @Dependency(\.continuousClock) var clock
+  @Dependency(IdleTimer.self) var idleTimer
+  @Dependency(\.date) var date
   @Dependency(ProfileStore.self) var profileStore
   @Dependency(ProgressStore.self) var progressStore
   @Dependency(SoundClient.self) var sound
@@ -117,7 +94,7 @@ import World
           state.isConfirmingStop = true
           break
         }
-        store.addTask { try store.send(.backToStoriesTapped) }
+        store.addTask { try store.dismiss() }
 
       case .readAgainTapped:
         state.sentenceIndex = 0
@@ -131,17 +108,25 @@ import World
         state.completed = nil
         state.recognised = nil
         savedStars = 0
-        chimedSentence = 0
         debouncer.reset()
 
       case .backToStoriesTapped:
         state.isConfirmingStop = false
+        store.addTask { try store.dismiss() }
 
       case .keepReadingTapped:
         state.isConfirmingStop = false
 
-      case .tryItOnTapped:
-        state.hasTriedItOn = true
+      case .calloutPrimaryTapped:
+        guard let callout = state.callout else { break }
+        if case let .basketFull(friend, _) = callout {
+          state.hasTriedItOn = true
+          store.addTask { try store.post(TryingItOn(friend: friend)) }
+        }
+        guard callout.story != nil else { break }
+        state.dismissCallout()
+        guard state.callout == nil else { break }
+        store.addTask { try store.dismiss() }
 
       case .momentDismissed:
         state.hasTriedItOn = false
@@ -150,7 +135,7 @@ import World
       case .backToMyStoriesTapped:
         state.dismissCallout()
         guard state.callout == nil else { break }
-        store.addTask { try store.send(.backToStoriesTapped) }
+        store.addTask { try store.dismiss() }
 
       case .hintOffered:
         guard state.currentWord != nil, !state.isSpeaking else { break }
@@ -166,7 +151,7 @@ import World
         let locale = profile.accent.locale
         store.addTask {
           await speechClient.speak(word, voice, locale)
-          try? await Task.sleep(for: Reading.settleAfterSpeaking)
+          try? await clock.sleep(for: Reading.settleAfterSpeaking)
           try store.send(.speechFinished)
         }
 
@@ -228,22 +213,25 @@ import World
         }
       }
     }
+    .onMount { _ in
+      idleTimer.keepAwake(true)
+    }
+    .onDismount {
+      idleTimer.keepAwake(false)
+    }
+    .onChange(of: store.completionCount) { before, after, _ in
+      guard after > before, soundPreference.load() else { return }
+      store.addTask { await sound.sentenceCompleted() }
+    }
     .onMount(id: [store.sentenceIndex, store.listeningEpoch]) { state in
       guard state.isActive else { return }
       state.strictness = strictnessPreference.load()
       profile = profileStore.load() ?? Profile()
       state.soundButtons = profile.soundButtons
       let locale = profile.accent.locale
-      let completed = state.completionCount > 0 && chimedSentence != state.sentenceIndex
-      if completed { chimedSentence = state.sentenceIndex }
-      let celebrates = completed && soundPreference.load()
-      guard let sentence = state.sentence else {
-        if celebrates { store.addTask { await sound.sentenceCompleted() } }
-        return
-      }
+      guard let sentence = state.sentence else { return }
       let contextualStrings = sentence.words.map(\.text)
       let known = state.authorization
-      if celebrates { store.addTask { await sound.sentenceCompleted() } }
       store.addTask {
         let authorization: SpeechClient.Authorization
         if let known {
@@ -253,65 +241,32 @@ import World
           try store.send(.authorizationResolved(authorization))
         }
         guard authorization == .authorized else { return }
-        var heardAt = ContinuousClock.now
+        var heardAt = date.now
         while !Task.isCancelled {
           guard let events = try? await speechClient.listen(contextualStrings, locale) else {
-            try await Task.sleep(for: Reading.relistenAfterFailure)
+            try await clock.sleep(for: Reading.relistenAfterFailure)
             continue
           }
           for await event in events {
             switch event {
             case let .partial(tokens):
-              heardAt = .now
+              heardAt = date.now
               try store.send(.speechResult(tokens: tokens, isFinal: false))
             case let .final(tokens):
-              heardAt = .now
+              heardAt = date.now
               try store.send(.speechResult(tokens: tokens, isFinal: true))
             case .silence:
-              guard ContinuousClock.now - heardAt >= Reading.offerHelpAfter else { break }
-              heardAt = .now
+              guard Self.hasBeenQuiet(since: heardAt, now: date.now) else { break }
+              heardAt = date.now
               try store.send(.hintOffered)
             case let .level(level):
               try store.send(.noiseLevel(level))
             }
           }
-          try await Task.sleep(for: Reading.relistenAfterEnd)
+          try await clock.sleep(for: Reading.relistenAfterEnd)
         }
       }
     }
-  }
-}
-
-extension Reading {
-  func persist(_ state: State) {
-    var progress = progressStore.load()
-    progress.stars += state.stars - savedStars
-    progress.completedSentences[state.story.id] = max(
-      progress.completedSentences[state.story.id] ?? 0,
-      state.sentenceIndex
-    )
-    progress.wordsRead[state.story.id] = max(
-      progress.wordsRead[state.story.id] ?? 0,
-      state.wordsCompleted
-    )
-    progressStore.save(progress)
-    savedStars = state.stars
-  }
-
-  func log(
-    _ tokens: [String], isFinal: Bool, outcome: SpeechLogEntry.Outcome, in state: State
-  ) {
-    speechLog.record(
-      SpeechLogEntry(
-        story: state.story.id,
-        sentence: state.sentenceIndex,
-        word: state.currentWord?.text ?? "",
-        heard: tokens,
-        isFinal: isFinal,
-        outcome: outcome,
-        level: noiseLevel
-      )
-    )
   }
 }
 
@@ -371,8 +326,6 @@ public struct ReadingScreen: View {
     .onChange(of: scenePhase) { _, phase in
       store.send(.scenePhaseChanged(isActive: phase != .background))
     }
-    .onAppear { UIApplication.shared.isIdleTimerDisabled = true }
-    .onDisappear { UIApplication.shared.isIdleTimerDisabled = false }
     .sensoryFeedback(.impact(flexibility: .soft), trigger: store.recognised) { _, word in
       word != nil
     }

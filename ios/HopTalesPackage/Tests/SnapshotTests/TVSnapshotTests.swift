@@ -1,5 +1,6 @@
 import ComposableArchitecture
 import Content
+import DependenciesTestSupport
 import DesignSystem
 import SnapshotTesting
 import SwiftUI
@@ -8,6 +9,7 @@ import Testing
 @testable import Reading
 
 @MainActor
+@Suite(.steady)
 struct TVSnapshotTests {
   static let tv = CGSize(width: 1920, height: 1080)
 

@@ -1,11 +1,13 @@
 import ComposableArchitecture
 import Content
 import Dependencies
+import DependenciesTestSupport
 import Testing
 
 @testable import Onboarding
 
 @MainActor
+@Suite(.steady)
 struct OnboardingWelcomeTests {
   @Test func theWelcomeComesBeforeTheFirstStep() async {
     let store = TestStore(initialState: Onboarding.State(welcoming: true)) {
@@ -33,7 +35,7 @@ struct OnboardingWelcomeTests {
     #expect(state.step == .name)
   }
 
-  @Test func gettingStartedSavesADraftAtTheFirstStep() {
+  @Test func gettingStartedSavesADraftAtTheFirstStep() async {
     let saved = LockIsolated<ProfileDraft?>(nil)
     let store = TestStore(initialState: Onboarding.State(welcoming: true)) {
       Onboarding()
@@ -42,7 +44,8 @@ struct OnboardingWelcomeTests {
           ProfileStore(load: { nil }, save: { _ in }, saveDraft: { saved.setValue($0) })
         )
     }
-    store.send(.primaryTapped) { $0.isWelcoming = false }
+    await store.send(.primaryTapped) { $0.isWelcoming = false }?.value
     #expect(saved.value?.step == Onboarding.Step.cloud.rawValue)
+    await store.dismount()
   }
 }

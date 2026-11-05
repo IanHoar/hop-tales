@@ -6,7 +6,11 @@ import Testing
 @testable import GrownUps
 
 @MainActor
-@Suite(.dependency(\.continuousClock, .immediate), .snapshots(record: .missing, diffTool: .ksdiff))
+@Suite(
+  .steady,
+  .dependency(\.continuousClock, .immediate),
+  .snapshots(record: .missing, diffTool: .ksdiff)
+)
 struct PaywallSnapshotTests {
   @Test(arguments: [ColorScheme.light, .dark])
   func thePaywallLeadsWithYearly(scheme: ColorScheme) {

@@ -9,6 +9,7 @@ final class Speaker: NSObject {
 
   private let synthesizer = AVSpeechSynthesizer()
   private var finished: CheckedContinuation<Void, Never>?
+  private var speaking: AVSpeechUtterance?
 
   override private init() {
     super.init()
@@ -23,6 +24,7 @@ final class Speaker: NSObject {
     utterance.rate = Self.rate
     utterance.voice = voiceID.flatMap(AVSpeechSynthesisVoice.init(identifier:))
       ?? Self.voice(for: locale)
+    speaking = utterance
 
     await withCheckedContinuation { continuation in
       finished = continuation
@@ -62,6 +64,11 @@ final class Speaker: NSObject {
     finished?.resume()
     finished = nil
   }
+
+  private func ended(_ utterance: ObjectIdentifier) {
+    guard let speaking, ObjectIdentifier(speaking) == utterance else { return }
+    resume()
+  }
 }
 
 extension Speaker: AVSpeechSynthesizerDelegate {
@@ -69,13 +76,15 @@ extension Speaker: AVSpeechSynthesizerDelegate {
     _ synthesizer: AVSpeechSynthesizer,
     didFinish utterance: AVSpeechUtterance
   ) {
-    Task { @MainActor in resume() }
+    let ended = ObjectIdentifier(utterance)
+    Task { @MainActor in self.ended(ended) }
   }
 
   nonisolated func speechSynthesizer(
     _ synthesizer: AVSpeechSynthesizer,
     didCancel utterance: AVSpeechUtterance
   ) {
-    Task { @MainActor in resume() }
+    let ended = ObjectIdentifier(utterance)
+    Task { @MainActor in self.ended(ended) }
   }
 }

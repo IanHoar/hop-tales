@@ -57,19 +57,6 @@ import World
         && Step.allCases.filter { $0 != .listening }.allSatisfy(canContinue(from:))
     }
 
-    var listeningLocale: Locale { resolvedAccent.locale }
-
-    var resolvedAccent: Profile.Accent { accent ?? Profile.Accent(region: Locale.current.region) }
-
-    public var profile: Profile {
-      Profile(
-        childName: childName.trimmingCharacters(in: .whitespacesAndNewlines),
-        startingFriend: .at(level: 1),
-        accent: resolvedAccent,
-        soundButtons: soundButtons ?? false
-      )
-    }
-
     public var step: Step { path.last ?? .cloud }
 
     public var steps: [Step] { restored == nil ? Step.allCases : [.cloud, .listening] }
@@ -104,6 +91,7 @@ import World
   public enum Action {
     case authorizationResolved(SpeechClient.Authorization)
     case backTapped
+    case pathPopped(to: Int)
     case cloudAccountResolved(CloudSync.Account)
     case cloudCaughtUp(restored: Profile?)
     case cloudSyncPicked(Bool)
@@ -113,6 +101,7 @@ import World
     case soundButtonsPicked(Bool)
   }
 
+  @Dependency(\.locale) var locale
   @Dependency(CloudSync.self) var cloudSync
   @Dependency(ProfileStore.self) var profileStore
   @Dependency(SpeechClient.self) var speechClient
@@ -129,6 +118,11 @@ import World
           break
         }
         state.path.removeLast()
+        if state.path.isEmpty { state.restored = nil }
+
+      case let .pathPopped(count):
+        guard count < state.path.count else { break }
+        state.path.removeLast(state.path.count - count)
         if state.path.isEmpty { state.restored = nil }
 
       case let .cloudAccountResolved(account):
@@ -149,10 +143,12 @@ import World
       case .primaryTapped:
         if state.isWelcoming {
           state.isWelcoming = false
+          let draft = state.draft
+          store.addTask { profileStore.saveDraft(draft) }
           break
         }
         if state.needsMicrophone {
-          let locale = state.listeningLocale
+          let locale = state.listeningLocale(region: self.locale.region)
           store.addTask {
             let authorization = await speechClient.requestAuthorization(locale)
             try store.send(.authorizationResolved(authorization))
@@ -169,7 +165,7 @@ import World
           break
         }
         guard let next = Step(rawValue: state.step.rawValue + 1) else {
-          let profile = state.profile
+          let profile = state.profile(region: self.locale.region)
           store.addTask { try store.send(.finished(profile)) }
           break
         }
@@ -182,11 +178,13 @@ import World
         state.soundButtons = isOn
 
       }
-      profileStore.saveDraft(state.draft)
+    }
+    .onChange(of: store.draft) { _, draft, _ in
+      store.addTask { profileStore.saveDraft(draft) }
     }
     .onMount { state in
       if state.step.rawValue > Step.listening.rawValue {
-        let locale = state.listeningLocale
+        let locale = state.listeningLocale(region: self.locale.region)
         store.addTask {
           let authorization = await speechClient.requestAuthorization(locale)
           try store.send(.authorizationResolved(authorization))
@@ -328,7 +326,7 @@ struct OnboardingSheet: View {
     Binding(
       get: { store.isWelcoming ? [] : store.path },
       set: { path in
-        for _ in path.count..<store.path.count { store.send(.backTapped) }
+        store.send(.pathPopped(to: path.count))
       }
     )
   }

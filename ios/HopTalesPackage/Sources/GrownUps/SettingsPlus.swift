@@ -8,9 +8,7 @@ import World
 extension Settings {
   @CasePathable
   public enum Subscription {
-    case manageClosed
     case manageTapped
-    case refundClosed
     case refundTapped
     case statusResolved(PlusStatus)
     case subscribeTapped
@@ -23,14 +21,8 @@ extension Settings {
 
   func subscription(_ action: Subscription, _ state: inout State) {
     switch action {
-    case .manageClosed:
-      state.isManagingSubscription = false
-      reloadStatus()
     case .manageTapped:
       ask(.manage, &state)
-    case .refundClosed:
-      state.isRequestingRefund = false
-      reloadStatus()
     case .refundTapped:
       ask(.refund, &state)
     case let .statusResolved(status):
@@ -41,14 +33,14 @@ extension Settings {
   }
 
   func ask(_ request: GatedRequest, _ state: inout State) {
-    state.gatedRequest = request
+    gatedRequest = request
     state.gate = ParentGate.State(seed: gateSeed.draw())
   }
 
   func grant(_ state: inout State) {
-    let request = state.gatedRequest
+    let request = gatedRequest
     state.gate = nil
-    state.gatedRequest = nil
+    gatedRequest = nil
     switch request {
     case .manage:
       state.isManagingSubscription = true
@@ -148,20 +140,10 @@ struct PlusMembership: View {
 extension View {
   @ViewBuilder
   func subscriptionSheets(_ store: StoreOf<Settings>) -> some View {
-    let managing = manageSubscriptionsSheet(
-      isPresented: Binding(
-        get: { store.isManagingSubscription },
-        set: { if !$0 { store.send(.subscription(.manageClosed)) } }
-      )
-    )
+    let bindable = Bindable(store)
+    let managing = manageSubscriptionsSheet(isPresented: bindable.isManagingSubscription)
     if let transaction = store.plusStatus.refundableTransactionID {
-      managing.refundRequestSheet(
-        for: transaction,
-        isPresented: Binding(
-          get: { store.isRequestingRefund },
-          set: { if !$0 { store.send(.subscription(.refundClosed)) } }
-        )
-      )
+      managing.refundRequestSheet(for: transaction, isPresented: bindable.isRequestingRefund)
     } else {
       managing
     }

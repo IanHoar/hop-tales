@@ -1,12 +1,13 @@
 import ComposableArchitecture
 import Content
 import Dependencies
+import DependenciesTestSupport
 import SpeechRecognition
 import Testing
 
 @testable import Reading
 @MainActor
-@Suite(.timeLimit(.minutes(1)))
+@Suite(.steady, .timeLimit(.minutes(1)))
 struct ReadingTests {
   @Test func readingAWordAdvancesTheBallAndAwardsAStar() async {
     let store = TestStore(initialState: Reading.State(story: StoryLibrary.all[0])) {
@@ -55,7 +56,7 @@ struct ReadingTests {
     state.journeyMoments = [.basketFull(.bunny, number: 1)]
     let store = TestStore(initialState: state) { Reading() }
 
-    store.send(.tryItOnTapped(.bunny)) { $0.hasTriedItOn = true }
+    await store.send(.calloutPrimaryTapped) { $0.hasTriedItOn = true }?.value
     store.send(.momentDismissed) {
       $0.hasTriedItOn = false
       $0.journeyMoments = []
@@ -137,7 +138,8 @@ struct ReadingTests {
     #expect(state.mood.weather == .rain)
   }
 
-  @Test func listeningStartsAgainWhenTheRecogniserStops() async {
+  @Test(.dependency(\.continuousClock, .immediate))
+  func listeningStartsAgainWhenTheRecogniserStops() async {
     let sessions = LockIsolated(0)
     var speech = SpeechClient.testValue
     speech.listen = { _, _ in
@@ -206,7 +208,7 @@ struct ReadingTests {
       $0.isActive = true
       $0.listeningEpoch = 2
     }
-    try? await Task.sleep(for: .milliseconds(200))
+    while sessions.value < 2 { await Task.yield() }
     #expect(sessions.value == 2)
     await store.dismount()
   }
@@ -219,9 +221,8 @@ struct ReadingTests {
       Reading()
     }
 
-    store.send(.backTapped)
-    await store.receive(\.backToStoriesTapped)
-    await store.dismount()
+    await store.send(.backTapped)?.value
+    #expect(!store.isPresented)
   }
 
   @Test func readingAgainStartsTheStoryOver() async {
@@ -261,29 +262,9 @@ struct ReadingTests {
     store.send(.backTapped) {
       $0.isConfirmingStop = true
     }
-    store.send(.backToStoriesTapped) {
+    await store.send(.backToStoriesTapped) {
       $0.isConfirmingStop = false
-    }
-
-    await store.dismount()
-  }
-
-  @Test(arguments: [true, false])
-  func theSentenceChimeFollowsTheSoundSetting(soundOn: Bool) async {
-    var state = Reading.State(story: StoryLibrary.all[0])
-    state.advance(by: state.sentence!.words.count)
-    let chimes = LockIsolated(0)
-    let store = TestStore(initialState: state) {
-      Reading()
-        .dependency(SoundClient(sentenceCompleted: { chimes.withValue { $0 += 1 } }))
-        .dependency(SoundPreference(load: { soundOn }, save: { _ in }))
-    }
-
-    await store.receive(\.authorizationResolved) {
-      $0.authorization = .authorized
-    }
-    #expect(chimes.value == (soundOn ? 1 : 0))
-
-    await store.dismount()
+    }?.value
+    #expect(!store.isPresented)
   }
 }

@@ -1,6 +1,8 @@
+import Clocks
 import ComposableArchitecture
 import Content
 import Dependencies
+import DependenciesTestSupport
 import SpeechRecognition
 import Testing
 
@@ -10,7 +12,7 @@ import Testing
 @testable import Onboarding
 
 @MainActor
-@Suite(.timeLimit(.minutes(1)))
+@Suite(.steady, .dependency(\.continuousClock, TestClock()), .timeLimit(.minutes(1)))
 struct OnboardingTests {
   nonisolated static let speech = SpeechClient(
     listen: { _, _ in AsyncStream { $0.finish() } },
@@ -22,10 +24,10 @@ struct OnboardingTests {
     let store = TestStore(initialState: Root.State()) {
       Root().dependency(ProfileStore.firstRun)
     } changes: {
+      $0.arrivesFromOnboarding = true
       $0.onboarding = Onboarding.State.DebugSnapshot()
       $0.onboarding?.isWelcoming = true
     }
-    #expect(store.state.onboarding != nil)
     await store.dismount()
   }
 
@@ -36,7 +38,6 @@ struct OnboardingTests {
     } changes: {
       $0.home.childName = "Maya"
     }
-    #expect(store.state.onboarding == nil)
     await store.dismount()
   }
 
@@ -70,9 +71,9 @@ struct OnboardingTests {
   @Test func everyNewReaderStartsWithTheLevelOneFriend() {
     var state = Onboarding.State()
     state.childName = "Maya"
-    #expect(state.profile.startingFriend == Friend.at(level: 1))
-    #expect(state.profile.startingFriend == .bunny)
-    #expect(state.profile.startingStoryID == StoryLibrary.stories(at: 1).first?.id)
+    #expect(state.profile(region: nil).startingFriend == Friend.at(level: 1))
+    #expect(state.profile(region: nil).startingFriend == .bunny)
+    #expect(state.profile(region: nil).startingStoryID == StoryLibrary.stories(at: 1).first?.id)
   }
 
   private func cloud(
@@ -178,6 +179,7 @@ struct OnboardingTests {
     let store = TestStore(initialState: state) {
       Root().dependency(ProfileStore(load: { nil }, save: { profile in saved.setValue(profile) }))
     } changes: {
+      $0.arrivesFromOnboarding = true
       $0.onboarding = Onboarding.State.DebugSnapshot()
       $0.onboarding?.isWelcoming = true
     }
@@ -211,6 +213,18 @@ struct OnboardingTests {
     await store.dismount()
   }
 
+  @Test func swipingBackSeveralStepsLandsOnThatQuestion() async {
+    var state = Onboarding.State()
+    state.path = [.name, .listening, .ahead]
+    let store = TestStore(initialState: state) {
+      Onboarding().dependency(Self.speech)
+    }
+    await store.receive(\.authorizationResolved) { $0.authorization = .authorized }
+    store.send(.pathPopped(to: 1)) { $0.path = [.name] }
+    store.send(.pathPopped(to: 1))
+    await store.dismount()
+  }
+
   @Test func everyAnswerIsKeptAsADraft() {
     let draft = LockIsolated<ProfileDraft?>(nil)
     let store = TestStore(initialState: Onboarding.State()) {
@@ -233,6 +247,7 @@ struct OnboardingTests {
         .dependency(ProfileStore(load: { nil }, save: { _ in }, loadDraft: { draft }))
         .dependency(Self.speech)
     } changes: {
+      $0.arrivesFromOnboarding = true
       $0.onboarding = Onboarding.State.DebugSnapshot(
         path: [.name, .listening, .ahead],
         childName: "Maya"
@@ -263,6 +278,7 @@ extension OnboardingTests {
     }
     store.send(.settings(.resetOnboardingTapped)) {
       $0.home.childName = nil
+      $0.arrivesFromOnboarding = true
       $0.onboarding = Onboarding.State.DebugSnapshot()
       $0.onboarding?.isWelcoming = true
       $0.settings = nil

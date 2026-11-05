@@ -41,9 +41,9 @@ import SwiftUI
       switch action {
       case .askAGrownUpTapped:
         state.grownUp = GrownUpPaywall.State(seed: gateSeed.draw())
-      case .grownUp(.gate(.closeTapped)), .grownUp(.paywall(.closeTapped)):
-        state.grownUp = nil
-      case .closeTapped, .grownUp:
+      case .closeTapped:
+        store.addTask { try store.dismiss() }
+      case .grownUp:
         break
       }
     }

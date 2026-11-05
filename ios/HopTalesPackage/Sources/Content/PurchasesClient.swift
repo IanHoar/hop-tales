@@ -255,7 +255,7 @@ final class StoreEntitlement: Sendable {
   func start() {
     state.withLock { state in
       guard state.listener == nil else { return }
-      state.listener = Task.detached { [weak self] in
+      state.listener = Task { [weak self] in
         await self?.listen()
       }
     }

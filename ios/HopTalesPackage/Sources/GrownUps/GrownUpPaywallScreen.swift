@@ -24,6 +24,8 @@ import SwiftUI
       switch action {
       case .gate(.passed):
         state.paywall = Paywall.State()
+      case .gate(.closeTapped), .paywall(.closeTapped):
+        store.addTask { try store.dismiss() }
       case .gate, .paywall:
         break
       }

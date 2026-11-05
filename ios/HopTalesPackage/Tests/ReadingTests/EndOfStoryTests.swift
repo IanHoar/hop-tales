@@ -1,11 +1,12 @@
 import ComposableArchitecture
 import Content
+import DependenciesTestSupport
 import Testing
 
 @testable import Reading
 
 @MainActor
-@Suite(.timeLimit(.minutes(1)))
+@Suite(.steady, .timeLimit(.minutes(1)))
 struct EndOfStoryTests {
   private static func finished(with moments: [JourneyMoment]) -> Reading.State {
     var state = Reading.State(story: StoryLibrary.all[0])
@@ -21,11 +22,10 @@ struct EndOfStoryTests {
       Reading()
     }
 
-    store.send(.backToMyStoriesTapped) {
+    await store.send(.backToMyStoriesTapped) {
       $0.journeyMoments = []
-    }
-    await store.receive(\.backToStoriesTapped)
-    await store.dismount()
+    }?.value
+    #expect(!store.isPresented)
   }
 
   @Test func aNewFriendGoesBackToTheStoriesNotIntoTheirFirstStory() async {
@@ -33,11 +33,10 @@ struct EndOfStoryTests {
       initialState: Self.finished(with: [.newFriend(.hare, via: .trail)])
     ) { Reading() }
 
-    store.send(.backToMyStoriesTapped) {
+    await store.send(.backToMyStoriesTapped) {
       $0.journeyMoments = []
-    }
-    await store.receive(\.backToStoriesTapped)
-    await store.dismount()
+    }?.value
+    #expect(!store.isPresented)
   }
 
   @Test func theMomentsStillShowInOrderBeforeGoingBack() async {

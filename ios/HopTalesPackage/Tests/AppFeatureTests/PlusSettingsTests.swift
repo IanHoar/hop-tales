@@ -8,7 +8,7 @@ import Testing
 @testable import GrownUps
 
 @MainActor
-@Suite(.dependency(\.continuousClock, .immediate), .timeLimit(.minutes(1)))
+@Suite(.steady, .dependency(\.continuousClock, .immediate), .timeLimit(.minutes(1)))
 struct PlusSettingsTests {
   static let renewing = PlusStatus(
     .renews(Date(timeIntervalSince1970: 1_772_496_000)), refundableTransactionID: 7
@@ -96,11 +96,9 @@ struct PlusSettingsTests {
   @Test func leavingTheGateDoesNothing() async {
     let store = settings(.fake())
     store.send(.subscription(.manageTapped)) {
-      $0.gatedRequest = .manage
       $0.gate = ParentGate.State.DebugSnapshot(seed: 1)
     }
     store.send(.gate(.closeTapped)) {
-      $0.gatedRequest = nil
       $0.gate = nil
     }
     await store.dismount()
@@ -110,16 +108,16 @@ struct PlusSettingsTests {
     let store = settings(.fake(isPlus: true, status: Self.renewing), Self.renewing)
     await store.receive(\.subscription.statusResolved)
     store.send(.subscription(.manageTapped)) {
-      $0.gatedRequest = .manage
       $0.gate = ParentGate.State.DebugSnapshot(seed: 1)
     }
     answerTheGate(store)
     await store.receive(\.gate.passed) {
-      $0.gatedRequest = nil
       $0.gate = nil
       $0.isManagingSubscription = true
     }
-    store.send(.subscription(.manageClosed)) { $0.isManagingSubscription = false }
+    store.modify { $0.isManagingSubscription = false } changes: {
+      $0.isManagingSubscription = false
+    }
     await store.receive(\.subscription.statusResolved)
     await store.dismount()
   }
@@ -128,16 +126,16 @@ struct PlusSettingsTests {
     let store = settings(.fake(isPlus: true, status: Self.renewing), Self.renewing)
     await store.receive(\.subscription.statusResolved)
     store.send(.subscription(.refundTapped)) {
-      $0.gatedRequest = .refund
       $0.gate = ParentGate.State.DebugSnapshot(seed: 1)
     }
     answerTheGate(store)
     await store.receive(\.gate.passed) {
-      $0.gatedRequest = nil
       $0.gate = nil
       $0.isRequestingRefund = true
     }
-    store.send(.subscription(.refundClosed)) { $0.isRequestingRefund = false }
+    store.modify { $0.isRequestingRefund = false } changes: {
+      $0.isRequestingRefund = false
+    }
     await store.receive(\.subscription.statusResolved)
     await store.dismount()
   }

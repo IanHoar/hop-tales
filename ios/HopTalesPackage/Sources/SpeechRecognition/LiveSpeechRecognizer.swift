@@ -1,6 +1,7 @@
 import AVFoundation
 import Foundation
 import Speech
+import Synchronization
 
 actor LiveSpeechRecognizer {
   enum Failure: Error {
@@ -17,6 +18,7 @@ actor LiveSpeechRecognizer {
   private var recognizer: SFSpeechRecognizer?
   private let engine = AVAudioEngine()
   private let meter = NoiseMeter()
+  private let heard = HeardTranscript()
   private var request: SFSpeechAudioBufferRecognitionRequest?
   private var task: SFSpeechRecognitionTask?
   private var release: Task<Void, Never>?
@@ -72,13 +74,14 @@ actor LiveSpeechRecognizer {
     let settling = watchForSettling(yieldingTo: continuation)
     let disruptions = Self.watchForDisruptions(ending: continuation)
 
-    task = recognizer.recognitionTask(with: request) { @Sendable [weak self] result, error in
+    let heard = heard
+    task = recognizer.recognitionTask(with: request) { @Sendable result, error in
       if let result {
         let transcript = result.bestTranscription.formattedString
         let isFinal = result.isFinal
         continuation.yield(isFinal ? .final(WordMatcher.normalize(transcript))
           : .partial(WordMatcher.normalize(transcript)))
-        Task { await self?.remember(transcript) }
+        heard.remember(transcript)
         if isFinal { continuation.finish() }
       }
       if error != nil { continuation.finish() }
@@ -120,12 +123,13 @@ actor LiveSpeechRecognizer {
     yieldingTo continuation: AsyncStream<SpeechClient.Event>.Continuation
   ) -> Task<Void, Never> {
     let meter = meter
-    return Task { [weak self] in
+    let heard = heard
+    return Task {
       var lastChange = ContinuousClock.now
       var lastTranscript = ""
       while !Task.isCancelled {
         try? await Task.sleep(for: Self.silenceTick)
-        guard let transcript = await self?.latestTranscript else { continue }
+        let transcript = heard.latest.transcript
         if transcript != lastTranscript {
           lastTranscript = transcript
           lastChange = .now
@@ -160,30 +164,19 @@ actor LiveSpeechRecognizer {
   private func watchForSettling(
     yieldingTo continuation: AsyncStream<SpeechClient.Event>.Continuation
   ) -> Task<Void, Never> {
-    Task { [weak self] in
+    let heard = heard
+    return Task {
       var repeated = ""
       while !Task.isCancelled {
         try? await Task.sleep(for: Self.stabilityTick)
-        guard let (transcript, changed) = await self?.latest,
-          !transcript.isEmpty, transcript != repeated,
+        let (transcript, changed) = heard.latest
+        guard !transcript.isEmpty, transcript != repeated,
           ContinuousClock.now - changed >= Self.settledAfter
         else { continue }
         repeated = transcript
         continuation.yield(.partial(WordMatcher.normalize(transcript)))
       }
     }
-  }
-
-  private var latestTranscript = ""
-  private var latestChange = ContinuousClock.now
-
-  private var latest: (String, ContinuousClock.Instant) {
-    (latestTranscript, latestChange)
-  }
-
-  private func remember(_ transcript: String) {
-    if transcript != latestTranscript { latestChange = .now }
-    latestTranscript = transcript
   }
 
   func stop(session: ObjectIdentifier) {
@@ -211,5 +204,25 @@ actor LiveSpeechRecognizer {
   private func releaseSession() {
     guard request == nil else { return }
     ReadingAudio.deactivate()
+  }
+}
+
+final class HeardTranscript: Sendable {
+  private struct Heard {
+    var transcript = ""
+    var changed = ContinuousClock.now
+  }
+
+  private let heard = Mutex(Heard())
+
+  var latest: (transcript: String, changed: ContinuousClock.Instant) {
+    heard.withLock { ($0.transcript, $0.changed) }
+  }
+
+  func remember(_ transcript: String) {
+    heard.withLock { heard in
+      if transcript != heard.transcript { heard.changed = .now }
+      heard.transcript = transcript
+    }
   }
 }

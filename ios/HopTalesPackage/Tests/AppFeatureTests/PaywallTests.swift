@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import ConcurrencyExtras
 import Content
 import DependenciesTestSupport
 import Testing
@@ -6,7 +7,7 @@ import Testing
 @testable import GrownUps
 
 @MainActor
-@Suite(.serialized, .dependency(\.continuousClock, .immediate), .timeLimit(.minutes(1)))
+@Suite(.steady, .serialized, .dependency(\.continuousClock, .immediate), .timeLimit(.minutes(1)))
 struct PaywallTests {
   private let waits = Duration.seconds(5)
 
@@ -42,7 +43,25 @@ struct PaywallTests {
     await store.receive(\.offersLoaded, timeout: waits) { $0.offers = .loaded(PlusOffer.samples) }
     store.send(.planTapped(.yearly))
     await store.receive(\.purchaseCompleted, timeout: waits)
-    await store.receive(\.subscribed, timeout: waits)
+    await store.receive(key: PlusSubscribed.self, timeout: waits)
+    await store.dismount()
+  }
+
+  @Test func aSecondTapWhileBuyingIsIgnored() async {
+    let purchases = LockIsolated(0)
+    var client = PurchasesClient.fake(outcome: .cancelled)
+    client.purchase = { _ in
+      purchases.withValue { $0 += 1 }
+      try await Task.never()
+      return .cancelled
+    }
+    let store = paywall(client)
+    await store.receive(\.offersLoaded, timeout: waits) { $0.offers = .loaded(PlusOffer.samples) }
+    store.send(.planTapped(.yearly))
+    store.send(.planTapped(.monthly))
+    store.send(.restoreTapped)
+    await Task.yield()
+    #expect(purchases.value == 1)
     await store.dismount()
   }
 
@@ -66,7 +85,7 @@ struct PaywallTests {
     let store = paywall(.fake(restores: true))
     await store.receive(\.offersLoaded, timeout: waits) { $0.offers = .loaded(PlusOffer.samples) }
     store.send(.restoreTapped)
-    await store.receive(\.subscribed, timeout: waits)
+    await store.receive(key: PlusSubscribed.self, timeout: waits)
     await store.dismount()
   }
 

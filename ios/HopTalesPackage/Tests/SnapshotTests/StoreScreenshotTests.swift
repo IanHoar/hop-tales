@@ -1,4 +1,5 @@
 import Content
+import DependenciesTestSupport
 import DesignSystem
 import Foundation
 import SnapshotTesting
@@ -10,7 +11,7 @@ import UIKit
 @testable import Reading
 
 @MainActor
-@Suite(
+@Suite(.steady,
   .enabled(if: ProcessInfo.processInfo.environment["STORE_SCREENSHOTS"] == "1"),
   .everyLookPainted
 )

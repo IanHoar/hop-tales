@@ -37,7 +37,7 @@ import World
     Update { state, action in
       switch action {
       case .doneTapped:
-        break
+        store.addTask { try store.dismiss() }
 
       case let .friendPicked(friend):
         guard state.progress.journey.met.contains(friend) else { break }

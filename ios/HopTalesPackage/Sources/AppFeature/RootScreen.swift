@@ -26,7 +26,14 @@ import SwiftUI
     public var friends: Friends.State?
     public var book: Book.State?
     public var theme = Profile.Theme.device
+    public var arrivesFromOnboarding = false
     public init() {}
+
+    public var screensOverHome: Int {
+      path.count
+        + [settings != nil, journeyMap != nil, wardrobe != nil, friends != nil, book != nil]
+        .filter { $0 }.count
+    }
 
     public var storyOnScreen: Story? {
       guard case let .reading(reading) = path.last else { return nil }
@@ -46,6 +53,7 @@ import SwiftUI
     case book(Book.Action)
   }
 
+  @Dependency(\.locale) var locale
   @Dependency(ProfileStore.self) var profileStore
   @Dependency(ProgressStore.self) var progressStore
 
@@ -80,49 +88,22 @@ import SwiftUI
         case .friends(.journeyTapped):
           state.friends = nil
           state.journeyMap = JourneyMap.State()
-        case .friends(.doneTapped):
-          state.friends = nil
-          state.home.apply(progressStore.load())
-        case .book(.doneTapped):
-          state.book = nil
         case .friends, .book:
           break
         case .home(.wardrobeTapped):
           state.wardrobe = Wardrobe.State(friend: progressStore.load().journey.activeFriend)
-        case let .path(_, .reading(.tryItOnTapped(friend))):
-          var progress = progressStore.load()
-          if let item = progress.newestItem(for: friend) {
-            progress.wear(item, on: friend)
-            progressStore.save(progress)
-          }
-          state.wardrobe = Wardrobe.State(friend: friend)
-        case .wardrobe(.doneTapped):
-          state.wardrobe = nil
-          state.home.apply(progressStore.load())
         case .wardrobe:
           break
         case .home(.journeyTapped):
           state.journeyMap = JourneyMap.State()
-        case .journeyMap(.doneTapped):
-          state.journeyMap = nil
-          state.home.apply(progressStore.load())
-        case let .journeyMap(.bigStoryTapped(story)):
-          state.journeyMap = nil
-          open(story, &state)
         case .journeyMap:
           break
         case .home(.grownUpsTapped):
           state.settings = Settings.State()
-        case .settings(.doneTapped):
-          state.settings = nil
-          if let profile = profileStore.load() { state.home.apply(profile) }
-          state.home.apply(progressStore.load())
         case let .settings(.themePicked(theme)):
           state.theme = theme
         case .home(.grownUp), .home(.locked), .home(.lockedLevelTapped), .home(.plusChanged):
           break
-        case .intro(.finished):
-          state.intro = nil
         case .intro:
           break
         case let .onboarding(.finished(answered)):
@@ -144,9 +125,7 @@ import SwiftUI
           home.locksStories = state.home.locksStories
           state.home = home
           state.onboarding = Onboarding.State(welcoming: true)
-        case .path(_, .reading(.backToStoriesTapped)):
-          state.path.removeLast()
-          state.home.apply(progressStore.load())
+          state.arrivesFromOnboarding = true
         case .path, .settings:
           break
         }
@@ -187,15 +166,29 @@ import SwiftUI
       let resumed = profileStore.loadDraft().map(Onboarding.State.init(resuming:))
       guard let resumed, resumed.isComplete else {
         state.onboarding = resumed ?? Onboarding.State(welcoming: true)
+        state.arrivesFromOnboarding = true
         return
       }
-      profileStore.save(resumed.profile)
-      startJourney(with: resumed.profile.startingFriend)
-      state.home.apply(resumed.profile)
+      let profile = resumed.profile(region: locale.region)
+      profileStore.save(profile)
+      startJourney(with: profile.startingFriend)
+      state.home.apply(profile)
       state.home.apply(progressStore.load())
     }
     .forEach(\.path, dismissStyle: .stack) {
       Path.body
+    }
+    .onEvent(TryingItOn.self) { trying, state in
+      state.wardrobe = Wardrobe.State(friend: trying.friend, wearsNewest: true)
+    }
+    .onEvent(StoryChosen.self) { chosen, state in
+      state.journeyMap = nil
+      open(chosen.story, &state)
+    }
+    .onChange(of: store.screensOverHome) { old, new, state in
+      guard new < old, state.onboarding == nil else { return }
+      if let profile = profileStore.load() { state.home.apply(profile) }
+      state.home.apply(progressStore.load())
     }
   }
 }
@@ -208,7 +201,6 @@ public struct RootScreen: View {
   }
 
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
-  @State private var onboarded = false
 
   public var body: some View {
     ZStack {
@@ -240,10 +232,9 @@ public struct RootScreen: View {
       if let onboarding = store.scope(\.onboarding) {
         OnboardingScreen(store: onboarding)
           .transition(.opacity.animation(.easeInOut(duration: 0.45)))
-          .onAppear { onboarded = true }
       } else {
         stories
-          .environment(\.arrivesFromOnboarding, onboarded)
+          .environment(\.arrivesFromOnboarding, store.arrivesFromOnboarding)
           .transition(.opacity.animation(.easeInOut(duration: 0.45)))
       }
     }

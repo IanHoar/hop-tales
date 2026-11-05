@@ -1,7 +1,23 @@
 import ComposableArchitecture
+import Dependencies
 import DesignSystem
 import SwiftUI
 import World
+
+public struct MotionPreference: Sendable {
+  public var reducesMotion: @Sendable () -> Bool
+
+  public init(reducesMotion: @escaping @Sendable () -> Bool) {
+    self.reducesMotion = reducesMotion
+  }
+}
+
+extension MotionPreference: DependencyKey {
+  public static let liveValue = MotionPreference {
+    MainActor.assumeIsolated { UIAccessibility.isReduceMotionEnabled }
+  }
+  public static let testValue = MotionPreference { false }
+}
 
 @Feature public struct Intro {
   public init() {}
@@ -11,24 +27,24 @@ import World
   }
 
   public enum Action {
-    case finished
     case skipTapped
-    case started(reduceMotion: Bool)
   }
+
+  @Dependency(\.continuousClock) var clock
+  @Dependency(MotionPreference.self) var motion
 
   public var body: some Feature {
     Update { _, action in
       switch action {
-      case .finished:
-        break
       case .skipTapped:
-        store.addTask { try store.send(.finished) }
-      case let .started(reduceMotion):
-        let delay = reduceMotion ? IntroTimeline.reducedRoute : IntroTimeline.route
-        store.addTask {
-          try await Task.sleep(for: .seconds(delay))
-          try store.send(.finished)
-        }
+        store.addTask { try store.dismiss() }
+      }
+    }
+    .onMount { _ in
+      let delay = motion.reducesMotion() ? IntroTimeline.reducedRoute : IntroTimeline.route
+      store.addTask {
+        try await clock.sleep(for: .seconds(delay))
+        try store.dismiss()
       }
     }
   }
@@ -51,7 +67,6 @@ public struct IntroScreen: View {
       }
       .contentShape(Rectangle())
       .onTapGesture { store.send(.skipTapped) }
-      .task { store.send(.started(reduceMotion: reduceMotion)) }
       .accessibilityElement()
       .accessibilityLabel("Hop Tales")
       .accessibilityAddTraits(.isHeader)

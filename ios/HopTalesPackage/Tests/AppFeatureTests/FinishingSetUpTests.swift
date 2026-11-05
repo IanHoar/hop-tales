@@ -1,6 +1,8 @@
+import Clocks
 import ComposableArchitecture
 import Content
 import Dependencies
+import DependenciesTestSupport
 import Testing
 
 @testable import AppFeature
@@ -8,7 +10,7 @@ import Testing
 @testable import Onboarding
 
 @MainActor
-@Suite(.timeLimit(.minutes(1)))
+@Suite(.steady, .dependency(\.continuousClock, TestClock()), .timeLimit(.minutes(1)))
 struct FinishingSetUpTests {
   @Test func finishingSetUpGoesStraightToTheStories() async {
     let saved = LockIsolated<Profile?>(nil)
@@ -20,6 +22,7 @@ struct FinishingSetUpTests {
         ProfileStore(load: { saved.value }, save: { saved.setValue($0) }, erase: {})
       )
     } changes: {
+      $0.arrivesFromOnboarding = true
       $0.onboarding = Onboarding.State.DebugSnapshot()
       $0.onboarding?.isWelcoming = true
     }

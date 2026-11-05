@@ -1,3 +1,4 @@
+import DependenciesTestSupport
 import SnapshotTesting
 import SwiftUI
 import Testing
@@ -5,7 +6,7 @@ import Testing
 @testable import Reading
 
 @MainActor
-@Suite(.snapshots(record: .missing, diffTool: .ksdiff))
+@Suite(.steady, .snapshots(record: .missing, diffTool: .ksdiff))
 struct StoryFinishedSnapshotTests {
   @Test(arguments: [ColorScheme.light, .dark])
   func theFinishedStoryMoment(scheme: ColorScheme) {

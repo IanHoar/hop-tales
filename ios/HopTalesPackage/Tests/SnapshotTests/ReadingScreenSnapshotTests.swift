@@ -1,3 +1,4 @@
+import DependenciesTestSupport
 import DesignSystem
 import SnapshotTesting
 import SwiftUI
@@ -7,7 +8,7 @@ import UIKit
 @testable import Reading
 
 @MainActor
-@Suite(.snapshots(record: .missing, diffTool: .ksdiff))
+@Suite(.steady, .snapshots(record: .missing, diffTool: .ksdiff))
 struct ReadingScreenSnapshotTests {
   static let largePhone = ViewImageConfig(
     safeArea: UIEdgeInsets(top: 62, left: 0, bottom: 34, right: 0),

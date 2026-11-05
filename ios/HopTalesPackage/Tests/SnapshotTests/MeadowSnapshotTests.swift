@@ -1,4 +1,5 @@
 import Content
+import DependenciesTestSupport
 import SnapshotTesting
 import SwiftUI
 import Testing
@@ -6,7 +7,7 @@ import Testing
 @testable import World
 
 @MainActor
-@Suite(.snapshots(record: .missing, diffTool: .ksdiff))
+@Suite(.steady, .snapshots(record: .missing, diffTool: .ksdiff))
 struct MeadowSnapshotTests {
   nonisolated static let moods: [Mood] = [
     Mood(sky: .day, weather: .clear),

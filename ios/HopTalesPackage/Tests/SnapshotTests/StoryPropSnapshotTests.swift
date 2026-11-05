@@ -1,4 +1,5 @@
 import Content
+import DependenciesTestSupport
 import SnapshotTesting
 import SwiftUI
 import Testing
@@ -6,7 +7,7 @@ import Testing
 @testable import Reading
 
 @MainActor
-@Suite(.snapshots(record: .missing, diffTool: .ksdiff), .everyLookPainted)
+@Suite(.steady, .snapshots(record: .missing, diffTool: .ksdiff), .everyLookPainted)
 struct StoryPropSnapshotTests {
   @Test(arguments: [
     ("meadow-walk", 3, 4), ("golden-hour", 3, 2), ("oggy-kite", 1, 3),

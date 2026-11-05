@@ -1,32 +1,45 @@
+import Clocks
 import ComposableArchitecture
 import Content
+import Dependencies
+import DependenciesTestSupport
 import Testing
+import World
 
 @testable import AppFeature
 @testable import Reading
 @MainActor
-@Suite(.timeLimit(.minutes(1)))
+@Suite(.steady, .dependency(\.continuousClock, TestClock()), .timeLimit(.minutes(1)))
 struct RootTests {
   @Test func everyLaunchOpensOnTheIntro() {
     #expect(Root.State().intro != nil)
   }
 
   @Test func theIntroHandsOverWhenTheHareHasRunOff() async {
-    let store = TestStore(initialState: Root.State()) {
-      Root()
+    let clock = TestClock()
+    let store = withDependencies {
+      $0.continuousClock = clock
+    } operation: {
+      TestStore(initialState: Root.State()) {
+        Root()
+      }
     }
-    store.send(.intro(.started(reduceMotion: true)))
-    await store.receive(\.intro.finished, timeout: .seconds(2)) { $0.intro = nil }
+    await clock.advance(by: .seconds(IntroTimeline.route))
+    await store.expect { $0.intro = nil }
     await store.dismount()
   }
 
   @Test func tappingSkipsTheIntro() async {
-    let store = TestStore(initialState: Root.State()) {
-      Root()
+    let store = withDependencies {
+      $0.continuousClock = TestClock()
+    } operation: {
+      TestStore(initialState: Root.State()) {
+        Root()
+      }
     }
-    store.send(.intro(.started(reduceMotion: false)))
-    store.send(.intro(.skipTapped))
-    await store.receive(\.intro.finished) { $0.intro = nil }
+    await store.send(.intro(.skipTapped)) {
+      $0.intro = nil
+    }?.value
     await store.dismount()
   }
 

@@ -1,10 +1,11 @@
 import ComposableArchitecture
+import DependenciesTestSupport
 import Testing
 
 @testable import GrownUps
 
 @MainActor
-@Suite(.timeLimit(.minutes(1)))
+@Suite(.steady, .timeLimit(.minutes(1)))
 struct ParentGateTests {
   @Test func theQuestionIsATimesTableInWords() {
     let question = GateQuestion(left: 7, right: 8)

@@ -8,7 +8,7 @@ import Testing
 @testable import Home
 
 @MainActor
-@Suite(.dependency(\.continuousClock, .immediate), .timeLimit(.minutes(1)))
+@Suite(.steady, .dependency(\.continuousClock, .immediate), .timeLimit(.minutes(1)))
 struct LockedStoryTests {
   private static let plusStory = StoryLibrary.stories(at: 2)[0]
 
@@ -30,25 +30,29 @@ struct LockedStoryTests {
         standing: StoryStanding(story: story, progress: Content.Progress())
       )
     }
-    #expect(store.state.path.isEmpty)
     #expect(store.state.storyOnScreen == nil)
     await store.dismount()
   }
 
   @Test func aBigStoryThatIsLockedOpensTheCard() async {
+    var progress = Content.Progress(journey: Journey(starting: .hare))
+    progress.journey.steps = progress.journey.goal
+    progress.journey.storiesRead = Set(StoryLibrary.stories(at: 2).map(\.id))
+    let saved = progress
     var state = Self.locking()
     state.journeyMap = JourneyMap.State()
+    state.journeyMap?.journey = saved.journey
     let store = TestStore(initialState: state) {
       Root()
+        .dependency(ProgressStore(load: { saved }, save: { _ in }))
     }
-    let story = Self.plusStory
-    store.send(.journeyMap(.bigStoryTapped(story))) {
+    let story = StoryLibrary.bigStory(at: Friend.frog.level)!
+    await store.send(.journeyMap(.stopTapped(.frog))) {
       $0.journeyMap = nil
       $0.home.locked = LockedStory.State.DebugSnapshot(
-        standing: StoryStanding(story: story, progress: Content.Progress())
+        standing: StoryStanding(story: story, progress: saved)
       )
-    }
-    #expect(store.state.path.isEmpty)
+    }?.value
     await store.dismount()
   }
 
@@ -156,8 +160,7 @@ struct LockedStoryTests {
       $0.locked?.grownUp?.paywall?.offers = .loaded(PlusOffer.samples)
     }
     store.send(.locked(.grownUp(.paywall(.planTapped(.yearly)))))
-    await store.receive(\.locked.grownUp.paywall.purchaseCompleted)
-    await store.receive(\.locked.grownUp.paywall.subscribed) {
+    await store.receive(\.locked.grownUp.paywall.purchaseCompleted) {
       $0.isPlus = true
       $0.locked = nil
     }
@@ -260,8 +263,7 @@ extension LockedStoryTests {
       $0.grownUp?.paywall?.offers = .loaded(PlusOffer.samples)
     }
     store.send(.grownUp(.paywall(.planTapped(.yearly))))
-    await store.receive(\.grownUp.paywall.purchaseCompleted)
-    await store.receive(\.grownUp.paywall.subscribed) {
+    await store.receive(\.grownUp.paywall.purchaseCompleted) {
       $0.grownUp = nil
       $0.isPlus = true
     }
