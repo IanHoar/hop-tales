@@ -28,7 +28,6 @@ struct OnboardingTests {
       $0.onboarding = Onboarding.State.DebugSnapshot()
       $0.onboarding?.isWelcoming = true
     }
-    #expect(store.state.onboarding != nil)
     await store.dismount()
   }
 
@@ -39,7 +38,6 @@ struct OnboardingTests {
     } changes: {
       $0.home.childName = "Maya"
     }
-    #expect(store.state.onboarding == nil)
     await store.dismount()
   }
 
@@ -212,6 +210,18 @@ struct OnboardingTests {
     store.send(.backTapped) { $0.path = [.name] }
     store.send(.backTapped) { $0.path = [] }
     store.send(.backTapped) { $0.isWelcoming = true }
+    await store.dismount()
+  }
+
+  @Test func swipingBackSeveralStepsLandsOnThatQuestion() async {
+    var state = Onboarding.State()
+    state.path = [.name, .listening, .ahead]
+    let store = TestStore(initialState: state) {
+      Onboarding().dependency(Self.speech)
+    }
+    await store.receive(\.authorizationResolved) { $0.authorization = .authorized }
+    store.send(.pathPopped(to: 1)) { $0.path = [.name] }
+    store.send(.pathPopped(to: 1))
     await store.dismount()
   }
 

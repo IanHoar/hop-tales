@@ -338,3 +338,20 @@ extension View {
       .containerBackground(Paper.paper, for: .navigation)
   }
 }
+
+extension Onboarding.State {
+  func listeningLocale(region: Locale.Region?) -> Locale { resolvedAccent(region: region).locale }
+
+  func resolvedAccent(region: Locale.Region?) -> Profile.Accent {
+    accent ?? Profile.Accent(region: region)
+  }
+
+  public func profile(region: Locale.Region?) -> Profile {
+    Profile(
+      childName: childName.trimmingCharacters(in: .whitespacesAndNewlines),
+      startingFriend: .at(level: 1),
+      accent: resolvedAccent(region: region),
+      soundButtons: soundButtons ?? false
+    )
+  }
+}

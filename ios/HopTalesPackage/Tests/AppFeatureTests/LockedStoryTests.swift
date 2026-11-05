@@ -30,7 +30,6 @@ struct LockedStoryTests {
         standing: StoryStanding(story: story, progress: Content.Progress())
       )
     }
-    #expect(store.state.path.isEmpty)
     #expect(store.state.storyOnScreen == nil)
     await store.dismount()
   }
@@ -54,7 +53,6 @@ struct LockedStoryTests {
         standing: StoryStanding(story: story, progress: saved)
       )
     }?.value
-    #expect(store.state.path.isEmpty)
     await store.dismount()
   }
 

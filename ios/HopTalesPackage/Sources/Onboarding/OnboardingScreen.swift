@@ -57,21 +57,6 @@ import World
         && Step.allCases.filter { $0 != .listening }.allSatisfy(canContinue(from:))
     }
 
-    func listeningLocale(region: Locale.Region?) -> Locale { resolvedAccent(region: region).locale }
-
-    func resolvedAccent(region: Locale.Region?) -> Profile.Accent {
-      accent ?? Profile.Accent(region: region)
-    }
-
-    public func profile(region: Locale.Region?) -> Profile {
-      Profile(
-        childName: childName.trimmingCharacters(in: .whitespacesAndNewlines),
-        startingFriend: .at(level: 1),
-        accent: resolvedAccent(region: region),
-        soundButtons: soundButtons ?? false
-      )
-    }
-
     public var step: Step { path.last ?? .cloud }
 
     public var steps: [Step] { restored == nil ? Step.allCases : [.cloud, .listening] }
@@ -106,6 +91,7 @@ import World
   public enum Action {
     case authorizationResolved(SpeechClient.Authorization)
     case backTapped
+    case pathPopped(to: Int)
     case cloudAccountResolved(CloudSync.Account)
     case cloudCaughtUp(restored: Profile?)
     case cloudSyncPicked(Bool)
@@ -132,6 +118,11 @@ import World
           break
         }
         state.path.removeLast()
+        if state.path.isEmpty { state.restored = nil }
+
+      case let .pathPopped(count):
+        guard count < state.path.count else { break }
+        state.path.removeLast(state.path.count - count)
         if state.path.isEmpty { state.restored = nil }
 
       case let .cloudAccountResolved(account):
@@ -335,7 +326,7 @@ struct OnboardingSheet: View {
     Binding(
       get: { store.isWelcoming ? [] : store.path },
       set: { path in
-        for _ in path.count..<store.path.count { store.send(.backTapped) }
+        store.send(.pathPopped(to: path.count))
       }
     )
   }
