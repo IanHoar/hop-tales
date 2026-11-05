@@ -23,7 +23,6 @@ import SwiftUI
     Update { state, action in
       switch action {
       case .gate(.passed):
-        state.gate = nil
         state.paywall = Paywall.State()
       case .gate, .paywall:
         break
@@ -39,17 +38,25 @@ import SwiftUI
 }
 
 public struct GrownUpPaywallScreen: View {
-  let store: StoreOf<GrownUpPaywall>
+  @Bindable var store: StoreOf<GrownUpPaywall>
 
   public init(store: StoreOf<GrownUpPaywall>) {
     self.store = store
   }
 
   public var body: some View {
-    if let paywall = store.scope(\.paywall) {
-      PaywallScreen(store: paywall)
-    } else if let gate = store.scope(\.gate) {
-      ParentGateScreen(store: gate)
+    NavigationStack {
+      Group {
+        if let gate = store.scope(\.gate) {
+          ParentGateScreen(store: gate)
+        }
+      }
+      .toolbar(.hidden, for: .navigationBar)
+      .navigationDestination(item: $store.scope(\.paywall)) { paywall in
+        PaywallScreen(store: paywall)
+          .toolbar(.hidden, for: .navigationBar)
+          .navigationBarBackButtonHidden()
+      }
     }
   }
 }

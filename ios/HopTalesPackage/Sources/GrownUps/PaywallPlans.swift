@@ -1,6 +1,5 @@
 import Content
 import DesignSystem
-import StoreKit
 import SwiftUI
 import World
 
@@ -55,7 +54,7 @@ struct PaywallPitch: View {
   static let benefits = [
     "Unlock all reading levels",
     "More characters",
-    "More settings",
+    "More stories",
     "More costumes"
   ]
 
@@ -154,31 +153,5 @@ struct PlanRow: View {
     .accessibilityElement(children: .ignore)
     .accessibilityLabel("\(name), \(price). \(detail).")
     .accessibilityAddTraits(.isButton)
-  }
-}
-
-struct PaperPlansStyle<Footer: View>: SubscriptionStoreControlStyle {
-  let footer: Footer
-
-  func makeBody(configuration: Configuration) -> some View {
-    let options = Dictionary(
-      configuration.options.compactMap { option in
-        PlusOffer(option.subscription).map { ($0.plan, (offer: $0, option: option)) }
-      },
-      uniquingKeysWith: { first, _ in first }
-    )
-    VStack(spacing: 18) {
-      VStack(spacing: 12) {
-        ForEach(PlusPlan.paywallOrder, id: \.self) { plan in
-          if let choice = options[plan] {
-            PlanRow(offer: choice.offer) { choice.option.subscribe() }
-          }
-        }
-      }
-      footer
-    }
-    .padding(.horizontal, 24)
-    .padding(.vertical, 18)
-    .frame(maxWidth: 460)
   }
 }

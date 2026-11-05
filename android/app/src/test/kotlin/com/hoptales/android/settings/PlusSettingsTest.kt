@@ -79,6 +79,7 @@ class PlusSettingsTest {
         compose.onNodeWithText("Unlock now").performClick()
         answerTheGate()
         compose.onNodeWithText("Hop Tales Plus").assertIsDisplayed()
+        compose.mainClock.advanceTimeBy(PLACEHOLDER_MILLIS)
         compose.onNodeWithContentDescription("Yearly", substring = true).assertIsDisplayed()
         compose.onNodeWithText("Close").performClick()
         compose.onNodeWithText("Unlock now").assertIsDisplayed()

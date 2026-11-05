@@ -64,7 +64,7 @@ class PaywallTest {
     @Test
     fun thePitchListsWhatPlusUnlocks() {
         show(FakePlusSource())
-        listOf("Unlock all reading levels", "More characters", "More settings", "More costumes").forEach {
+        listOf("Unlock all reading levels", "More characters", "More stories", "More costumes").forEach {
             compose.onNodeWithText(it).assertIsDisplayed()
         }
         compose.onNodeWithText("For grown-ups").assertDoesNotExist()
