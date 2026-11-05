@@ -87,7 +87,9 @@ at the root are shared. Paths below under `HopTales…` and `project.yml` are in
 
 - Open `ios/HopTales.xcworkspace`, not the `.xcodeproj` — the local package lives in the workspace.
 - Build: `xcodebuild -workspace ios/HopTales.xcworkspace -scheme HopTales -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -skipMacroValidation build`
-- Tests: same command with `test` — the `HopTales` scheme runs all six package test targets.
+- Tests: same command with `test` — the `HopTales` scheme runs the one `HopTalesTests` bundle, whose
+  folders under `Tests/` group the suites. Keep it one bundle: each bundle costs about ten seconds to
+  launch. Snapshot tests render on the CPU with layer shadows switched off (`SnapshotSupport`).
   `WordMatcherTests` must stay green; they encode the tolerance rules.
 - `-skipMacroValidation` is required from the CLI: the package macros need one-time approval that
   only the Xcode UI can give.

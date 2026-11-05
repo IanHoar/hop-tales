@@ -9,6 +9,7 @@ struct StoryFinished: View {
   let geometry: ReadingGeometry
   var leadsHome = true
   var finishedAt: Date?
+  @Environment(\.freezesMotion) private var freezesMotion
   var countsUp = true
   var onStarChip: (CGPoint) -> Void = { _ in }
   let readAgain: () -> Void
@@ -69,9 +70,11 @@ struct StoryFinished: View {
     .buttonStyle(.plain)
   }
 
+  private var cheerStart: Date? { freezesMotion ? nil : finishedAt }
+
   private var starChip: some View {
-    TimelineView(.animation(paused: finishedAt == nil)) { context in
-      let elapsed = finishedAt.map { context.date.timeIntervalSince($0) }
+    TimelineView(.animation(paused: cheerStart == nil)) { context in
+      let elapsed = cheerStart.map { context.date.timeIntervalSince($0) }
       starChipBody(shown: countsUp ? FinishCheer.shownStars(stars, at: elapsed) : stars)
         .scaleEffect(FinishCheer.chipScale(at: elapsed))
     }

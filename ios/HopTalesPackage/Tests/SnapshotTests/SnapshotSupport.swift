@@ -10,6 +10,23 @@ let snapshotRuntimeBuild = "24A434"
 let snapshotScale: CGFloat = 2
 let snapshotTraits = UITraitCollection(displayScale: snapshotScale)
 
+extension CALayer {
+  @objc fileprivate func shadowlessSetShadowOpacity(_ opacity: Float) {
+    shadowlessSetShadowOpacity(0)
+  }
+}
+
+@MainActor
+private let shadowsOff: Void = {
+  guard ProcessInfo.processInfo.environment["STORE_SCREENSHOTS"] != "1",
+    let original = class_getInstanceMethod(CALayer.self, #selector(setter: CALayer.shadowOpacity)),
+    let shadowless = class_getInstanceMethod(
+      CALayer.self, #selector(CALayer.shadowlessSetShadowOpacity(_:))
+    )
+  else { return }
+  method_exchangeImplementations(original, shadowless)
+}()
+
 func snapshotDirectory(file: StaticString = #filePath) -> String {
   let file = URL(fileURLWithPath: "\(file)")
   let suffix = "__Snapshots__/\(file.deletingPathExtension().lastPathComponent)"
@@ -43,6 +60,7 @@ func expectSnapshot<Value, Format>(
     line: Int(line),
     column: Int(column)
   )
+  _ = shadowsOff
   let running = UIDevice.current.systemVersion
   let build = ProcessInfo.processInfo.environment["SIMULATOR_RUNTIME_BUILD_VERSION"] ?? "unknown"
   guard running == snapshotRuntime, build == snapshotRuntimeBuild else {
