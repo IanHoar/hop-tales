@@ -6,12 +6,18 @@ import SpeechRecognition
 import SwiftUI
 import World
 
-@Feature public struct Reading {
+extension Reading {
   public static let settleAfterSpeaking = Duration.milliseconds(300)
   public static let offerHelpAfter = Duration.seconds(6)
   public static let relistenAfterEnd = Duration.milliseconds(150)
   public static let relistenAfterFailure = Duration.seconds(1)
 
+  static func hasBeenQuiet(since heardAt: Date, now: Date) -> Bool {
+    now.timeIntervalSince(heardAt) >= offerHelpAfter / .seconds(1)
+  }
+}
+
+@Feature public struct Reading {
   public init() {}
 
   public struct State: Identifiable {
@@ -98,6 +104,8 @@ import World
   @FeatureState var noiseLevel: Double?
   @FeatureState var ticksSinceMatch = 0
   @FeatureState var heardSinceMatch = false
+  @Dependency(\.continuousClock) var clock
+  @Dependency(\.date) var date
   @Dependency(ProfileStore.self) var profileStore
   @Dependency(ProgressStore.self) var progressStore
   @Dependency(SoundClient.self) var sound
@@ -167,7 +175,7 @@ import World
         let locale = profile.accent.locale
         store.addTask {
           await speechClient.speak(word, voice, locale)
-          try? await Task.sleep(for: Reading.settleAfterSpeaking)
+          try? await clock.sleep(for: Reading.settleAfterSpeaking)
           try store.send(.speechFinished)
         }
 
@@ -254,29 +262,29 @@ import World
           try store.send(.authorizationResolved(authorization))
         }
         guard authorization == .authorized else { return }
-        var heardAt = ContinuousClock.now
+        var heardAt = date.now
         while !Task.isCancelled {
           guard let events = try? await speechClient.listen(contextualStrings, locale) else {
-            try await Task.sleep(for: Reading.relistenAfterFailure)
+            try await clock.sleep(for: Reading.relistenAfterFailure)
             continue
           }
           for await event in events {
             switch event {
             case let .partial(tokens):
-              heardAt = .now
+              heardAt = date.now
               try store.send(.speechResult(tokens: tokens, isFinal: false))
             case let .final(tokens):
-              heardAt = .now
+              heardAt = date.now
               try store.send(.speechResult(tokens: tokens, isFinal: true))
             case .silence:
-              guard ContinuousClock.now - heardAt >= Reading.offerHelpAfter else { break }
-              heardAt = .now
+              guard Self.hasBeenQuiet(since: heardAt, now: date.now) else { break }
+              heardAt = date.now
               try store.send(.hintOffered)
             case let .level(level):
               try store.send(.noiseLevel(level))
             }
           }
-          try await Task.sleep(for: Reading.relistenAfterEnd)
+          try await clock.sleep(for: Reading.relistenAfterEnd)
         }
       }
     }

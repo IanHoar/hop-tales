@@ -9,7 +9,7 @@ import World
 @testable import AppFeature
 @testable import Reading
 @MainActor
-@Suite(.dependency(\.continuousClock, TestClock()), .timeLimit(.minutes(1)))
+@Suite(.steady, .dependency(\.continuousClock, TestClock()), .timeLimit(.minutes(1)))
 struct RootTests {
   @Test func everyLaunchOpensOnTheIntro() {
     #expect(Root.State().intro != nil)

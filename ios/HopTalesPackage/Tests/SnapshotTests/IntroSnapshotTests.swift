@@ -1,3 +1,4 @@
+import DependenciesTestSupport
 import DesignSystem
 import SnapshotTesting
 import SwiftUI
@@ -6,7 +7,7 @@ import Testing
 @testable import AppFeature
 
 @MainActor
-@Suite(.snapshots(record: .missing, diffTool: .ksdiff))
+@Suite(.steady, .snapshots(record: .missing, diffTool: .ksdiff))
 struct IntroSnapshotTests {
   @Test(arguments: [ColorScheme.light, .dark])
   func theTitleStaysLightOverTheSunrise(scheme: ColorScheme) {

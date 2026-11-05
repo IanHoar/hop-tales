@@ -12,7 +12,7 @@ import Testing
 @testable import Home
 
 @MainActor
-@Suite(.dependency(\.continuousClock, TestClock()), .timeLimit(.minutes(1)))
+@Suite(.steady, .dependency(\.continuousClock, TestClock()), .timeLimit(.minutes(1)))
 struct GrownUpsTests {
   nonisolated static let voices = [
     Voice(id: "com.apple.voice.enhanced.en-US.Samantha", name: "Samantha", language: "en-US")

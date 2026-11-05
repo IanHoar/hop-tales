@@ -52,6 +52,7 @@ import SwiftUI
     case book(Book.Action)
   }
 
+  @Dependency(\.locale) var locale
   @Dependency(ProfileStore.self) var profileStore
   @Dependency(ProgressStore.self) var progressStore
 
@@ -175,9 +176,10 @@ import SwiftUI
         state.onboarding = resumed ?? Onboarding.State(welcoming: true)
         return
       }
-      profileStore.save(resumed.profile)
-      startJourney(with: resumed.profile.startingFriend)
-      state.home.apply(resumed.profile)
+      let profile = resumed.profile(region: locale.region)
+      profileStore.save(profile)
+      startJourney(with: profile.startingFriend)
+      state.home.apply(profile)
       state.home.apply(progressStore.load())
     }
     .forEach(\.path, dismissStyle: .stack) {

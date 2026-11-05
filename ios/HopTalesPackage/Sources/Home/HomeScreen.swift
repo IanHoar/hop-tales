@@ -88,6 +88,8 @@ extension EnvironmentValues {
     case storyTapped(Story)
   }
 
+  @Dependency(\.calendar) var calendar
+  @Dependency(\.date.now) var now
   @Dependency(GateSeed.self) var gateSeed
   @Dependency(ProgressStore.self) var progressStore
   @Dependency(PurchasesClient.self) var purchases
@@ -122,7 +124,7 @@ extension EnvironmentValues {
     .onMount { state in
       state.progress = progressStore.load()
       if state.hour == nil {
-        state.hour = Calendar.current.component(.hour, from: Date())
+        state.hour = calendar.component(.hour, from: now)
       }
       guard state.locksStories else { return }
       let wasPlus = state.isPlus

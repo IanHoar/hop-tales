@@ -1,3 +1,4 @@
+import DependenciesTestSupport
 import DesignSystem
 import SnapshotTesting
 import SwiftUI
@@ -9,7 +10,7 @@ import UIKit
 @testable import Reading
 
 @MainActor
-@Suite(.snapshots(record: .missing, diffTool: .ksdiff), .everyLookPainted)
+@Suite(.steady, .snapshots(record: .missing, diffTool: .ksdiff), .everyLookPainted)
 struct DuoSnapshotTests {
   enum Fold: String, CaseIterable {
     case folded

@@ -1,12 +1,13 @@
 import ComposableArchitecture
 import Content
 import Dependencies
+import DependenciesTestSupport
 import Testing
 
 @testable import GrownUps
 
 @MainActor
-@Suite(.timeLimit(.minutes(1)))
+@Suite(.steady, .timeLimit(.minutes(1)))
 struct DebugJourneyTests {
   @Test func unlockingEverythingMeetsEveryFriendAndResettingStartsOver() async {
     let saved = LockIsolated(Content.Progress())

@@ -1,4 +1,5 @@
 import Content
+import DependenciesTestSupport
 import Foundation
 import SnapshotTesting
 import SwiftUI
@@ -8,7 +9,7 @@ import Testing
 @testable import Reading
 
 @MainActor
-@Suite(.snapshots(record: .missing, diffTool: .ksdiff))
+@Suite(.steady, .snapshots(record: .missing, diffTool: .ksdiff))
 struct GrownUpsSnapshotTests {
   @Test(arguments: [ColorScheme.light, .dark])
   func everySetting(scheme: ColorScheme) {

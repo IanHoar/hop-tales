@@ -1,3 +1,4 @@
+import DependenciesTestSupport
 import SnapshotTesting
 import SwiftUI
 import Testing
@@ -5,7 +6,7 @@ import Testing
 @testable import Reading
 
 @MainActor
-@Suite(.snapshots(record: .missing, diffTool: .ksdiff), .everyLookPainted)
+@Suite(.steady, .snapshots(record: .missing, diffTool: .ksdiff), .everyLookPainted)
 struct LevelOneSnapshotTests {
   @Test(arguments: [ColorScheme.light, .dark])
   func finishingLevelOneShowsWhatIsNext(scheme: ColorScheme) {

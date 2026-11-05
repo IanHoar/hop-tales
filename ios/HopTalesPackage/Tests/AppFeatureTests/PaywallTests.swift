@@ -7,7 +7,7 @@ import Testing
 @testable import GrownUps
 
 @MainActor
-@Suite(.serialized, .dependency(\.continuousClock, .immediate), .timeLimit(.minutes(1)))
+@Suite(.steady, .serialized, .dependency(\.continuousClock, .immediate), .timeLimit(.minutes(1)))
 struct PaywallTests {
   private let waits = Duration.seconds(5)
 

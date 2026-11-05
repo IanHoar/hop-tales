@@ -1,3 +1,4 @@
+import DependenciesTestSupport
 import SnapshotTesting
 import SpeechRecognition
 import SwiftUI
@@ -6,7 +7,7 @@ import Testing
 @testable import Reading
 
 @MainActor
-@Suite(.snapshots(record: .missing, diffTool: .ksdiff))
+@Suite(.steady, .snapshots(record: .missing, diffTool: .ksdiff))
 struct ListeningUnavailableSnapshotTests {
   @Test(arguments: [ColorScheme.light, .dark])
   func theMicrophoneIsOff(scheme: ColorScheme) {

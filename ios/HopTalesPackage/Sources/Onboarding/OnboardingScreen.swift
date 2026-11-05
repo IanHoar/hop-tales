@@ -57,15 +57,17 @@ import World
         && Step.allCases.filter { $0 != .listening }.allSatisfy(canContinue(from:))
     }
 
-    var listeningLocale: Locale { resolvedAccent.locale }
+    func listeningLocale(region: Locale.Region?) -> Locale { resolvedAccent(region: region).locale }
 
-    var resolvedAccent: Profile.Accent { accent ?? Profile.Accent(region: Locale.current.region) }
+    func resolvedAccent(region: Locale.Region?) -> Profile.Accent {
+      accent ?? Profile.Accent(region: region)
+    }
 
-    public var profile: Profile {
+    public func profile(region: Locale.Region?) -> Profile {
       Profile(
         childName: childName.trimmingCharacters(in: .whitespacesAndNewlines),
         startingFriend: .at(level: 1),
-        accent: resolvedAccent,
+        accent: resolvedAccent(region: region),
         soundButtons: soundButtons ?? false
       )
     }
@@ -113,6 +115,7 @@ import World
     case soundButtonsPicked(Bool)
   }
 
+  @Dependency(\.locale) var locale
   @Dependency(CloudSync.self) var cloudSync
   @Dependency(ProfileStore.self) var profileStore
   @Dependency(SpeechClient.self) var speechClient
@@ -152,7 +155,7 @@ import World
           break
         }
         if state.needsMicrophone {
-          let locale = state.listeningLocale
+          let locale = state.listeningLocale(region: self.locale.region)
           store.addTask {
             let authorization = await speechClient.requestAuthorization(locale)
             try store.send(.authorizationResolved(authorization))
@@ -169,7 +172,7 @@ import World
           break
         }
         guard let next = Step(rawValue: state.step.rawValue + 1) else {
-          let profile = state.profile
+          let profile = state.profile(region: self.locale.region)
           store.addTask { try store.send(.finished(profile)) }
           break
         }
@@ -186,7 +189,7 @@ import World
     }
     .onMount { state in
       if state.step.rawValue > Step.listening.rawValue {
-        let locale = state.listeningLocale
+        let locale = state.listeningLocale(region: self.locale.region)
         store.addTask {
           let authorization = await speechClient.requestAuthorization(locale)
           try store.send(.authorizationResolved(authorization))

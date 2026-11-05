@@ -1,11 +1,12 @@
 import ComposableArchitecture
 import Content
+import DependenciesTestSupport
 import Testing
 
 @testable import Reading
 
 @MainActor
-@Suite(.timeLimit(.minutes(1)))
+@Suite(.steady, .timeLimit(.minutes(1)))
 struct EndOfStoryTests {
   private static func finished(with moments: [JourneyMoment]) -> Reading.State {
     var state = Reading.State(story: StoryLibrary.all[0])

@@ -10,7 +10,7 @@ import Testing
 @testable import Onboarding
 
 @MainActor
-@Suite(.dependency(\.continuousClock, TestClock()), .timeLimit(.minutes(1)))
+@Suite(.steady, .dependency(\.continuousClock, TestClock()), .timeLimit(.minutes(1)))
 struct FinishingSetUpTests {
   @Test func finishingSetUpGoesStraightToTheStories() async {
     let saved = LockIsolated<Profile?>(nil)

@@ -8,7 +8,7 @@ import Testing
 @testable import Home
 
 @MainActor
-@Suite(.dependency(\.continuousClock, .immediate), .timeLimit(.minutes(1)))
+@Suite(.steady, .dependency(\.continuousClock, .immediate), .timeLimit(.minutes(1)))
 struct LockedStoryTests {
   private static let plusStory = StoryLibrary.stories(at: 2)[0]
 

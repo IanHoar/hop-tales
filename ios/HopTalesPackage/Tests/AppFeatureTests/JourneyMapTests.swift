@@ -1,10 +1,12 @@
 import ComposableArchitecture
 import Content
+import DependenciesTestSupport
 import Testing
 
 @testable import Home
 
 @MainActor
+@Suite(.steady)
 struct JourneyMapTests {
   @Test func eachFriendShowsWhereTheyAreOnTheJourney() {
     var state = JourneyMap.State()

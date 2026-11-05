@@ -8,7 +8,7 @@ import Testing
 @testable import GrownUps
 
 @MainActor
-@Suite(.dependency(\.continuousClock, .immediate), .timeLimit(.minutes(1)))
+@Suite(.steady, .dependency(\.continuousClock, .immediate), .timeLimit(.minutes(1)))
 struct PlusSettingsTests {
   static let renewing = PlusStatus(
     .renews(Date(timeIntervalSince1970: 1_772_496_000)), refundableTransactionID: 7

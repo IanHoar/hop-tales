@@ -1,11 +1,13 @@
 import ComposableArchitecture
 import Content
 import Dependencies
+import DependenciesTestSupport
 import Testing
 
 @testable import Onboarding
 
 @MainActor
+@Suite(.steady)
 struct OnboardingWelcomeTests {
   @Test func theWelcomeComesBeforeTheFirstStep() async {
     let store = TestStore(initialState: Onboarding.State(welcoming: true)) {

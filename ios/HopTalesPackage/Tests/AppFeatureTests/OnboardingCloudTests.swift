@@ -1,13 +1,14 @@
 import ComposableArchitecture
 import Content
 import Dependencies
+import DependenciesTestSupport
 import SpeechRecognition
 import Testing
 
 @testable import Onboarding
 
 @MainActor
-@Suite(.timeLimit(.minutes(1)))
+@Suite(.steady, .timeLimit(.minutes(1)))
 struct OnboardingCloudTests {
   @Test func anICloudThatNeverAnswersStillLetsSetUpCarryOn() async {
     let store = TestStore(initialState: Onboarding.State()) {

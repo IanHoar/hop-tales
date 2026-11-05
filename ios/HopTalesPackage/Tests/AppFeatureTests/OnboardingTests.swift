@@ -12,7 +12,7 @@ import Testing
 @testable import Onboarding
 
 @MainActor
-@Suite(.dependency(\.continuousClock, TestClock()), .timeLimit(.minutes(1)))
+@Suite(.steady, .dependency(\.continuousClock, TestClock()), .timeLimit(.minutes(1)))
 struct OnboardingTests {
   nonisolated static let speech = SpeechClient(
     listen: { _, _ in AsyncStream { $0.finish() } },
@@ -72,9 +72,9 @@ struct OnboardingTests {
   @Test func everyNewReaderStartsWithTheLevelOneFriend() {
     var state = Onboarding.State()
     state.childName = "Maya"
-    #expect(state.profile.startingFriend == Friend.at(level: 1))
-    #expect(state.profile.startingFriend == .bunny)
-    #expect(state.profile.startingStoryID == StoryLibrary.stories(at: 1).first?.id)
+    #expect(state.profile(region: nil).startingFriend == Friend.at(level: 1))
+    #expect(state.profile(region: nil).startingFriend == .bunny)
+    #expect(state.profile(region: nil).startingStoryID == StoryLibrary.stories(at: 1).first?.id)
   }
 
   private func cloud(

@@ -1,4 +1,5 @@
 import Content
+import DependenciesTestSupport
 import SnapshotTesting
 import SwiftUI
 import Testing
@@ -6,7 +7,7 @@ import Testing
 @testable import Reading
 
 @MainActor
-@Suite(.snapshots(record: .missing, diffTool: .ksdiff), .everyLookPainted)
+@Suite(.steady, .snapshots(record: .missing, diffTool: .ksdiff), .everyLookPainted)
 struct PathSnapshotTests {
   @Test(arguments: [
     ReadingScreenPreview.Moment.start, .midPage, .noisy, .nearTheEnd, .end, .bigStoryReady,

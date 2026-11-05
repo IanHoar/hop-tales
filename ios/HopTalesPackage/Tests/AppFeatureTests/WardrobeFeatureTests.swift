@@ -1,12 +1,13 @@
 import ComposableArchitecture
 import Content
 import Dependencies
+import DependenciesTestSupport
 import Testing
 
 @testable import Home
 
 @MainActor
-@Suite(.timeLimit(.minutes(1)))
+@Suite(.steady, .timeLimit(.minutes(1)))
 struct WardrobeFeatureTests {
   nonisolated private static var progress: Content.Progress {
     var basket = Basket()

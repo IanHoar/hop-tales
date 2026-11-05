@@ -1,12 +1,13 @@
 import ComposableArchitecture
 import Content
 import Dependencies
+import DependenciesTestSupport
 import SpeechRecognition
 import Testing
 
 @testable import Reading
 @MainActor
-@Suite(.timeLimit(.minutes(1)))
+@Suite(.steady, .timeLimit(.minutes(1)))
 struct ReadingTests {
   @Test func readingAWordAdvancesTheBallAndAwardsAStar() async {
     let store = TestStore(initialState: Reading.State(story: StoryLibrary.all[0])) {
@@ -137,7 +138,8 @@ struct ReadingTests {
     #expect(state.mood.weather == .rain)
   }
 
-  @Test func listeningStartsAgainWhenTheRecogniserStops() async {
+  @Test(.dependency(\.continuousClock, .immediate))
+  func listeningStartsAgainWhenTheRecogniserStops() async {
     let sessions = LockIsolated(0)
     var speech = SpeechClient.testValue
     speech.listen = { _, _ in
@@ -206,7 +208,7 @@ struct ReadingTests {
       $0.isActive = true
       $0.listeningEpoch = 2
     }
-    try? await Task.sleep(for: .milliseconds(200))
+    while sessions.value < 2 { await Task.yield() }
     #expect(sessions.value == 2)
     await store.dismount()
   }
