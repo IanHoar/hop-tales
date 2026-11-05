@@ -188,18 +188,6 @@ class JourneyTest {
     }
 
     @Test
-    fun aGrownUpCanMoveBetweenMetFriendsButNotSkipPastLevelThree() {
-        var journey = Journey.starting(Friend.BUNNY)
-        journey = journey.grownUpMovedTo(Friend.FROG)
-        assertEquals(3, journey.level)
-        journey = journey.grownUpMovedTo(Friend.CROW)
-        assertEquals(Friend.FROG, journey.activeFriend)
-        journey = journey.grownUpMovedTo(Friend.BUNNY)
-        assertEquals(Friend.BUNNY, journey.activeFriend)
-        assertEquals(3, journey.level)
-    }
-
-    @Test
     fun theJourneyStartsAtTheFriendChosenInOnboarding() {
         val journey = Journey().startedWith(Friend.FROG)
         assertEquals(Friend.FROG, journey.activeFriend)

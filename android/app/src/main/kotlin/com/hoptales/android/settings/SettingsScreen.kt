@@ -84,7 +84,6 @@ import com.hoptales.speech.Strictness
 class SettingsActions(
     val nameChanged: (String) -> Unit = {},
     val nameSubmitted: () -> Unit = {},
-    val friendPicked: (Friend) -> Unit = {},
     val accentPicked: (Profile.Accent) -> Unit = {},
     val themePicked: (Profile.Theme) -> Unit = {},
     val strictnessPicked: (Strictness) -> Unit = {},
@@ -118,7 +117,6 @@ fun SettingsScreen(key: String, onDone: () -> Unit) {
         SettingsActions(
             nameChanged = model::nameChanged,
             nameSubmitted = model::nameSubmitted,
-            friendPicked = model::friendPicked,
             accentPicked = model::accentPicked,
             themePicked = model::themePicked,
             strictnessPicked = model::strictnessPicked,
@@ -171,17 +169,6 @@ fun SettingsContent(state: SettingsState, actions: SettingsActions, onPlus: (Plu
             ) {
                 Section("Hop Tales Plus") { PlusRow(state, onPlus) }
                 Section("Reader") { SettingsName(state.childName, actions) }
-                Section("Reading with") {
-                    for (friend in state.readingFriends) {
-                        ReadingWith(friend, selected = friend == state.journey.activeFriend) { actions.friendPicked(friend) }
-                    }
-                    Text(
-                        Phonics.STANDARD,
-                        style = LocalTypography.current.ui(13.sp),
-                        color = paper.muted,
-                        modifier = Modifier.padding(horizontal = 4.dp),
-                    )
-                }
                 Section("Accent") {
                     for (accent in Profile.Accent.entries) {
                         PaperChoice(accent.accentName, selected = accent == state.profile.accent) { actions.accentPicked(accent) }
@@ -220,7 +207,6 @@ fun SettingsContent(state: SettingsState, actions: SettingsActions, onPlus: (Plu
                 }
                 Section("Backup") { BackupRow(state, actions.backupToggled) }
                 Section("Speech log") { SpeechLogRow(state, actions) }
-                Section("Licences") { LicencesRows() }
                 Section("Testing") {
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         ActionChip("Reset onboarding", Glyphs.counterclockwise, actions.resetOnboarding)
@@ -228,6 +214,7 @@ fun SettingsContent(state: SettingsState, actions: SettingsActions, onPlus: (Plu
                         ActionChip("Unlock everything", Glyphs.lockOpen, actions.unlockEverything)
                     }
                 }
+                SettingsFooter()
             }
         }
     }
@@ -379,25 +366,6 @@ internal fun ActionChip(text: String, icon: ImageVector, onClick: () -> Unit) {
     PaperChip(onClick = onClick) {
         Icon(icon, contentDescription = null, tint = paper.ink, modifier = Modifier.size(17.dp))
         Text(text, style = LocalTypography.current.ui(15.sp), color = paper.ink)
-    }
-}
-
-@Composable
-private fun ReadingWith(friend: Friend, selected: Boolean, onClick: () -> Unit) {
-    val paper = LocalPaper.current
-    val type = LocalTypography.current
-    ChoiceSurface(
-        selected = selected,
-        onClick = onClick,
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.width(56.dp), contentAlignment = Alignment.Center) { FriendSticker(friend, 52.dp) }
-            Spacer(Modifier.width(14.dp))
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(friend.friendName, style = type.display(19.sp), color = paper.ink)
-                Text("${friend.stage} · ${friend.examples.joinToString(", ")}", style = type.ui(14.sp), color = paper.muted)
-            }
-        }
     }
 }
 

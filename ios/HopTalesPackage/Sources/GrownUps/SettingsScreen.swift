@@ -39,10 +39,6 @@ import World
 
     public init() {}
 
-    public var readingFriends: [Friend] {
-      Friend.allCases.filter { journey.met.contains($0) || Friend.starters.contains($0) }
-    }
-
     public var voiceName: String {
       guard let id = profile.voiceID, let voice = voices.first(where: { $0.id == id }) else {
         return "Automatic"
@@ -57,7 +53,6 @@ import World
     case debugResetJourneyTapped
     case debugUnlockEverythingTapped
     case doneTapped
-    case friendPicked(Friend)
     case gate(ParentGate.Action)
     case grownUp(GrownUpPaywall.Action)
     case hearVoiceTapped
@@ -187,10 +182,6 @@ import World
       case let .subscription(action):
         subscription(action, &state)
 
-      case let .friendPicked(friend):
-        state.journey.grownUpMoves(to: friend)
-        saveJourney(state.journey)
-
       case .debugResetJourneyTapped:
         state.journey = Journey(starting: state.profile.startingFriend)
         var progress = progressStore.load()
@@ -298,7 +289,6 @@ public struct SettingsScreen: View {
         VStack(alignment: .leading, spacing: 28) {
           SettingsSection("Hop Tales Plus") { PlusRow(store: store) }
           SettingsSection("Reader") { NameField(store: store) }
-          SettingsSection("Reading with") { FriendChoices(store: store) }
           SettingsSection("Accent") { AccentChoices(store: store) }
           SettingsSection("Theme") { ThemeChoices(store: store) }
           SettingsSection("Listening") { StrictnessChoices(store: store) }
@@ -308,6 +298,11 @@ public struct SettingsScreen: View {
           SettingsSection("iCloud") { CloudRow(store: store) }
           SettingsSection("Speech log") { SpeechLogRow(store: store) }
           SettingsSection("Testing") { TestingButtons(store: store) }
+          Text(Phonics.standard)
+            .font(Typography.ui(13))
+            .foregroundStyle(Paper.muted)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 4)
         }
         .padding(.horizontal, 20)
         .padding(.top, 8)
@@ -346,36 +341,5 @@ struct NameField: View {
     .settingsField()
     .contentShape(.rect(cornerRadius: 18))
     .onTapGesture { focused = true }
-  }
-}
-
-struct FriendChoices: View {
-  let store: StoreOf<Settings>
-
-  var body: some View {
-    ForEach(store.readingFriends, id: \.self) { friend in
-      Button { store.send(.friendPicked(friend)) } label: {
-        HStack(spacing: 14) {
-          FriendSticker(friend, height: 52)
-            .frame(width: 56)
-          VStack(alignment: .leading, spacing: 2) {
-            Text(friend.name)
-              .font(Typography.display(19))
-              .foregroundStyle(Paper.ink)
-            Text("\(friend.stage) · \(friend.examples.joined(separator: ", "))")
-              .font(Typography.ui(14))
-              .foregroundStyle(Paper.muted)
-          }
-        }
-        .paperChoice(isSelected: friend == store.journey.activeFriend)
-      }
-      .buttonStyle(.plain)
-      .accessibilityAddTraits(friend == store.journey.activeFriend ? .isSelected : [])
-    }
-    Text(Phonics.standard)
-      .font(Typography.ui(13))
-      .foregroundStyle(Paper.muted)
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .padding(.horizontal, 4)
   }
 }

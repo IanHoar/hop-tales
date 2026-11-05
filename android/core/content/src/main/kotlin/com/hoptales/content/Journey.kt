@@ -188,12 +188,6 @@ data class Journey(
 
     fun startedWith(friend: Friend): Journey = if (level < friend.level) starting(friend) else this
 
-    fun grownUpMovedTo(friend: Friend): Journey = when {
-        friend !in met && friend !in Friend.starters -> this
-        friend.level > level -> starting(friend)
-        else -> copy(activeFriend = friend)
-    }
-
     companion object {
         fun starting(friend: Friend = Friend.BUNNY): Journey = Journey(
             level = friend.level,
