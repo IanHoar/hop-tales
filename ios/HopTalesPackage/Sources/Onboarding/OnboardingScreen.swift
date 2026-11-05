@@ -239,12 +239,14 @@ public struct OnboardingScreen: View {
         if let fold, !fold.runsAcross {
           hare(on: fold.stage(in: area))
         }
-        ViewThatFits(in: .vertical) {
-          OnboardingSheet(store: store, bottomInset: insets.bottom, scrolls: false)
-            .frame(minHeight: fill, alignment: .top)
-            .fixedSize(horizontal: false, vertical: true)
+        SheetFit(fill: fill) {
           OnboardingSheet(store: store, bottomInset: insets.bottom, scrolls: true)
+          OnboardingSheet(store: store, bottomInset: insets.bottom, scrolls: false)
+            .hidden()
+            .accessibilityHidden(true)
         }
+        .animation(.easeInOut(duration: 0.35), value: store.path)
+        .animation(.easeInOut(duration: 0.35), value: store.isWelcoming)
         .frame(maxWidth: 560)
         .frame(maxWidth: .infinity)
         .liftsAboveKeyboard()
@@ -276,17 +278,25 @@ struct OnboardingSheet: View {
   let store: StoreOf<Onboarding>
   let bottomInset: CGFloat
   let scrolls: Bool
+  @State private var shown = 0
+
+  private var position: Int { store.isWelcoming ? 0 : store.stepNumber }
+
+  private var slide: AnyTransition {
+    let forward = position >= shown
+    return .asymmetric(
+      insertion: .move(edge: forward ? .trailing : .leading),
+      removal: .move(edge: forward ? .leading : .trailing)
+    )
+  }
 
   var body: some View {
     VStack(spacing: 16) {
       header
       if scrolls {
-        ScrollView { page }
-          .scrollBounceBehavior(.basedOnSize)
-          .scrollIndicators(.hidden)
-          .scrollEdgeEffectHidden(true, for: .all)
+        navigator
       } else {
-        page
+        current
         Spacer(minLength: 0)
       }
       Button(store.primaryTitle) { store.send(.primaryTapped) }
@@ -305,20 +315,47 @@ struct OnboardingSheet: View {
     .tint(Paper.ink)
   }
 
-  private var page: some View {
-    Group {
-      if store.isWelcoming {
-        WelcomePage()
-      } else {
-        StepPage(store: store)
+  @ViewBuilder
+  private var current: some View {
+    if store.isWelcoming {
+      WelcomePage()
+    } else {
+      StepPage(store: store, step: store.step)
+    }
+  }
+
+  private var path: Binding<[Onboarding.Step]> {
+    Binding(
+      get: { store.isWelcoming ? [] : store.path },
+      set: { path in
+        for _ in path.count..<store.path.count { store.send(.backTapped) }
+      }
+    )
+  }
+
+  private var navigator: some View {
+    NavigationStack(path: path) {
+      ZStack(alignment: .top) {
+        Group {
+          if store.isWelcoming {
+            WelcomePage()
+          } else {
+            StepPage(store: store, step: .cloud)
+          }
+        }
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+        .background(Paper.paper)
+        .id(position == 0)
+        .transition(slide)
+      }
+      .clipped()
+      .animation(.easeInOut(duration: 0.35), value: store.isWelcoming)
+      .onChange(of: position) { _, now in shown = now }
+      .scrolling()
+      .navigationDestination(for: Onboarding.Step.self) { step in
+        StepPage(store: store, step: step).scrolling()
       }
     }
-    .id(store.isWelcoming ? nil : store.step)
-    .transition(
-      .asymmetric(insertion: .offset(x: 18).combined(with: .opacity), removal: .opacity)
-    )
-    .animation(.easeOut(duration: 0.35), value: store.step)
-    .animation(.easeOut(duration: 0.35), value: store.isWelcoming)
   }
 
   private var header: some View {

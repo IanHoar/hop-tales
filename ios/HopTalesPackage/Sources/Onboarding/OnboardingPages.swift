@@ -71,20 +71,21 @@ struct WelcomePage: View {
 
 struct StepPage: View {
   let store: StoreOf<Onboarding>
+  let step: Onboarding.Step
 
   var body: some View {
     VStack(alignment: .leading, spacing: 14) {
-      Text("Step \(store.stepNumber) of \(store.steps.count)")
+      Text("Step \((store.steps.firstIndex(of: step) ?? 0) + 1) of \(store.steps.count)")
         .font(Typography.caps(13))
         .tracking(1)
         .textCase(.uppercase)
         .foregroundStyle(Paper.muted)
-      Text(store.step.title)
+      Text(step.title)
         .font(Typography.display(28))
         .foregroundStyle(Paper.ink)
         .fixedSize(horizontal: false, vertical: true)
         .accessibilityAddTraits(.isHeader)
-      Text(store.step.detail)
+      Text(step.detail)
         .font(Typography.ui(16, weight: .medium))
         .foregroundStyle(Paper.ink.opacity(0.85))
         .fixedSize(horizontal: false, vertical: true)
@@ -96,7 +97,7 @@ struct StepPage: View {
 
   @ViewBuilder
   private var content: some View {
-    switch store.step {
+    switch step {
     case .name:
       NameField(name: store.childName) {
         store.send(.nameChanged($0))
@@ -324,5 +325,16 @@ struct ChoicePair<Content: View>: View {
       HStack(spacing: 10) { content }
       VStack(spacing: 10) { content }
     }
+  }
+}
+
+extension View {
+  func scrolling() -> some View {
+    ScrollView { self }
+      .scrollBounceBehavior(.basedOnSize)
+      .scrollIndicators(.hidden)
+      .scrollEdgeEffectHidden(true, for: .all)
+      .toolbar(.hidden, for: .navigationBar)
+      .containerBackground(Paper.paper, for: .navigation)
   }
 }
