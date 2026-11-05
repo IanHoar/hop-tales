@@ -3,6 +3,12 @@ import DesignSystem
 import SwiftUI
 import World
 
+struct Settling {
+  var target: HopTarget
+  var delay: Double
+  var carried: Bool
+}
+
 struct HopTarget: Hashable {
   var sentence: Int
   var word: Int
@@ -22,6 +28,7 @@ struct Hare: View {
   @Environment(\.freezesMotion) private var freezesMotion
   @State private var motion = HareMotion()
   @State private var hops = 0
+  @State private var settling: Settling?
 
   static let height: CGFloat = 176
   static let feetBelowCardTop: CGFloat = 14
@@ -49,6 +56,7 @@ struct Hare: View {
     .allowsHitTesting(false)
     .accessibilityHidden(true)
     .onChange(of: target) { _, target in hop(to: target) }
+    .task(id: hops) { await settle() }
   }
 
   static func seconds(_ date: Date) -> TimeInterval {
@@ -94,20 +102,18 @@ struct Hare: View {
       at: Self.seconds(.now), distance: plan.distance, carried: plan.carried
     )
     hops += 1
-    let current = hops
-    if plan.carried {
-      Task { @MainActor in
-        try? await Task.sleep(for: .seconds(HareMotion.takeOff))
-        guard hops == current else { return }
-        onSettle(target, .timingCurve(Motion.rideCurve, duration: HareMotion.airTime))
-      }
-      return
-    }
-    Task { @MainActor in
-      try? await Task.sleep(for: .seconds(landing))
-      guard hops == current else { return }
-      onSettle(target, Motion.slide)
-    }
+    settling = Settling(
+      target: target, delay: plan.carried ? HareMotion.takeOff : landing, carried: plan.carried
+    )
+  }
+
+  private func settle() async {
+    guard let settling else { return }
+    do { try await Task.sleep(for: .seconds(settling.delay)) } catch { return }
+    let animation: Animation = settling.carried
+      ? .timingCurve(Motion.rideCurve, duration: HareMotion.airTime)
+      : Motion.slide
+    onSettle(settling.target, animation)
   }
 }
 
