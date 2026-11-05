@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -32,9 +33,12 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -46,6 +50,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,7 +66,9 @@ import com.hoptales.android.design.Press
 import com.hoptales.android.design.paperField
 import com.hoptales.android.design.pressable
 import com.hoptales.android.home.DoneChip
+import com.hoptales.android.world.IdleFriend
 import com.hoptales.android.world.MeadowBackdrop
+import com.hoptales.content.Friend
 import com.hoptales.content.PlusLinks
 import com.hoptales.content.PlusPlan
 import kotlinx.coroutines.launch
@@ -170,6 +177,7 @@ private fun PaperSheet(content: @Composable ColumnScope.() -> Unit) {
                     .heightIn(min = fill)
                     .dropShadow(shape, Shadow(8.dp, paper.shadow, offset = DpOffset(0.dp, 5.dp)))
                     .background(paper.paper, shape)
+                    .clip(shape)
                     .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(14.dp),
@@ -201,10 +209,39 @@ private fun Body(text: String) {
 val PLUS_BENEFITS = listOf("Unlock all reading levels", "More characters", "More settings", "More costumes")
 
 @Composable
+private fun PaywallScene() {
+    Box(
+        Modifier
+            .bleed(24.dp)
+            .padding(bottom = 6.dp)
+            .height(174.dp)
+            .clipToBounds()
+            .clearAndSetSemantics {},
+    ) {
+        MeadowBackdrop(progress = 450f, world = Friend.GRASSHOPPER, framing = halfWide, live = false)
+        IdleFriend(
+            Friend.GRASSHOPPER,
+            look = null,
+            height = 84.dp,
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 44.dp),
+            shadow = LocalPaper.current.shadow,
+        )
+    }
+}
+
+private fun Modifier.bleed(edge: Dp) = layout { measurable, constraints ->
+    val extra = edge.roundToPx()
+    val width = constraints.maxWidth + extra * 2
+    val placeable = measurable.measure(constraints.copy(minWidth = width, maxWidth = width))
+    layout(constraints.maxWidth, (placeable.height - extra).coerceAtLeast(0)) { placeable.place(-extra, -extra) }
+}
+
+@Composable
 private fun Pitch() {
     val paper = LocalPaper.current
     val type = LocalTypography.current
     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        PaywallScene()
         Title("Hop Tales Plus")
         Column(Modifier.padding(vertical = 4.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             PLUS_BENEFITS.forEach { benefit ->

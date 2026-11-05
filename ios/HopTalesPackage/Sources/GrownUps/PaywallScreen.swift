@@ -164,6 +164,7 @@ public struct PaywallScreen: View {
       PaywallPitch()
         .padding(24)
         .frame(maxWidth: .infinity)
+        .mask { PaperSheet.shape }
         .background { PaperSheet() }
         .frame(maxWidth: 460)
         .padding(.horizontal, 20)
@@ -185,6 +186,7 @@ public struct PaywallScreen: View {
         content
           .padding(24)
           .frame(maxWidth: .infinity, minHeight: max(proxy.size.height - 38, 0), alignment: .top)
+          .mask { PaperSheet.shape }
           .background { PaperSheet() }
           .frame(maxWidth: 460)
           .padding(.horizontal, 20)

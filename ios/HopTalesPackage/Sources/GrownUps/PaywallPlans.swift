@@ -2,10 +2,13 @@ import Content
 import DesignSystem
 import StoreKit
 import SwiftUI
+import World
 
 struct PaperSheet: View {
+  static let shape = Deckle(seed: 29, jitter: 3, step: 14)
+
   var body: some View {
-    Deckle(seed: 29, jitter: 3, step: 14)
+    Self.shape
       .fill(Paper.paper)
       .shadow(color: Paper.shadow, radius: 8, y: 5)
   }
@@ -21,6 +24,33 @@ struct PaywallTitle: View {
   }
 }
 
+struct PaywallScene: View {
+  static let friend = Friend.grasshopper
+  @Environment(\.colorScheme) private var colorScheme
+
+  var body: some View {
+    GeometryReader { proxy in
+      MeadowBackdrop(
+        progress: 900,
+        mood: Mood(sky: colorScheme == .dark ? .night : .day),
+        world: Self.friend
+      )
+      .frame(width: proxy.size.width * 2, height: proxy.size.height * 2)
+      .scaleEffect(0.5, anchor: .topLeading)
+    }
+    .overlay(alignment: .bottom) {
+      IdleFriend(Self.friend, look: nil, height: 84)
+        .shadow(color: Paper.shadow, radius: 4, y: 3)
+        .padding(.bottom, 44)
+    }
+    .frame(height: 180)
+    .padding(.horizontal, -24)
+    .padding(.top, -24)
+    .padding(.bottom, 6)
+    .accessibilityHidden(true)
+  }
+}
+
 struct PaywallPitch: View {
   static let benefits = [
     "Unlock all reading levels",
@@ -31,6 +61,7 @@ struct PaywallPitch: View {
 
   var body: some View {
     VStack(spacing: 8) {
+      PaywallScene()
       PaywallTitle()
       VStack(alignment: .leading, spacing: 6) {
         ForEach(Self.benefits, id: \.self) { benefit in
