@@ -90,11 +90,10 @@ struct PlusRow: View {
 
 struct PlusUpsell: View {
   let unlock: () -> Void
-  @Environment(\.colorScheme) private var colorScheme
 
   var body: some View {
     VStack(spacing: 16) {
-      meadow
+      PlusTaste()
       VStack(spacing: 4) {
         Text("Hop Tales Plus")
           .font(Typography.display(28))
@@ -110,26 +109,6 @@ struct PlusUpsell: View {
       }
       .buttonStyle(.paper)
     }
-  }
-
-  private var meadow: some View {
-    GeometryReader { proxy in
-      MeadowBackdrop(progress: 900, mood: Mood(sky: colorScheme == .dark ? .night : .day))
-        .frame(width: proxy.size.width * 2, height: proxy.size.height * 2)
-        .scaleEffect(0.5, anchor: .topLeading)
-    }
-      .overlay(alignment: .bottom) {
-        HStack(alignment: .bottom, spacing: 18) {
-          ForEach(Friend.starters, id: \.self) { friend in
-            IdleFriend(friend, look: nil, height: 76, isPaused: true)
-              .shadow(color: Paper.shadow, radius: 4, y: 3)
-          }
-        }
-        .padding(.bottom, 14)
-      }
-      .frame(height: 150)
-      .clipShape(.rect(cornerRadius: 14))
-      .accessibilityHidden(true)
   }
 }
 

@@ -2,14 +2,9 @@ package com.hoptales.android.settings
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,10 +14,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -33,9 +25,6 @@ import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.PaperButton
 import com.hoptales.android.design.paperField
-import com.hoptales.android.world.IdleFriend
-import com.hoptales.android.world.MeadowBackdrop
-import com.hoptales.content.Friend
 import com.hoptales.content.PlusLinks
 import com.hoptales.content.PlusStatus
 
@@ -103,30 +92,7 @@ fun PlusRow(state: SettingsState, onPlus: (PlusRequest) -> Unit) {
 private fun PlusUpsell(unlock: () -> Unit) {
     val paper = LocalPaper.current
     val type = LocalTypography.current
-    BoxWithConstraints(
-        Modifier
-            .fillMaxWidth()
-            .height(150.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .clearAndSetSemantics {},
-    ) {
-        MeadowBackdrop(
-            Modifier
-                .requiredSize(maxWidth * 2, maxHeight * 2)
-                .graphicsLayer(scaleX = 0.5f, scaleY = 0.5f),
-            progress = 900f,
-            live = false,
-        )
-        Row(
-            Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 14.dp),
-            horizontalArrangement = Arrangement.spacedBy(18.dp),
-            verticalAlignment = Alignment.Bottom,
-        ) {
-            for (friend in Friend.starters) IdleFriend(friend, look = null, height = 76.dp)
-        }
-    }
+    PlusTaste()
     Column(
         Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
