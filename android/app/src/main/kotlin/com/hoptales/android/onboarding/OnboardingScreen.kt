@@ -7,11 +7,13 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -77,6 +79,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -154,7 +157,6 @@ fun OnboardingScreen(key: String, onFinished: () -> Unit = {}) {
 }
 
 private const val STEP_MILLIS = 350
-private val STEP_SLIDE = 18.dp
 
 @Composable
 fun OnboardingContent(state: OnboardingState, actions: OnboardingActions, speech: SpeechModel? = null, speechProgress: Int? = null) {
@@ -162,7 +164,6 @@ fun OnboardingContent(state: OnboardingState, actions: OnboardingActions, speech
     val statusBar = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val fold = LocalFold.current
-    val slide = with(LocalDensity.current) { STEP_SLIDE.roundToPx() }
     BoxWithConstraints(Modifier.background(paper.page)) {
         val area = Size(maxWidth.value, maxHeight.value)
         val room = fold?.room(area)
@@ -192,36 +193,40 @@ fun OnboardingContent(state: OnboardingState, actions: OnboardingActions, speech
                 propagateMinConstraints = true,
             ) {
                 Column(
-                    Modifier.padding(start = 24.dp, end = 24.dp, top = 22.dp, bottom = maxOf(bottom, 16.dp) + 8.dp),
+                    Modifier.padding(top = 22.dp, bottom = maxOf(bottom, 16.dp) + 8.dp),
                     verticalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Column(Modifier.weight(1f, fill = false)) {
-                        Header(state, actions.backTapped)
+                        Box(Modifier.padding(horizontal = 24.dp)) { Header(state, actions.backTapped) }
                         Spacer(Modifier.height(16.dp))
                         AnimatedContent(
                             targetState = state.step.takeUnless { state.isWelcoming },
                             transitionSpec = {
-                                (
-                                    slideInHorizontally(tween(STEP_MILLIS, easing = EaseOut)) { slide } +
-                                        fadeIn(tween(STEP_MILLIS, easing = EaseOut))
-                                    ) togetherWith
-                                    fadeOut(tween(STEP_MILLIS, easing = EaseOut)) using
-                                    SizeTransform(clip = false) { _, _ -> snap() }
+                                val forward = (targetState?.ordinal ?: -1) > (initialState?.ordinal ?: -1)
+                                val motion = tween<IntOffset>(STEP_MILLIS, easing = FastOutSlowInEasing)
+                                slideInHorizontally(motion) { if (forward) it else -it } togetherWith
+                                    slideOutHorizontally(motion) { if (forward) -it else it } using
+                                    SizeTransform(clip = true) { _, _ -> tween(STEP_MILLIS, easing = FastOutSlowInEasing) }
                             },
                             modifier = Modifier.verticalScroll(rememberScrollState()),
                             label = "step",
                         ) { step ->
-                            if (step ==
-                                null
-                            ) {
-                                WelcomePage()
-                            } else {
-                                StepPage(state.copy(step = step), actions, speech, speechProgress)
+                            Box(Modifier.fillMaxWidth().padding(horizontal = 24.dp)) {
+                                if (step == null) {
+                                    WelcomePage()
+                                } else {
+                                    StepPage(state.copy(step = step), actions, speech, speechProgress)
+                                }
                             }
                         }
                     }
                     Spacer(Modifier.height(16.dp))
-                    PaperButton(state.primaryTitle, enabled = state.primaryEnabled, onClick = actions.primaryTapped)
+                    PaperButton(
+                        state.primaryTitle,
+                        modifier = Modifier.padding(horizontal = 24.dp),
+                        enabled = state.primaryEnabled,
+                        onClick = actions.primaryTapped,
+                    )
                 }
             }
         }
