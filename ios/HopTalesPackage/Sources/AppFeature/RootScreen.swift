@@ -188,7 +188,13 @@ import SwiftUI
     .onChange(of: store.screensOverHome) { old, new, state in
       guard new < old, state.onboarding == nil else { return }
       if let profile = profileStore.load() { state.home.apply(profile) }
-      state.home.apply(progressStore.load())
+      let progress = progressStore.load()
+      state.home.apply(progress)
+      for index in state.path.indices {
+        try? state.path[index].modify(\.reading) {
+          $0.look = progress.outfit(for: $0.friend).first?.id
+        }
+      }
     }
   }
 }
