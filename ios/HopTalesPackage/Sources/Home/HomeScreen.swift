@@ -44,6 +44,15 @@ extension EnvironmentValues {
       self.progress = progress
     }
 
+    var moreStories: [StoryStanding] {
+      let keepGoingID = keepGoing?.story.id
+      return standings.filter { $0.story.id != keepGoingID }
+    }
+
+    var newestWardrobeItem: WardrobeItem? {
+      progress.newestItem(for: progress.journey.activeFriend)
+    }
+
     var keepGoing: StoryStanding? {
       standings
         .filter { !isLocked($0.story) }
@@ -319,7 +328,7 @@ public struct HomeScreen: View {
       } action: {
         store.send(.friendsTapped)
       }
-      if let item = store.progress.newestItem(for: store.progress.journey.activeFriend) {
+      if let item = store.newestWardrobeItem {
         StickerButton(title: "Wardrobe") {
           Sticker(
             "wear-\(store.progress.journey.activeFriend.rawValue)-\(item.id)",
@@ -349,7 +358,7 @@ public struct HomeScreen: View {
         .foregroundStyle(Paper.ink)
         .padding(.top, 6)
         .accessibilityAddTraits(.isHeader)
-      ForEach(store.standings.filter { $0.story.id != store.keepGoing?.story.id }) { standing in
+      ForEach(store.moreStories) { standing in
         StoryRow(standing: standing, isLocked: store.state.isLocked(standing.story)) {
           store.send(.storyTapped(standing.story))
         }
