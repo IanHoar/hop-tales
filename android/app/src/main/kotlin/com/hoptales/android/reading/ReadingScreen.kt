@@ -240,6 +240,7 @@ fun ReadingScreen(
                 done = onDone,
                 leadsHome = state.callout == null,
                 cheer = cheer,
+                countsUp = !rememberReducedMotion(),
                 onStarChip = { chipCentre = it },
             )
         }

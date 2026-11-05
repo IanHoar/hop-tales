@@ -41,6 +41,15 @@ object FinishCheer {
         return 1f + BUMP_SCALE * sin(PI * progress).toFloat()
     }
 
+    fun landed(elapsed: Double?): Int {
+        if (elapsed == null) return STARS
+        val since = elapsed - firstLanding
+        if (since < 0) return 0
+        return minOf(STARS, (since / STAGGER).toInt() + 1)
+    }
+
+    fun shownStars(total: Int, elapsed: Double?): Int = total * landed(elapsed) / STARS
+
     fun star(index: Int, elapsed: Double, from: Offset, to: Offset, reach: Float): CheerStar? {
         val since = elapsed - START
         if (since < 0) return null

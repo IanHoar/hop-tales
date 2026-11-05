@@ -42,4 +42,11 @@ class FinishCheerTest {
         assertTrue(FinishCheer.chipScale((FinishCheer.firstLanding + FinishCheer.end) / 2) > 1.1f)
         assertEquals(1f, FinishCheer.chipScale(FinishCheer.end))
     }
+
+    @Test fun theStarCountClimbsAsEachStarLands() {
+        assertEquals(0, FinishCheer.shownStars(86, FinishCheer.START))
+        assertEquals(14, FinishCheer.shownStars(86, FinishCheer.firstLanding))
+        assertEquals(86, FinishCheer.shownStars(86, FinishCheer.lastLanding + 0.001))
+        assertEquals(86, FinishCheer.shownStars(86, null))
+    }
 }

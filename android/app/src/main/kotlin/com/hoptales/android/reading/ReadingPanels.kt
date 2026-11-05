@@ -1,5 +1,13 @@
 package com.hoptales.android.reading
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -219,6 +227,7 @@ fun StoryFinished(
     done: () -> Unit,
     leadsHome: Boolean = true,
     cheer: Double? = null,
+    countsUp: Boolean = true,
     onStarChip: (Offset) -> Unit = {},
 ) {
     val paper = LocalPaper.current
@@ -264,11 +273,21 @@ fun StoryFinished(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     PaperStar(geometry.dp(20f))
-                    Text(
-                        "+$stars",
-                        style = type.display(geometry.sp(18f)).copy(fontFeatureSettings = "tnum"),
-                        color = paper.ink,
-                    )
+                    AnimatedContent(
+                        targetState = if (countsUp) FinishCheer.shownStars(stars, cheer) else stars,
+                        transitionSpec = {
+                            (slideInVertically { it / 2 } + fadeIn(tween(200)))
+                                .togetherWith(slideOutVertically { -it / 2 } + fadeOut(tween(200)))
+                                .using(SizeTransform(clip = false))
+                        },
+                        label = "stars",
+                    ) { shown ->
+                        Text(
+                            "+$shown",
+                            style = type.display(geometry.sp(18f)).copy(fontFeatureSettings = "tnum"),
+                            color = paper.ink,
+                        )
+                    }
                 }
             }
             if (!leadsHome) {

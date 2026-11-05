@@ -9,6 +9,7 @@ struct StoryFinished: View {
   let geometry: ReadingGeometry
   var leadsHome = true
   var finishedAt: Date?
+  var countsUp = true
   var onStarChip: (CGPoint) -> Void = { _ in }
   let readAgain: () -> Void
   let done: () -> Void
@@ -70,10 +71,9 @@ struct StoryFinished: View {
 
   private var starChip: some View {
     TimelineView(.animation(paused: finishedAt == nil)) { context in
-      starChipBody
-        .scaleEffect(
-          FinishCheer.chipScale(at: finishedAt.map { context.date.timeIntervalSince($0) })
-        )
+      let elapsed = finishedAt.map { context.date.timeIntervalSince($0) }
+      starChipBody(shown: countsUp ? FinishCheer.shownStars(stars, at: elapsed) : stars)
+        .scaleEffect(FinishCheer.chipScale(at: elapsed))
     }
     .onGeometryChange(for: CGPoint.self) { proxy in
       let frame = proxy.frame(in: .named(FinishCheer.space))
@@ -83,13 +83,15 @@ struct StoryFinished: View {
     }
   }
 
-  private var starChipBody: some View {
+  private func starChipBody(shown: Int) -> some View {
     HStack(spacing: geometry.path(6)) {
       PaperStar(size: geometry.path(20))
-      Text("+\(stars)")
+      Text("+\(shown)")
         .font(Typography.display(geometry.path(18)))
         .foregroundStyle(Paper.ink)
         .monospacedDigit()
+        .contentTransition(.numericText(value: Double(shown)))
+        .animation(.snappy(duration: 0.2), value: shown)
     }
     .padding(.horizontal, geometry.path(14))
     .frame(height: geometry.path(44))

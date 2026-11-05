@@ -42,6 +42,17 @@ enum FinishCheer {
     return 1 + bumpScale * sin(.pi * progress)
   }
 
+  static func landed(at elapsed: TimeInterval?) -> Int {
+    guard let elapsed else { return stars }
+    let since = elapsed - firstLanding
+    guard since >= 0 else { return 0 }
+    return min(stars, Int(since / stagger) + 1)
+  }
+
+  static func shownStars(_ total: Int, at elapsed: TimeInterval?) -> Int {
+    total * landed(at: elapsed) / stars
+  }
+
   static func spark(
     _ index: Int, at elapsed: TimeInterval, from: CGPoint, to: CGPoint, reach: CGFloat
   ) -> Spark? {
@@ -97,6 +108,7 @@ struct FinishedLayer: View {
         geometry: geometry,
         leadsHome: store.callout == nil,
         finishedAt: finishedAt,
+        countsUp: !isStill,
         onStarChip: { chipCentre = $0 },
         readAgain: { store.send(.readAgainTapped) },
         done: { store.send(.backToStoriesTapped) }

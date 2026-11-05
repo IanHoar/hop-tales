@@ -42,4 +42,11 @@ struct FinishCheerTests {
     #expect(FinishCheer.chipScale(at: (FinishCheer.firstLanding + FinishCheer.end) / 2) > 1.1)
     #expect(FinishCheer.chipScale(at: FinishCheer.end) == 1)
   }
+
+  @Test func theStarCountClimbsAsEachStarLands() {
+    #expect(FinishCheer.shownStars(86, at: FinishCheer.start) == 0)
+    #expect(FinishCheer.shownStars(86, at: FinishCheer.firstLanding) == 14)
+    #expect(FinishCheer.shownStars(86, at: FinishCheer.lastLanding + 0.001) == 86)
+    #expect(FinishCheer.shownStars(86, at: nil) == 86)
+  }
 }
