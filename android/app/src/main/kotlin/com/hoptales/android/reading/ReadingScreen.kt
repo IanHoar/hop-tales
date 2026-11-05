@@ -161,9 +161,10 @@ fun ReadingScreen(
 
     var cheer by remember(story) { mutableStateOf<Double?>(null) }
     var chipCentre by remember { mutableStateOf<Offset?>(null) }
-    LaunchedEffect(state.isFinished) {
+    val animationsRemoved = rememberReducedMotion()
+    LaunchedEffect(state.isFinished, animationsRemoved) {
         cheer = null
-        if (!state.isFinished) return@LaunchedEffect
+        if (!state.isFinished || animationsRemoved) return@LaunchedEffect
         val start = System.nanoTime() / 1e9
         while (true) {
             withFrameNanos { }
@@ -240,7 +241,7 @@ fun ReadingScreen(
                 done = onDone,
                 leadsHome = state.callout == null,
                 cheer = cheer,
-                countsUp = !rememberReducedMotion(),
+                countsUp = !animationsRemoved,
                 onStarChip = { chipCentre = it },
             )
         }
