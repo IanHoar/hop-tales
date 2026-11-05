@@ -34,9 +34,9 @@ command line pass `-skipMacroValidation` instead.
 xcodebuild -workspace ios/HopTales.xcworkspace -scheme HopTales \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -skipMacroValidation build
 
-# Tests (one scheme per package test target)
-xcodebuild test -workspace ios/HopTales.xcworkspace -scheme SpeechTests \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -skipMacroValidation
+# Tests (one HopTalesTests bundle; -only-testing:HopTalesTests/<Suite> runs one suite)
+xcodebuild test -workspace ios/HopTales.xcworkspace -scheme HopTales \
+  -destination 'platform=iOS Simulator,name=iPhone 18 Pro' -skipMacroValidation
 ```
 
 Speech recognition does not run in the simulator — test the reading loop on a device.

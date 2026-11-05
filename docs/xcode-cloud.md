@@ -112,7 +112,7 @@ package resolution fail with something cryptic.
   `snapshotRuntimeBuild` in `SnapshotSupport.swift`, re-record every reference on the new simulator, and change the pinned
   destination here and in both workflows in the same pull request.
 - Scheme `HopTales`, Test Plan `HopTales` — the scheme's default plan, `HopTales.xctestplan`, which
-  runs all six package test targets.
+  runs the one `HopTalesTests` bundle.
 - **Leave test retries and repetitions off.** A failing snapshot fails the same way every time, so
   "Retry on failure" or "Run until failure" in the test action only reruns it. The test plan already
   sets repetition to none; nothing in the workflow should override it.

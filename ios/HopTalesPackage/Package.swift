@@ -108,26 +108,7 @@ let package = Package(
       resources: [.process("Resources")]
     ),
     .testTarget(
-      name: "AppFeatureTests",
-      dependencies: [
-        "AppFeature",
-        "Content",
-        "GrownUps",
-        "Onboarding",
-        "SpeechRecognition",
-      ]
-    ),
-    .testTarget(
-      name: "ReadingTests",
-      dependencies: [
-        "DesignSystem",
-        "Reading",
-        "SpeechRecognition",
-        "World",
-      ]
-    ),
-    .testTarget(
-      name: "SnapshotTests",
+      name: "HopTalesTests",
       dependencies: [
         "AppFeature",
         "Content",
@@ -138,26 +119,11 @@ let package = Package(
         "Reading",
         "SpeechRecognition",
         "World",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
       ],
-      resources: [.copy("__Snapshots__")]
-    ),
-    .testTarget(
-      name: "ContentTests",
-      dependencies: [
-        "Content",
-        .product(name: "SQLiteData", package: "sqlite-data"),
-      ]
-    ),
-    .testTarget(
-      name: "WorldTests",
-      dependencies: ["Content", "World"]
-    ),
-    .testTarget(
-      name: "SpeechTests",
-      dependencies: [
-        "SpeechRecognition"
-      ]
+      path: "Tests",
+      resources: [.copy("SnapshotTests/__Snapshots__")]
     ),
   ]
 )
