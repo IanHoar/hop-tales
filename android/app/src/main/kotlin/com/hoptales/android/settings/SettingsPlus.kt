@@ -26,14 +26,13 @@ import com.hoptales.android.design.paperField
 import com.hoptales.content.PlusLinks
 import com.hoptales.content.PlusStatus
 
-enum class PlusRequest { SUBSCRIBE, RESTORE, MANAGE, REFUND }
+enum class PlusRequest { SUBSCRIBE, MANAGE, REFUND }
 
 @Composable
 fun SettingsSheet(
     state: SettingsState,
     actions: SettingsActions,
     plus: PlusSource,
-    onRestore: () -> Unit,
     openLink: (String) -> Unit,
     gate: ParentGateState = remember { ParentGateState.drawing() },
 ) {
@@ -54,7 +53,6 @@ fun SettingsSheet(
                     asking = null
                     when (request) {
                         PlusRequest.SUBSCRIBE -> paying = true
-                        PlusRequest.RESTORE -> onRestore()
                         PlusRequest.MANAGE -> openLink(PlusLinks.playSubscriptions(packageName))
                         PlusRequest.REFUND -> openLink(PlusLinks.PLAY_REFUNDS)
                     }
@@ -73,9 +71,6 @@ fun SettingsSheet(
 
 @Composable
 fun PlusRow(state: SettingsState, onPlus: (PlusRequest) -> Unit) {
-    val paper = LocalPaper.current
-    val type = LocalTypography.current
-    val status = state.plusStatus
     Column(
         Modifier
             .fillMaxWidth()
@@ -83,26 +78,39 @@ fun PlusRow(state: SettingsState, onPlus: (PlusRequest) -> Unit) {
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(status.line(), style = type.display(20.sp), color = paper.ink)
-            status.detail?.let { Text(it, style = type.ui(15.sp, FontWeight.Medium), color = paper.muted) }
+        if (state.plusStatus.canSubscribe) {
+            PlusUpsell { onPlus(PlusRequest.SUBSCRIBE) }
+        } else {
+            PlusMembership(state.plusStatus, onPlus)
         }
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(PlusStatus.GIVES, style = type.ui(15.sp), color = paper.muted)
-            Text(PlusStatus.RHYTHM, style = type.ui(15.sp), color = paper.muted)
-        }
-        if (status.canSubscribe) PaperButton("Subscribe") { onPlus(PlusRequest.SUBSCRIBE) }
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            ActionChip("Restore purchases", Glyphs.counterclockwise) { onPlus(PlusRequest.RESTORE) }
-            if (status.canManage) ActionChip("Manage subscription", Glyphs.share) { onPlus(PlusRequest.MANAGE) }
-            if (status.canRequestRefund) ActionChip("Request a refund", Glyphs.uturnBackward) { onPlus(PlusRequest.REFUND) }
-        }
-        if (state.foundNothingToRestore) {
-            Text(
-                "There's no Hop Tales Plus subscription to restore on this Google account.",
-                style = type.ui(14.sp, FontWeight.Medium),
-                color = paper.muted,
-            )
-        }
+    }
+}
+
+@Composable
+private fun PlusUpsell(unlock: () -> Unit) {
+    val paper = LocalPaper.current
+    val type = LocalTypography.current
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text("Every story, at every level", style = type.display(20.sp), color = paper.ink)
+        Text(
+            "Level 1 is free. ${PlusStatus.GIVES} ${PlusStatus.RHYTHM}",
+            style = type.ui(15.sp),
+            color = paper.muted,
+        )
+    }
+    PaperButton("Unlock Hop Tales Plus", onClick = unlock)
+}
+
+@Composable
+private fun PlusMembership(status: PlusStatus, onPlus: (PlusRequest) -> Unit) {
+    val paper = LocalPaper.current
+    val type = LocalTypography.current
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(status.line(), style = type.display(20.sp), color = paper.ink)
+        status.detail?.let { Text(it, style = type.ui(15.sp, FontWeight.Medium), color = paper.muted) }
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        ActionChip("Manage subscription", Glyphs.share) { onPlus(PlusRequest.MANAGE) }
+        if (status.canRequestRefund) ActionChip("Request a refund", Glyphs.uturnBackward) { onPlus(PlusRequest.REFUND) }
     }
 }

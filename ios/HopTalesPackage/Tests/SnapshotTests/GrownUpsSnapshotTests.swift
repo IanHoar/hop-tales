@@ -22,7 +22,7 @@ struct GrownUpsSnapshotTests {
 
   @Test(arguments: [ColorScheme.light, .dark])
   func plusWhenFree(scheme: ColorScheme) {
-    expectSnapshot(of: PlusSectionPreview(foundNothingToRestore: true), scheme: scheme)
+    expectSnapshot(of: PlusSectionPreview(), scheme: scheme)
   }
 
   @Test(arguments: [ColorScheme.light, .dark])

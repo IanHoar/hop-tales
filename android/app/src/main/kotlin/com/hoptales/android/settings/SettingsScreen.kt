@@ -139,7 +139,6 @@ fun SettingsScreen(key: String, onDone: () -> Unit) {
             done = done,
         ),
         plus = app.plus,
-        onRestore = model::restore,
         openLink = { runCatching { uri.openUri(it) } },
     )
 }
