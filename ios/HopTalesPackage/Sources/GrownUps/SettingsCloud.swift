@@ -8,9 +8,22 @@ extension Settings {
   public enum Cloud {
     case accountResolved(CloudSync.Account)
     case copyDeleted(Bool)
-    case deleteConfirmed
     case deleteTapped
     case toggled(Bool)
+  }
+}
+
+@Feature public struct DeleteCloudCopy: Prompt {
+  public init() {}
+
+  public struct State: Identifiable {
+    public var id = "delete-cloud-copy"
+
+    public init() {}
+  }
+
+  public enum Action {
+    case deleteTapped
   }
 }
 
@@ -51,11 +64,11 @@ struct CloudRow: View {
     .settingsField()
     .confirmationDialog(
       "Delete saved progress from iCloud?",
-      isPresented: $store.isConfirmingCloudDelete,
+      item: $store.scope(\.deleteCloudCopy),
       titleVisibility: .visible
-    ) {
-      Button("Delete from iCloud", role: .destructive) { store.send(.cloud(.deleteConfirmed)) }
-    } message: {
+    ) { prompt in
+      Button("Delete from iCloud", role: .destructive) { prompt.send(.deleteTapped) }
+    } message: { _ in
       Text(
         "Progress stays on this device and saving to iCloud turns off. Other iPhones and iPads "
           + "saving to this iCloud account will clear their progress too."

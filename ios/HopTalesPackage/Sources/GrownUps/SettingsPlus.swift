@@ -33,14 +33,14 @@ extension Settings {
   }
 
   func ask(_ request: GatedRequest, _ state: inout State) {
-    state.gatedRequest = request
+    gatedRequest = request
     state.gate = ParentGate.State(seed: gateSeed.draw())
   }
 
   func grant(_ state: inout State) {
-    let request = state.gatedRequest
+    let request = gatedRequest
     state.gate = nil
-    state.gatedRequest = nil
+    gatedRequest = nil
     switch request {
     case .manage:
       state.isManagingSubscription = true

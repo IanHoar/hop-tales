@@ -21,8 +21,7 @@ import World
     public var cloudAccount: CloudSync.Account?
     public var cloudNote: CloudNote?
     public var cloudSync = false
-    public var isConfirmingCloudDelete = false
-    public var journey = Journey()
+    public var deleteCloudCopy: DeleteCloudCopy.State?
     public var profile = Profile()
     public var soundOn = true
     public var speechLogLines = 0
@@ -31,7 +30,6 @@ import World
     public var plusStatus = PlusStatus.free
     public var isManagingSubscription = false
     public var isRequestingRefund = false
-    public var gatedRequest: GatedRequest?
     public var gate: ParentGate.State?
     public var grownUp: GrownUpPaywall.State?
 
@@ -51,6 +49,7 @@ import World
     case debugResetJourneyTapped
     case debugUnlockEverythingTapped
     case doneTapped
+    case deleteCloudCopy(DeleteCloudCopy.Action)
     case gate(ParentGate.Action)
     case grownUp(GrownUpPaywall.Action)
     case hearVoiceTapped
@@ -66,6 +65,7 @@ import World
     case voicePicked(String?)
   }
 
+  @FeatureState var gatedRequest: GatedRequest?
   @Dependency(CloudSync.self) var cloudSync
   @Dependency(ProfileStore.self) var profileStore
   @Dependency(ProgressStore.self) var progressStore
@@ -99,13 +99,8 @@ import World
     case let .copyDeleted(succeeded):
       state.cloudNote = succeeded ? .deleted : .deleteFailed
       if succeeded { state.cloudSync = false }
-    case .deleteConfirmed:
-      store.addTask {
-        let succeeded = (try? await cloudSync.deleteCloudCopy()) != nil
-        try store.send(.cloud(.copyDeleted(succeeded)))
-      }
     case .deleteTapped:
-      state.isConfirmingCloudDelete = true
+      state.deleteCloudCopy = DeleteCloudCopy.State()
     case let .toggled(isOn):
       state.cloudSync = isOn
       state.cloudNote = nil
@@ -163,12 +158,18 @@ import World
       case .nameSubmitted:
         save(state)
 
+      case .deleteCloudCopy(.deleteTapped):
+        store.addTask {
+          let succeeded = (try? await cloudSync.deleteCloudCopy()) != nil
+          try store.send(.cloud(.copyDeleted(succeeded)))
+        }
+
       case .gate(.passed):
         grant(&state)
 
       case .gate(.closeTapped):
         state.gate = nil
-        state.gatedRequest = nil
+        gatedRequest = nil
 
       case .gate, .grownUp:
         break
@@ -177,16 +178,14 @@ import World
         subscription(action, &state)
 
       case .debugResetJourneyTapped:
-        state.journey = Journey(starting: state.profile.startingFriend)
         var progress = progressStore.load()
-        progress.journey = state.journey
+        progress.journey = Journey(starting: state.profile.startingFriend)
         progress.baskets = [:]
         progressStore.save(progress)
 
       case .debugUnlockEverythingTapped:
-        state.journey = .everything
         var progress = progressStore.load()
-        progress.journey = state.journey
+        progress.journey = .everything
         for friend in Friend.allCases {
           let items = WardrobeLibrary.items(for: friend).count
           progress.baskets[friend, default: Basket()].filled = items
@@ -234,7 +233,6 @@ import World
     .onMount { state in
       state.profile = profileStore.load() ?? Profile()
       state.childName = state.profile.childName
-      state.journey = progressStore.load().journey
       state.soundOn = soundPreference.load()
       state.strictness = strictnessPreference.load()
       state.voices = speechClient.voices()
@@ -242,6 +240,9 @@ import World
       state.cloudSync = cloudSync.isEnabled()
       if state.cloudSync { checkCloudAccount() }
       watchStatus()
+    }
+    .ifLet(\.deleteCloudCopy) {
+      DeleteCloudCopy()
     }
     .ifLet(\.gate) {
       ParentGate()

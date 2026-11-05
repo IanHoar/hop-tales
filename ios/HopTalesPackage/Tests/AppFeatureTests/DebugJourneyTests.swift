@@ -19,15 +19,11 @@ struct DebugJourneyTests {
         .dependency(ProfileStore(load: { Profile(startingFriend: .hare) }, save: { _ in }))
     }
 
-    store.send(.debugUnlockEverythingTapped) {
-      $0.journey = .everything
-    }
+    store.send(.debugUnlockEverythingTapped)
     #expect(saved.value.journey.level == 7)
     #expect(saved.value.journey.met == Set(Friend.allCases))
 
-    store.send(.debugResetJourneyTapped) {
-      $0.journey = Journey(starting: .hare)
-    }
+    store.send(.debugResetJourneyTapped)
     #expect(saved.value.journey == Journey(starting: .hare))
     await store.dismount()
   }

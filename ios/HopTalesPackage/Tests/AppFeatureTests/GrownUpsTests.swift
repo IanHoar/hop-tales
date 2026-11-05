@@ -61,8 +61,10 @@ struct GrownUpsTests {
     }
     store.send(.cloud(.toggled(true))) { $0.cloudSync = true }
     await store.receive(\.cloud.accountResolved) { $0.cloudAccount = .signedOut }
-    store.send(.cloud(.deleteTapped)) { $0.isConfirmingCloudDelete = true }
-    store.send(.cloud(.deleteConfirmed))
+    store.send(.cloud(.deleteTapped)) {
+      $0.deleteCloudCopy = DeleteCloudCopy.State.DebugSnapshot()
+    }
+    store.send(.deleteCloudCopy(.deleteTapped)) { $0.deleteCloudCopy = nil }
     await store.receive(\.cloud.copyDeleted) {
       $0.cloudNote = .deleted
       $0.cloudSync = false
