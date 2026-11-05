@@ -19,6 +19,7 @@ public enum PaywallOffers: Hashable, Sendable {
     public var offers = PaywallOffers.loading
     public var isPending = false
     public var foundNothingToRestore = false
+    @StoreTaskID var storeRequest
 
     public init() {}
   }
@@ -50,29 +51,26 @@ public enum PaywallOffers: Hashable, Sendable {
         state.offers = ordered.isEmpty ? .unavailable : .loaded(ordered)
 
       case let .planTapped(plan):
+        guard !state.storeRequest.isRunning else { break }
         state.foundNothingToRestore = false
-        store.addTask {
+        store.addTask(id: state.storeRequest) {
           let outcome = (try? await purchases.purchase(plan)) ?? .failed
           try store.send(.purchaseCompleted(outcome))
-          if outcome == .purchased { try store.send(.subscribed) }
+          guard outcome == .purchased else { return }
+          purchases.refresh()
+          try store.send(.subscribed)
         }
 
       case let .purchaseCompleted(outcome):
-        switch outcome {
-        case .purchased:
-          purchases.refresh()
-        case .pending:
-          state.isPending = true
-        case .cancelled, .failed:
-          break
-        }
+        if outcome == .pending { state.isPending = true }
 
       case .nothingToRestore:
         state.foundNothingToRestore = true
 
       case .restoreTapped:
+        guard !state.storeRequest.isRunning else { break }
         state.foundNothingToRestore = false
-        store.addTask {
+        store.addTask(id: state.storeRequest) {
           let isPlus = (try? await purchases.restore()) ?? false
           try store.send(isPlus ? .subscribed : .nothingToRestore)
         }
@@ -152,6 +150,7 @@ public struct PaywallScreen: View {
   @ViewBuilder private var plans: some View {
     if case let .loaded(offers) = store.offers {
       PlanList(offers: offers) { store.send(.planTapped($0)) }
+        .disabled(store.storeRequest.isRunning)
     } else {
       PlanList(offers: PlusOffer.samples) { _ in }
         .redacted(reason: .placeholder)
@@ -200,6 +199,7 @@ public struct PaywallScreen: View {
       }
       HStack(spacing: 16) {
         Button("Restore purchases") { store.send(.restoreTapped) }
+          .disabled(store.storeRequest.isRunning)
           .fontWeight(.semibold)
           .foregroundStyle(Paper.ink)
         Link("Terms of Use", destination: PlusLinks.terms)
