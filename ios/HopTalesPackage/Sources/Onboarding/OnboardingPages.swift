@@ -330,7 +330,7 @@ struct ChoicePair<Content: View>: View {
 
 extension View {
   func scrolling() -> some View {
-    ScrollView { self }
+    ScrollView { padding(.horizontal, 24) }
       .scrollBounceBehavior(.basedOnSize)
       .scrollIndicators(.hidden)
       .scrollEdgeEffectHidden(true, for: .all)
