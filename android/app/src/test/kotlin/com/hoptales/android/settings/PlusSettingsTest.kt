@@ -61,7 +61,7 @@ class PlusSettingsTest {
     @Test
     fun theStatusIsShownInPlainWords() {
         show(PlusStatus.Free)
-        compose.onNodeWithText("Every story, at every level").assertIsDisplayed()
+        compose.onNodeWithText("Unlock Hop Tales Plus").assertIsDisplayed()
         compose.onNodeWithText("Restore purchases").assertDoesNotExist()
     }
 
@@ -81,7 +81,7 @@ class PlusSettingsTest {
         compose.onNodeWithText("Hop Tales Plus").assertIsDisplayed()
         compose.onNodeWithContentDescription("Yearly", substring = true).assertIsDisplayed()
         compose.onNodeWithText("Close").performClick()
-        compose.onNodeWithText("Every story, at every level").assertIsDisplayed()
+        compose.onNodeWithText("Unlock Hop Tales Plus").assertIsDisplayed()
     }
 
     @Test

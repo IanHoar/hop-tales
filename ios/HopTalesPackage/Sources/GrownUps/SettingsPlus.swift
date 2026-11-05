@@ -3,6 +3,7 @@ import Content
 import DesignSystem
 import StoreKit
 import SwiftUI
+import World
 
 extension Settings {
   @CasePathable
@@ -89,21 +90,34 @@ struct PlusRow: View {
 
 struct PlusUpsell: View {
   let unlock: () -> Void
+  @Environment(\.colorScheme) private var colorScheme
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 14) {
-      VStack(alignment: .leading, spacing: 6) {
-        Text("Every story, at every level")
-          .font(Typography.display(20))
-          .foregroundStyle(Paper.ink)
-        Text("Level 1 is free. \(PlusStatus.gives) \(PlusStatus.rhythm)")
-          .font(Typography.ui(15))
-          .foregroundStyle(Paper.muted)
-      }
-      .fixedSize(horizontal: false, vertical: true)
+    VStack(spacing: 14) {
+      meadow
       Button("Unlock Hop Tales Plus", action: unlock)
         .buttonStyle(.paper)
     }
+  }
+
+  private var meadow: some View {
+    GeometryReader { proxy in
+      MeadowBackdrop(progress: 900, mood: Mood(sky: colorScheme == .dark ? .night : .day))
+        .frame(width: proxy.size.width * 2, height: proxy.size.height * 2)
+        .scaleEffect(0.5, anchor: .topLeading)
+    }
+      .overlay(alignment: .bottom) {
+        HStack(alignment: .bottom, spacing: 18) {
+          ForEach(Friend.starters, id: \.self) { friend in
+            IdleFriend(friend, look: nil, height: 76, isPaused: true)
+              .shadow(color: Paper.shadow, radius: 4, y: 3)
+          }
+        }
+        .padding(.bottom, 14)
+      }
+      .frame(height: 150)
+      .clipShape(.rect(cornerRadius: 14))
+      .accessibilityHidden(true)
   }
 }
 
