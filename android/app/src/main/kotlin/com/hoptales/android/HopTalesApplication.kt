@@ -61,7 +61,7 @@ class HopTalesApplication : Application() {
     val readingAudio: ReadingAudio by lazy { ReadingAudio(this) }
     val chord: ChordPlayer by lazy { ChordPlayer() }
     val soundPreference: SoundPreference by lazy { SoundPreference(this) }
-    val speechLog: SpeechLog by lazy { SpeechLog(this) }
+    val speechLog: SpeechLog by lazy { SpeechLog(recording = BuildConfig.DEBUG) }
     val plus: PlusSource by lazy { PlayPlusSource(this, PlayKeyVerifier(BuildConfig.PLAY_PUBLIC_KEY)) }
     val looks: LookPack by lazy {
         if (BuildConfig.DEBUG) LookPack.bundled else LookPack(PlayPackDelivery(this)).also(LookPack::start)

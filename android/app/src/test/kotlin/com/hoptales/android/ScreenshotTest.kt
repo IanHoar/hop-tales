@@ -353,7 +353,6 @@ class ScreenshotTest {
                         journey = Journey.starting(Friend.HARE),
                         backupOn = true,
                         backupWasOn = true,
-                        speechLogOn = true,
                         speechLogLines = 42,
                     ),
                     SettingsActions(),

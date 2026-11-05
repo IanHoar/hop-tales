@@ -1,6 +1,7 @@
 package com.hoptales.android.settings
 
 import com.hoptales.android.HopTalesApplication
+import com.hoptales.android.speech.SpeechLog
 import com.hoptales.android.speech.SpeechLogEntry
 import com.hoptales.content.Friend
 import com.hoptales.content.Journey
@@ -59,20 +60,21 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun theSpeechLogKeepsWhatIsHeardOnlyWhileItIsOn() {
-        val model = SettingsViewModel(app)
+    fun aDebugBuildLogsWhatIsHeardUntilItIsCleared() {
         val heard = SpeechLogEntry("meadow-walk", 0, "The", listOf("the"), isFinal = true, outcome = Heard.CURRENT)
         app.speechLog.record(heard)
-        assertEquals(0, model.state.value.speechLogLines)
-        model.speechLogToggled(true)
         app.speechLog.record(heard)
-        app.speechLog.record(heard)
-        assertTrue(SettingsViewModel(app).state.value.speechLogOn)
-        assertEquals(2, SettingsViewModel(app).state.value.speechLogLines)
+        val model = SettingsViewModel(app)
+        assertEquals(2, model.state.value.speechLogLines)
         model.speechLogCleared()
         assertEquals(0, model.state.value.speechLogLines)
-        model.speechLogToggled(false)
-        assertFalse(model.state.value.speechLogOn)
+    }
+
+    @Test
+    fun aReleaseLogKeepsNothing() {
+        val log = SpeechLog(recording = false)
+        log.record(SpeechLogEntry("meadow-walk", 0, "The", listOf("the"), isFinal = true, outcome = Heard.CURRENT))
+        assertTrue(log.entries.isEmpty())
     }
 
     @Test

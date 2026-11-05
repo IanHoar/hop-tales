@@ -44,21 +44,15 @@ public struct SpeechLogEntry: Equatable, Sendable {
 public struct SpeechLog: Sendable {
   public static let capacity = 5000
 
-  public var isEnabled: @Sendable () -> Bool
-  public var setEnabled: @Sendable (Bool) -> Void
   public var record: @Sendable (SpeechLogEntry) -> Void
   public var entries: @Sendable () -> [SpeechLogEntry]
   public var clear: @Sendable () -> Void
 
   public init(
-    isEnabled: @escaping @Sendable () -> Bool,
-    setEnabled: @escaping @Sendable (Bool) -> Void,
     record: @escaping @Sendable (SpeechLogEntry) -> Void,
     entries: @escaping @Sendable () -> [SpeechLogEntry],
     clear: @escaping @Sendable () -> Void
   ) {
-    self.isEnabled = isEnabled
-    self.setEnabled = setEnabled
     self.record = record
     self.entries = entries
     self.clear = clear
@@ -80,18 +74,17 @@ public struct SpeechLog: Sendable {
 }
 
 extension SpeechLog: DependencyKey {
-  public static let key = "speech-log"
+  #if DEBUG
+    public static let recordsByDefault = true
+  #else
+    public static let recordsByDefault = false
+  #endif
 
-  public static func inMemory(suiteName: String? = nil) -> SpeechLog {
+  public static func inMemory(recording: Bool = recordsByDefault) -> SpeechLog {
     let lines = Mutex<[SpeechLogEntry]>([])
-    @Sendable func defaults() -> UserDefaults {
-      suiteName.flatMap(UserDefaults.init(suiteName:)) ?? .standard
-    }
     return SpeechLog(
-      isEnabled: { defaults().bool(forKey: key) },
-      setEnabled: { defaults().set($0, forKey: key) },
       record: { entry in
-        guard defaults().bool(forKey: key) else { return }
+        guard recording else { return }
         lines.withLock { lines in
           lines.append(entry)
           if lines.count > capacity { lines.removeFirst(lines.count - capacity) }
@@ -105,8 +98,6 @@ extension SpeechLog: DependencyKey {
   public static let liveValue = inMemory()
 
   public static let testValue = SpeechLog(
-    isEnabled: { false },
-    setEnabled: { _ in },
     record: { _ in },
     entries: { [] },
     clear: {}

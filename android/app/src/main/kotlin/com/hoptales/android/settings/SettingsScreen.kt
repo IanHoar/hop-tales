@@ -37,6 +37,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +45,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
@@ -57,8 +59,11 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.hoptales.android.BuildConfig
 import com.hoptales.android.HopTalesApplication
 import com.hoptales.android.design.ChoiceSurface
 import com.hoptales.android.design.Glyphs
@@ -92,7 +97,6 @@ class SettingsActions(
     val hearVoice: () -> Unit = {},
     val soundToggled: (Boolean) -> Unit = {},
     val backupToggled: (Boolean) -> Unit = {},
-    val speechLogToggled: (Boolean) -> Unit = {},
     val speechLogExported: () -> Unit = {},
     val speechLogCleared: () -> Unit = {},
     val resetOnboarding: () -> Unit = {},
@@ -125,7 +129,6 @@ fun SettingsScreen(key: String, onDone: () -> Unit) {
             hearVoice = model::hearVoice,
             soundToggled = model::soundToggled,
             backupToggled = model::backupToggled,
-            speechLogToggled = model::speechLogToggled,
             speechLogExported = { app.speechLog.shareIntent(context)?.let(context::startActivity) },
             speechLogCleared = model::speechLogCleared,
             resetJourney = model::resetJourney,
@@ -206,14 +209,7 @@ fun SettingsContent(state: SettingsState, actions: SettingsActions, onPlus: (Plu
                     )
                 }
                 Section("Backup") { BackupRow(state, actions.backupToggled) }
-                Section("Speech log") { SpeechLogRow(state, actions) }
-                Section("Testing") {
-                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        ActionChip("Reset onboarding", Glyphs.counterclockwise, actions.resetOnboarding)
-                        ActionChip("Reset reading journey", Glyphs.uturnBackward, actions.resetJourney)
-                        ActionChip("Unlock everything", Glyphs.lockOpen, actions.unlockEverything)
-                    }
-                }
+                if (BuildConfig.DEBUG) Section("Debug") { DebugToolsRow(state, actions) }
                 SettingsFooter()
             }
         }
@@ -339,12 +335,18 @@ private fun VoiceItem(label: String, isCurrent: Boolean, onClick: () -> Unit) {
 private fun SpeechLogRow(state: SettingsState, actions: SettingsActions) {
     val paper = LocalPaper.current
     val type = LocalTypography.current
-    PaperToggleField(
-        "Keep a log of what's heard",
-        "Words only, never sound, kept on this device until the app closes.",
-        checked = state.speechLogOn,
-        onChange = actions.speechLogToggled,
+    Column(
+        Modifier.fillMaxWidth().paperField().padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text("What's heard", style = type.display(20.sp), color = paper.ink)
+            Text(
+                "Debug builds log every word recognised. Words only, never sound, until the app closes.",
+                style = type.ui(15.sp),
+                color = paper.muted,
+            )
+        }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
                 if (state.speechLogLines == 1) "1 line" else "${state.speechLogLines} lines",
@@ -352,10 +354,8 @@ private fun SpeechLogRow(state: SettingsState, actions: SettingsActions) {
                 color = paper.muted,
                 modifier = Modifier.weight(1f),
             )
-            if (state.speechLogLines > 0) {
-                ActionChip("Export", Glyphs.share, actions.speechLogExported)
-                ActionChip("Clear", Glyphs.trash, actions.speechLogCleared)
-            }
+            ActionChip("Export", Glyphs.share, actions.speechLogExported)
+            ActionChip("Clear", Glyphs.trash, actions.speechLogCleared)
         }
     }
 }
@@ -390,6 +390,66 @@ private fun BackupRow(state: SettingsState, onChange: (Boolean) -> Unit) {
     ) {
         if (note != null) {
             Text(note, style = LocalTypography.current.ui(14.sp, FontWeight.Medium), color = LocalPaper.current.muted)
+        }
+    }
+}
+
+@Composable
+private fun DebugToolsRow(state: SettingsState, actions: SettingsActions) {
+    var isOpen by rememberSaveable { mutableStateOf(false) }
+    SettingsRow("Debug tools", trailing = Glyphs.chevronLeft, flipTrailing = true) { isOpen = true }
+    if (isOpen) {
+        val insets = WindowInsets.safeDrawing.asPaddingValues()
+        val close = { isOpen = false }
+        Dialog(onDismissRequest = close, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+            Column(Modifier.fillMaxSize().background(LocalPaper.current.page).padding(top = insets.calculateTopPadding())) {
+                SheetHeader("Debug", close)
+                Column(
+                    Modifier
+                        .verticalScroll(rememberScrollState())
+                        .padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = insets.calculateBottomPadding() + 30.dp),
+                    verticalArrangement = Arrangement.spacedBy(28.dp),
+                ) {
+                    Section("Speech log") { SpeechLogRow(state, actions) }
+                    Section("Testing") {
+                        SettingsRow("Reset onboarding", leading = Glyphs.counterclockwise, onClick = actions.resetOnboarding)
+                        SettingsRow("Reset reading journey", leading = Glyphs.uturnBackward, onClick = actions.resetJourney)
+                        SettingsRow("Unlock everything", leading = Glyphs.lockOpen, onClick = actions.unlockEverything)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SettingsRow(
+    title: String,
+    leading: ImageVector? = null,
+    trailing: ImageVector? = null,
+    flipTrailing: Boolean = false,
+    onClick: () -> Unit,
+) {
+    val paper = LocalPaper.current
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .paperField()
+            .pressable(onClick)
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        if (leading != null) Icon(leading, contentDescription = null, tint = paper.muted, modifier = Modifier.size(20.dp))
+        Text(title, style = LocalTypography.current.display(19.sp), color = paper.ink, modifier = Modifier.weight(1f))
+        if (trailing != null) {
+            Icon(
+                trailing,
+                contentDescription = null,
+                tint = paper.muted,
+                modifier = Modifier.size(18.dp).graphicsLayer { if (flipTrailing) scaleX = -1f },
+            )
         }
     }
 }

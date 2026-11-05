@@ -8,33 +8,29 @@ struct SpeechLogRow: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 14) {
-      Toggle(
-        isOn: Binding(get: { store.speechLogOn }, set: { store.send(.speechLogToggled($0)) })
-      ) {
-        VStack(alignment: .leading, spacing: 4) {
-          Text("Keep a log of what's heard")
-            .font(Typography.display(20))
-            .foregroundStyle(Paper.ink)
-          Text("Words only, never sound, kept on this device until the app closes.")
-            .font(Typography.ui(15))
-            .foregroundStyle(Paper.muted)
-        }
+      VStack(alignment: .leading, spacing: 4) {
+        Text("What's heard")
+          .font(Typography.display(20))
+          .foregroundStyle(Paper.ink)
+        Text(
+          "Debug builds log every word recognised. Words only, never sound, until the app closes."
+        )
+          .font(Typography.ui(15))
+          .foregroundStyle(Paper.muted)
       }
-      .tint(Paper.sageDeep)
       HStack(spacing: 12) {
         Text(store.speechLogLines == 1 ? "1 line" : "\(store.speechLogLines) lines")
           .font(Typography.ui(15, weight: .medium))
           .foregroundStyle(Paper.muted)
           .monospacedDigit()
         Spacer()
-        if let file = store.speechLogFile {
-          ShareLink(item: file) {
+        Group {
+          ShareLink(item: Settings.speechLogFile) {
             Label("Export", systemImage: "square.and.arrow.up")
           }
-          .buttonStyle(.paperChip)
           Button("Clear", systemImage: "trash") { store.send(.speechLogCleared) }
-            .buttonStyle(.paperChip)
         }
+        .buttonStyle(.paperChip)
       }
     }
     .padding(.horizontal, 16)
@@ -98,18 +94,35 @@ struct TestingButtons: View {
   let store: StoreOf<Settings>
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 10) {
-      Button("Reset onboarding", systemImage: "arrow.counterclockwise") {
-        store.send(.resetOnboardingTapped)
-      }
-      Button("Reset reading journey", systemImage: "arrow.uturn.backward") {
+    VStack(spacing: 10) {
+      row("Reset onboarding", "arrow.counterclockwise") { store.send(.resetOnboardingTapped) }
+      row("Reset reading journey", "arrow.uturn.backward") {
         store.send(.debugResetJourneyTapped)
       }
-      Button("Unlock everything", systemImage: "lock.open") {
-        store.send(.debugUnlockEverythingTapped)
-      }
+      row("Unlock everything", "lock.open") { store.send(.debugUnlockEverythingTapped) }
     }
-    .buttonStyle(.paperChip)
+  }
+
+  private func row(
+    _ title: String, _ icon: String, action: @escaping () -> Void
+  ) -> some View {
+    Button(action: action) {
+      HStack(spacing: 12) {
+        Image(systemName: icon)
+          .font(.system(size: 17, weight: .semibold))
+          .foregroundStyle(Paper.muted)
+          .frame(width: 24)
+        Text(title)
+          .font(Typography.display(19))
+          .foregroundStyle(Paper.ink)
+        Spacer(minLength: 0)
+      }
+      .padding(.horizontal, 16)
+      .frame(height: 56)
+      .settingsField()
+      .contentShape(.rect(cornerRadius: 18))
+    }
+    .buttonStyle(.plain)
   }
 }
 
