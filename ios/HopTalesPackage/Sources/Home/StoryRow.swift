@@ -4,19 +4,39 @@ import SwiftUI
 import World
 
 struct StoryThumbnail: View {
+  nonisolated static let size = CGSize(width: 390, height: 520)
+
   let mood: Mood
   var cornerRadius: CGFloat = 18
   var height: CGFloat = 62
+  @State private var postcard: UIImage?
+
+  init(mood: Mood, cornerRadius: CGFloat = 18, height: CGFloat = 62) {
+    self.mood = mood
+    self.cornerRadius = cornerRadius
+    self.height = height
+    _postcard = State(initialValue: MeadowPostcard.cached(mood: mood, size: Self.size))
+  }
 
   var body: some View {
-    Image(uiImage: MeadowPostcard.image(mood: mood, size: CGSize(width: 390, height: 520)))
-      .resizable()
-      .scaledToFill()
-      .frame(
-        minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .bottom
-      )
-      .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-      .accessibilityHidden(true)
+    ZStack(alignment: .bottom) {
+      Color(uiColor: MeadowPostcard.ground(for: mood))
+      if let postcard {
+        Image(uiImage: postcard)
+          .resizable()
+          .scaledToFill()
+          .transition(.opacity)
+      }
+    }
+    .frame(
+      minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .bottom
+    )
+    .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+    .accessibilityHidden(true)
+    .task(id: mood) {
+      let image = await MeadowPostcard.rendered(mood: mood, size: Self.size)
+      withAnimation(.easeOut(duration: 0.2)) { postcard = image }
+    }
   }
 }
 

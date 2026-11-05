@@ -1,9 +1,13 @@
+import Content
 import DesignSystem
 import Foundation
 import SnapshotTesting
 import SwiftUI
 import Testing
 import UIKit
+import World
+
+@testable import Home
 
 let snapshotRuntime = "27.0"
 let snapshotRuntimeBuild = "24A434"
@@ -25,6 +29,12 @@ private let shadowsOff: Void = {
     )
   else { return }
   method_exchangeImplementations(original, shadowless)
+}()
+
+private let postcardsPainted: Void = {
+  for mood in Set(StoryLibrary.all.map(\.mood)) {
+    _ = MeadowPostcard.image(mood: mood, size: StoryThumbnail.size)
+  }
 }()
 
 func snapshotDirectory(file: StaticString = #filePath) -> String {
@@ -61,6 +71,7 @@ func expectSnapshot<Value, Format>(
     column: Int(column)
   )
   _ = shadowsOff
+  _ = postcardsPainted
   let running = UIDevice.current.systemVersion
   let build = ProcessInfo.processInfo.environment["SIMULATOR_RUNTIME_BUILD_VERSION"] ?? "unknown"
   guard running == snapshotRuntime, build == snapshotRuntimeBuild else {
