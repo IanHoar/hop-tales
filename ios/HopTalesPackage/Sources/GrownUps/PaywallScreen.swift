@@ -11,6 +11,10 @@ public enum PaywallOffers: Hashable, Sendable {
   case unavailable
 }
 
+public struct PlusSubscribed: FeatureEventKey {
+  public init() {}
+}
+
 @Feature public struct Paywall {
   public init() {}
 
@@ -32,7 +36,6 @@ public enum PaywallOffers: Hashable, Sendable {
     case nothingToRestore
     case purchaseCompleted(PurchaseOutcome)
     case restoreTapped
-    case subscribed
   }
 
   @Dependency(PurchasesClient.self) var purchases
@@ -58,7 +61,7 @@ public enum PaywallOffers: Hashable, Sendable {
           try store.send(.purchaseCompleted(outcome))
           guard outcome == .purchased else { return }
           purchases.refresh()
-          try store.send(.subscribed)
+          try store.post(PlusSubscribed())
         }
 
       case let .purchaseCompleted(outcome):
@@ -72,10 +75,14 @@ public enum PaywallOffers: Hashable, Sendable {
         state.foundNothingToRestore = false
         store.addTask(id: state.storeRequest) {
           let isPlus = (try? await purchases.restore()) ?? false
-          try store.send(isPlus ? .subscribed : .nothingToRestore)
+          if isPlus {
+            try store.post(PlusSubscribed())
+          } else {
+            try store.send(.nothingToRestore)
+          }
         }
 
-      case .closeTapped, .subscribed:
+      case .closeTapped:
         break
       }
     }

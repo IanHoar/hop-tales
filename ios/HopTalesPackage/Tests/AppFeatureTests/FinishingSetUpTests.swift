@@ -1,6 +1,8 @@
+import Clocks
 import ComposableArchitecture
 import Content
 import Dependencies
+import DependenciesTestSupport
 import Testing
 
 @testable import AppFeature
@@ -8,7 +10,7 @@ import Testing
 @testable import Onboarding
 
 @MainActor
-@Suite(.timeLimit(.minutes(1)))
+@Suite(.dependency(\.continuousClock, TestClock()), .timeLimit(.minutes(1)))
 struct FinishingSetUpTests {
   @Test func finishingSetUpGoesStraightToTheStories() async {
     let saved = LockIsolated<Profile?>(nil)

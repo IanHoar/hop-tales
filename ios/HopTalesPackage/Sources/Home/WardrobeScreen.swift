@@ -42,7 +42,7 @@ import World
     Update { state, action in
       switch action {
       case .doneTapped:
-        break
+        store.addTask { try store.dismiss() }
 
       case let .itemTapped(item):
         guard state.progress.isUnlocked(item, for: state.friend) else { break }

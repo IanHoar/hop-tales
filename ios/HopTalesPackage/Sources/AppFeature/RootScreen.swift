@@ -28,6 +28,12 @@ import SwiftUI
     public var theme = Profile.Theme.device
     public init() {}
 
+    public var screensOverHome: Int {
+      path.count
+        + [settings != nil, journeyMap != nil, wardrobe != nil, friends != nil, book != nil]
+        .filter { $0 }.count
+    }
+
     public var storyOnScreen: Story? {
       guard case let .reading(reading) = path.last else { return nil }
       return reading.story
@@ -80,11 +86,6 @@ import SwiftUI
         case .friends(.journeyTapped):
           state.friends = nil
           state.journeyMap = JourneyMap.State()
-        case .friends(.doneTapped):
-          state.friends = nil
-          state.home.apply(progressStore.load())
-        case .book(.doneTapped):
-          state.book = nil
         case .friends, .book:
           break
         case .home(.wardrobeTapped):
@@ -96,16 +97,10 @@ import SwiftUI
             progressStore.save(progress)
           }
           state.wardrobe = Wardrobe.State(friend: friend)
-        case .wardrobe(.doneTapped):
-          state.wardrobe = nil
-          state.home.apply(progressStore.load())
         case .wardrobe:
           break
         case .home(.journeyTapped):
           state.journeyMap = JourneyMap.State()
-        case .journeyMap(.doneTapped):
-          state.journeyMap = nil
-          state.home.apply(progressStore.load())
         case let .journeyMap(.bigStoryTapped(story)):
           state.journeyMap = nil
           open(story, &state)
@@ -113,16 +108,10 @@ import SwiftUI
           break
         case .home(.grownUpsTapped):
           state.settings = Settings.State()
-        case .settings(.doneTapped):
-          state.settings = nil
-          if let profile = profileStore.load() { state.home.apply(profile) }
-          state.home.apply(progressStore.load())
         case let .settings(.themePicked(theme)):
           state.theme = theme
         case .home(.grownUp), .home(.locked), .home(.lockedLevelTapped), .home(.plusChanged):
           break
-        case .intro(.finished):
-          state.intro = nil
         case .intro:
           break
         case let .onboarding(.finished(answered)):
@@ -144,9 +133,6 @@ import SwiftUI
           home.locksStories = state.home.locksStories
           state.home = home
           state.onboarding = Onboarding.State(welcoming: true)
-        case .path(_, .reading(.backToStoriesTapped)):
-          state.path.removeLast()
-          state.home.apply(progressStore.load())
         case .path, .settings:
           break
         }
@@ -196,6 +182,11 @@ import SwiftUI
     }
     .forEach(\.path, dismissStyle: .stack) {
       Path.body
+    }
+    .onChange(of: store.screensOverHome) { old, new, state in
+      guard new < old, state.onboarding == nil else { return }
+      if let profile = profileStore.load() { state.home.apply(profile) }
+      state.home.apply(progressStore.load())
     }
   }
 }

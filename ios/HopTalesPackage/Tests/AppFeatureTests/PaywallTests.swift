@@ -43,7 +43,7 @@ struct PaywallTests {
     await store.receive(\.offersLoaded, timeout: waits) { $0.offers = .loaded(PlusOffer.samples) }
     store.send(.planTapped(.yearly))
     await store.receive(\.purchaseCompleted, timeout: waits)
-    await store.receive(\.subscribed, timeout: waits)
+    await store.receive(key: PlusSubscribed.self, timeout: waits)
     await store.dismount()
   }
 
@@ -85,7 +85,7 @@ struct PaywallTests {
     let store = paywall(.fake(restores: true))
     await store.receive(\.offersLoaded, timeout: waits) { $0.offers = .loaded(PlusOffer.samples) }
     store.send(.restoreTapped)
-    await store.receive(\.subscribed, timeout: waits)
+    await store.receive(key: PlusSubscribed.self, timeout: waits)
     await store.dismount()
   }
 

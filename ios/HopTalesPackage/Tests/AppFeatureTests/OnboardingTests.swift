@@ -1,6 +1,8 @@
+import Clocks
 import ComposableArchitecture
 import Content
 import Dependencies
+import DependenciesTestSupport
 import SpeechRecognition
 import Testing
 
@@ -10,7 +12,7 @@ import Testing
 @testable import Onboarding
 
 @MainActor
-@Suite(.timeLimit(.minutes(1)))
+@Suite(.dependency(\.continuousClock, TestClock()), .timeLimit(.minutes(1)))
 struct OnboardingTests {
   nonisolated static let speech = SpeechClient(
     listen: { _, _ in AsyncStream { $0.finish() } },

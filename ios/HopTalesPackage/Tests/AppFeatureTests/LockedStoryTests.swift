@@ -156,8 +156,7 @@ struct LockedStoryTests {
       $0.locked?.grownUp?.paywall?.offers = .loaded(PlusOffer.samples)
     }
     store.send(.locked(.grownUp(.paywall(.planTapped(.yearly)))))
-    await store.receive(\.locked.grownUp.paywall.purchaseCompleted)
-    await store.receive(\.locked.grownUp.paywall.subscribed) {
+    await store.receive(\.locked.grownUp.paywall.purchaseCompleted) {
       $0.isPlus = true
       $0.locked = nil
     }
@@ -260,8 +259,7 @@ extension LockedStoryTests {
       $0.grownUp?.paywall?.offers = .loaded(PlusOffer.samples)
     }
     store.send(.grownUp(.paywall(.planTapped(.yearly))))
-    await store.receive(\.grownUp.paywall.purchaseCompleted)
-    await store.receive(\.grownUp.paywall.subscribed) {
+    await store.receive(\.grownUp.paywall.purchaseCompleted) {
       $0.grownUp = nil
       $0.isPlus = true
     }

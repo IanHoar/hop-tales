@@ -95,19 +95,14 @@ extension EnvironmentValues {
   public var body: some Feature {
     Update { state, action in
       switch action {
-      case .locked(.closeTapped):
-        state.locked = nil
       case .lockedLevelTapped:
         state.grownUp = GrownUpPaywall.State(seed: gateSeed.draw())
-      case .grownUp(.paywall(.subscribed)), .locked(.grownUp(.paywall(.subscribed))),
-        .plusChanged(true):
+      case .plusChanged(true):
         state.isPlus = true
         state.grownUp = nil
         state.locked = nil
       case .plusChanged(false):
         state.isPlus = false
-      case .grownUp(.gate(.closeTapped)), .grownUp(.paywall(.closeTapped)):
-        state.grownUp = nil
       case .bookTapped, .friendsTapped, .grownUp, .grownUpsTapped, .journeyTapped, .locked,
         .storyTapped, .wardrobeTapped:
         break
@@ -118,6 +113,11 @@ extension EnvironmentValues {
     }
     .ifLet(\.grownUp) {
       GrownUpPaywall()
+    }
+    .onEvent(PlusSubscribed.self) { _, state in
+      state.isPlus = true
+      state.grownUp = nil
+      state.locked = nil
     }
     .onMount { state in
       state.progress = progressStore.load()

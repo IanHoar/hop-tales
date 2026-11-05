@@ -1,6 +1,8 @@
+import Clocks
 import ComposableArchitecture
 import Content
 import Dependencies
+import DependenciesTestSupport
 import Foundation
 import SpeechRecognition
 import Testing
@@ -10,7 +12,7 @@ import Testing
 @testable import Home
 
 @MainActor
-@Suite(.timeLimit(.minutes(1)))
+@Suite(.dependency(\.continuousClock, TestClock()), .timeLimit(.minutes(1)))
 struct GrownUpsTests {
   nonisolated static let voices = [
     Voice(id: "com.apple.voice.enhanced.en-US.Samantha", name: "Samantha", language: "en-US")
@@ -147,9 +149,9 @@ struct GrownUpsTests {
 
     store.send(.nameChanged("Wren")) { $0.childName = "Wren" }
     #expect(profiles.value.isEmpty)
-    store.send(.doneTapped)
+    await store.send(.doneTapped)?.value
     #expect(profiles.value.last?.childName == "Wren")
-    await store.dismount()
+    #expect(!store.isPresented)
   }
 
   @Test func aLongNameIsCutShort() async {

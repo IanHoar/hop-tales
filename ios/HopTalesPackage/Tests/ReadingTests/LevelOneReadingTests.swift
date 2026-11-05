@@ -19,11 +19,10 @@ struct LevelOneReadingTests {
   @Test func backToMyStoriesAfterLevelOneGoesBackToTheStories() async {
     let store = TestStore(initialState: Self.levelOneFinished()) { Reading() }
 
-    store.send(.backToMyStoriesTapped) {
+    await store.send(.backToMyStoriesTapped) {
       $0.journeyMoments = []
-    }
-    await store.receive(\.backToStoriesTapped)
-    await store.dismount()
+    }?.value
+    #expect(!store.isPresented)
   }
 
   @Test func aNewFriendEarnedOnTheSameReadFollowsLevelOne() async {

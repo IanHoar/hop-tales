@@ -21,11 +21,10 @@ struct EndOfStoryTests {
       Reading()
     }
 
-    store.send(.backToMyStoriesTapped) {
+    await store.send(.backToMyStoriesTapped) {
       $0.journeyMoments = []
-    }
-    await store.receive(\.backToStoriesTapped)
-    await store.dismount()
+    }?.value
+    #expect(!store.isPresented)
   }
 
   @Test func aNewFriendGoesBackToTheStoriesNotIntoTheirFirstStory() async {
@@ -33,11 +32,10 @@ struct EndOfStoryTests {
       initialState: Self.finished(with: [.newFriend(.hare, via: .trail)])
     ) { Reading() }
 
-    store.send(.backToMyStoriesTapped) {
+    await store.send(.backToMyStoriesTapped) {
       $0.journeyMoments = []
-    }
-    await store.receive(\.backToStoriesTapped)
-    await store.dismount()
+    }?.value
+    #expect(!store.isPresented)
   }
 
   @Test func theMomentsStillShowInOrderBeforeGoingBack() async {

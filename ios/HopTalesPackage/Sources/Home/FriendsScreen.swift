@@ -28,7 +28,10 @@ import World
   public var body: some Feature {
     Update { state, action in
       switch action {
-      case .doneTapped, .journeyTapped:
+      case .doneTapped:
+        store.addTask { try store.dismiss() }
+
+      case .journeyTapped:
         break
 
       case let .friendTapped(friend):

@@ -219,9 +219,8 @@ struct ReadingTests {
       Reading()
     }
 
-    store.send(.backTapped)
-    await store.receive(\.backToStoriesTapped)
-    await store.dismount()
+    await store.send(.backTapped)?.value
+    #expect(!store.isPresented)
   }
 
   @Test func readingAgainStartsTheStoryOver() async {
@@ -261,11 +260,10 @@ struct ReadingTests {
     store.send(.backTapped) {
       $0.isConfirmingStop = true
     }
-    store.send(.backToStoriesTapped) {
+    await store.send(.backToStoriesTapped) {
       $0.isConfirmingStop = false
-    }
-
-    await store.dismount()
+    }?.value
+    #expect(!store.isPresented)
   }
 
   @Test(arguments: [true, false])

@@ -117,7 +117,7 @@ import World
           state.isConfirmingStop = true
           break
         }
-        store.addTask { try store.send(.backToStoriesTapped) }
+        store.addTask { try store.dismiss() }
 
       case .readAgainTapped:
         state.sentenceIndex = 0
@@ -136,6 +136,7 @@ import World
 
       case .backToStoriesTapped:
         state.isConfirmingStop = false
+        store.addTask { try store.dismiss() }
 
       case .keepReadingTapped:
         state.isConfirmingStop = false
@@ -150,7 +151,7 @@ import World
       case .backToMyStoriesTapped:
         state.dismissCallout()
         guard state.callout == nil else { break }
-        store.addTask { try store.send(.backToStoriesTapped) }
+        store.addTask { try store.dismiss() }
 
       case .hintOffered:
         guard state.currentWord != nil, !state.isSpeaking else { break }

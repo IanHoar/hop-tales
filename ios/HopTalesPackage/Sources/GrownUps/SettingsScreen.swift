@@ -154,7 +154,11 @@ import World
       case let .cloud(action):
         cloud(action, &state)
 
-      case .doneTapped, .nameSubmitted:
+      case .doneTapped:
+        save(state)
+        store.addTask { try store.dismiss() }
+
+      case .nameSubmitted:
         save(state)
 
       case .gate(.passed):
@@ -163,10 +167,6 @@ import World
       case .gate(.closeTapped):
         state.gate = nil
         state.gatedRequest = nil
-
-      case .grownUp(.gate(.closeTapped)), .grownUp(.paywall(.closeTapped)),
-        .grownUp(.paywall(.subscribed)):
-        state.grownUp = nil
 
       case .gate, .grownUp:
         break
@@ -246,6 +246,9 @@ import World
     }
     .ifLet(\.grownUp) {
       GrownUpPaywall()
+    }
+    .onEvent(PlusSubscribed.self) { _, state in
+      state.grownUp = nil
     }
   }
 }
