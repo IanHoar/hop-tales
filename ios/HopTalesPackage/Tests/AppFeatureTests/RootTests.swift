@@ -7,6 +7,7 @@ import Testing
 import World
 
 @testable import AppFeature
+@testable import Home
 @testable import Reading
 @MainActor
 @Suite(.steady, .dependency(\.continuousClock, TestClock()), .timeLimit(.minutes(1)))
@@ -134,6 +135,32 @@ struct RootTests {
         )
       ]
     }
+    await store.dismount()
+  }
+
+  @Test func theOpenStoryWearsWhatWasTriedOn() async {
+    let story = StoryLibrary.all[0]
+    let item = WardrobeLibrary.unlockable(for: story.friend)[0]
+    var tried = Content.Progress()
+    tried.wear(item, on: story.friend)
+    let saved = tried
+    var state = Root.State()
+    state.intro = nil
+    state.path = [.reading(Reading.State(story, on: Content.Progress()))]
+    state.wardrobe = Wardrobe.State(friend: story.friend)
+    let store = TestStore(initialState: state) {
+      Root()
+        .dependency(ProgressStore(load: { saved }, save: { _ in }))
+    } changes: {
+      $0.wardrobe?.progress = saved
+    }
+    await store.receive(\.path) {
+      try? $0.path[0].modify(\.reading) { $0.authorization = .authorized }
+    }
+    await store.send(.wardrobe(.doneTapped)) {
+      $0.wardrobe = nil
+      try? $0.path[0].modify(\.reading) { $0.look = item.id }
+    }?.value
     await store.dismount()
   }
 }
