@@ -17,6 +17,23 @@ struct WardrobeFeatureTests {
     )
   }
 
+  @Test func tryingItOnPutsTheNewestItemOn() async {
+    let saved = LockIsolated(Self.progress)
+    let newest = Self.progress.newestItem(for: .grasshopper)!
+    let store = TestStore(
+      initialState: Wardrobe.State(friend: .grasshopper, wearsNewest: true)
+    ) {
+      Wardrobe()
+        .dependency(ProgressStore(load: { saved.value }, save: { saved.setValue($0) }))
+    } changes: {
+      var progress = Self.progress
+      progress.wear(newest, on: .grasshopper)
+      $0.progress = progress
+    }
+    #expect(saved.value.outfit(for: .grasshopper) == [newest])
+    await store.dismount()
+  }
+
   @Test func everyItemIsInOneGridAndTappingSwapsTheLook() async {
     let saved = LockIsolated(Self.progress)
     let store = TestStore(initialState: Wardrobe.State(friend: .grasshopper)) {

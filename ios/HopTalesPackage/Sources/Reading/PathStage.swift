@@ -148,10 +148,11 @@ struct PathStage: View {
         }
         .transition(.scale(scale: 0.9).combined(with: .opacity))
       } else if let callout = store.callout {
-        let last = store.journeyMoments.count(where: \.isCallout) <= 1
-        CalloutCard(moment: callout, geometry: geometry, isDone: store.hasTriedItOn, isLast: last) {
-          if callout.story != nil { store.send(.backToMyStoriesTapped) }
-          if case let .basketFull(friend, _) = callout { store.send(.tryItOnTapped(friend)) }
+        CalloutCard(
+          moment: callout, geometry: geometry, isDone: store.hasTriedItOn,
+          isLast: store.isLastCallout
+        ) {
+          store.send(.calloutPrimaryTapped)
         } dismiss: {
           store.send(.momentDismissed)
         }

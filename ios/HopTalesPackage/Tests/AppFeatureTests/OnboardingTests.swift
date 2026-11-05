@@ -24,6 +24,7 @@ struct OnboardingTests {
     let store = TestStore(initialState: Root.State()) {
       Root().dependency(ProfileStore.firstRun)
     } changes: {
+      $0.arrivesFromOnboarding = true
       $0.onboarding = Onboarding.State.DebugSnapshot()
       $0.onboarding?.isWelcoming = true
     }
@@ -180,6 +181,7 @@ struct OnboardingTests {
     let store = TestStore(initialState: state) {
       Root().dependency(ProfileStore(load: { nil }, save: { profile in saved.setValue(profile) }))
     } changes: {
+      $0.arrivesFromOnboarding = true
       $0.onboarding = Onboarding.State.DebugSnapshot()
       $0.onboarding?.isWelcoming = true
     }
@@ -235,6 +237,7 @@ struct OnboardingTests {
         .dependency(ProfileStore(load: { nil }, save: { _ in }, loadDraft: { draft }))
         .dependency(Self.speech)
     } changes: {
+      $0.arrivesFromOnboarding = true
       $0.onboarding = Onboarding.State.DebugSnapshot(
         path: [.name, .listening, .ahead],
         childName: "Maya"
@@ -265,6 +268,7 @@ extension OnboardingTests {
     }
     store.send(.settings(.resetOnboardingTapped)) {
       $0.home.childName = nil
+      $0.arrivesFromOnboarding = true
       $0.onboarding = Onboarding.State.DebugSnapshot()
       $0.onboarding?.isWelcoming = true
       $0.settings = nil

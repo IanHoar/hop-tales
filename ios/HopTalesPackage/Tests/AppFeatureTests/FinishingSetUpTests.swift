@@ -22,6 +22,7 @@ struct FinishingSetUpTests {
         ProfileStore(load: { saved.value }, save: { saved.setValue($0) }, erase: {})
       )
     } changes: {
+      $0.arrivesFromOnboarding = true
       $0.onboarding = Onboarding.State.DebugSnapshot()
       $0.onboarding?.isWelcoming = true
     }

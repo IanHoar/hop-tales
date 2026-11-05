@@ -5,6 +5,14 @@ import DesignSystem
 import SwiftUI
 import World
 
+public struct StoryChosen: FeatureEventKey {
+  public let story: Story
+
+  public init(story: Story) {
+    self.story = story
+  }
+}
+
 @Feature public struct JourneyMap {
   public init() {}
 
@@ -21,6 +29,13 @@ import World
       case later
     }
 
+    func canTap(_ stop: Stop) -> Bool {
+      switch stop {
+      case .met, .next(true): true
+      case .reading, .next(false), .later: false
+      }
+    }
+
     public func stop(for friend: Friend) -> Stop {
       if friend == journey.activeFriend { return .reading }
       if journey.met.contains(friend) { return .met }
@@ -30,9 +45,8 @@ import World
   }
 
   public enum Action {
-    case bigStoryTapped(Story)
     case doneTapped
-    case friendTapped(Friend)
+    case stopTapped(Friend)
   }
 
   @Dependency(ProgressStore.self) var progressStore
@@ -43,15 +57,19 @@ import World
       case .doneTapped:
         store.addTask { try store.dismiss() }
 
-      case .bigStoryTapped:
-        break
-
-      case let .friendTapped(friend):
-        guard state.journey.met.contains(friend) else { break }
-        state.journey.readWith(friend)
-        var progress = progressStore.load()
-        progress.journey = state.journey
-        progressStore.save(progress)
+      case let .stopTapped(friend):
+        switch state.stop(for: friend) {
+        case .met:
+          state.journey.readWith(friend)
+          var progress = progressStore.load()
+          progress.journey = state.journey
+          progressStore.save(progress)
+        case .next(bigStoryWaiting: true):
+          guard let story = StoryLibrary.bigStory(at: friend.level) else { break }
+          store.addTask { try store.post(StoryChosen(story: story)) }
+        case .reading, .next(bigStoryWaiting: false), .later:
+          break
+        }
       }
     }
     .onMount { state in
@@ -151,14 +169,8 @@ public struct JourneyMapScreen: View {
   @ViewBuilder
   private func stopView(_ friend: Friend) -> some View {
     let stop = store.state.stop(for: friend)
-    let bigStory = StoryLibrary.bigStory(at: friend.level)
     Button {
-      guard isTappable(stop) else { return }
-      if case .next(true) = stop, let bigStory {
-        store.send(.bigStoryTapped(bigStory))
-      } else {
-        store.send(.friendTapped(friend))
-      }
+      store.send(.stopTapped(friend))
     } label: {
       VStack(spacing: 4) {
         ZStack(alignment: .topTrailing) {
@@ -194,19 +206,12 @@ public struct JourneyMapScreen: View {
     }
     .buttonStyle(.plain)
     .accessibilityLabel(label(friend, stop))
-    .accessibilityAddTraits(isTappable(stop) ? .isButton : .isStaticText)
+    .accessibilityAddTraits(store.state.canTap(stop) ? .isButton : .isStaticText)
   }
 
   private func isGrey(_ stop: JourneyMap.State.Stop) -> Bool {
     if case .next = stop { return true }
     return false
-  }
-
-  private func isTappable(_ stop: JourneyMap.State.Stop) -> Bool {
-    switch stop {
-    case .met, .next(true): true
-    case .reading, .next(false), .later: false
-    }
   }
 
   private func tag(_ stop: JourneyMap.State.Stop) -> String? {

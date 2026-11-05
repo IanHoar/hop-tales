@@ -36,18 +36,24 @@ struct LockedStoryTests {
   }
 
   @Test func aBigStoryThatIsLockedOpensTheCard() async {
+    var progress = Content.Progress(journey: Journey(starting: .hare))
+    progress.journey.steps = progress.journey.goal
+    progress.journey.storiesRead = Set(StoryLibrary.stories(at: 2).map(\.id))
+    let saved = progress
     var state = Self.locking()
     state.journeyMap = JourneyMap.State()
+    state.journeyMap?.journey = saved.journey
     let store = TestStore(initialState: state) {
       Root()
+        .dependency(ProgressStore(load: { saved }, save: { _ in }))
     }
-    let story = Self.plusStory
-    store.send(.journeyMap(.bigStoryTapped(story))) {
+    let story = StoryLibrary.bigStory(at: Friend.frog.level)!
+    await store.send(.journeyMap(.stopTapped(.frog))) {
       $0.journeyMap = nil
       $0.home.locked = LockedStory.State.DebugSnapshot(
-        standing: StoryStanding(story: story, progress: Content.Progress())
+        standing: StoryStanding(story: story, progress: saved)
       )
-    }
+    }?.value
     #expect(store.state.path.isEmpty)
     await store.dismount()
   }

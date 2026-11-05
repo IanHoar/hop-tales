@@ -12,9 +12,11 @@ import World
     public var id: Friend { friend }
     public var friend: Friend
     public var progress = Content.Progress()
+    var wearsNewest: Bool
 
-    public init(friend: Friend) {
+    public init(friend: Friend, wearsNewest: Bool = false) {
       self.friend = friend
+      self.wearsNewest = wearsNewest
     }
 
     var items: [WardrobeItem] { WardrobeLibrary.items(for: friend) }
@@ -60,6 +62,9 @@ import World
     }
     .onMount { state in
       state.progress = progressStore.load()
+      guard state.wearsNewest, let item = state.newest else { return }
+      state.progress.wear(item, on: state.friend)
+      save(state)
     }
   }
 

@@ -56,7 +56,7 @@ struct ReadingTests {
     state.journeyMoments = [.basketFull(.bunny, number: 1)]
     let store = TestStore(initialState: state) { Reading() }
 
-    store.send(.tryItOnTapped(.bunny)) { $0.hasTriedItOn = true }
+    await store.send(.calloutPrimaryTapped) { $0.hasTriedItOn = true }?.value
     store.send(.momentDismissed) {
       $0.hasTriedItOn = false
       $0.journeyMoments = []

@@ -6,17 +6,6 @@ import SpeechRecognition
 import SwiftUI
 import World
 
-extension Reading {
-  public static let settleAfterSpeaking = Duration.milliseconds(300)
-  public static let offerHelpAfter = Duration.seconds(6)
-  public static let relistenAfterEnd = Duration.milliseconds(150)
-  public static let relistenAfterFailure = Duration.seconds(1)
-
-  static func hasBeenQuiet(since heardAt: Date, now: Date) -> Bool {
-    now.timeIntervalSince(heardAt) >= offerHelpAfter / .seconds(1)
-  }
-}
-
 @Feature public struct Reading {
   public init() {}
 
@@ -55,26 +44,6 @@ extension Reading {
       self.bigWords = bigWords
       self.treat = treat
     }
-
-    public var currentWord: Word? {
-      sentence?.words[safe: wordIndex]
-    }
-
-    public var nextWord: Word? {
-      sentence?.words[safe: wordIndex + 1]
-    }
-
-    public var sentence: Sentence? {
-      story.sentences[safe: sentenceIndex]
-    }
-
-    public var worldProgress: Double {
-      Double(wordsCompleted) * Story.stepPerWord
-    }
-
-    public var wordsCompleted: Int {
-      story.sentences.prefix(sentenceIndex).reduce(0) { $0 + $1.words.count } + wordIndex
-    }
   }
 
   public enum Action {
@@ -87,7 +56,7 @@ extension Reading {
     case hintOffered
     case hintTapped
     case keepReadingTapped
-    case tryItOnTapped(Friend)
+    case calloutPrimaryTapped
     case momentDismissed
     case speechFinished
     case scenePhaseChanged(isActive: Bool)
@@ -105,6 +74,7 @@ extension Reading {
   @FeatureState var ticksSinceMatch = 0
   @FeatureState var heardSinceMatch = false
   @Dependency(\.continuousClock) var clock
+  @Dependency(IdleTimer.self) var idleTimer
   @Dependency(\.date) var date
   @Dependency(ProfileStore.self) var profileStore
   @Dependency(ProgressStore.self) var progressStore
@@ -149,8 +119,16 @@ extension Reading {
       case .keepReadingTapped:
         state.isConfirmingStop = false
 
-      case .tryItOnTapped:
-        state.hasTriedItOn = true
+      case .calloutPrimaryTapped:
+        guard let callout = state.callout else { break }
+        if case let .basketFull(friend, _) = callout {
+          state.hasTriedItOn = true
+          store.addTask { try store.post(TryingItOn(friend: friend)) }
+        }
+        guard callout.story != nil else { break }
+        state.dismissCallout()
+        guard state.callout == nil else { break }
+        store.addTask { try store.dismiss() }
 
       case .momentDismissed:
         state.hasTriedItOn = false
@@ -237,6 +215,12 @@ extension Reading {
         }
       }
     }
+    .onMount { _ in
+      idleTimer.keepAwake(true)
+    }
+    .onDismount {
+      idleTimer.keepAwake(false)
+    }
     .onMount(id: [store.sentenceIndex, store.listeningEpoch]) { state in
       guard state.isActive else { return }
       state.strictness = strictnessPreference.load()
@@ -288,39 +272,6 @@ extension Reading {
         }
       }
     }
-  }
-}
-
-extension Reading {
-  func persist(_ state: State) {
-    var progress = progressStore.load()
-    progress.stars += state.stars - savedStars
-    progress.completedSentences[state.story.id] = max(
-      progress.completedSentences[state.story.id] ?? 0,
-      state.sentenceIndex
-    )
-    progress.wordsRead[state.story.id] = max(
-      progress.wordsRead[state.story.id] ?? 0,
-      state.wordsCompleted
-    )
-    progressStore.save(progress)
-    savedStars = state.stars
-  }
-
-  func log(
-    _ tokens: [String], isFinal: Bool, outcome: SpeechLogEntry.Outcome, in state: State
-  ) {
-    speechLog.record(
-      SpeechLogEntry(
-        story: state.story.id,
-        sentence: state.sentenceIndex,
-        word: state.currentWord?.text ?? "",
-        heard: tokens,
-        isFinal: isFinal,
-        outcome: outcome,
-        level: noiseLevel
-      )
-    )
   }
 }
 
@@ -380,8 +331,6 @@ public struct ReadingScreen: View {
     .onChange(of: scenePhase) { _, phase in
       store.send(.scenePhaseChanged(isActive: phase != .background))
     }
-    .onAppear { UIApplication.shared.isIdleTimerDisabled = true }
-    .onDisappear { UIApplication.shared.isIdleTimerDisabled = false }
     .sensoryFeedback(.impact(flexibility: .soft), trigger: store.recognised) { _, word in
       word != nil
     }
