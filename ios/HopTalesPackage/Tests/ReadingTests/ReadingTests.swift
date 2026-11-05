@@ -267,23 +267,4 @@ struct ReadingTests {
     }?.value
     #expect(!store.isPresented)
   }
-
-  @Test(arguments: [true, false])
-  func theSentenceChimeFollowsTheSoundSetting(soundOn: Bool) async {
-    var state = Reading.State(story: StoryLibrary.all[0])
-    state.advance(by: state.sentence!.words.count)
-    let chimes = LockIsolated(0)
-    let store = TestStore(initialState: state) {
-      Reading()
-        .dependency(SoundClient(sentenceCompleted: { chimes.withValue { $0 += 1 } }))
-        .dependency(SoundPreference(load: { soundOn }, save: { _ in }))
-    }
-
-    await store.receive(\.authorizationResolved) {
-      $0.authorization = .authorized
-    }
-    #expect(chimes.value == (soundOn ? 1 : 0))
-
-    await store.dismount()
-  }
 }

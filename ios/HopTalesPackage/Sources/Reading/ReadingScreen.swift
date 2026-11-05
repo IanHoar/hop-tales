@@ -66,7 +66,6 @@ import World
 
   @FeatureState var debouncer = PartialDebouncer()
   @FeatureState var savedStars = 0
-  @FeatureState var chimedSentence: Int?
   @FeatureState var profile = Profile()
   @FeatureState var wordsHelped: Set<WordRef> = []
   @FeatureState var wordsRead: Set<WordRef> = []
@@ -109,7 +108,6 @@ import World
         state.completed = nil
         state.recognised = nil
         savedStars = 0
-        chimedSentence = 0
         debouncer.reset()
 
       case .backToStoriesTapped:
@@ -221,22 +219,19 @@ import World
     .onDismount {
       idleTimer.keepAwake(false)
     }
+    .onChange(of: store.completionCount) { before, after, _ in
+      guard after > before, soundPreference.load() else { return }
+      store.addTask { await sound.sentenceCompleted() }
+    }
     .onMount(id: [store.sentenceIndex, store.listeningEpoch]) { state in
       guard state.isActive else { return }
       state.strictness = strictnessPreference.load()
       profile = profileStore.load() ?? Profile()
       state.soundButtons = profile.soundButtons
       let locale = profile.accent.locale
-      let completed = state.completionCount > 0 && chimedSentence != state.sentenceIndex
-      if completed { chimedSentence = state.sentenceIndex }
-      let celebrates = completed && soundPreference.load()
-      guard let sentence = state.sentence else {
-        if celebrates { store.addTask { await sound.sentenceCompleted() } }
-        return
-      }
+      guard let sentence = state.sentence else { return }
       let contextualStrings = sentence.words.map(\.text)
       let known = state.authorization
-      if celebrates { store.addTask { await sound.sentenceCompleted() } }
       store.addTask {
         let authorization: SpeechClient.Authorization
         if let known {
