@@ -1328,3 +1328,76 @@ p {
     font-size: 23px;
   }
 }
+
+.friends {
+  padding: 110px 0;
+}
+
+.friends__list {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  align-items: end;
+  gap: 18px;
+  max-width: 1160px;
+  margin: 54px auto 0;
+  padding: 0;
+  list-style: none;
+  text-align: center;
+}
+
+.friend img {
+  width: 100%;
+  max-width: 150px;
+  height: 130px;
+  object-fit: contain;
+  object-position: bottom;
+  margin-inline: auto;
+}
+
+.friend__name {
+  margin-top: 10px;
+  font-family: var(--title);
+  font-size: 20px;
+  color: var(--ink);
+}
+
+.friend__level {
+  font-size: 15px;
+  color: var(--muted-text);
+}
+
+.rewards {
+  margin-top: 60px;
+}
+
+@media (max-width: 860px) {
+  .friends {
+    padding: 80px 0;
+  }
+
+  .friends__list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    row-gap: 28px;
+  }
+
+  .friend img {
+    height: 96px;
+  }
+}
+
+@media (max-width: 560px) {
+  .friends__list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    column-gap: 8px;
+  }
+
+  .friend {
+    flex: 0 0 calc((100% - 16px) / 3);
+  }
+
+  .friend__name {
+    font-size: 17px;
+  }
+}
