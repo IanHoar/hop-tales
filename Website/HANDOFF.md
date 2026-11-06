@@ -99,15 +99,15 @@ Letter-spacing on Lilita is 0.01em. For outlined headings, use `-webkit-text-str
 **Hero** (880 tall, bottom border 5 px ink)
 - Background: `sky-day`, `far-day`, `mid-day` and `near-day` stacked at 1.04 scale, all anchored top-left (2434 × 878). The ground line sits at y ≈ 466. Past 2434 px wide, extend with the sky's top colour and the grass colour.
 - Pip (`fox.svg`) stands on the path at x ≈ 560, feet on the ground line.
-- Left column (x 64, top 124, width 720): red ribbon "A READ-ALOUD ADVENTURE" (300 × 44, Lilita 16). 22 px gap, then the H1 "Read a word.<br>Watch the world grow." (two lines at 72).
+- Left column (x 64, top 124, width 720): red ribbon "A READ-ALOUD ADVENTURE" (300 × 44, Lilita 16). 22 px gap, then the H1 "Read along.<br>Watch them hop." (two lines at 72).
 - Intro card (x 64, top 548, width 560): bevel with radius 30, border 4, drop 6, padding 26/30/30.
-  - Copy: "Hop Tales listens while your child reads aloud. Every word they say bounces the ball forward — and carries Pip the fox from a sunny meadow to a dragon's hill."
-  - Below it, the App Store and Google Play badges in a row (58 tall), then two lines in muted 15: "iPhone, iPad & Android / Plays on your TV with AirPlay (iPhone & iPad)". AirPlay is Apple-only, so the TV line says which devices it means.
+  - Copy: "Hop Tales listens while your child reads aloud. Every word they say keeps their storybook friends hopping along through a meadow that changes as the story goes."
+  - Below it, the App Store and Google Play badges in a row (58 tall), then one line in muted 15: "iPhone, iPad & Android".
 - Phones: `inkheard` 320 wide, rotated −4°, at (840, 120), in front. `inkdragon` 290 wide, rotated 7°, at (1052, 150), behind.
 
 **See it in action** (`#watch`, `--page`, between the hero and How it works)
-- H2 "See it in action" centred, sub "Thirty-five seconds in the meadow, word by word." in muted 20.
-- The 35 s promo (YouTube `uiITPBejQWE`, 16:9, music, no voiceover) in a paper card (`paper--c`, 960 max, padding 20/20/16, 50 below the heading) with a gold tape strip across the top edge, like the about photo. Caption under it, muted 15, centred: "The video loads from YouTube only when you press play."
+- H2 "See it in action" centred, with no sub.
+- The 35 s promo (YouTube `uiITPBejQWE`, 16:9, music, no voiceover) in a paper card (`paper--c`, 960 max, padding 20/20/16, 50 below the heading) with a gold tape strip across the top edge, like the about photo.
 - **Click-to-load facade.** The page shows a local poster (`assets/art/promo-poster-{800,1600}.webp`, JPEG fallback; the end card at 33.5 s of `promo/hop-tales-promo.mp4`) and a 96 px red play disc with a 5 px white ring (68 px on mobile). The whole poster is one `<button>` labelled "Play the Hop Tales video". `video.js` swaps in the iframe on click, from `https://www.youtube-nocookie.com/embed/uiITPBejQWE?autoplay=1&rel=0&modestbranding=1&playsinline=1`, titled "Hop Tales promo video", and moves focus to it. Nothing contacts YouTube before the click. Without JS a `<noscript>` link goes to the video on YouTube.
 - The disc's hover/focus scale sits behind `prefers-reduced-motion: no-preference`. If a Content-Security-Policy is ever added, it needs `frame-src https://www.youtube-nocookie.com`.
 - Mobile: 56 top padding, the card at full width with 12 px padding.
@@ -130,10 +130,6 @@ Letter-spacing on Lilita is 0.01em. For outlined headings, use `-webkit-text-str
   - `inkmeadow`: "Meadow Morning / Short words to start"
   - `inkcastle`: "The Castle Road / Meet Sir Pennant"
   - `inkdragon`: "Dragon's Hill / Longer words, bigger world"
-
-**Big screen** (`--page`, 640 tall)
-- Text column (x 100, width 440): H2 "Play it on the big screen" and body 19. Copy: "AirPlay Hop Tales to your Apple TV. The phone stays in your child's hands and does the listening, while the TV shows the whole world — castle, knight and dragon in one wide view."
-- TV: `inktv.jpg` at 720 × 405 inside a 10 px ink border with radius 26 and `box-shadow: 0 14px 0 ink, 0 40px 60px rgba(12,10,30,.3)`. Below it an ink stand: an 80 × 28 neck and a 200 × 12 rounded base.
 
 **For grown-ups** (`#parents`, `--page`, 3 px dashed `--parch-lip` top border)
 - H2 centred. A 2 × 2 grid, 1120 wide, gap 24.
