@@ -42,6 +42,11 @@ struct PlusTests {
     #expect(Plus.lockedLevels(above: 7, isPlus: false, locksStories: true).isEmpty)
   }
 
+  @Test func theLevelsAheadAreTheSameTwoWithoutTheLocks() {
+    #expect(Plus.levels(above: 1) == [.hare, .frog])
+    #expect(Plus.levels(above: 7).isEmpty)
+  }
+
   @Test func plusSeesNoLockedLevels() {
     #expect(Plus.lockedLevels(above: 1, isPlus: true, locksStories: true).isEmpty)
   }

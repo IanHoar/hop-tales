@@ -40,7 +40,11 @@ import SwiftUI
     Update { state, action in
       switch action {
       case .askAGrownUpTapped:
-        state.grownUp = GrownUpPaywall.State(seed: gateSeed.draw())
+        let story = state.standing.story
+        state.grownUp = GrownUpPaywall.State(
+          seed: gateSeed.draw(),
+          welcome: PlusWelcome(story: story, friend: story.friend, meetsFriend: false)
+        )
       case .closeTapped:
         store.addTask { try store.dismiss() }
       case .grownUp:

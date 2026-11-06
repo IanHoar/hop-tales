@@ -68,6 +68,21 @@ class JourneyTest {
     }
 
     @Test
+    fun readingEveryStoryAtTheLevelFillsThePath() {
+        var journey = Journey.starting(Friend.BUNNY)
+        var last: List<JourneyMoment> = emptyList()
+        for (story in library.stories(1)) {
+            val (after, moments) = journey.record(StoryResult(story.id, wordsRead = 3, helpedWords = 3))
+            journey = after
+            last = moments
+        }
+        assertTrue(journey.isPathFull(library))
+        assertEquals(journey.goal(library), journey.steps, 0.0)
+        assertEquals(1.0, journey.fill(library), 0.0)
+        assertEquals(JourneyMoment.BigStoryReady(Friend.HARE), last.last())
+    }
+
+    @Test
     fun readingTheBigStoryWellMeetsTheNextFriend() {
         var journey = Journey.starting(Friend.BUNNY).everyStoryRead()
         journey = journey.copy(steps = journey.goal(library))

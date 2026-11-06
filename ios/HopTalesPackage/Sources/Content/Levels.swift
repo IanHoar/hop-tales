@@ -21,7 +21,6 @@ public enum Levels {
 
   public static let bigWordRate = (early: 1.0 / 20, late: 1.0 / 8)
   public static let bigWordsBackOffHelpRate = 0.2
-  public static let earlyBigStoryShare = 0.9
 
   public static let bigStoryBar = 0.85
   public static let sustainedStories = 8

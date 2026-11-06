@@ -81,19 +81,22 @@ struct PaywallPitch: View {
 
 struct PlanList: View {
   let offers: [PlusOffer]
+  let selected: PlusPlan
   let choose: (PlusPlan) -> Void
 
   var body: some View {
     VStack(spacing: 12) {
       ForEach(offers) { offer in
-        PlanRow(offer: offer) { choose(offer.plan) }
+        PlanRow(offer: offer, isSelected: offer.plan == selected) { choose(offer.plan) }
       }
     }
+    .animation(.easeOut(duration: 0.15), value: selected)
   }
 }
 
 struct PlanRow: View {
   let offer: PlusOffer
+  let isSelected: Bool
   let action: () -> Void
 
   private var leads: Bool { offer.plan == .yearly }
@@ -147,11 +150,21 @@ struct PlanRow: View {
           .foregroundStyle(Paper.ink)
           .fixedSize()
       }
-      .paperChoice(isSelected: leads)
+      .paperChoice(isSelected: isSelected)
+      .overlay(alignment: .topTrailing) {
+        if isSelected {
+          Image(systemName: "checkmark.circle.fill")
+            .font(.system(size: 28, weight: .semibold))
+            .foregroundStyle(Paper.onRed, Paper.red)
+            .background(Circle().fill(Paper.paper).padding(-3))
+            .offset(x: 8, y: -10)
+            .transition(.scale.combined(with: .opacity))
+        }
+      }
     }
     .buttonStyle(.plain)
     .accessibilityElement(children: .ignore)
     .accessibilityLabel("\(name), \(price). \(detail).")
-    .accessibilityAddTraits(.isButton)
+    .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
   }
 }

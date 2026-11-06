@@ -74,16 +74,12 @@ data class Journey(
 
     fun fill(library: StoryLibrary): Double {
         val goal = goal(library)
-        return if (goal > 0) minOf(steps / goal, 1.0) else 1.0
+        return if (goal > 0 && !isPathFull(library)) minOf(steps / goal, 1.0) else 1.0
     }
 
     fun storiesLeft(library: StoryLibrary): List<Story> = library.stories(level).filter { it.id !in storiesRead }
 
-    fun isPathFull(library: StoryLibrary): Boolean {
-        if (nextFriend == null || storiesLeft(library).isNotEmpty()) return false
-        val share = if (cleanStreak >= 3) Levels.EARLY_BIG_STORY_SHARE else 1.0
-        return steps >= goal(library) * share
-    }
+    fun isPathFull(library: StoryLibrary): Boolean = nextFriend != null && storiesLeft(library).isEmpty()
 
     fun bigStory(library: StoryLibrary): Story? = if (isPathFull(library)) library.bigStory(level + 1) else null
 
@@ -128,7 +124,8 @@ data class Journey(
         if (story.level == journey.level) journey = journey.copy(storiesRead = journey.storiesRead + story.id)
         val earned = journey.stepsEarned(result, story)
         val goal = journey.goal(library)
-        journey = journey.copy(steps = minOf(journey.steps + earned, goal))
+        val filled = if (journey.storiesLeft(library).isEmpty()) goal else minOf(journey.steps + earned, goal)
+        journey = journey.copy(steps = filled)
         val moments = mutableListOf<JourneyMoment>(
             JourneyMoment.Tally(
                 steps = earned,

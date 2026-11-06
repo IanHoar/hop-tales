@@ -11,6 +11,12 @@ import Testing
 @Suite(.steady, .dependency(\.continuousClock, .immediate), .timeLimit(.minutes(1)))
 struct LockedStoryTests {
   private static let plusStory = StoryLibrary.stories(at: 2)[0]
+  private static let plusStoryWelcome = PlusWelcome(
+    story: plusStory, friend: plusStory.friend, meetsFriend: false
+  )
+  private static let firstRunWelcome = PlusWelcome(
+    story: StoryLibrary[Friend.bunny.startingStoryID]!, friend: .hare, meetsFriend: false
+  )
 
   private static func locking(isPlus: Bool = false) -> Root.State {
     var state = Root.State()
@@ -127,14 +133,14 @@ struct LockedStoryTests {
     }
     store.send(.locked(.askAGrownUpTapped)) {
       $0.locked?.grownUp = GrownUpPaywall.State.DebugSnapshot(
-        gate: ParentGate.State.DebugSnapshot(seed: 1)
+        gate: ParentGate.State.DebugSnapshot(seed: 1), welcome: Self.plusStoryWelcome
       )
     }
     store.send(.locked(.grownUp(.gate(.digitTapped(1))))) { $0.locked?.grownUp?.gate?.entry = "1" }
     store.send(.locked(.grownUp(.gate(.digitTapped(5))))) { $0.locked?.grownUp?.gate?.entry = "15" }
     store.send(.locked(.grownUp(.gate(.answerTapped))))
     await store.receive(\.locked.grownUp.gate.passed) {
-      $0.locked?.grownUp?.paywall = Paywall.State.DebugSnapshot()
+      $0.locked?.grownUp?.paywall = Paywall.State.DebugSnapshot(welcome: Self.plusStoryWelcome)
     }
     await store.receive(\.locked.grownUp.paywall.offersLoaded) {
       $0.locked?.grownUp?.paywall?.offers = .loaded(PlusOffer.samples)
@@ -144,14 +150,14 @@ struct LockedStoryTests {
     await store.dismount()
   }
 
-  @Test func subscribingClosesTheCard() async {
+  @Test func subscribingWelcomesThenOpensTheLockedStory() async {
     var state = Home.State()
     state.hour = 9
     state.locksStories = false
     state.showLocked(Self.plusStory)
-    state.locked?.grownUp = GrownUpPaywall.State(seed: 1)
+    state.locked?.grownUp = GrownUpPaywall.State(seed: 1, welcome: Self.plusStoryWelcome)
     state.locked?.grownUp?.gate = nil
-    state.locked?.grownUp?.paywall = Paywall.State()
+    state.locked?.grownUp?.paywall = Paywall.State(welcome: Self.plusStoryWelcome)
     let store = TestStore(initialState: state) {
       Home()
         .dependency(PurchasesClient.fake())
@@ -159,11 +165,16 @@ struct LockedStoryTests {
     await store.receive(\.locked.grownUp.paywall.offersLoaded) {
       $0.locked?.grownUp?.paywall?.offers = .loaded(PlusOffer.samples)
     }
-    store.send(.locked(.grownUp(.paywall(.planTapped(.yearly)))))
+    store.send(.locked(.grownUp(.paywall(.subscribeTapped)))) {
+      $0.locked?.grownUp?.paywall?.work = .subscribing
+    }
     await store.receive(\.locked.grownUp.paywall.purchaseCompleted) {
       $0.isPlus = true
-      $0.locked = nil
+      $0.locked?.grownUp?.paywall?.work = nil
+      $0.locked?.grownUp?.paywall?.isSubscribed = true
     }
+    store.send(.locked(.grownUp(.paywall(.readTapped)))) { $0.locked = nil }
+    await store.receive(\.storyTapped)
     await store.dismount()
   }
 
@@ -176,7 +187,7 @@ struct LockedStoryTests {
     }
     store.send(.locked(.askAGrownUpTapped)) {
       $0.locked?.grownUp = GrownUpPaywall.State.DebugSnapshot(
-        gate: ParentGate.State.DebugSnapshot(seed: 1)
+        gate: ParentGate.State.DebugSnapshot(seed: 1), welcome: Self.plusStoryWelcome
       )
     }
     store.send(.locked(.grownUp(.gate(.closeTapped)))) { $0.locked?.grownUp = nil }
@@ -212,16 +223,16 @@ struct LockedStoryTests {
       Home()
         .dependency(PurchasesClient.fake())
     }
-    store.send(.lockedLevelTapped(.hare)) {
+    store.send(.levelTapped(.hare)) {
       $0.grownUp = GrownUpPaywall.State.DebugSnapshot(
-        gate: ParentGate.State.DebugSnapshot(seed: 1)
+        gate: ParentGate.State.DebugSnapshot(seed: 1), welcome: Self.firstRunWelcome
       )
     }
     store.send(.grownUp(.gate(.digitTapped(1)))) { $0.grownUp?.gate?.entry = "1" }
     store.send(.grownUp(.gate(.digitTapped(5)))) { $0.grownUp?.gate?.entry = "15" }
     store.send(.grownUp(.gate(.answerTapped)))
     await store.receive(\.grownUp.gate.passed) {
-      $0.grownUp?.paywall = Paywall.State.DebugSnapshot()
+      $0.grownUp?.paywall = Paywall.State.DebugSnapshot(welcome: Self.firstRunWelcome)
     }
     await store.receive(\.grownUp.paywall.offersLoaded) {
       $0.grownUp?.paywall?.offers = .loaded(PlusOffer.samples)
@@ -238,9 +249,9 @@ struct LockedStoryTests {
       Home()
         .dependency(PurchasesClient.fake())
     }
-    store.send(.lockedLevelTapped(.frog)) {
+    store.send(.levelTapped(.frog)) {
       $0.grownUp = GrownUpPaywall.State.DebugSnapshot(
-        gate: ParentGate.State.DebugSnapshot(seed: 1)
+        gate: ParentGate.State.DebugSnapshot(seed: 1), welcome: Self.firstRunWelcome
       )
     }
     store.send(.grownUp(.gate(.closeTapped))) { $0.grownUp = nil }
@@ -249,12 +260,12 @@ struct LockedStoryTests {
 }
 
 extension LockedStoryTests {
-  @Test func subscribingFromALockedLevelClosesThePaywall() async {
+  @Test func subscribingFromALockedLevelWelcomesThenOpensTheNextStory() async {
     var state = Home.State()
     state.hour = 9
-    state.grownUp = GrownUpPaywall.State(seed: 1)
+    state.grownUp = GrownUpPaywall.State(seed: 1, welcome: Self.firstRunWelcome)
     state.grownUp?.gate = nil
-    state.grownUp?.paywall = Paywall.State()
+    state.grownUp?.paywall = Paywall.State(welcome: Self.firstRunWelcome)
     let store = TestStore(initialState: state) {
       Home()
         .dependency(PurchasesClient.fake())
@@ -262,11 +273,16 @@ extension LockedStoryTests {
     await store.receive(\.grownUp.paywall.offersLoaded) {
       $0.grownUp?.paywall?.offers = .loaded(PlusOffer.samples)
     }
-    store.send(.grownUp(.paywall(.planTapped(.yearly))))
-    await store.receive(\.grownUp.paywall.purchaseCompleted) {
-      $0.grownUp = nil
-      $0.isPlus = true
+    store.send(.grownUp(.paywall(.subscribeTapped))) {
+      $0.grownUp?.paywall?.work = .subscribing
     }
+    await store.receive(\.grownUp.paywall.purchaseCompleted) {
+      $0.isPlus = true
+      $0.grownUp?.paywall?.work = nil
+      $0.grownUp?.paywall?.isSubscribed = true
+    }
+    store.send(.grownUp(.paywall(.readTapped))) { $0.grownUp = nil }
+    await store.receive(\.storyTapped)
     await store.dismount()
   }
 
@@ -286,5 +302,34 @@ extension LockedStoryTests {
     }
     arrives.finish()
     await store.dismount()
+  }
+
+  @Test func plusReadersStillSeeTheLevelsAhead() {
+    let home = Self.locking(isPlus: true).home
+    #expect(home.nextLevels == [.hare, .frog])
+    #expect(home.standing(of: .hare) == .ahead)
+  }
+
+  @Test func readingEveryStoryOpensTheNextFriendsBigStoryForPlus() {
+    var home = Self.locking(isPlus: true).home
+    let stories = StoryLibrary.stories(at: 1)
+    var progress = Content.Progress(
+      completedSentences: Dictionary(uniqueKeysWithValues: stories.map { ($0.id, 99) })
+    )
+    progress.journey.storiesRead = Set(stories.map(\.id))
+    home.apply(progress)
+    let big = StoryLibrary.bigStory(at: 2)!
+    #expect(home.standing(of: .hare) == .ready(big))
+    #expect(home.keepGoing?.story == big)
+    #expect(home.plusWelcome == PlusWelcome(story: big, friend: .hare, meetsFriend: true))
+  }
+
+  @Test func aFreeReaderWithTheBigStoryWaitingStillSeesItLocked() {
+    var home = Self.locking().home
+    var progress = Content.Progress()
+    progress.journey.storiesRead = Set(StoryLibrary.stories(at: 1).map(\.id))
+    home.apply(progress)
+    #expect(home.standing(of: .hare) == .locked)
+    #expect(home.keepGoing?.story.isBigStory != true)
   }
 }

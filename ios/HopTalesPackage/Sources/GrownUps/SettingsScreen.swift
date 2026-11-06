@@ -256,9 +256,6 @@ import World
     .onChange(of: store.isRequestingRefund) { wasOpen, isOpen, _ in
       if wasOpen, !isOpen { reloadStatus() }
     }
-    .onEvent(PlusSubscribed.self) { _, state in
-      state.grownUp = nil
-    }
   }
 }
 

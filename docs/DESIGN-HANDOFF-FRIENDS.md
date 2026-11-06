@@ -73,7 +73,6 @@ This is a plan, not built yet. It builds on the collage storybook (`docs/DESIGN-
   - Stories at your level use about **1 big word in 20** early in a level, rising to **1 in 8** as the path fills. Author them at both rates, or author the high rate and hide some as plain words.
 - **Adaptive nudge:**
   - If the child taps for help on more than 1 word in 5 over the last three stories, big words drop back to the low rate for a while.
-  - If they read three stories in a row with no help, the big story arrives at 90 % of the path.
 - **Big words on the path** (`PhoneBigWord`):
   - A gold dotted underline in the path's perspective, a small star sticker above the word, and a slightly larger scale.
   - When one is read, the star pops (scale 1.4 → 0, 0.3 s), a small "+5" floats up, and the friend does a higher hop (arc × 1.4).
@@ -124,7 +123,7 @@ A third way up, made for a child who loves collecting.
   - Help never costs a trail treat: a word read after tapping for help still collects the treat on it.
   - The count resets on every level up, however it happened.
   - The three routes (big story, sustained reading and the trail) are equal. Whichever finishes first moves the child up, and the others reset.
-  - **Every story at the level comes first.** No route moves the child up until they have finished each of the level's stories at least once (any amount of help). Until then the big story isn't offered, and a full trail or eight good reads wait. When the path is full but stories remain, the tally says "Read 2 more stories to meet Oggy". Easier stories don't count towards it, and the list resets on every level up. A reader updating the app keeps credit for the stories at their level they had already finished.
+  - **Every story at the level comes first.** No route moves the child up until they have finished each of the level's stories at least once (any amount of help). Until then the big story isn't offered, and a full trail or eight good reads wait. When the path is full but stories remain, the tally says "Read 2 more stories to meet Oggy". Finishing the last of them fills the path whatever the steps, so reading every story at a level always brings the big story. Easier stories don't count towards it, and the list resets on every level up. A reader updating the app keeps credit for the stories at their level they had already finished.
 
 ## 4. Treats and baskets (the fun layer)
 

@@ -113,8 +113,15 @@ struct StoryRow: View {
   }
 }
 
-struct LockedLevelRow: View {
+struct LevelRow: View {
+  enum Standing: Equatable {
+    case locked
+    case ready(Story)
+    case ahead
+  }
+
   let friend: Friend
+  let standing: Standing
   let action: () -> Void
 
   private var title: String { "Level \(friend.level) with \(friend.name)" }
@@ -125,16 +132,23 @@ struct LockedLevelRow: View {
       HStack(spacing: 12) {
         FriendSticker(friend, height: 46)
           .frame(width: 50, height: 50)
+          .opacity(standing == .ahead ? 0.6 : 1)
         VStack(alignment: .leading, spacing: 1) {
           Text(title)
             .font(Typography.display(17))
             .foregroundStyle(Paper.ink)
-          Text("Words like \(Text(words).font(Typography.word(15)).foregroundStyle(Paper.ink))")
-            .font(Typography.ui(13, weight: .medium))
-            .foregroundStyle(Paper.muted)
+          if case .ready = standing {
+            Text("\(friend.name)'s big story is ready")
+              .font(Typography.ui(13, weight: .semibold))
+              .foregroundStyle(Paper.redInk)
+          } else {
+            Text("Words like \(Text(words).font(Typography.word(15)).foregroundStyle(Paper.ink))")
+              .font(Typography.ui(13, weight: .medium))
+              .foregroundStyle(Paper.muted)
+          }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        PadlockSticker(size: 30)
+        trailing
       }
       .padding(.horizontal, 10)
       .padding(.vertical, 8)
@@ -142,9 +156,33 @@ struct LockedLevelRow: View {
       .contentShape(rowShape)
     }
     .buttonStyle(.plain)
+    .disabled(standing == .ahead)
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel("\(title). Words like \(words). Locked, part of Hop Tales Plus")
-    .accessibilityAddTraits(.isButton)
+    .accessibilityLabel(accessibilityLabel)
+    .accessibilityAddTraits(standing == .ahead ? [] : .isButton)
+  }
+
+  @ViewBuilder private var trailing: some View {
+    switch standing {
+    case .locked:
+      PadlockSticker(size: 30)
+    case .ready:
+      Image(systemName: "play.fill")
+        .font(.system(size: 14, weight: .bold))
+        .foregroundStyle(Paper.onRed)
+        .frame(width: 36, height: 36)
+        .paperChip(Circle(), fill: Paper.red)
+    case .ahead:
+      EmptyView()
+    }
+  }
+
+  private var accessibilityLabel: String {
+    switch standing {
+    case .locked: "\(title). Words like \(words). Locked, part of Hop Tales Plus"
+    case .ready: "\(title). \(friend.name)'s big story is ready"
+    case .ahead: "\(title). Words like \(words). Read your stories to get there"
+    }
   }
 
   private var rowShape: RoundedRectangle {

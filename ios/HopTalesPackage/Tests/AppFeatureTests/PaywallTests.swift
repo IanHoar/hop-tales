@@ -41,9 +41,20 @@ struct PaywallTests {
   @Test func buyingSubscribes() async {
     let store = paywall(.fake(outcome: .purchased))
     await store.receive(\.offersLoaded, timeout: waits) { $0.offers = .loaded(PlusOffer.samples) }
-    store.send(.planTapped(.yearly))
-    await store.receive(\.purchaseCompleted, timeout: waits)
+    store.send(.planTapped(.monthly)) { $0.selected = .monthly }
+    store.send(.subscribeTapped) { $0.work = .subscribing }
+    await store.receive(\.purchaseCompleted, timeout: waits) {
+      $0.work = nil
+      $0.isSubscribed = true
+    }
     await store.receive(key: PlusSubscribed.self, timeout: waits)
+    await store.dismount()
+  }
+
+  @Test func subscribingWaitsForThePlans() async {
+    let store = paywall(.fake(offers: nil))
+    await store.receive(\.offersFailed, timeout: waits) { $0.offers = .unavailable }
+    store.send(.subscribeTapped)
     await store.dismount()
   }
 
@@ -57,7 +68,8 @@ struct PaywallTests {
     }
     let store = paywall(client)
     await store.receive(\.offersLoaded, timeout: waits) { $0.offers = .loaded(PlusOffer.samples) }
-    store.send(.planTapped(.yearly))
+    store.send(.subscribeTapped) { $0.work = .subscribing }
+    store.send(.subscribeTapped)
     store.send(.planTapped(.monthly))
     store.send(.restoreTapped)
     await Task.yield()
@@ -68,23 +80,30 @@ struct PaywallTests {
   @Test func cancellingChangesNothing() async {
     let store = paywall(.fake(outcome: .cancelled))
     await store.receive(\.offersLoaded, timeout: waits) { $0.offers = .loaded(PlusOffer.samples) }
-    store.send(.planTapped(.monthly))
-    await store.receive(\.purchaseCompleted, timeout: waits)
+    store.send(.subscribeTapped) { $0.work = .subscribing }
+    await store.receive(\.purchaseCompleted, timeout: waits) { $0.work = nil }
     await store.dismount()
   }
 
   @Test func aPendingPurchaseWaits() async {
     let store = paywall(.fake(outcome: .pending))
     await store.receive(\.offersLoaded, timeout: waits) { $0.offers = .loaded(PlusOffer.samples) }
-    store.send(.planTapped(.yearly))
-    await store.receive(\.purchaseCompleted, timeout: waits) { $0.isPending = true }
+    store.send(.subscribeTapped) { $0.work = .subscribing }
+    await store.receive(\.purchaseCompleted, timeout: waits) {
+      $0.work = nil
+      $0.isPending = true
+    }
     await store.dismount()
   }
 
   @Test func restoringFindsPlus() async {
     let store = paywall(.fake(restores: true))
     await store.receive(\.offersLoaded, timeout: waits) { $0.offers = .loaded(PlusOffer.samples) }
-    store.send(.restoreTapped)
+    store.send(.restoreTapped) { $0.work = .restoring }
+    await store.receive(\.restoreCompleted, timeout: waits) {
+      $0.work = nil
+      $0.isSubscribed = true
+    }
     await store.receive(key: PlusSubscribed.self, timeout: waits)
     await store.dismount()
   }
@@ -92,8 +111,11 @@ struct PaywallTests {
   @Test func restoringWithNothingToRestoreSaysSo() async {
     let store = paywall(.fake(restores: false))
     await store.receive(\.offersLoaded, timeout: waits) { $0.offers = .loaded(PlusOffer.samples) }
-    store.send(.restoreTapped)
-    await store.receive(\.nothingToRestore, timeout: waits) { $0.foundNothingToRestore = true }
+    store.send(.restoreTapped) { $0.work = .restoring }
+    await store.receive(\.restoreCompleted, timeout: waits) {
+      $0.work = nil
+      $0.foundNothingToRestore = true
+    }
     await store.dismount()
   }
 
@@ -103,8 +125,9 @@ struct PaywallTests {
     await store.dismount()
   }
 
-  @Test func passingTheGateOpensThePaywall() async {
-    let store = TestStore(initialState: GrownUpPaywall.State(seed: 1)) {
+  @Test func passingTheGateOpensThePaywallWithTheWelcome() async {
+    let welcome = PlusWelcome(story: StoryLibrary.all[0], friend: .hare, meetsFriend: false)
+    let store = TestStore(initialState: GrownUpPaywall.State(seed: 1, welcome: welcome)) {
       GrownUpPaywall()
         .dependency(PurchasesClient.fake(offers: nil))
     }
@@ -112,7 +135,7 @@ struct PaywallTests {
     store.send(.gate(.digitTapped(5))) { $0.gate?.entry = "15" }
     store.send(.gate(.answerTapped))
     await store.receive(\.gate.passed, timeout: waits) {
-      $0.paywall = Paywall.State.DebugSnapshot()
+      $0.paywall = Paywall.State.DebugSnapshot(welcome: welcome)
     }
     await store.receive(\.paywall.offersFailed, timeout: waits) {
       $0.paywall?.offers = .unavailable

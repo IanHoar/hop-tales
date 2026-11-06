@@ -58,6 +58,18 @@ struct JourneyTests {
     #expect(journey.steps == journey.goal)
   }
 
+  @Test func readingEveryStoryAtTheLevelFillsThePath() {
+    var journey = Journey(starting: .bunny)
+    var last: [JourneyMoment] = []
+    for story in StoryLibrary.stories(at: 1) {
+      last = journey.record(StoryResult(storyID: story.id, wordsRead: 3, helpedWords: 3))
+    }
+    #expect(journey.isPathFull)
+    #expect(journey.steps == journey.goal)
+    #expect(journey.fill == 1)
+    #expect(last.last == .bigStoryReady(.hare))
+  }
+
   @Test func readingTheBigStoryWellMeetsTheNextFriend() {
     var journey = Journey(starting: .bunny)
     Self.everyStoryRead(&journey)
