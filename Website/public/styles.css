@@ -620,7 +620,7 @@ p {
 
 .parents {
   padding: 110px 0 120px;
-  background: #7D6FA6;
+  background: var(--night);
 }
 
 .parents__title {
