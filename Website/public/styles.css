@@ -1333,10 +1333,15 @@ p {
   padding: 110px 0;
 }
 
+.friends .section-sub {
+  max-width: 720px;
+  margin-inline: auto;
+}
+
 .friends__list {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  align-items: end;
+  align-items: start;
   gap: 18px;
   max-width: 1160px;
   margin: 54px auto 0;
@@ -1363,6 +1368,30 @@ p {
 
 .friend__level {
   font-size: 15px;
+  font-weight: 600;
+  color: var(--red);
+}
+
+.friend__skill {
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--ink);
+}
+
+.friend__words {
+  margin-top: 4px;
+  font-family: var(--word);
+  font-size: 15px;
+  line-height: 1.3;
+  color: var(--body);
+}
+
+.friend__length {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.3;
   color: var(--muted-text);
 }
 
