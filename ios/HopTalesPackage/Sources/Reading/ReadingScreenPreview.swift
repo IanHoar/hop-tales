@@ -91,4 +91,16 @@ struct ReadingScreenPreview: View {
 #Preview("Big story ready") { ReadingScreenPreview(moment: .bigStoryReady) }
 #Preview("New friend") { ReadingScreenPreview(moment: .newFriend) }
 #Preview("Level 1 finished") { ReadingScreenPreview(moment: .levelOneFinished) }
+#Preview("Site: The Meadow Walk") {
+  ReadingScreenPreview(story: StoryLibrary["meadow-walk"]!, moment: .at(sentence: 1, word: 2))
+}
+#Preview("Site: Storm on the Hill") {
+  ReadingScreenPreview(story: StoryLibrary["storm-on-the-hill"]!, moment: .at(sentence: 2, word: 2))
+}
+#Preview("Site: Golden Hour") {
+  ReadingScreenPreview(story: StoryLibrary["golden-hour"]!, moment: .at(sentence: 1, word: 2))
+}
+#Preview("Site: Moonlight Hop") {
+  ReadingScreenPreview(story: StoryLibrary["moonlight-hop"]!, moment: .at(sentence: 3, word: 2))
+}
 #endif

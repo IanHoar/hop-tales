@@ -542,6 +542,15 @@ p {
   color: var(--body);
 }
 
+.feature__points {
+  list-style: disc;
+  margin: 12px 0 0;
+  padding-left: 1.2em;
+  color: var(--body);
+  display: grid;
+  gap: 6px;
+}
+
 .moods {
   padding: 100px 0 110px;
   background: var(--sage);
