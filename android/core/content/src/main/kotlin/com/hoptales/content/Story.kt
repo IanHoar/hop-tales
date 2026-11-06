@@ -82,6 +82,7 @@ data class Sentence(
     val weather: Weather? = null,
     val moodAfter: Int? = null,
     val events: List<StoryEvent> = emptyList(),
+    @SerialName("long") val isLong: Boolean = false,
 )
 
 @Serializable

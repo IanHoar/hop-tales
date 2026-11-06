@@ -73,7 +73,9 @@ struct JourneyTests {
   @Test func storiesFinishedBeforeTheyWereCountedStillFillThePath() {
     let stories = StoryLibrary.stories(at: 1)
     var progress = Content.Progress(
-      completedSentences: Dictionary(uniqueKeysWithValues: stories.map { ($0.id, 6) })
+      completedSentences: Dictionary(
+        uniqueKeysWithValues: stories.map { ($0.id, $0.sentences.count) }
+      )
     )
     progress.journey.storiesRead = [stories[0].id]
     progress.journey.steps = progress.journey.goal - 1
@@ -121,7 +123,7 @@ struct JourneyTests {
   }
 
   @Test func theNextFriendIsAFewGoodReadsAwayAndTheRoutesStayBalanced() {
-    #expect(Levels.stepsToNextFriend == [1: 160, 2: 200, 3: 250, 4: 320, 5: 390, 6: 460])
+    #expect(Levels.stepsToNextFriend == [1: 170, 2: 210, 3: 270, 4: 320, 5: 400, 6: 470])
     for level in 1..<Levels.top {
       let reads = Double(Levels.stepsToNextFriend[level] ?? 0) / Levels.goodRead(at: level)
       #expect((3...6).contains(reads), "level \(level)")
@@ -215,7 +217,7 @@ struct JourneyTests {
       "trail":0,"storiesReadWell":0,"recentHelpRates":[],"cleanStreak":0}
       """
     let json = """
-      {"completedSentences":{"bob-bug":6,"meadow-walk":2},"stars":4,"wordsRead":{},
+      {"completedSentences":{"bob-bug":7,"meadow-walk":2},"stars":4,"wordsRead":{},
       "journey":\(journey)}
       """
     let progress = try JSONDecoder().decode(Progress.self, from: Data(json.utf8))

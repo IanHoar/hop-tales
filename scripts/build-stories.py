@@ -186,7 +186,9 @@ def parse_sentence(line, line_number):
     if tags:
         for tag in tags.group(1).split():
             name, _, after = tag.partition("@")
-            if name in SKIES or name in WEATHERS:
+            if tag == "long":
+                sentence["long"] = True
+            elif name in SKIES or name in WEATHERS:
                 sentence["sky" if name in SKIES else "weather"] = name
                 if after:
                     mood_word = after
@@ -277,11 +279,11 @@ def main():
         for sentence in story["sentences"]:
             words = " ".join(word["text"] for word in sentence["words"])
             count = len(sentence["words"])
-            if not low <= count <= high:
+            if not low <= count <= high + (1 if sentence.get("long") else 0):
                 problems.append(f"{story['id']} (level {level}): {count} words: {words}")
             for word in sentence["words"]:
                 decodes = phonics.level(word["text"])
-                ceiling = min(level + 2, 7) if word["big"] else level
+                ceiling = min(level + 3, 7) if word["big"] else level
                 if decodes is None or decodes > ceiling:
                     at = f"level {decodes}" if decodes else "no level"
                     kind = "big word" if word["big"] else "word"
@@ -298,6 +300,33 @@ def main():
 
     OUTPUT.write_text(json.dumps(stories, indent=2) + "\n")
     print(f"wrote {len(stories)} stories to {OUTPUT.relative_to(ROOT)}")
+    report_sight_words(stories)
+
+
+def first_use(word, used):
+    """The earliest level a story reads the word, counting its -s, -es, -ed and -ing forms."""
+    stems = [word, word.rstrip("e")]
+    if len(word) > 2 and word[-1] not in "aeiouwxy":
+        stems.append(word + word[-1])
+    forms = {word} | {stem + ending for stem in stems for ending in ("s", "es", "ed", "d", "ing")}
+    return min((used[form] for form in forms if form in used), default=8)
+
+
+def report_sight_words(stories):
+    """Print how many of each level's Dolch sight words its stories, or earlier ones, use."""
+    used = {}
+    for story in stories:
+        for sentence in story["sentences"]:
+            for word in sentence["words"]:
+                text = word["text"].lower()
+                used[text] = min(used.get(text, 8), story["level"])
+    for level in json.loads(PHONICS.read_text())["levels"]:
+        words = level.get("sightWords", [])
+        if not words:
+            continue
+        missing = [word for word in words if first_use(word, used) > level["level"]]
+        print(f"level {level['level']} sight words: {len(words) - len(missing)}/{len(words)} read by then"
+              + (f"; not yet: {' '.join(missing)}" if missing else ""))
 
 
 if __name__ == "__main__":

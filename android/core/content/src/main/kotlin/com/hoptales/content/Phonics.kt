@@ -14,6 +14,7 @@ class Phonics(table: Table) {
         val graphemes: List<String>,
         val endGraphemes: List<String>,
         val heartWords: List<String>,
+        val sightWords: List<String> = emptyList(),
     )
 
     @Serializable

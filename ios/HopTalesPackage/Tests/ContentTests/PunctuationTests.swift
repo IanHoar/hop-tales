@@ -17,10 +17,10 @@ struct PunctuationTests {
 
   @Test func speechMarksHangOffTheWordsTheyWrap() throws {
     let words = try #require(StoryLibrary["skip-and-frog"]).sentences.flatMap(\.words)
-    let can = try #require(words.first { $0.text == "Can" })
-    let swim = try #require(words.first { $0.text == "swim" })
-    #expect(can.leading == "“")
-    #expect(swim.trailing == "?”")
+    let you = try #require(words.first { $0.text == "You" })
+    let funny = try #require(words.first { $0.text == "funny" })
+    #expect(you.leading == "“")
+    #expect(funny.trailing == "!”")
   }
 
   @Test func aWordWithoutPunctuationRoundTripsWithoutIt() throws {
