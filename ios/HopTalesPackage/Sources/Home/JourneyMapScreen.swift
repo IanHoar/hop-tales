@@ -245,7 +245,7 @@ struct Rosette: View {
       Text("\(level)")
         .font(Typography.display(13))
         .foregroundStyle(Self.ink)
-        .offset(y: -4)
+        .offset(y: -7)
     }
     .accessibilityHidden(true)
   }

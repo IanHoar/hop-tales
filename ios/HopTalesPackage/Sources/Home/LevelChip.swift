@@ -46,7 +46,7 @@ struct LevelChip: View {
     guard let next = journey.nextFriend else {
       return "Level \(journey.level) · \(journey.activeFriend.name)"
     }
-    if journey.isPathFull { return "Level \(journey.level) · \(next.name)'s big story is ready" }
+    if journey.isPathFull { return "Ready for Level \(next.level) with \(next.name)" }
     return "Level \(journey.level) · \(Int(journey.steps)) of \(Int(journey.goal)) to \(next.name)"
   }
 }

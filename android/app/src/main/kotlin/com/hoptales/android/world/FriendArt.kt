@@ -101,7 +101,7 @@ fun Rosette(level: Int, modifier: Modifier = Modifier, height: Dp = 38.dp) {
             "$level",
             style = LocalTypography.current.display((height.value * 13 / 38).sp),
             color = ROSETTE_INK,
-            modifier = Modifier.offset(y = -height * 4 / 38),
+            modifier = Modifier.offset(y = -height * 7 / 38),
         )
     }
 }

@@ -308,6 +308,7 @@ extension LockedStoryTests {
     let home = Self.locking(isPlus: true).home
     #expect(home.nextLevels == [.hare, .frog])
     #expect(home.standing(of: .hare) == .ahead)
+    #expect(home.newFriend == nil)
   }
 
   @Test func readingEveryStoryOpensTheNextFriendsBigStoryForPlus() {
@@ -321,6 +322,7 @@ extension LockedStoryTests {
     let big = StoryLibrary.bigStory(at: 2)!
     #expect(home.standing(of: .hare) == .ready(big))
     #expect(home.keepGoing?.story == big)
+    #expect(home.newFriend == .hare)
     #expect(home.plusWelcome == PlusWelcome(story: big, friend: .hare, meetsFriend: true))
   }
 
