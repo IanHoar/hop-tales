@@ -29,7 +29,6 @@ import World
     public var voices: [Voice] = []
     public var plusStatus = PlusStatus.free
     public var isManagingSubscription = false
-    public var isRequestingRefund = false
     public var gate: ParentGate.State?
     public var grownUp: GrownUpPaywall.State?
 
@@ -251,9 +250,6 @@ import World
       GrownUpPaywall()
     }
     .onChange(of: store.isManagingSubscription) { wasOpen, isOpen, _ in
-      if wasOpen, !isOpen { reloadStatus() }
-    }
-    .onChange(of: store.isRequestingRefund) { wasOpen, isOpen, _ in
       if wasOpen, !isOpen { reloadStatus() }
     }
   }

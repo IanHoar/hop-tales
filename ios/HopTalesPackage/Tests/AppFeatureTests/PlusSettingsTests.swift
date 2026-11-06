@@ -121,22 +121,4 @@ struct PlusSettingsTests {
     await store.receive(\.subscription.statusResolved)
     await store.dismount()
   }
-
-  @Test func aRefundGoesThroughTheGate() async {
-    let store = settings(.fake(isPlus: true, status: Self.renewing), Self.renewing)
-    await store.receive(\.subscription.statusResolved)
-    store.send(.subscription(.refundTapped)) {
-      $0.gate = ParentGate.State.DebugSnapshot(seed: 1)
-    }
-    answerTheGate(store)
-    await store.receive(\.gate.passed) {
-      $0.gate = nil
-      $0.isRequestingRefund = true
-    }
-    store.modify { $0.isRequestingRefund = false } changes: {
-      $0.isRequestingRefund = false
-    }
-    await store.receive(\.subscription.statusResolved)
-    await store.dismount()
-  }
 }

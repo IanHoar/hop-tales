@@ -9,22 +9,18 @@ extension Settings {
   @CasePathable
   public enum Subscription {
     case manageTapped
-    case refundTapped
     case statusResolved(PlusStatus)
     case subscribeTapped
   }
 
   public enum GatedRequest: Hashable, Sendable {
     case manage
-    case refund
   }
 
   func subscription(_ action: Subscription, _ state: inout State) {
     switch action {
     case .manageTapped:
       ask(.manage, &state)
-    case .refundTapped:
-      ask(.refund, &state)
     case let .statusResolved(status):
       state.plusStatus = status
     case .subscribeTapped:
@@ -44,8 +40,6 @@ extension Settings {
     switch request {
     case .manage:
       state.isManagingSubscription = true
-    case .refund:
-      state.isRequestingRefund = state.plusStatus.canRequestRefund
     case nil:
       break
     }
@@ -66,17 +60,15 @@ struct PlusRow: View {
   let store: StoreOf<Settings>
 
   var body: some View {
-    Group {
-      if store.plusStatus.canSubscribe {
-        PlusUpsell { store.send(.subscription(.subscribeTapped)) }
-      } else {
-        PlusMembership(store: store)
-      }
+    if store.plusStatus.canSubscribe {
+      PlusUpsell { store.send(.subscription(.subscribeTapped)) }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .settingsField()
+    } else {
+      PlusMembership(store: store)
     }
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .padding(.horizontal, 16)
-    .padding(.vertical, 14)
-    .settingsField()
   }
 }
 
@@ -110,29 +102,25 @@ struct PlusMembership: View {
   @Environment(\.timeZone) private var timeZone
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 14) {
-      VStack(alignment: .leading, spacing: 4) {
+    VStack(spacing: 8) {
+      Button {
+        store.send(.subscription(.manageTapped))
+      } label: {
+        Label("Manage subscription", systemImage: "creditcard")
+      }
+      .buttonStyle(.paperQuiet)
+      VStack(spacing: 2) {
         Text(store.plusStatus.line(locale: locale, timeZone: timeZone))
-          .font(Typography.display(20))
-          .foregroundStyle(Paper.ink)
+          .font(Typography.ui(14, weight: .semibold))
+          .foregroundStyle(Paper.muted)
         if let detail = store.plusStatus.detail {
           Text(detail)
-            .font(Typography.ui(15, weight: .medium))
+            .font(Typography.ui(14, weight: .medium))
             .foregroundStyle(Paper.muted)
         }
       }
+      .multilineTextAlignment(.center)
       .fixedSize(horizontal: false, vertical: true)
-      VStack(alignment: .leading, spacing: 10) {
-        Button("Manage subscription", systemImage: "creditcard") {
-          store.send(.subscription(.manageTapped))
-        }
-        if store.plusStatus.canRequestRefund {
-          Button("Request a refund", systemImage: "arrow.uturn.backward.circle") {
-            store.send(.subscription(.refundTapped))
-          }
-        }
-      }
-      .buttonStyle(.paperChip)
     }
   }
 }
@@ -140,12 +128,6 @@ struct PlusMembership: View {
 extension View {
   @ViewBuilder
   func subscriptionSheets(_ store: StoreOf<Settings>) -> some View {
-    let bindable = Bindable(store)
-    let managing = manageSubscriptionsSheet(isPresented: bindable.isManagingSubscription)
-    if let transaction = store.plusStatus.refundableTransactionID {
-      managing.refundRequestSheet(for: transaction, isPresented: bindable.isRequestingRefund)
-    } else {
-      managing
-    }
+    manageSubscriptionsSheet(isPresented: Bindable(store).isManagingSubscription)
   }
 }
