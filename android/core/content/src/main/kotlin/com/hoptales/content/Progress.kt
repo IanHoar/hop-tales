@@ -20,9 +20,10 @@ data class Progress(
         wordsRead = wordsRead + (storyID to maxOf(wordsRead[storyID] ?: 0, words)),
     )
 
-    fun restoringStoriesRead(library: StoryLibrary): Progress {
-        if (journey.storiesRead.isNotEmpty()) return this
-        val finished = library.stories(journey.level).filter(::isFinished).map { it.id }.toSet()
-        return copy(journey = journey.copy(storiesRead = finished))
+    fun creditingFinishedStories(library: StoryLibrary): Progress {
+        val finished = library.stories(journey.level).filter(::isFinished).map { it.id }
+        val credited = journey.copy(storiesRead = journey.storiesRead + finished)
+        val filled = if (credited.isPathFull(library)) credited.copy(steps = credited.goal(library)) else credited
+        return copy(journey = filled)
     }
 }

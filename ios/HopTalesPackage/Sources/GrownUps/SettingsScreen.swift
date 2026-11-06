@@ -181,6 +181,8 @@ import World
         var progress = progressStore.load()
         progress.journey = Journey(starting: state.profile.startingFriend)
         progress.baskets = [:]
+        progress.completedSentences = [:]
+        progress.wordsRead = [:]
         progressStore.save(progress)
 
       case .debugUnlockEverythingTapped:

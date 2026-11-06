@@ -10,7 +10,9 @@ import Testing
 @Suite(.steady, .timeLimit(.minutes(1)))
 struct DebugJourneyTests {
   @Test func unlockingEverythingMeetsEveryFriendAndResettingStartsOver() async {
-    let saved = LockIsolated(Content.Progress())
+    let saved = LockIsolated(
+      Content.Progress(completedSentences: ["bob-bug": 6], wordsRead: ["bob-bug": 24])
+    )
     var state = Settings.State()
     state.profile = Profile(startingFriend: .hare)
     let store = TestStore(initialState: state) {
@@ -25,6 +27,8 @@ struct DebugJourneyTests {
 
     store.send(.debugResetJourneyTapped)
     #expect(saved.value.journey == Journey(starting: .hare))
+    #expect(saved.value.completedSentences.isEmpty)
+    #expect(saved.value.wordsRead.isEmpty)
     await store.dismount()
   }
 }

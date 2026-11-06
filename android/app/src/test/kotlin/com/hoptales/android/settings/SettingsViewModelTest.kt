@@ -89,6 +89,7 @@ class SettingsViewModelTest {
         val reset = app.progressStore.load()
         assertEquals(Journey.starting(maya.startingFriend), reset.journey)
         assertTrue(reset.baskets.isEmpty())
+        assertTrue(reset.completedSentences.isEmpty())
         assertEquals(reset.journey, model.state.value.journey)
         app.progressStore.save(Progress())
     }

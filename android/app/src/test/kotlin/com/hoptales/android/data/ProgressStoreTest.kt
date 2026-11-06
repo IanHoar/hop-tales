@@ -9,6 +9,7 @@ import com.hoptales.content.Progress
 import com.hoptales.content.Slot
 import com.hoptales.content.StoryLibrary
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -84,8 +85,22 @@ class ProgressStoreTest {
             journey = Journey(storiesRead = setOf(story.id)),
         )
         store().save(finished)
-        store().save(finished.copy(journey = Journey()))
+        store().save(Progress())
         assertEquals(emptySet<String>(), store().load().journey.storiesRead)
+    }
+
+    @Test
+    fun everyFinishedStoryAtTheLevelCountsAfterARestart() {
+        val stories = app.library.stories(Journey().level)
+        store().save(
+            Progress(
+                completedSentences = stories.associate { it.id to it.sentences.size },
+                journey = Journey(storiesRead = setOf(stories.first().id)),
+            ),
+        )
+        val journey = store().load().journey
+        assertEquals(stories.map { it.id }.toSet(), journey.storiesRead)
+        assertTrue(journey.isPathFull(app.library))
     }
 
     @Test

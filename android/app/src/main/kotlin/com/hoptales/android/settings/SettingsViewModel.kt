@@ -109,7 +109,14 @@ class SettingsViewModel(private val app: HopTalesApplication) : ViewModel() {
     fun resetOnboarding() = app.profileStore.erase()
 
     fun resetJourney() {
-        app.progressStore.update { it.copy(journey = Journey.starting(state.value.profile.startingFriend), baskets = emptyMap()) }
+        app.progressStore.update {
+            it.copy(
+                journey = Journey.starting(state.value.profile.startingFriend),
+                baskets = emptyMap(),
+                completedSentences = emptyMap(),
+                wordsRead = emptyMap(),
+            )
+        }
         mutableState.update { it.copy(journey = app.progressStore.load().journey) }
     }
 

@@ -30,7 +30,7 @@ extension ProgressStore: DependencyKey {
   static func read(from db: Database) throws -> Progress {
     let record = try ProgressRecord.find(ProgressRecord.only).fetchOne(db)
     let stories = try StoryProgressRecord.fetchAll(db)
-    return Progress(
+    var progress = Progress(
       stars: record?.stars ?? 0,
       completedSentences: counts(stories, \.completedSentences),
       wordsRead: counts(stories, \.wordsRead),
@@ -39,6 +39,8 @@ extension ProgressStore: DependencyKey {
       outfits: record?.outfits ?? [:],
       levelOneCelebrated: record?.levelOneCelebrated ?? false
     )
+    progress.creditFinishedStories()
+    return progress
   }
 
   private static func counts(
