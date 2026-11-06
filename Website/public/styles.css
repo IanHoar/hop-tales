@@ -628,6 +628,38 @@ p {
   color: var(--paper);
 }
 
+.parents {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.parents__sky {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.sky {
+  position: absolute;
+  height: auto;
+}
+
+.sky--moon { width: 120px; top: 48px; right: max(4%, calc(50% - 640px)); transform: rotate(-8deg); }
+.sky--star-a { width: 34px; top: 70px; left: max(6%, calc(50% - 600px)); }
+.sky--star-b { width: 22px; top: 150px; left: max(14%, calc(50% - 470px)); }
+.sky--star-c { width: 18px; top: 46px; right: max(18%, calc(50% - 450px)); }
+.sky--star-d { width: 26px; top: 190px; right: max(2%, calc(50% - 700px)); }
+.sky--cloud-a { width: 260px; bottom: 30px; left: max(-40px, calc(50% - 760px)); opacity: 0.9; }
+.sky--cloud-b { width: 200px; bottom: 70px; right: max(-30px, calc(50% - 740px)); opacity: 0.8; }
+
+@media (max-width: 860px) {
+  .sky--moon { width: 72px; top: 24px; right: 16px; }
+  .sky--star-b, .sky--star-d, .sky--cloud-b { display: none; }
+  .sky--cloud-a { width: 160px; bottom: 16px; left: -30px; }
+}
+
 .features {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
