@@ -95,15 +95,6 @@ class PlusSettingsTest {
     }
 
     @Test
-    fun aRefundGoesThroughTheGateToPlay() {
-        show(PlusStatus.Ends())
-        compose.onNodeWithText("Request a refund").performClick()
-        assertTrue(links.isEmpty())
-        answerTheGate()
-        assertEquals(listOf(PlusLinks.PLAY_REFUNDS), links)
-    }
-
-    @Test
     fun leavingTheGateDoesNothing() {
         show(PlusStatus.Renews())
         compose.onNodeWithText("Manage subscription").performClick()

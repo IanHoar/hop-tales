@@ -24,11 +24,12 @@ import com.hoptales.android.design.Glyphs
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
 import com.hoptales.android.design.PaperButton
+import com.hoptales.android.design.PaperQuietButton
 import com.hoptales.android.design.paperField
 import com.hoptales.content.PlusLinks
 import com.hoptales.content.PlusStatus
 
-enum class PlusRequest { SUBSCRIBE, MANAGE, REFUND }
+enum class PlusRequest { SUBSCRIBE, MANAGE }
 
 @Composable
 fun SettingsSheet(
@@ -56,7 +57,6 @@ fun SettingsSheet(
                     when (request) {
                         PlusRequest.SUBSCRIBE -> paying = true
                         PlusRequest.MANAGE -> openLink(PlusLinks.playSubscriptions(packageName))
-                        PlusRequest.REFUND -> openLink(PlusLinks.PLAY_REFUNDS)
                     }
                 },
                 onClose = { asking = null },
@@ -73,18 +73,18 @@ fun SettingsSheet(
 
 @Composable
 fun PlusRow(state: SettingsState, onPlus: (PlusRequest) -> Unit) {
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .paperField()
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
-    ) {
-        if (state.plusStatus.canSubscribe) {
+    if (state.plusStatus.canSubscribe) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .paperField()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
             PlusUpsell { onPlus(PlusRequest.SUBSCRIBE) }
-        } else {
-            PlusMembership(state.plusStatus, onPlus)
         }
+    } else {
+        PlusMembership(state.plusStatus, onPlus)
     }
 }
 
@@ -113,12 +113,13 @@ private fun PlusUpsell(unlock: () -> Unit) {
 private fun PlusMembership(status: PlusStatus, onPlus: (PlusRequest) -> Unit) {
     val paper = LocalPaper.current
     val type = LocalTypography.current
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(status.line(), style = type.display(20.sp), color = paper.ink)
-        status.detail?.let { Text(it, style = type.ui(15.sp, FontWeight.Medium), color = paper.muted) }
-    }
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        ActionChip("Manage subscription", Glyphs.share) { onPlus(PlusRequest.MANAGE) }
-        if (status.canRequestRefund) ActionChip("Request a refund", Glyphs.uturnBackward) { onPlus(PlusRequest.REFUND) }
+    Column(
+        Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        PaperQuietButton("Manage subscription", icon = Glyphs.share) { onPlus(PlusRequest.MANAGE) }
+        Text(status.line(), style = type.ui(14.sp, FontWeight.SemiBold), color = paper.muted, textAlign = TextAlign.Center)
+        status.detail?.let { Text(it, style = type.ui(14.sp, FontWeight.Medium), color = paper.muted, textAlign = TextAlign.Center) }
     }
 }
