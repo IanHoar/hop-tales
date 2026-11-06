@@ -156,10 +156,8 @@ public struct PaywallScreen: View {
         .accessibilityHidden(true)
       content
       if store.isSubscribed {
-        GeometryReader { proxy in
-          PaperConfetti(size: proxy.size, delay: 0.2)
-        }
-        .ignoresSafeArea()
+        ConfettiCannon(delay: 0.15)
+          .ignoresSafeArea()
       }
     }
     .animation(.easeInOut(duration: 0.35), value: store.isSubscribed)
