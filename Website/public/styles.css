@@ -1405,10 +1405,6 @@ p {
   color: var(--muted-text);
 }
 
-.rewards {
-  margin-top: 60px;
-}
-
 @media (max-width: 860px) {
   .friends {
     padding: 80px 0;
