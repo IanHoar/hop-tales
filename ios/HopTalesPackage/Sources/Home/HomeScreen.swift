@@ -310,6 +310,9 @@ public struct HomeScreen: View {
     let journey = store.progress.journey
     return VStack(spacing: 14) {
       friend
+        .overlay(alignment: .bottomTrailing) {
+          if !standsAside { waitingFriend }
+        }
         .opacity(standsAside ? 0 : 1)
         .accessibilityHidden(standsAside)
       LevelChip(journey: journey) { store.send(.journeyTapped) }
@@ -349,9 +352,7 @@ public struct HomeScreen: View {
 
   private func sheet(bottomInset: CGFloat) -> some View {
     VStack(alignment: .leading, spacing: 12) {
-      if let keepGoing = store.keepGoing {
-        KeepGoingCard(standing: keepGoing) { store.send(.storyTapped(keepGoing.story)) }
-      }
+      nextCard
       stickerButtons
       Text("More stories")
         .font(Typography.display(20))

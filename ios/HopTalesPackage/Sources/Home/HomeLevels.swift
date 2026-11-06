@@ -20,6 +20,10 @@ extension Home.State {
     return story
   }
 
+  var newFriend: Friend? {
+    bigStoryWaiting == nil ? nil : progress.journey.nextFriend
+  }
+
   var nextLevels: [Friend] {
     let locked = lockedLevels
     return locked.isEmpty ? Plus.levels(above: progress.journey.level) : locked
