@@ -216,6 +216,11 @@
             "big": false
           },
           {
+            "text": "golden",
+            "homophones": [],
+            "big": true
+          },
+          {
             "text": "sun",
             "homophones": [
               "son"
@@ -223,35 +228,73 @@
             "big": false
           },
           {
-            "text": "is",
+            "text": "sets",
             "homophones": [],
             "big": false
           },
           {
-            "text": "big",
+            "text": "on",
             "homophones": [],
             "big": false
           },
           {
-            "text": "and",
+            "text": "the",
             "homophones": [],
             "big": false
           },
           {
-            "text": "red",
-            "homophones": [
-              "read"
-            ],
+            "text": "hill",
+            "homophones": [],
             "big": false,
             "trailing": "."
           }
         ]
       },
       {
-        "newWord": "pond",
+        "newWord": null,
         "words": [
           {
             "text": "Skip",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "hops",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "back",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "to",
+            "homophones": [
+              "two",
+              "too"
+            ],
+            "big": false
+          },
+          {
+            "text": "his",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "den",
+            "homophones": [],
+            "big": false,
+            "trailing": "."
+          }
+        ],
+        "sky": "golden"
+      },
+      {
+        "newWord": "pond",
+        "words": [
+          {
+            "text": "He",
             "homophones": [],
             "big": false
           },
@@ -271,20 +314,12 @@
             "big": false
           },
           {
-            "text": "blue",
-            "homophones": [
-              "blew"
-            ],
-            "big": false
-          },
-          {
             "text": "pond",
             "homophones": [],
             "big": false,
             "trailing": "."
           }
         ],
-        "sky": "golden",
         "events": [
           {
             "prop": "dragonfly",
@@ -293,53 +328,8 @@
         ]
       },
       {
-        "newWord": null,
-        "words": [
-          {
-            "text": "He",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "stops",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "to",
-            "homophones": [
-              "two",
-              "too"
-            ],
-            "big": false
-          },
-          {
-            "text": "sniff",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "the",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "herbs",
-            "homophones": [],
-            "big": true,
-            "trailing": "."
-          }
-        ]
-      },
-      {
         "newWord": "thrush",
         "words": [
-          {
-            "text": "Look",
-            "homophones": [],
-            "big": false,
-            "trailing": "!"
-          },
           {
             "text": "A",
             "homophones": [],
@@ -356,7 +346,7 @@
             "big": false
           },
           {
-            "text": "on",
+            "text": "him",
             "homophones": [],
             "big": false
           },
@@ -366,7 +356,7 @@
             "big": false
           },
           {
-            "text": "stump",
+            "text": "song",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -376,7 +366,7 @@
           {
             "prop": "thrush",
             "count": 1,
-            "after": 2
+            "after": 1
           }
         ]
       },
@@ -414,16 +404,10 @@
             "big": false
           },
           {
-            "text": "yellow",
+            "text": "still",
             "homophones": [],
             "big": false,
             "trailing": "."
-          }
-        ],
-        "events": [
-          {
-            "prop": "butterfly",
-            "count": 1
           }
         ]
       },
@@ -431,32 +415,41 @@
         "newWord": null,
         "words": [
           {
+            "text": "At",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "last",
+            "homophones": [],
+            "big": false,
+            "trailing": ","
+          },
+          {
             "text": "Skip",
             "homophones": [],
             "big": false
           },
           {
-            "text": "hops",
+            "text": "gets",
             "homophones": [],
             "big": false
           },
           {
-            "text": "on",
+            "text": "to",
+            "homophones": [
+              "two",
+              "too"
+            ],
+            "big": false
+          },
+          {
+            "text": "his",
             "homophones": [],
             "big": false
           },
           {
-            "text": "up",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "the",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "path",
+            "text": "den",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -500,7 +493,7 @@
             "big": false
           },
           {
-            "text": "up",
+            "text": "over",
             "homophones": [],
             "big": false
           },
@@ -510,7 +503,7 @@
             "big": false
           },
           {
-            "text": "hill",
+            "text": "hills",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -615,37 +608,33 @@
             "big": false
           },
           {
-            "text": "hides",
+            "text": "does",
             "homophones": [],
             "big": false
           },
           {
-            "text": "under",
+            "text": "not",
             "homophones": [],
             "big": false
           },
           {
-            "text": "a",
+            "text": "mind",
             "homophones": [],
             "big": false
           },
           {
-            "text": "big",
+            "text": "the",
             "homophones": [],
             "big": false
           },
           {
-            "text": "log",
-            "homophones": [],
-            "big": false,
+            "text": "rain",
+            "homophones": [
+              "reign",
+              "rein"
+            ],
+            "big": true,
             "trailing": "."
-          }
-        ],
-        "events": [
-          {
-            "prop": "log",
-            "count": 1,
-            "after": 5
           }
         ]
       },
@@ -722,7 +711,7 @@
             "trailing": ","
           },
           {
-            "text": "so",
+            "text": "and",
             "homophones": [],
             "big": false
           },
@@ -737,7 +726,7 @@
             "big": false
           },
           {
-            "text": "out",
+            "text": "on",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -806,12 +795,7 @@
             "big": false
           },
           {
-            "text": "must",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "hop",
+            "text": "hops",
             "homophones": [],
             "big": false
           },
@@ -821,7 +805,7 @@
             "big": false
           },
           {
-            "text": "up",
+            "text": "down",
             "homophones": [],
             "big": false
           },
@@ -980,9 +964,9 @@
             "big": false
           },
           {
-            "text": "pine",
+            "text": "tree",
             "homophones": [],
-            "big": false,
+            "big": true,
             "trailing": "."
           }
         ],
@@ -994,8 +978,7 @@
           },
           {
             "prop": "pine",
-            "count": 1,
-            "after": 7
+            "count": 1
           }
         ]
       },
@@ -1023,7 +1006,48 @@
             "trailing": "!\u201d"
           },
           {
-            "text": "she",
+            "text": "says",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "the",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "owl",
+            "homophones": [],
+            "big": true,
+            "trailing": "."
+          }
+        ]
+      },
+      {
+        "newWord": null,
+        "words": [
+          {
+            "text": "Good",
+            "homophones": [],
+            "big": false,
+            "leading": "\u201c"
+          },
+          {
+            "text": "night",
+            "homophones": [
+              "knight"
+            ],
+            "big": true,
+            "trailing": ","
+          },
+          {
+            "text": "Owl",
+            "homophones": [],
+            "big": true,
+            "trailing": "!\u201d"
+          },
+          {
+            "text": "Oggy",
             "homophones": [],
             "big": false
           },
@@ -1033,62 +1057,7 @@
             "big": false
           },
           {
-            "text": "to",
-            "homophones": [
-              "two",
-              "too"
-            ],
-            "big": false
-          },
-          {
-            "text": "him",
-            "homophones": [],
-            "big": false,
-            "trailing": "."
-          }
-        ]
-      },
-      {
-        "newWord": null,
-        "words": [
-          {
-            "text": "Oggy",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "is",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "tired",
-            "homophones": [],
-            "big": true,
-            "trailing": ","
-          },
-          {
-            "text": "and",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "he",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "naps",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "at",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "home",
+            "text": "back",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -1465,11 +1434,6 @@
             "big": false
           },
           {
-            "text": "little",
-            "homophones": [],
-            "big": false
-          },
-          {
             "text": "hen",
             "homophones": [],
             "big": false
@@ -1480,8 +1444,11 @@
             "big": false
           },
           {
-            "text": "up",
-            "homophones": [],
+            "text": "by",
+            "homophones": [
+              "buy",
+              "bye"
+            ],
             "big": false,
             "trailing": "."
           }
@@ -1490,7 +1457,7 @@
           {
             "prop": "hen",
             "count": 1,
-            "after": 2
+            "after": 1
           }
         ]
       },
@@ -1515,12 +1482,12 @@
             "trailing": "!\u201d"
           },
           {
-            "text": "she",
+            "text": "says",
             "homophones": [],
-            "big": false
+            "big": true
           },
           {
-            "text": "said",
+            "text": "Hen",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -1531,27 +1498,27 @@
         "newWord": null,
         "words": [
           {
-            "text": "Hush",
+            "text": "Shh",
             "homophones": [],
             "big": true,
             "leading": "\u201c",
             "trailing": "!"
           },
           {
-            "text": "Not",
+            "text": "Nap",
             "homophones": [],
             "big": false
           },
           {
-            "text": "now",
+            "text": "time",
             "homophones": [],
             "big": true,
             "trailing": "!\u201d"
           },
           {
-            "text": "said",
+            "text": "says",
             "homophones": [],
-            "big": false
+            "big": true
           },
           {
             "text": "Bob",
@@ -1756,42 +1723,25 @@
         "newWord": null,
         "words": [
           {
-            "text": "Come",
+            "text": "Bath",
             "homophones": [],
-            "big": false,
+            "big": true,
             "leading": "\u201c"
           },
           {
-            "text": "here",
-            "homophones": [
-              "hear"
-            ],
-            "big": false,
+            "text": "time",
+            "homophones": [],
+            "big": true,
             "trailing": ","
           },
           {
             "text": "Bob",
             "homophones": [],
             "big": false,
-            "trailing": "!"
-          },
-          {
-            "text": "Bath",
-            "homophones": [],
-            "big": true
-          },
-          {
-            "text": "time",
-            "homophones": [],
-            "big": true,
             "trailing": "!\u201d"
           }
         ],
         "events": [
-          {
-            "prop": "mum",
-            "count": 1
-          },
           {
             "prop": "bubbles",
             "count": 1
@@ -2186,14 +2136,9 @@
             "big": false
           },
           {
-            "text": "black",
+            "text": "dirt",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "mud",
-            "homophones": [],
-            "big": false,
+            "big": true,
             "trailing": "."
           }
         ],
@@ -2213,7 +2158,7 @@
             "big": false
           },
           {
-            "text": "gets",
+            "text": "finds",
             "homophones": [],
             "big": false
           },
@@ -2249,17 +2194,17 @@
             "big": false
           },
           {
-            "text": "brings",
+            "text": "finds",
             "homophones": [],
             "big": false
           },
           {
-            "text": "it",
+            "text": "a",
             "homophones": [],
             "big": false
           },
           {
-            "text": "down",
+            "text": "spot",
             "homophones": [],
             "big": false
           },
@@ -2272,12 +2217,12 @@
             "big": false
           },
           {
-            "text": "his",
+            "text": "eat",
             "homophones": [],
-            "big": false
+            "big": true
           },
           {
-            "text": "den",
+            "text": "it",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -2322,7 +2267,12 @@
             "big": false
           },
           {
-            "text": "fresh",
+            "text": "so",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "good",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -2338,6 +2288,11 @@
       {
         "newWord": null,
         "words": [
+          {
+            "text": "Now",
+            "homophones": [],
+            "big": true
+          },
           {
             "text": "Skip",
             "homophones": [],
@@ -2394,29 +2349,24 @@
             "big": false
           },
           {
-            "text": "and",
+            "text": "sits",
             "homophones": [],
             "big": false
           },
           {
-            "text": "the",
+            "text": "with",
             "homophones": [],
             "big": false
           },
           {
-            "text": "thrush",
+            "text": "a",
             "homophones": [],
             "big": false
           },
           {
-            "text": "sit",
+            "text": "bird",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "still",
-            "homophones": [],
-            "big": false,
+            "big": true,
             "trailing": "."
           }
         ],
@@ -2424,7 +2374,7 @@
           {
             "prop": "thrush",
             "count": 1,
-            "after": 3
+            "after": 4
           }
         ]
       },
@@ -2511,9 +2461,9 @@
             "big": false
           },
           {
-            "text": "thrush",
+            "text": "bird",
             "homophones": [],
-            "big": false
+            "big": true
           },
           {
             "text": "sings",
@@ -2552,14 +2502,9 @@
             "big": false
           },
           {
-            "text": "and",
+            "text": "along",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "thumps",
-            "homophones": [],
-            "big": false
+            "big": true
           },
           {
             "text": "to",
@@ -2586,39 +2531,29 @@
         "newWord": null,
         "words": [
           {
-            "text": "A",
+            "text": "The",
             "homophones": [],
             "big": false
           },
           {
-            "text": "moth",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "flaps",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "past",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "in",
+            "text": "sun",
             "homophones": [
-              "inn"
+              "son"
             ],
             "big": false
           },
           {
-            "text": "the",
+            "text": "is",
             "homophones": [],
             "big": false
           },
           {
-            "text": "dusk",
+            "text": "almost",
+            "homophones": [],
+            "big": true
+          },
+          {
+            "text": "down",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -2627,19 +2562,13 @@
         "events": [
           {
             "prop": "moth",
-            "count": 1,
-            "after": 1
+            "count": 1
           }
         ]
       },
       {
         "newWord": null,
         "words": [
-          {
-            "text": "Then",
-            "homophones": [],
-            "big": false
-          },
           {
             "text": "Skip",
             "homophones": [],
@@ -2656,9 +2585,9 @@
             "big": false
           },
           {
-            "text": "thrush",
+            "text": "bird",
             "homophones": [],
-            "big": false
+            "big": true
           },
           {
             "text": "go",
@@ -2666,9 +2595,17 @@
             "big": false
           },
           {
-            "text": "home",
+            "text": "to",
+            "homophones": [
+              "two",
+              "too"
+            ],
+            "big": false
+          },
+          {
+            "text": "bed",
             "homophones": [],
-            "big": true,
+            "big": false,
             "trailing": "."
           }
         ]
@@ -2829,32 +2766,35 @@
             "text": "rocks",
             "homophones": [],
             "big": false,
+            "trailing": ","
+          },
+          {
+            "text": "but",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "Skip",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "hangs",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "on",
+            "homophones": [],
+            "big": false,
             "trailing": "."
-          },
-          {
-            "text": "Splash",
-            "homophones": [],
-            "big": false,
-            "trailing": ","
-          },
-          {
-            "text": "splash",
-            "homophones": [],
-            "big": false,
-            "trailing": ","
-          },
-          {
-            "text": "splash",
-            "homophones": [],
-            "big": false,
-            "trailing": "!"
           }
         ],
         "events": [
           {
             "prop": "splash",
             "count": 1,
-            "after": 3
+            "after": 2
           }
         ]
       },
@@ -2862,25 +2802,24 @@
         "newWord": null,
         "words": [
           {
-            "text": "Help",
+            "text": "This",
             "homophones": [],
             "big": false,
-            "leading": "\u201c",
-            "trailing": "!"
+            "leading": "\u201c"
           },
           {
-            "text": "Help",
+            "text": "is",
             "homophones": [],
             "big": false
           },
           {
-            "text": "me",
+            "text": "fun",
             "homophones": [],
             "big": false,
             "trailing": "!\u201d"
           },
           {
-            "text": "yells",
+            "text": "says",
             "homophones": [],
             "big": false
           },
@@ -3032,14 +2971,9 @@
             "big": false
           },
           {
-            "text": "and",
+            "text": "high",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "up",
-            "homophones": [],
-            "big": false,
+            "big": true,
             "trailing": "."
           }
         ],
@@ -3225,7 +3159,7 @@
             "big": false
           },
           {
-            "text": "ribbon",
+            "text": "string",
             "homophones": [],
             "big": true,
             "trailing": "."
@@ -3236,12 +3170,30 @@
         "newWord": null,
         "words": [
           {
-            "text": "He",
+            "text": "Now",
             "homophones": [],
             "big": false
           },
           {
-            "text": "hops",
+            "text": "Oggy",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "gets",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "to",
+            "homophones": [
+              "two",
+              "too"
+            ],
+            "big": false
+          },
+          {
+            "text": "run",
             "homophones": [],
             "big": false
           },
@@ -3259,30 +3211,14 @@
             "text": "kite",
             "homophones": [],
             "big": false,
-            "trailing": ","
-          },
-          {
-            "text": "and",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "it",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "rises",
-            "homophones": [],
-            "big": false,
-            "trailing": "."
+            "trailing": "!"
           }
         ],
         "events": [
           {
             "prop": "kite",
             "count": 1,
-            "after": 4
+            "after": 7
           }
         ]
       }
@@ -3308,20 +3244,20 @@
             "big": false
           },
           {
-            "text": "wants",
+            "text": "looks",
             "homophones": [],
+            "big": true
+          },
+          {
+            "text": "for",
+            "homophones": [
+              "four"
+            ],
             "big": false
           },
           {
             "text": "a",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "new",
-            "homophones": [
-              "knew"
-            ],
             "big": false
           },
           {
@@ -3359,9 +3295,9 @@
             "big": false
           },
           {
-            "text": "hops",
+            "text": "looks",
             "homophones": [],
-            "big": false
+            "big": true
           },
           {
             "text": "in",
@@ -3396,7 +3332,7 @@
             "big": false
           },
           {
-            "text": "stone",
+            "text": "rock",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -3414,7 +3350,12 @@
         "newWord": null,
         "words": [
           {
-            "text": "The",
+            "text": "But",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "the",
             "homophones": [],
             "big": false
           },
@@ -3439,17 +3380,7 @@
             "big": false
           },
           {
-            "text": "damp",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "and",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "dark",
+            "text": "deep",
             "homophones": [],
             "big": true,
             "trailing": "."
@@ -3460,17 +3391,7 @@
         "newWord": null,
         "words": [
           {
-            "text": "He",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "sits",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "on",
+            "text": "Under",
             "homophones": [],
             "big": false
           },
@@ -3480,15 +3401,10 @@
             "big": false
           },
           {
-            "text": "stick",
+            "text": "log",
             "homophones": [],
             "big": false,
             "trailing": ","
-          },
-          {
-            "text": "but",
-            "homophones": [],
-            "big": false
           },
           {
             "text": "it",
@@ -3496,9 +3412,22 @@
             "big": false
           },
           {
-            "text": "bends",
+            "text": "is",
             "homophones": [],
-            "big": false,
+            "big": false
+          },
+          {
+            "text": "too",
+            "homophones": [
+              "two",
+              "to"
+            ],
+            "big": false
+          },
+          {
+            "text": "dark",
+            "homophones": [],
+            "big": true,
             "trailing": "."
           }
         ],
@@ -3632,31 +3561,35 @@
         "newWord": null,
         "words": [
           {
-            "text": "Four",
+            "text": "Oggy",
             "homophones": [],
             "big": false
           },
           {
-            "text": "frogs",
+            "text": "and",
             "homophones": [],
             "big": false
           },
           {
-            "text": "want",
+            "text": "his",
             "homophones": [],
             "big": false
           },
           {
-            "text": "to",
+            "text": "pals",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "are",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "in",
             "homophones": [
-              "two",
-              "too"
+              "inn"
             ],
-            "big": false
-          },
-          {
-            "text": "have",
-            "homophones": [],
             "big": false
           },
           {
@@ -3674,8 +3607,7 @@
         "events": [
           {
             "prop": "frog",
-            "count": 3,
-            "after": 1
+            "count": 3
           }
         ]
       },
@@ -3794,22 +3726,12 @@
             "big": false
           },
           {
-            "text": "gets",
+            "text": "swims",
             "homophones": [],
             "big": false
           },
           {
-            "text": "up",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "and",
-            "homophones": [],
-            "big": false
-          },
-          {
-            "text": "hops",
+            "text": "fast",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -3825,33 +3747,37 @@
             "big": false
           },
           {
-            "text": "is",
+            "text": "pops",
             "homophones": [],
             "big": false
           },
           {
-            "text": "last",
-            "homophones": [],
-            "big": false,
-            "trailing": ","
-          },
-          {
-            "text": "but",
+            "text": "out",
             "homophones": [],
             "big": false
           },
           {
-            "text": "he",
+            "text": "and",
             "homophones": [],
             "big": false
           },
           {
-            "text": "still",
+            "text": "hops",
             "homophones": [],
             "big": false
           },
           {
-            "text": "smiles",
+            "text": "on",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "and",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "on",
             "homophones": [],
             "big": false,
             "trailing": "."
@@ -3868,30 +3794,12 @@
         "newWord": null,
         "words": [
           {
-            "text": "You",
-            "homophones": [],
-            "big": false,
-            "leading": "\u201c"
-          },
-          {
-            "text": "did",
+            "text": "Oggy",
             "homophones": [],
             "big": false
           },
           {
-            "text": "well",
-            "homophones": [],
-            "big": false,
-            "trailing": ","
-          },
-          {
-            "text": "Oggy",
-            "homophones": [],
-            "big": false,
-            "trailing": "!\u201d"
-          },
-          {
-            "text": "say",
+            "text": "wins",
             "homophones": [],
             "big": false
           },
@@ -3901,15 +3809,27 @@
             "big": false
           },
           {
-            "text": "other",
+            "text": "race",
+            "homophones": [],
+            "big": false,
+            "trailing": "!"
+          },
+          {
+            "text": "Good",
             "homophones": [],
             "big": false
           },
           {
-            "text": "frogs",
+            "text": "job",
             "homophones": [],
             "big": false,
-            "trailing": "."
+            "trailing": ","
+          },
+          {
+            "text": "Oggy",
+            "homophones": [],
+            "big": false,
+            "trailing": "!"
           }
         ]
       }

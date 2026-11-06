@@ -41,29 +41,29 @@ Bob and the bug run.
 [bee] But the bug wins!
 
 == golden-hour | Golden Hour | level 2 | day clouds
-The sun is big and red.
-[golden dragonfly] Skip hops past the blue ^pond.
-He stops to sniff the *herbs*.
-[thrush@thrush] Look! A ^thrush sings on a stump.
-[butterfly] The long grass is soft and yellow.
-Skip hops on up the path.
+The *golden* sun sets on the hill.
+[golden] Skip hops back to his den.
+[dragonfly] He hops past the ^pond.
+[thrush@thrush] A ^thrush sings him a song.
+The long grass is soft and still.
+At last, Skip gets to his den.
 
 == storm-on-the-hill | Storm on the Hill | level 3 | day clouds
-Big black *clouds* drift up the hill.
+Big black *clouds* drift over the hills.
 [storm] Now the wind shakes all the long grass.
 [rain] Big wet ^drops splash on the grass.
-[log@log] Oggy hides under a big log.
+Oggy does not mind the *rain*.
 [clouds] Soon, the wind and *rain* are gone.
-[clear] The sun is out, so Oggy hops out.
+[clear] The sun is out, and Oggy hops on.
 
 == moonlight-hop | Moonlight Hop | level 3 | golden clear
 [dusk] The sun sets on the hills.
-[hedgehog] Oggy must hop home up the ^lane.
+[hedgehog] Oggy hops home down the ^lane.
 [night] One by one, the *stars* come out.
 The *moon* is up, and it is white.
-[owl@owl pine@pine] A big brown *owl* sits on a pine.
-“Good *night*, Oggy!” she says to him.
-Oggy is *tired*, and he naps at home.
+[owl@owl pine] A big brown *owl* sits on a *tree*.
+“Good *night*, Oggy!” says the *owl*.
+“Good *night*, *Owl*!” Oggy says back.
 
 # Level 1 · Bob · single letters, short vowels, no blends · 3 to 5 words
 
@@ -92,9 +92,9 @@ One, two, three, hop!
 #   6. The hen runs away, and the sky dims to dusk.
 “Nap *time*!” said Bob.
 [butterfly bed@bed:thought] He hops to his bed.
-[hen@hen] A little hen runs up.
-“Come and play!” she said.
-“*Hush*! Not *now*!” said Bob.
+[hen@hen] A hen runs by.
+“Come and play!” *says* Hen.
+“*Shh*! Nap *time*!” *says* Bob.
 [dusk] The hen runs away.
 Bob naps in his bed.
 
@@ -102,14 +102,14 @@ Bob naps in his bed.
 # Scene direction:
 #   Opens in the rain.
 #   3. A big mud puddle lies on the path as Bob hops through the mud.
-#   5. Mum comes in, with bubbles, calling Bob for his bath. A bucket and a bar of soap stand in
-#      front of the path, and Bob runs behind them.
+#   5. Bubbles drift in for Bob's bath. A bucket and a bar of soap stand in front of the path,
+#      and Bob runs behind them.
 #   6. The sun comes out after the bath.
 *Drip*, *drip*, *drop*!
 Lots and lots of mud!
 [puddle@mud] Bob hops in the mud.
 Oh no, Bob!
-[mum bubbles bucket soap] “Come here, Bob! *Bath* *time*!”
+[bubbles bucket soap] “*Bath* *time*, Bob!”
 [clear] No mud on Bob!
 
 # Level 2 · Skip · sh ch th ck ng nk, ll ss ff, blends · 5 to 7 words
@@ -124,55 +124,55 @@ Splash! That is a big splash!
 
 == crunchy-carrot | The Crunchy Carrot | level 2 | day clouds | stretch
 Skip wants to find a *carrot*.
-[worm] He digs in the soft black mud.
-He gets a big fat *carrot*.
-[butterfly] He brings it down to his den.
-[bee] Crunch, crunch, crunch! It is fresh.
-Skip is full, so he naps.
+[worm] He digs in the soft *dirt*.
+He finds a big fat *carrot*.
+[butterfly] He finds a spot to *eat* it.
+[bee] Crunch, crunch, crunch! It is so good.
+*Now* Skip is full, so he naps.
 
 == chat-on-the-hill | Chat on the Hill | level 2 | golden clear | stretch
-[thrush@thrush] Skip and the thrush sit still.
+[thrush@bird] Skip sits with a *bird*.
 [dusk] They chat as the sun sets.
 “Sing for me!” says Skip.
-The thrush sings a *splendid* song.
-Skip thumps and thumps to the song.
-[moth@moth] A moth flaps past in the dusk.
-Then Skip and the thrush go *home*.
+The *bird* sings a *splendid* song.
+Skip thumps *along* to the song.
+[moth] The sun is *almost* down.
+Skip and the *bird* go to bed.
 
 == skip-big-story | Skip and the Log | level 2 | day clear | big
 [dragonfly] Skip hops down to the pond.
 [log@log] A big log bobs in the pond.
 Skip steps on the log.
-[splash@splash] The log rocks. Splash, splash, splash!
-“Help! Help me!” yells Skip.
+[splash@rocks] The log rocks, but Skip hangs on.
+“This is fun!” says Skip.
 Skip jumps and lands on the bank.
 
 # Level 3 · Oggy · magic e, soft c and g · 6 to 8 words
 
 == oggy-kite | Oggy and the Kite | level 3 | day clear | stretch
 [dragonfly] Oggy the frog sits by the lake.
-[kite@kite] A pretty red kite *floats* up and up.
+[kite@kite] A pretty red kite *floats* up *high*.
 “What is that up there?” says Oggy.
 The wind takes the kite over the lake.
 It lands on a pad next to Oggy.
-Oggy hops up and grabs the *ribbon*.
-[kite@kite] He hops with the kite, and it rises.
+Oggy hops up and grabs the *string*.
+[kite@kite] Now Oggy gets to run with the kite!
 
 == home-by-the-lake | A Home by the Lake | level 3 | golden clouds | stretch
-Oggy wants a new home by the lake.
-[stone@stone] He hops in a hole by a stone.
-The hole is too damp and *dark*.
-[dragonfly] He sits on a stick, but it bends.
+Oggy *looks* for a home by the lake.
+[stone@rock] He *looks* in a hole by a rock.
+But the hole is too *deep*.
+[dragonfly] Under a log, it is too *dark*.
 [lilypad@pad] At last, he spots a wide, flat pad.
 “Yes! This will be my home,” says Oggy.
 
 == oggy-big-story | The Lily Pad Race | level 3 | day clear | big
-[frog*3@frogs] Four frogs want to have a race.
+[frog*3] Oggy and his pals are in a race.
 “Get set, go!” they all yell.
 [frog*3@frogs] The frogs jump from pad to pad.
-Oggy slips, but he gets up and hops.
-[dragonfly] Oggy is last, but he still smiles.
-“You did well, Oggy!” say the other frogs.
+Oggy slips, but he swims fast.
+[dragonfly] Oggy pops out and hops on and on.
+Oggy wins the race! Good job, Oggy!
 
 # Level 4 · Button · -s -ed -ing, two beats, ar or er ir ur · 7 to 9 words
 

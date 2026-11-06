@@ -73,7 +73,9 @@ struct JourneyTests {
   @Test func storiesFinishedBeforeTheyWereCountedStillFillThePath() {
     let stories = StoryLibrary.stories(at: 1)
     var progress = Content.Progress(
-      completedSentences: Dictionary(uniqueKeysWithValues: stories.map { ($0.id, 6) })
+      completedSentences: Dictionary(
+        uniqueKeysWithValues: stories.map { ($0.id, $0.sentences.count) }
+      )
     )
     progress.journey.storiesRead = [stories[0].id]
     progress.journey.steps = progress.journey.goal - 1

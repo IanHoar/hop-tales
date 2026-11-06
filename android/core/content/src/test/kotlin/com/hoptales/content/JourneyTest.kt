@@ -235,7 +235,7 @@ class JourneyTest {
     @Test
     fun storiesFinishedBeforeTheyWereCountedStillFillThePath() {
         val stories = library.stories(1)
-        val base = Progress(completedSentences = stories.associate { it.id to 6 })
+        val base = Progress(completedSentences = stories.associate { it.id to it.sentences.size })
         val partial = base.copy(journey = base.journey.copy(storiesRead = setOf(stories[0].id), steps = base.journey.goal(library) - 1))
         val progress = partial.creditingFinishedStories(library)
         assertEquals(stories.map { it.id }.toSet(), progress.journey.storiesRead)
