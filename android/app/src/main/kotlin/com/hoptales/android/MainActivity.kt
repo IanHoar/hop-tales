@@ -82,6 +82,10 @@ import com.hoptales.content.Plus
 import com.hoptales.content.Profile
 import com.hoptales.content.Story
 import com.hoptales.content.StoryStanding
+import com.hoptales.content.bigStoryWaiting
+import com.hoptales.content.levelStanding
+import com.hoptales.content.nextLevels
+import com.hoptales.content.plusWelcome
 import com.hoptales.content.tapping
 import com.hoptales.content.undressing
 import com.hoptales.onboarding.OnboardingState
@@ -302,7 +306,9 @@ private fun Destination(app: HopTalesApplication) {
                         covered = overlay != null,
                         isLocked = isLocked,
                         onLockedStory = { sheet = Sheet.locked(it) },
-                        lockedLevels = Plus.lockedLevels(friend.level, app.library, isPlus, BuildConfig.PLUS_LOCKS_STORIES),
+                        nextLevels = progress.nextLevels(app.library, isPlus, BuildConfig.PLUS_LOCKS_STORIES),
+                        levelStanding = { progress.levelStanding(it, app.library, isPlus, BuildConfig.PLUS_LOCKS_STORIES) },
+                        bigStoryWaiting = progress.bigStoryWaiting(app.library, isPlus, BuildConfig.PLUS_LOCKS_STORIES),
                         onLockedLevel = { sheet = Sheet.LOCKED_LEVEL },
                     )
                 }
@@ -312,7 +318,15 @@ private fun Destination(app: HopTalesApplication) {
             when {
                 target == Sheet.SETTINGS -> SettingsScreen(key = "settings-$visit", onDone = { isShowingSettings = false })
 
-                target == Sheet.LOCKED_LEVEL -> LockedLevelScreen(app.plus, onDone = { sheet = null })
+                target == Sheet.LOCKED_LEVEL -> LockedLevelScreen(
+                    app.plus,
+                    onDone = { sheet = null },
+                    welcome = progress.plusWelcome(app.library),
+                    onRead = {
+                        sheet = null
+                        storyID = it.id
+                    },
+                )
 
                 target == Sheet.JOURNEY -> JourneyMapScreen(
                     library = app.library,
@@ -336,7 +350,15 @@ private fun Destination(app: HopTalesApplication) {
                 target.startsWith(Sheet.LOCKED) -> {
                     val locked = app.library[target.removePrefix(Sheet.LOCKED)]
                     if (locked != null) {
-                        LockedStoryScreen(StoryStanding.of(locked, progress), app.plus, onDone = { sheet = null })
+                        LockedStoryScreen(
+                            StoryStanding.of(locked, progress),
+                            app.plus,
+                            onDone = { sheet = null },
+                            onRead = {
+                                sheet = null
+                                storyID = it.id
+                            },
+                        )
                     }
                 }
 

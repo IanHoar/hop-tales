@@ -96,6 +96,7 @@ import com.hoptales.android.world.Sticker
 import com.hoptales.android.world.WearSticker
 import com.hoptales.content.Friend
 import com.hoptales.content.Journey
+import com.hoptales.content.LevelStanding
 import com.hoptales.content.Progress
 import com.hoptales.content.Story
 import com.hoptales.content.StoryLibrary
@@ -127,7 +128,9 @@ fun HomeScreen(
     covered: Boolean = false,
     isLocked: (Story) -> Boolean = { false },
     onLockedStory: (Story) -> Unit = {},
-    lockedLevels: List<Friend> = emptyList(),
+    nextLevels: List<Friend> = emptyList(),
+    levelStanding: (Friend) -> LevelStanding = { LevelStanding.Ahead },
+    bigStoryWaiting: Story? = null,
     onLockedLevel: (Friend) -> Unit = {},
 ) {
     val paper = LocalPaper.current
@@ -137,6 +140,7 @@ fun HomeScreen(
     val friend = progress.journey.activeFriend
     val standings = progress.shelf(library)
     val keepGoing = standings.filterNot { isLocked(it.story) }.keepGoing(friend.startingStoryID(library))
+        ?: bigStoryWaiting?.let { StoryStanding.of(it, progress) }
     val outfit = progress.outfit(friend, wardrobe)
     BoxWithConstraints(Modifier.fillMaxSize().background(paper.page)) {
         val fullHeight = maxHeight
@@ -235,14 +239,23 @@ fun HomeScreen(
                         val locked = isLocked(standing.story)
                         StoryRow(standing, locked) { if (locked) onLockedStory(standing.story) else onStory(standing.story) }
                     }
-                    if (lockedLevels.isNotEmpty()) {
+                    if (nextLevels.isNotEmpty()) {
                         Text(
                             "Next levels",
                             style = LocalTypography.current.display(20.sp),
                             color = paper.ink,
                             modifier = Modifier.padding(top = 6.dp).semantics { heading() },
                         )
-                        for (level in lockedLevels) LockedLevelRow(level) { onLockedLevel(level) }
+                        for (level in nextLevels) {
+                            val standing = levelStanding(level)
+                            LevelRow(level, standing) {
+                                when (standing) {
+                                    LevelStanding.Locked -> onLockedLevel(level)
+                                    is LevelStanding.Ready -> onStory(standing.story)
+                                    LevelStanding.Ahead -> Unit
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -359,6 +372,8 @@ private fun LevelChip(library: StoryLibrary, journey: Journey, onClick: () -> Un
     val next = journey.nextFriend
     val title = if (next == null) {
         "Level ${journey.level} · ${journey.activeFriend.friendName}"
+    } else if (journey.isPathFull(library)) {
+        "Level ${journey.level} · ${next.friendName}'s big story is ready"
     } else {
         "Level ${journey.level} · ${journey.steps.toInt()} of ${journey.goal(library).toInt()} to ${next.friendName}"
     }
@@ -487,16 +502,21 @@ private fun KeepGoingCard(standing: StoryStanding, onClick: () -> Unit) {
             Text(meta, style = type.ui(13.sp, FontWeight.Medium), color = paper.muted)
         }
         Box(Modifier.size(46.dp).paperChip(CircleShape, fill = paper.red), contentAlignment = Alignment.Center) {
-            Canvas(Modifier.size(16.dp)) {
-                val play = Path().apply {
-                    moveTo(size.width * 0.15f, 0f)
-                    lineTo(size.width, size.height / 2)
-                    lineTo(size.width * 0.15f, size.height)
-                    close()
-                }
-                drawPath(play, paper.onRed)
-            }
+            PlayGlyph(paper.onRed, Modifier.size(16.dp))
         }
+    }
+}
+
+@Composable
+private fun PlayGlyph(colour: Color, modifier: Modifier) {
+    Canvas(modifier) {
+        val play = Path().apply {
+            moveTo(size.width * 0.15f, 0f)
+            lineTo(size.width, size.height / 2)
+            lineTo(size.width * 0.15f, size.height)
+            close()
+        }
+        drawPath(play, colour)
     }
 }
 
@@ -548,37 +568,61 @@ private fun StoryRow(standing: StoryStanding, locked: Boolean, onClick: () -> Un
 }
 
 @Composable
-private fun LockedLevelRow(friend: Friend, onClick: () -> Unit) {
+private fun LevelRow(friend: Friend, standing: LevelStanding, onClick: () -> Unit) {
     val paper = LocalPaper.current
     val type = LocalTypography.current
     val shape = RoundedCornerShape(16.dp)
     val title = "Level ${friend.level} with ${friend.friendName}"
     val words = friend.examples.joinToString(", ")
+    val ready = "${friend.friendName}'s big story is ready"
+    val description = when (standing) {
+        LevelStanding.Locked -> "$title. Words like $words. Locked, part of Hop Tales Plus"
+        is LevelStanding.Ready -> "$title. $ready"
+        LevelStanding.Ahead -> "$title. Words like $words. Read your stories to get there"
+    }
     Row(
         Modifier
             .fillMaxWidth()
-            .pressable(onClick)
+            .then(if (standing == LevelStanding.Ahead) Modifier else Modifier.pressable(onClick))
             .clearAndSetSemantics {
-                contentDescription = "$title. Words like $words. Locked, part of Hop Tales Plus"
-                role = Role.Button
+                contentDescription = description
+                if (standing != LevelStanding.Ahead) role = Role.Button
             }
             .background(paper.shade, shape)
             .padding(horizontal = 10.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Box(Modifier.size(50.dp), contentAlignment = Alignment.Center) { FriendSticker(friend, 46.dp) }
+        Box(
+            Modifier.size(50.dp).alpha(if (standing == LevelStanding.Ahead) 0.6f else 1f),
+            contentAlignment = Alignment.Center,
+        ) { FriendSticker(friend, 46.dp) }
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
             Text(title, style = type.display(17.sp), color = paper.ink)
-            Text(
-                buildAnnotatedString {
-                    append("Words like ")
-                    withStyle(type.word(15.sp).toSpanStyle().copy(color = paper.ink)) { append(words) }
-                },
-                style = type.ui(13.sp, FontWeight.Medium),
-                color = paper.muted,
-            )
+            if (standing is LevelStanding.Ready) {
+                Text(ready, style = type.ui(13.sp, FontWeight.SemiBold), color = paper.redInk)
+            } else {
+                Text(
+                    buildAnnotatedString {
+                        append("Words like ")
+                        withStyle(type.word(15.sp).toSpanStyle().copy(color = paper.ink)) { append(words) }
+                    },
+                    style = type.ui(13.sp, FontWeight.Medium),
+                    color = paper.muted,
+                )
+            }
         }
-        PadlockSticker(30.dp)
+        when (standing) {
+            LevelStanding.Locked -> PadlockSticker(30.dp)
+
+            is LevelStanding.Ready -> Box(
+                Modifier.size(36.dp).paperChip(CircleShape, fill = paper.red),
+                contentAlignment = Alignment.Center,
+            ) {
+                PlayGlyph(paper.onRed, Modifier.size(13.dp))
+            }
+
+            LevelStanding.Ahead -> Unit
+        }
     }
 }

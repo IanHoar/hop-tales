@@ -102,7 +102,7 @@ import SwiftUI
           state.settings = Settings.State()
         case let .settings(.themePicked(theme)):
           state.theme = theme
-        case .home(.grownUp), .home(.locked), .home(.lockedLevelTapped), .home(.plusChanged):
+        case .home(.grownUp), .home(.locked), .home(.levelTapped), .home(.plusChanged):
           break
         case .intro:
           break

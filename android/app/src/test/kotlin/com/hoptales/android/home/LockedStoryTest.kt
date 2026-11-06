@@ -14,10 +14,12 @@ import com.hoptales.android.settings.PLACEHOLDER_MILLIS
 import com.hoptales.android.settings.ParentGateState
 import com.hoptales.content.Friend
 import com.hoptales.content.Journey
-import com.hoptales.content.Plus
 import com.hoptales.content.Progress
 import com.hoptales.content.Story
 import com.hoptales.content.StoryStanding
+import com.hoptales.content.bigStoryWaiting
+import com.hoptales.content.levelStanding
+import com.hoptales.content.nextLevels
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -129,19 +131,27 @@ class LockedStoryTest {
     }
 
     @Test
-    fun subscribingClosesTheCard() {
-        var done = 0
+    fun subscribingWelcomesThenOpensTheLockedStory() {
+        val read = mutableListOf<Story>()
         val plus = FakePlusSource()
         compose.setContent {
             HopTalesTheme {
-                LockedStoryScreen(StoryStanding.of(plusStory, Progress()), plus, onDone = { done += 1 }, step = LockedStep.PAYWALL)
+                LockedStoryScreen(
+                    StoryStanding.of(plusStory, Progress()),
+                    plus,
+                    onDone = {},
+                    onRead = { read += it },
+                    step = LockedStep.PAYWALL,
+                )
             }
         }
         compose.mainClock.advanceTimeBy(PLACEHOLDER_MILLIS)
-        compose.onNodeWithContentDescription("Yearly", substring = true).performClick()
+        compose.onNodeWithText("Subscribe").performScrollTo().performClick()
         compose.waitForIdle()
         assertTrue(plus.isPlus.value)
-        assertEquals(1, done)
+        compose.onNodeWithText("Every story is open now. Up next: ${plusStory.title}.").assertIsDisplayed()
+        compose.onNodeWithText("Read ${plusStory.title}").performClick()
+        assertEquals(listOf(plusStory), read)
     }
 
     @Test
@@ -168,7 +178,8 @@ class LockedStoryTest {
                     onStory = { read += it },
                     hour = 9,
                     isLocked = { !it.isFree },
-                    lockedLevels = Plus.lockedLevels(Friend.BUNNY.level, app.library, isPlus = false, locksStories = true),
+                    nextLevels = Progress().nextLevels(app.library, isPlus = false, locksStories = true),
+                    levelStanding = { Progress().levelStanding(it, app.library, isPlus = false, locksStories = true) },
                     onLockedLevel = { tapped += it },
                 )
             }
@@ -219,16 +230,44 @@ class LockedStoryTest {
     }
 
     @Test
-    fun subscribingFromALockedLevelClosesThePaywall() {
+    fun subscribingFromALockedLevelWelcomesThenGoesBackHome() {
         var done = 0
         val plus = FakePlusSource()
         compose.setContent {
             HopTalesTheme { LockedLevelScreen(plus, onDone = { done += 1 }, step = LockedLevelStep.PAYWALL) }
         }
         compose.mainClock.advanceTimeBy(PLACEHOLDER_MILLIS)
-        compose.onNodeWithContentDescription("Yearly", substring = true).performClick()
+        compose.onNodeWithText("Subscribe").performScrollTo().performClick()
         compose.waitForIdle()
         assertTrue(plus.isPlus.value)
+        compose.onNodeWithText("Welcome to Hop Tales Plus!").assertIsDisplayed()
+        compose.onNodeWithText("Back to stories").performClick()
         assertEquals(1, done)
+    }
+
+    @Test
+    fun plusReadersSeeTheNextFriendsBigStoryOnHome() {
+        val read = mutableListOf<Story>()
+        val stories = app.library.stories(1)
+        val base = Progress(completedSentences = stories.associate { it.id to 99 })
+        val progress = base.copy(journey = base.journey.copy(storiesRead = stories.map { it.id }.toSet()))
+        val big = app.library.bigStory(2)!!
+        compose.setContent {
+            HopTalesTheme {
+                HomeScreen(
+                    library = app.library,
+                    progress = progress,
+                    onStory = { read += it },
+                    hour = 9,
+                    nextLevels = progress.nextLevels(app.library, isPlus = true, locksStories = true),
+                    levelStanding = { progress.levelStanding(it, app.library, isPlus = true, locksStories = true) },
+                    bigStoryWaiting = progress.bigStoryWaiting(app.library, isPlus = true, locksStories = true),
+                )
+            }
+        }
+        compose.onNodeWithContentDescription("Level 3 with Oggy. Words like lake, kite, home. Read your stories to get there")
+            .assertExists()
+        compose.onNodeWithContentDescription("Level 2 with Skip. Skip's big story is ready").performScrollTo().performClick()
+        assertEquals(listOf(big), read)
     }
 }

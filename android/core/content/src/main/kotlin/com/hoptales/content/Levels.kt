@@ -27,7 +27,6 @@ class Levels(private val library: StoryLibrary) {
         const val BIG_WORD_RATE_EARLY = 1.0 / 20
         const val BIG_WORD_RATE_LATE = 1.0 / 8
         const val BIG_WORDS_BACK_OFF_HELP_RATE = 0.2
-        const val EARLY_BIG_STORY_SHARE = 0.9
 
         const val BIG_STORY_BAR = 0.85
         const val SUSTAINED_STORIES = 8

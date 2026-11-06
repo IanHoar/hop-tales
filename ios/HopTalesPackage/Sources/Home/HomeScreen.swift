@@ -53,18 +53,6 @@ extension EnvironmentValues {
       progress.newestItem(for: progress.journey.activeFriend)
     }
 
-    var keepGoing: StoryStanding? {
-      standings
-        .filter { !isLocked($0.story) }
-        .keepGoing(startingAt: progress.journey.activeFriend.startingStoryID)
-    }
-
-    public var lockedLevels: [Friend] {
-      Plus.lockedLevels(
-        above: progress.journey.activeFriend.level, isPlus: isPlus, locksStories: locksStories
-      )
-    }
-
     public func isLocked(_ story: Story) -> Bool {
       Plus.isLocked(story, isPlus: isPlus, locksStories: locksStories)
     }
@@ -90,8 +78,8 @@ extension EnvironmentValues {
     case friendsTapped
     case grownUp(GrownUpPaywall.Action)
     case journeyTapped
+    case levelTapped(Friend)
     case locked(LockedStory.Action)
-    case lockedLevelTapped(Friend)
     case plusChanged(Bool)
     case wardrobeTapped
     case storyTapped(Story)
@@ -106,12 +94,26 @@ extension EnvironmentValues {
   public var body: some Feature {
     Update { state, action in
       switch action {
-      case .lockedLevelTapped:
-        state.grownUp = GrownUpPaywall.State(seed: gateSeed.draw())
+      case let .levelTapped(friend):
+        switch state.standing(of: friend) {
+        case .locked:
+          state.grownUp = GrownUpPaywall.State(seed: gateSeed.draw(), welcome: state.plusWelcome)
+        case let .ready(story):
+          store.addTask { try store.send(.storyTapped(story)) }
+        case .ahead:
+          break
+        }
+      case .grownUp(.paywall(.readTapped)):
+        guard let story = state.grownUp?.welcome?.story else { break }
+        store.addTask { try store.send(.storyTapped(story)) }
+      case .locked(.grownUp(.paywall(.readTapped))):
+        guard let story = state.locked?.standing.story else { break }
+        state.locked = nil
+        store.addTask { try store.send(.storyTapped(story)) }
       case .plusChanged(true):
         state.isPlus = true
-        state.grownUp = nil
-        state.locked = nil
+        if state.grownUp?.paywall == nil { state.grownUp = nil }
+        if state.locked?.grownUp?.paywall == nil { state.locked = nil }
       case .plusChanged(false):
         state.isPlus = false
       case .bookTapped, .friendsTapped, .grownUp, .grownUpsTapped, .journeyTapped, .locked,
@@ -127,8 +129,6 @@ extension EnvironmentValues {
     }
     .onEvent(PlusSubscribed.self) { _, state in
       state.isPlus = true
-      state.grownUp = nil
-      state.locked = nil
     }
     .onMount { state in
       state.progress = progressStore.load()
@@ -363,14 +363,16 @@ public struct HomeScreen: View {
           store.send(.storyTapped(standing.story))
         }
       }
-      if !store.lockedLevels.isEmpty {
+      if !store.nextLevels.isEmpty {
         Text("Next levels")
           .font(Typography.display(20))
           .foregroundStyle(Paper.ink)
           .padding(.top, 6)
           .accessibilityAddTraits(.isHeader)
-        ForEach(store.lockedLevels, id: \.self) { friend in
-          LockedLevelRow(friend: friend) { store.send(.lockedLevelTapped(friend)) }
+        ForEach(store.nextLevels, id: \.self) { friend in
+          LevelRow(friend: friend, standing: store.state.standing(of: friend)) {
+            store.send(.levelTapped(friend))
+          }
         }
       }
     }

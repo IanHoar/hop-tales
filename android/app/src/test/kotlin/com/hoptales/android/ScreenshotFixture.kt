@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
 import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
 import com.github.takahirom.roborazzi.RoborazziOptions
@@ -31,6 +32,8 @@ import com.hoptales.android.reading.ReadingScreen
 import com.hoptales.android.settings.ParentGate
 import com.hoptales.android.settings.ParentGateState
 import com.hoptales.android.settings.Paywall
+import com.hoptales.android.settings.PaywallState
+import com.hoptales.android.settings.PaywallWork
 import com.hoptales.android.settings.SettingsActions
 import com.hoptales.android.settings.SettingsContent
 import com.hoptales.android.settings.SettingsState
@@ -42,14 +45,17 @@ import com.hoptales.content.Basket
 import com.hoptales.content.Friend
 import com.hoptales.content.Journey
 import com.hoptales.content.Mood
-import com.hoptales.content.Plus
 import com.hoptales.content.PlusStatus
+import com.hoptales.content.PlusWelcome
 import com.hoptales.content.Profile
 import com.hoptales.content.Progress
 import com.hoptales.content.Sky
 import com.hoptales.content.Story
 import com.hoptales.content.StoryStanding
 import com.hoptales.content.Weather
+import com.hoptales.content.bigStoryWaiting
+import com.hoptales.content.levelStanding
+import com.hoptales.content.nextLevels
 import com.hoptales.onboarding.OnboardingState
 import com.hoptales.onboarding.OnboardingStep
 import org.junit.Assert.assertEquals
@@ -193,7 +199,8 @@ abstract class ScreenshotFixture {
                     childName = "Maya",
                     hour = 9,
                     isLocked = { !it.isFree },
-                    lockedLevels = Plus.lockedLevels(Friend.BUNNY.level, app.library, isPlus = false, locksStories = true),
+                    nextLevels = Progress().nextLevels(app.library, isPlus = false, locksStories = true),
+                    levelStanding = { Progress().levelStanding(it, app.library, isPlus = false, locksStories = true) },
                 )
             }
         }
@@ -227,8 +234,47 @@ abstract class ScreenshotFixture {
         compose.setContent {
             HopTalesTheme(dark = dark) { Paywall(FakePlusSource(outcome = PurchaseOutcome.PENDING), onClose = {}, live = false) }
         }
-        compose.onNodeWithContentDescription("Yearly", substring = true).performClick()
+        compose.onNodeWithText("Subscribe").performScrollTo().performClick()
         compose.onRoot().captureRoboImage(path("paywall-pending", dark), options)
+    }
+
+    protected fun paywallWelcome(name: String, welcome: PlusWelcome?, dark: Boolean) {
+        val plus = FakePlusSource()
+        val state = PaywallState(plus).apply { subscribed = true }
+        compose.setContent {
+            HopTalesTheme(dark = dark) { Paywall(plus, onClose = {}, welcome = welcome, state = state, live = false) }
+        }
+        compose.onRoot().captureRoboImage(path(name, dark), options)
+    }
+
+    protected fun paywallSubscribing(dark: Boolean) {
+        val plus = FakePlusSource()
+        val state = PaywallState(plus).apply { working = PaywallWork.SUBSCRIBING }
+        compose.setContent {
+            HopTalesTheme(dark = dark) { Paywall(plus, onClose = {}, state = state, live = false) }
+        }
+        compose.onRoot().captureRoboImage(path("paywall-subscribing", dark), options)
+    }
+
+    protected fun homePlusBigStory(dark: Boolean) {
+        val stories = app.library.stories(1)
+        val base = Progress(stars = 40, completedSentences = stories.associate { it.id to 99 })
+        val progress = base.copy(journey = base.journey.copy(storiesRead = stories.map { it.id }.toSet()))
+        compose.setContent {
+            HopTalesTheme(dark = dark) {
+                HomeScreen(
+                    library = app.library,
+                    progress = progress,
+                    onStory = {},
+                    childName = "Maya",
+                    hour = 9,
+                    nextLevels = progress.nextLevels(app.library, isPlus = true, locksStories = true),
+                    levelStanding = { progress.levelStanding(it, app.library, isPlus = true, locksStories = true) },
+                    bigStoryWaiting = progress.bigStoryWaiting(app.library, isPlus = true, locksStories = true),
+                )
+            }
+        }
+        compose.onRoot().captureRoboImage(path("home-plus-big-story", dark), options)
     }
 
     protected fun basketFull(dark: Boolean) {

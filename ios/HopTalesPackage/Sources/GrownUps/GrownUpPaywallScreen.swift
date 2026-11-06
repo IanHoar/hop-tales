@@ -8,9 +8,11 @@ import SwiftUI
     public var id = "grown-up-paywall"
     public var gate: ParentGate.State?
     public var paywall: Paywall.State?
+    public var welcome: PlusWelcome?
 
-    public init(seed: UInt64) {
+    public init(seed: UInt64, welcome: PlusWelcome? = nil) {
       gate = ParentGate.State(seed: seed)
+      self.welcome = welcome
     }
   }
 
@@ -23,8 +25,8 @@ import SwiftUI
     Update { state, action in
       switch action {
       case .gate(.passed):
-        state.paywall = Paywall.State()
-      case .gate(.closeTapped), .paywall(.closeTapped):
+        state.paywall = Paywall.State(welcome: state.welcome)
+      case .gate(.closeTapped), .paywall(.closeTapped), .paywall(.readTapped):
         store.addTask { try store.dismiss() }
       case .gate, .paywall:
         break

@@ -30,6 +30,11 @@ struct HomeSnapshotTests {
   }
 
   @Test(arguments: [ColorScheme.light, .dark])
+  func plusOffersTheNextFriendsBigStory(scheme: ColorScheme) {
+    expectSnapshot(of: HomePreview(.plusPathFull, size: HomePreview.tallPhone), scheme: scheme)
+  }
+
+  @Test(arguments: [ColorScheme.light, .dark])
   func midwayOnAnIPad(scheme: ColorScheme) {
     expectSnapshot(of: HomePreview(.midway, size: Metrics.pad.reference), scheme: scheme)
   }

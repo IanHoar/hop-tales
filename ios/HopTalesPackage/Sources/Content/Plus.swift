@@ -21,7 +21,11 @@ public enum Plus {
     locksStories: Bool = Plus.locksStories
   ) -> [Friend] {
     guard locksStories, !isPlus else { return [] }
-    let first = Swift.max(shelf, freeLevel) + 1
+    return levels(above: Swift.max(shelf, freeLevel))
+  }
+
+  public static func levels(above shelf: Int) -> [Friend] {
+    let first = shelf + 1
     return Array(
       Friend.allCases
         .filter { $0.level >= first && !StoryLibrary.stories(at: $0.level).isEmpty }

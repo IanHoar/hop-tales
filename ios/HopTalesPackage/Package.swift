@@ -32,7 +32,7 @@ let package = Package(
         "Reading",
         "World",
         .product(name: "ComposableArchitecture", package: "TCA26"),
-        .product(name: "Dependencies", package: "swift-dependencies"),
+        .product(name: "Dependencies", package: "swift-dependencies")
       ]
     ),
     .target(
@@ -43,14 +43,14 @@ let package = Package(
         "SpeechRecognition",
         "World",
         .product(name: "ComposableArchitecture", package: "TCA26"),
-        .product(name: "Dependencies", package: "swift-dependencies"),
+        .product(name: "Dependencies", package: "swift-dependencies")
       ]
     ),
     .target(
       name: "Content",
       dependencies: [
         .product(name: "Dependencies", package: "swift-dependencies"),
-        .product(name: "SQLiteData", package: "sqlite-data"),
+        .product(name: "SQLiteData", package: "sqlite-data")
       ],
       resources: [.process("Resources")]
     ),
@@ -66,7 +66,7 @@ let package = Package(
         "SpeechRecognition",
         "World",
         .product(name: "ComposableArchitecture", package: "TCA26"),
-        .product(name: "Dependencies", package: "swift-dependencies"),
+        .product(name: "Dependencies", package: "swift-dependencies")
       ]
     ),
     .target(
@@ -77,7 +77,7 @@ let package = Package(
         "GrownUps",
         "World",
         .product(name: "ComposableArchitecture", package: "TCA26"),
-        .product(name: "Dependencies", package: "swift-dependencies"),
+        .product(name: "Dependencies", package: "swift-dependencies")
       ]
     ),
     .target(
@@ -88,7 +88,7 @@ let package = Package(
         "SpeechRecognition",
         "World",
         .product(name: "ComposableArchitecture", package: "TCA26"),
-        .product(name: "Dependencies", package: "swift-dependencies"),
+        .product(name: "Dependencies", package: "swift-dependencies")
       ]
     ),
     .target(
@@ -96,7 +96,7 @@ let package = Package(
       dependencies: [
         "Content",
         .product(name: "ComposableArchitecture", package: "TCA26"),
-        .product(name: "Dependencies", package: "swift-dependencies"),
+        .product(name: "Dependencies", package: "swift-dependencies")
       ]
     ),
     .target(
@@ -120,10 +120,10 @@ let package = Package(
         "SpeechRecognition",
         "World",
         .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
       ],
       path: "Tests",
       resources: [.copy("SnapshotTests/__Snapshots__")]
-    ),
+    )
   ]
 )

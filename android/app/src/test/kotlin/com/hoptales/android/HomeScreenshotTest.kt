@@ -42,6 +42,7 @@ import com.hoptales.content.Journey
 import com.hoptales.content.Mood
 import com.hoptales.content.Plus
 import com.hoptales.content.PlusStatus
+import com.hoptales.content.PlusWelcome
 import com.hoptales.content.Profile
 import com.hoptales.content.Progress
 import com.hoptales.content.Sky
@@ -108,6 +109,24 @@ class HomeScreenshotTest : ScreenshotFixture() {
     @Test fun paywallPendingLight() = paywallPending(dark = false)
 
     @Test fun paywallPendingDark() = paywallPending(dark = true)
+
+    @Test fun paywallSubscribingLight() = paywallSubscribing(dark = false)
+
+    @Test fun paywallSubscribingDark() = paywallSubscribing(dark = true)
+
+    @Test fun paywallWelcomeLight() = paywallWelcome("paywall-welcome", nextFriend, dark = false)
+
+    @Test fun paywallWelcomeDark() = paywallWelcome("paywall-welcome", nextFriend, dark = true)
+
+    @Test fun paywallWelcomeFromSettingsLight() = paywallWelcome("paywall-welcome-settings", null, dark = false)
+
+    @Test fun paywallWelcomeFromSettingsDark() = paywallWelcome("paywall-welcome-settings", null, dark = true)
+
+    @Test fun homePlusBigStoryLight() = homePlusBigStory(dark = false)
+
+    @Test fun homePlusBigStoryDark() = homePlusBigStory(dark = true)
+
+    private val nextFriend get() = PlusWelcome(app.library.bigStory(2)!!, Friend.HARE, meetsFriend = true)
 
     @Test fun basketFullLight() = basketFull(dark = false)
 

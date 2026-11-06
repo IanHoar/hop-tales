@@ -111,7 +111,8 @@ public struct Journey: Codable, Hashable, Sendable {
   }
 
   public var fill: Double {
-    goal > 0 ? min(steps / goal, 1) : 1
+    guard goal > 0, !isPathFull else { return 1 }
+    return min(steps / goal, 1)
   }
 
   public var storiesLeft: [Story] {
@@ -119,9 +120,7 @@ public struct Journey: Codable, Hashable, Sendable {
   }
 
   public var isPathFull: Bool {
-    guard nextFriend != nil, storiesLeft.isEmpty else { return false }
-    let share = cleanStreak >= 3 ? Levels.earlyBigStoryShare : 1
-    return steps >= goal * share
+    nextFriend != nil && storiesLeft.isEmpty
   }
 
   public var bigStory: Story? {
@@ -173,7 +172,7 @@ public struct Journey: Codable, Hashable, Sendable {
 
     if story.level == level { storiesRead.insert(story.id) }
     let earned = stepsEarned(by: result, in: story)
-    steps = min(steps + earned, goal)
+    steps = storiesLeft.isEmpty ? goal : min(steps + earned, goal)
     var moments: [JourneyMoment] = [
       .tally(
         steps: earned, total: steps, goal: goal, bigWords: result.bigWordsRead, next: next,
