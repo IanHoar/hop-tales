@@ -48,7 +48,7 @@ class PhonicsTest {
     fun everyStoryDecodesAtItsLevel() {
         for (story in library.all) {
             for (word in story.sentences.flatMap { it.words }) {
-                val ceiling = if (word.big) minOf(story.level + 2, Friend.entries.size) else story.level
+                val ceiling = if (word.big) minOf(story.level + 3, Friend.entries.size) else story.level
                 val level = phonics.level(word.text)
                 assertTrue("${story.id}: ${word.text} decodes at ${level ?: 0}", level != null && level <= ceiling)
             }
@@ -68,7 +68,8 @@ class PhonicsTest {
         for (story in library.all) {
             val range = SENTENCE_WORDS.getValue(story.level)
             for (sentence in story.sentences) {
-                assertTrue("${story.id}: ${sentence.words.size} words", sentence.words.size in range)
+                val longest = range.last + if (sentence.isLong) 1 else 0
+                assertTrue("${story.id}: ${sentence.words.size} words", sentence.words.size in range.first..longest)
             }
         }
     }

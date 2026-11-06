@@ -2502,6 +2502,16 @@
             "big": false
           },
           {
+            "text": "his",
+            "homophones": [],
+            "big": false
+          },
+          {
+            "text": "feet",
+            "homophones": [],
+            "big": true
+          },
+          {
             "text": "along",
             "homophones": [],
             "big": true
@@ -2525,7 +2535,8 @@
             "big": false,
             "trailing": "."
           }
-        ]
+        ],
+        "long": true
       },
       {
         "newWord": null,
@@ -2779,9 +2790,9 @@
             "big": false
           },
           {
-            "text": "hangs",
+            "text": "stays",
             "homophones": [],
-            "big": false
+            "big": true
           },
           {
             "text": "on",
@@ -2966,12 +2977,19 @@
             "big": true
           },
           {
-            "text": "up",
+            "text": "in",
+            "homophones": [
+              "inn"
+            ],
+            "big": false
+          },
+          {
+            "text": "the",
             "homophones": [],
             "big": false
           },
           {
-            "text": "high",
+            "text": "sky",
             "homophones": [],
             "big": true,
             "trailing": "."
@@ -3180,27 +3198,14 @@
             "big": false
           },
           {
-            "text": "gets",
+            "text": "is",
             "homophones": [],
             "big": false
           },
           {
-            "text": "to",
-            "homophones": [
-              "two",
-              "too"
-            ],
-            "big": false
-          },
-          {
-            "text": "run",
+            "text": "flying",
             "homophones": [],
-            "big": false
-          },
-          {
-            "text": "with",
-            "homophones": [],
-            "big": false
+            "big": true
           },
           {
             "text": "the",
@@ -3218,7 +3223,7 @@
           {
             "prop": "kite",
             "count": 1,
-            "after": 7
+            "after": 5
           }
         ]
       }
@@ -3479,9 +3484,9 @@
             "big": false
           },
           {
-            "text": "pad",
+            "text": "lilypad",
             "homophones": [],
-            "big": false,
+            "big": true,
             "trailing": "."
           }
         ],
@@ -3615,10 +3620,11 @@
         "newWord": null,
         "words": [
           {
-            "text": "Get",
+            "text": "Ready",
             "homophones": [],
             "big": false,
-            "leading": "\u201c"
+            "leading": "\u201c",
+            "trailing": ","
           },
           {
             "text": "set",

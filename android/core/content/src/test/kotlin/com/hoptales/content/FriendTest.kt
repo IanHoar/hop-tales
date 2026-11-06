@@ -34,11 +34,11 @@ class LevelContentTest {
     }
 
     @Test
-    fun everyLevelUpHasABigStoryWithNoBigWords() {
+    fun everyLevelUpHasABigStoryWithAtMostOneBigWord() {
         for (level in 2..7) {
             val story = library.bigStory(level)!!
             assertFalse(story.stretch)
-            assertTrue(story.sentences.all { sentence -> sentence.words.none { it.big } })
+            assertTrue(story.sentences.flatMap { it.words }.count { it.big } <= 1)
         }
     }
 

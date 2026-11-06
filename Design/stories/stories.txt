@@ -6,12 +6,13 @@
 #   big      the level's big story, read to meet that level's friend
 # One sentence per line, ending in . ? or !, with commas and “speech marks” where they belong; they
 # show on the path and never reach the matcher. [sky] or [weather] at the start changes the mood
-# from that sentence on. *word* is a big word, from a level or two up. ^word is the sentence's new
+# from that sentence on. *word* is a big word, from up to three levels up. ^word is the sentence's new
 # word. Keep words free of apostrophes and hyphens: the matcher compares plain words.
 #
 # Levels follow the UFLI Foundations phonics sequence. Content/Resources/phonics.json lists the
 # sounds and heart words each level adds, and the build refuses a word a reader at that level
-# can't decode yet. A big word may reach two levels up. Every sentence fits its level's length.
+# can't decode yet. A big word may reach three levels up. Every sentence fits its level's length;
+# [long] lets one sentence run a word over, where the shorter version reads worse.
 #
 # Moments: a [tag] can also name a prop from Content/Resources/props.json to bring into the scene.
 #   [bug@bug]      the bug comes in once "bug" has been read, never before, so it can't give the word away
@@ -135,7 +136,7 @@ He finds a big fat *carrot*.
 [dusk] They chat as the sun sets.
 “Sing for me!” says Skip.
 The *bird* sings a *splendid* song.
-Skip thumps *along* to the song.
+[long] Skip thumps his *feet* *along* to the song.
 [moth] The sun is *almost* down.
 Skip and the *bird* go to bed.
 
@@ -143,7 +144,7 @@ Skip and the *bird* go to bed.
 [dragonfly] Skip hops down to the pond.
 [log@log] A big log bobs in the pond.
 Skip steps on the log.
-[splash@rocks] The log rocks, but Skip hangs on.
+[splash@rocks] The log rocks, but Skip *stays* on.
 “This is fun!” says Skip.
 Skip jumps and lands on the bank.
 
@@ -151,24 +152,24 @@ Skip jumps and lands on the bank.
 
 == oggy-kite | Oggy and the Kite | level 3 | day clear | stretch
 [dragonfly] Oggy the frog sits by the lake.
-[kite@kite] A pretty red kite *floats* up *high*.
+[kite@kite] A pretty red kite *floats* in the *sky*.
 “What is that up there?” says Oggy.
 The wind takes the kite over the lake.
 It lands on a pad next to Oggy.
 Oggy hops up and grabs the *string*.
-[kite@kite] Now Oggy gets to run with the kite!
+[kite@kite] Now Oggy is *flying* the kite!
 
 == home-by-the-lake | A Home by the Lake | level 3 | golden clouds | stretch
 Oggy *looks* for a home by the lake.
 [stone@rock] He *looks* in a hole by a rock.
 But the hole is too *deep*.
 [dragonfly] Under a log, it is too *dark*.
-[lilypad@pad] At last, he spots a wide, flat pad.
+[lilypad@lilypad] At last, he spots a wide, flat *lilypad*.
 “Yes! This will be my home,” says Oggy.
 
 == oggy-big-story | The Lily Pad Race | level 3 | day clear | big
 [frog*3] Oggy and his pals are in a race.
-“Get set, go!” they all yell.
+“Ready, set, go!” they all yell.
 [frog*3@frogs] The frogs jump from pad to pad.
 Oggy slips, but he swims fast.
 [dragonfly] Oggy pops out and hops on and on.

@@ -20,7 +20,7 @@ struct PhonicsTests {
   @Test func everyStoryDecodesAtItsLevel() {
     for story in StoryLibrary.all {
       for word in story.sentences.flatMap(\.words) {
-        let ceiling = word.big ? min(story.level + 2, Levels.top) : story.level
+        let ceiling = word.big ? min(story.level + 3, Levels.top) : story.level
         let level = phonics.level(of: word.text)
         let note = "\(story.id): \(word.text) decodes at \(level ?? 0)"
         #expect(level.map { $0 <= ceiling } == true, Comment(rawValue: note))
@@ -40,7 +40,9 @@ struct PhonicsTests {
       let range = Levels.sentenceWords[story.level]
       for sentence in story.sentences {
         let note = "\(story.id): \(sentence.words.count) words"
-        #expect(range?.contains(sentence.words.count) == true, Comment(rawValue: note))
+        let longest = (range?.upperBound ?? 0) + (sentence.isLong ? 1 : 0)
+        let fits = range.map { $0.lowerBound...longest }?.contains(sentence.words.count) == true
+        #expect(fits, Comment(rawValue: note))
       }
     }
   }

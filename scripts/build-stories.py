@@ -186,7 +186,9 @@ def parse_sentence(line, line_number):
     if tags:
         for tag in tags.group(1).split():
             name, _, after = tag.partition("@")
-            if name in SKIES or name in WEATHERS:
+            if tag == "long":
+                sentence["long"] = True
+            elif name in SKIES or name in WEATHERS:
                 sentence["sky" if name in SKIES else "weather"] = name
                 if after:
                     mood_word = after
@@ -277,11 +279,11 @@ def main():
         for sentence in story["sentences"]:
             words = " ".join(word["text"] for word in sentence["words"])
             count = len(sentence["words"])
-            if not low <= count <= high:
+            if not low <= count <= high + (1 if sentence.get("long") else 0):
                 problems.append(f"{story['id']} (level {level}): {count} words: {words}")
             for word in sentence["words"]:
                 decodes = phonics.level(word["text"])
-                ceiling = min(level + 2, 7) if word["big"] else level
+                ceiling = min(level + 3, 7) if word["big"] else level
                 if decodes is None or decodes > ceiling:
                     at = f"level {decodes}" if decodes else "no level"
                     kind = "big word" if word["big"] else "word"

@@ -80,6 +80,7 @@ public struct Sentence: Codable, Hashable, Sendable {
   public var weather: Weather?
   public var moodAfter: Int?
   public var events: [StoryEvent]
+  public var isLong: Bool
 
   public init(
     words: [Word],
@@ -87,8 +88,10 @@ public struct Sentence: Codable, Hashable, Sendable {
     sky: Sky? = nil,
     weather: Weather? = nil,
     moodAfter: Int? = nil,
-    events: [StoryEvent] = []
+    events: [StoryEvent] = [],
+    isLong: Bool = false
   ) {
+    self.isLong = isLong
     self.newWord = newWord
     self.words = words
     self.sky = sky
@@ -104,6 +107,7 @@ public struct Sentence: Codable, Hashable, Sendable {
     case weather
     case moodAfter
     case events
+    case isLong = "long"
   }
 
   public init(from decoder: any Decoder) throws {
@@ -114,6 +118,7 @@ public struct Sentence: Codable, Hashable, Sendable {
     weather = try container.decodeIfPresent(Weather.self, forKey: .weather)
     moodAfter = try container.decodeIfPresent(Int.self, forKey: .moodAfter)
     events = try container.decodeIfPresent([StoryEvent].self, forKey: .events) ?? []
+    isLong = try container.decodeIfPresent(Bool.self, forKey: .isLong) ?? false
   }
 }
 

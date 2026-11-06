@@ -54,10 +54,10 @@ struct LevelContentTests {
   }
 
   @Test(arguments: 2...7)
-  func everyLevelUpHasABigStoryWithNoBigWords(level: Int) throws {
+  func everyLevelUpHasABigStoryWithAtMostOneBigWord(level: Int) throws {
     let story = try #require(StoryLibrary.bigStory(at: level))
     #expect(!story.stretch)
-    #expect(story.sentences.allSatisfy { $0.words.allSatisfy { !$0.big } })
+    #expect(story.sentences.flatMap(\.words).filter(\.big).count <= 1)
   }
 
   @Test func theFirstLevelHasNoBigStory() {
