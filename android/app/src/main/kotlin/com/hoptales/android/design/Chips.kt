@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -150,7 +151,14 @@ fun StarChip(stars: Int, modifier: Modifier = Modifier, prefix: String = "", hei
 }
 
 @Composable
-fun PaperButton(text: String, modifier: Modifier = Modifier, icon: ImageVector? = null, enabled: Boolean = true, onClick: () -> Unit) {
+fun PaperButton(
+    text: String,
+    modifier: Modifier = Modifier,
+    icon: ImageVector? = null,
+    enabled: Boolean = true,
+    busy: Boolean = false,
+    onClick: () -> Unit,
+) {
     val paper = LocalPaper.current
     val shape = RoundedCornerShape(28.dp)
     Box(
@@ -165,7 +173,7 @@ fun PaperButton(text: String, modifier: Modifier = Modifier, icon: ImageVector? 
             .background(paper.red, RoundedCornerShape(24.dp)),
         contentAlignment = Alignment.Center,
     ) {
-        IconLabel(text, icon, paper.onRed)
+        IconLabel(text, icon, paper.onRed, busy)
     }
 }
 
@@ -184,12 +192,13 @@ fun PaperQuietButton(text: String, modifier: Modifier = Modifier, icon: ImageVec
 }
 
 @Composable
-private fun IconLabel(text: String, icon: ImageVector?, colour: Color) {
+private fun IconLabel(text: String, icon: ImageVector?, colour: Color, busy: Boolean = false) {
     Row(
         Modifier.padding(horizontal = 28.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        if (busy) CircularProgressIndicator(color = colour, strokeWidth = 2.5.dp, modifier = Modifier.size(20.dp))
         if (icon != null) Icon(icon, contentDescription = null, tint = colour, modifier = Modifier.size(24.dp))
         FitText(text, LocalTypography.current.ui(18.sp), colour, minimumScale = 0.75f, Modifier.weight(1f, fill = false))
     }

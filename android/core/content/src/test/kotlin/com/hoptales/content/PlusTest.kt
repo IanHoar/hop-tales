@@ -57,6 +57,46 @@ class PlusTest {
     }
 
     @Test
+    fun theLevelsAheadAreTheSameTwoWithoutTheLocks() {
+        assertEquals(listOf(Friend.HARE, Friend.FROG), Plus.levels(1, library))
+        assertTrue(Plus.levels(7, library).isEmpty())
+    }
+
+    @Test
+    fun plusReadersStillSeeTheLevelsAhead() {
+        val progress = Progress()
+        assertEquals(listOf(Friend.HARE, Friend.FROG), progress.nextLevels(library, isPlus = true, locksStories = true))
+        assertEquals(LevelStanding.Ahead, progress.levelStanding(Friend.HARE, library, isPlus = true, locksStories = true))
+    }
+
+    @Test
+    fun readingEveryStoryOpensTheNextFriendsBigStoryForPlus() {
+        val progress = everyLevelOneStoryRead()
+        val big = library.bigStory(2)!!
+        assertEquals(LevelStanding.Ready(big), progress.levelStanding(Friend.HARE, library, isPlus = true, locksStories = true))
+        assertEquals(PlusWelcome(big, Friend.HARE, meetsFriend = true), progress.plusWelcome(library))
+    }
+
+    @Test
+    fun aFreeReaderWithTheBigStoryWaitingStillSeesItLocked() {
+        val progress = everyLevelOneStoryRead()
+        assertEquals(LevelStanding.Locked, progress.levelStanding(Friend.HARE, library, isPlus = false, locksStories = true))
+        assertNull(progress.bigStoryWaiting(library, isPlus = false, locksStories = true))
+    }
+
+    @Test
+    fun aNewReaderIsWelcomedTowardsTheirFirstStory() {
+        val start = library[Friend.BUNNY.startingStoryID(library)]!!
+        assertEquals(PlusWelcome(start, Friend.HARE, meetsFriend = false), Progress().plusWelcome(library))
+    }
+
+    private fun everyLevelOneStoryRead(): Progress {
+        val stories = library.stories(1)
+        val progress = Progress(completedSentences = stories.associate { it.id to 99 })
+        return progress.copy(journey = progress.journey.copy(storiesRead = stories.map { it.id }.toSet()))
+    }
+
+    @Test
     fun plusSeesNoLockedLevels() {
         assertTrue(Plus.lockedLevels(1, library, isPlus = true, locksStories = true).isEmpty())
     }

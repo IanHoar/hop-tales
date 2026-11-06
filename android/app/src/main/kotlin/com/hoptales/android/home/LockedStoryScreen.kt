@@ -44,6 +44,8 @@ import com.hoptales.android.settings.ParentGate
 import com.hoptales.android.settings.ParentGateState
 import com.hoptales.android.settings.Paywall
 import com.hoptales.android.world.MeadowPostcard
+import com.hoptales.content.PlusWelcome
+import com.hoptales.content.Story
 import com.hoptales.content.StoryStanding
 
 enum class LockedStep { CARD, GATE, PAYWALL }
@@ -65,6 +67,7 @@ fun LockedStoryScreen(
     standing: StoryStanding,
     plus: PlusSource,
     onDone: () -> Unit,
+    onRead: (Story) -> Unit = {},
     step: LockedStep = LockedStep.CARD,
     gate: ParentGateState = remember { ParentGateState.drawing() },
 ) {
@@ -76,7 +79,13 @@ fun LockedStoryScreen(
         }
 
         LockedStep.PAYWALL -> {
-            Paywall(plus, onClose = { shown = LockedStep.CARD }, onSubscribed = onDone)
+            Paywall(
+                plus,
+                onClose = { shown = LockedStep.CARD },
+                onFinished = onDone,
+                welcome = PlusWelcome(standing.story, standing.story.friend, meetsFriend = false),
+                onRead = onRead,
+            )
             return
         }
 
@@ -135,12 +144,14 @@ private fun Card(standing: StoryStanding, onAsk: () -> Unit) {
 fun LockedLevelScreen(
     plus: PlusSource,
     onDone: () -> Unit,
+    welcome: PlusWelcome? = null,
+    onRead: (Story) -> Unit = {},
     step: LockedLevelStep = LockedLevelStep.GATE,
     gate: ParentGateState = remember { ParentGateState.drawing() },
 ) {
     var shown by rememberSaveable { mutableStateOf(step) }
     when (shown) {
         LockedLevelStep.GATE -> ParentGate(onPassed = { shown = LockedLevelStep.PAYWALL }, onClose = onDone, initial = gate)
-        LockedLevelStep.PAYWALL -> Paywall(plus, onClose = onDone, onSubscribed = onDone)
+        LockedLevelStep.PAYWALL -> Paywall(plus, onClose = onDone, welcome = welcome, onRead = onRead)
     }
 }

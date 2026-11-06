@@ -9,11 +9,12 @@ object Plus {
 
     fun lockedLevels(above: Int, library: StoryLibrary, isPlus: Boolean, locksStories: Boolean): List<Friend> {
         if (!locksStories || isPlus) return emptyList()
-        val first = maxOf(above, FREE_LEVEL) + 1
-        return Friend.entries
-            .filter { it.level >= first && library.stories(it.level).isNotEmpty() }
-            .take(LOCKED_LEVELS_SHOWN)
+        return levels(maxOf(above, FREE_LEVEL), library)
     }
+
+    fun levels(above: Int, library: StoryLibrary): List<Friend> = Friend.entries
+        .filter { it.level > above && library.stories(it.level).isNotEmpty() }
+        .take(LOCKED_LEVELS_SHOWN)
 }
 
 object PlusLinks {

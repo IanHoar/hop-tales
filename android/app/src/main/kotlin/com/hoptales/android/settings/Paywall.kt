@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -31,7 +32,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,6 +50,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -66,16 +67,20 @@ import com.hoptales.android.design.Deckle
 import com.hoptales.android.design.Glyphs
 import com.hoptales.android.design.LocalPaper
 import com.hoptales.android.design.LocalTypography
+import com.hoptales.android.design.PaperButton
 import com.hoptales.android.design.PaperQuietButton
 import com.hoptales.android.design.Press
 import com.hoptales.android.design.paperField
 import com.hoptales.android.design.pressable
 import com.hoptales.android.home.DoneChip
+import com.hoptales.android.reading.PaperConfetti
 import com.hoptales.android.world.IdleFriend
 import com.hoptales.android.world.MeadowBackdrop
 import com.hoptales.content.Friend
 import com.hoptales.content.PlusLinks
 import com.hoptales.content.PlusPlan
+import com.hoptales.content.PlusWelcome
+import com.hoptales.content.Story
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -87,28 +92,61 @@ sealed interface PaywallOffers {
     data class Loaded(val offers: List<PlusOffer>) : PaywallOffers
 }
 
+enum class PaywallWork { SUBSCRIBING, RESTORING }
+
 @Stable
 class PaywallState(private val plus: PlusSource) {
     var offers by mutableStateOf<PaywallOffers>(PaywallOffers.Loading)
+    var selected by mutableStateOf(PlusPlan.PAYWALL_ORDER.first())
+    var working by mutableStateOf<PaywallWork?>(null)
     var pending by mutableStateOf(false)
+    var subscribed by mutableStateOf(false)
     var foundNothingToRestore by mutableStateOf(false)
 
     suspend fun load() {
         val loaded = PlusOffer.inPaywallOrder(runCatching { plus.offers() }.getOrDefault(emptyList()))
         offers = if (loaded.isEmpty()) PaywallOffers.Unavailable else PaywallOffers.Loaded(loaded)
+        if (loaded.isNotEmpty() && loaded.none { it.plan == selected }) selected = loaded.first().plan
+    }
+
+    fun choose(plan: PlusPlan) {
+        if (working == null) selected = plan
+    }
+
+    fun subscribe(buy: (PlusOffer) -> Unit) {
+        if (working != null) return
+        val offer = (offers as? PaywallOffers.Loaded)?.offers?.firstOrNull { it.plan == selected } ?: return
+        foundNothingToRestore = false
+        working = PaywallWork.SUBSCRIBING
+        buy(offer)
     }
 
     fun settle(outcome: PurchaseOutcome) {
+        working = null
         when (outcome) {
-            PurchaseOutcome.PURCHASED -> plus.refresh()
+            PurchaseOutcome.PURCHASED -> {
+                plus.refresh()
+                subscribed = true
+            }
+
             PurchaseOutcome.PENDING -> pending = true
+
             PurchaseOutcome.CANCELLED, PurchaseOutcome.FAILED -> Unit
         }
     }
 
+    fun plusArrived() {
+        working = null
+        subscribed = true
+    }
+
     suspend fun restore() {
+        if (working != null) return
+        working = PaywallWork.RESTORING
         foundNothingToRestore = false
-        foundNothingToRestore = !plus.restore()
+        val found = runCatching { plus.restore() }.getOrDefault(false)
+        working = null
+        if (found) subscribed = true else foundNothingToRestore = true
     }
 }
 
@@ -116,13 +154,14 @@ class PaywallState(private val plus: PlusSource) {
 fun Paywall(
     plus: PlusSource,
     onClose: () -> Unit,
-    onSubscribed: () -> Unit = onClose,
+    onFinished: () -> Unit = onClose,
+    welcome: PlusWelcome? = null,
+    onRead: (Story) -> Unit = {},
     state: PaywallState = remember(plus) { PaywallState(plus) },
     live: Boolean = true,
 ) {
     val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
-    val subscribed by rememberUpdatedState(onSubscribed)
     var placeholderDone by remember { mutableStateOf(!live) }
     LaunchedEffect(state) { state.load() }
     LaunchedEffect(Unit) {
@@ -133,13 +172,14 @@ fun Paywall(
     LaunchedEffect(plus) {
         var was: Boolean? = null
         plus.isPlus.collect { isPlus ->
-            if (isPlus && was == false) subscribed()
+            if (isPlus && was == false) state.plusArrived()
             was = isPlus
         }
     }
     Box(Modifier.fillMaxSize()) {
         MeadowBackdrop(live = live)
         PaperSheet(
+            hugging = state.subscribed,
             header = {
                 Row(
                     Modifier.fillMaxWidth().height(HEADER_HEIGHT).padding(end = 8.dp),
@@ -152,6 +192,8 @@ fun Paywall(
         ) {
             val offers = state.offers
             when {
+                state.subscribed -> Welcome(welcome, onRead, onFinished)
+
                 state.pending -> Waiting(onClose)
 
                 offers is PaywallOffers.Unavailable -> Unavailable(onClose)
@@ -169,20 +211,28 @@ fun Paywall(
                                     PlusOffer.SAMPLES.forEach { offer -> PlanRow(offer, placeholder = true) {} }
                                 }
                             } else {
-                                shown.forEach { offer -> PlanRow(offer) { plus.buy(activity, offer) } }
+                                shown.forEach { offer ->
+                                    PlanRow(offer, selected = offer.plan == state.selected) { state.choose(offer.plan) }
+                                }
                             }
                         }
                     }
+                    PaperButton(
+                        if (state.working == PaywallWork.SUBSCRIBING) "Subscribing…" else "Subscribe",
+                        enabled = loaded != null,
+                        busy = state.working == PaywallWork.SUBSCRIBING,
+                    ) { state.subscribe { plus.buy(activity, it) } }
                     Spacer(Modifier.weight(1f))
                     Footer(state) { scope.launch { state.restore() } }
                 }
             }
         }
+        if (state.subscribed) PaperConfetti(delayMillis = 200)
     }
 }
 
 @Composable
-private fun PaperSheet(header: @Composable () -> Unit, content: @Composable ColumnScope.() -> Unit) {
+private fun PaperSheet(hugging: Boolean, header: @Composable () -> Unit, content: @Composable ColumnScope.() -> Unit) {
     val paper = LocalPaper.current
     val shape = remember { Deckle(seed = 29, jitter = 3.dp, step = 14.dp) }
     BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -196,20 +246,25 @@ private fun PaperSheet(header: @Composable () -> Unit, content: @Composable Colu
         ) {
             header()
             Spacer(Modifier.height(SHEET_TOP))
-            Column(
-                Modifier
-                    .widthIn(max = 460.dp)
-                    .fillMaxWidth()
-                    .heightIn(min = fill)
-                    .graphicsLayer()
-                    .dropShadow(shape, Shadow(8.dp, paper.shadow, offset = DpOffset(0.dp, 5.dp)))
-                    .background(paper.paper, shape)
-                    .clip(shape)
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(14.dp),
-                content = content,
-            )
+            Box(
+                Modifier.fillMaxWidth().heightIn(min = if (hugging) fill * HUGGING_ROOM else 0.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Column(
+                    Modifier
+                        .widthIn(max = 460.dp)
+                        .fillMaxWidth()
+                        .heightIn(min = if (hugging) 0.dp else fill)
+                        .graphicsLayer()
+                        .dropShadow(shape, Shadow(8.dp, paper.shadow, offset = DpOffset(0.dp, 5.dp)))
+                        .background(paper.paper, shape)
+                        .clip(shape)
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(14.dp),
+                    content = content,
+                )
+            }
         }
     }
 }
@@ -217,6 +272,7 @@ private fun PaperSheet(header: @Composable () -> Unit, content: @Composable Colu
 private val HEADER_HEIGHT = 64.dp
 private val SHEET_TOP = 8.dp
 private val SHEET_BOTTOM = 30.dp
+private const val HUGGING_ROOM = 0.85f
 
 @Composable
 private fun Title(text: String, size: Int = 30) {
@@ -284,50 +340,67 @@ private fun Pitch() {
 }
 
 @Composable
-private fun PlanRow(offer: PlusOffer, placeholder: Boolean = false, onClick: () -> Unit) {
+private fun PlanRow(offer: PlusOffer, selected: Boolean = false, placeholder: Boolean = false, onClick: () -> Unit) {
     val paper = LocalPaper.current
     val type = LocalTypography.current
     val leads = offer.plan == PlusPlan.YEARLY
     val name = if (leads) "Yearly" else "Monthly"
     val price = if (leads) "${offer.price} a year" else "${offer.price} a month"
     val detail = offer.monthlyPrice?.let { "Just $it a month, the better value" } ?: "The flexible option"
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .clearAndSetSemantics {
-                contentDescription = "$name, $price. $detail."
-                role = Role.Button
-            }.then(if (placeholder) Modifier else Modifier.pressable(onClick, press = Press.PAPER))
-            .paperField(selected = leads)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(name, style = type.display(21.sp), color = paper.ink, modifier = Modifier.redacted(placeholder))
-                if (leads) {
-                    Text(
-                        "Best value",
-                        style = type.ui(13.sp, FontWeight.Bold),
-                        color = paper.onRed,
-                        maxLines = 1,
-                        modifier = Modifier
-                            .background(paper.red, CircleShape)
-                            .padding(horizontal = 10.dp, vertical = 4.dp)
-                            .redacted(placeholder),
-                    )
+    Box {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .clearAndSetSemantics {
+                    contentDescription = "$name, $price. $detail."
+                    role = Role.RadioButton
+                    this.selected = selected
+                }.then(if (placeholder) Modifier else Modifier.pressable(onClick, press = Press.PAPER))
+                .paperField(selected = selected)
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(name, style = type.display(21.sp), color = paper.ink, modifier = Modifier.redacted(placeholder))
+                    if (leads) {
+                        Text(
+                            "Best value",
+                            style = type.ui(13.sp, FontWeight.Bold),
+                            color = paper.onRed,
+                            maxLines = 1,
+                            modifier = Modifier
+                                .background(paper.red, CircleShape)
+                                .padding(horizontal = 10.dp, vertical = 4.dp)
+                                .redacted(placeholder),
+                        )
+                    }
                 }
+                Text(detail, style = type.ui(14.sp, FontWeight.Medium), color = paper.muted, modifier = Modifier.redacted(placeholder))
             }
-            Text(detail, style = type.ui(14.sp, FontWeight.Medium), color = paper.muted, modifier = Modifier.redacted(placeholder))
+            Text(
+                price,
+                style = type.ui(17.sp, FontWeight.Bold),
+                color = paper.ink,
+                textAlign = TextAlign.End,
+                modifier = Modifier.redacted(placeholder),
+            )
         }
-        Text(
-            price,
-            style = type.ui(17.sp, FontWeight.Bold),
-            color = paper.ink,
-            textAlign = TextAlign.End,
-            modifier = Modifier.redacted(placeholder),
-        )
+        if (selected && !placeholder) {
+            Box(
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .offset(x = 8.dp, y = (-10).dp)
+                    .size(32.dp)
+                    .background(paper.paper, CircleShape)
+                    .padding(3.dp)
+                    .background(paper.red, CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(Glyphs.check, contentDescription = null, tint = paper.onRed, modifier = Modifier.size(16.dp))
+            }
+        }
     }
 }
 
@@ -359,7 +432,8 @@ private fun Footer(state: PaywallState, onRestore: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            FooterButton("Restore purchases", type.ui(12.sp, FontWeight.SemiBold), paper.ink, onRestore)
+            val restoring = state.working == PaywallWork.RESTORING
+            FooterButton(if (restoring) "Restoring…" else "Restore purchases", type.ui(12.sp, FontWeight.SemiBold), paper.ink, onRestore)
             FooterButton("Terms of Use", link(type.ui(12.sp, FontWeight.Medium)), paper.muted) { uri.openUri(PlusLinks.TERMS) }
             FooterButton("Privacy Policy", link(type.ui(12.sp, FontWeight.Medium)), paper.muted) { uri.openUri(PlusLinks.PRIVACY) }
         }
@@ -400,4 +474,34 @@ private fun Waiting(leave: () -> Unit) {
     Title("Waiting for the store", size = 26)
     Body("Your purchase is waiting to go through. Every story opens as soon as it does, so you can close this now.")
     PaperQuietButton("Back to stories", onClick = leave)
+}
+
+@Composable
+private fun Welcome(welcome: PlusWelcome?, onRead: (Story) -> Unit, leave: () -> Unit) {
+    IdleFriend(
+        welcome?.friend ?: Friend.GRASSHOPPER,
+        look = null,
+        height = 130.dp,
+        modifier = Modifier.padding(top = 8.dp).clearAndSetSemantics {},
+        shadow = LocalPaper.current.shadow,
+    )
+    Title("Welcome to Hop Tales Plus!", size = 28)
+    Body(welcomeLine(welcome))
+    if (welcome != null) {
+        val title = if (welcome.meetsFriend) "Meet ${welcome.friend.friendName}" else "Read ${welcome.story.title}"
+        PaperButton(title) { onRead(welcome.story) }
+        PaperQuietButton("Back to stories", onClick = leave)
+    } else {
+        PaperButton("Back to stories", onClick = leave)
+    }
+}
+
+fun welcomeLine(welcome: PlusWelcome?): String {
+    if (welcome == null) return "Every story and every level is open now."
+    val friend = welcome.friend
+    return when {
+        welcome.meetsFriend -> "${friend.friendName} has a big story waiting for you. Read it to reach Level ${friend.level}."
+        welcome.story.friend == friend -> "Every story is open now. Up next: ${welcome.story.title}."
+        else -> "Every level is open now. Read the rest of your stories and ${friend.friendName} will be waiting at Level ${friend.level}."
+    }
 }
