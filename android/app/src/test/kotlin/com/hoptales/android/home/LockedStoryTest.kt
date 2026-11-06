@@ -268,6 +268,8 @@ class LockedStoryTest {
         compose.onNodeWithContentDescription("Level 3 with Oggy. Words like lake, kite, home. Read your stories to get there")
             .assertExists()
         compose.onNodeWithContentDescription("Level 2 with Skip. Skip's big story is ready").performScrollTo().performClick()
-        assertEquals(listOf(big), read)
+        compose.onNodeWithContentDescription("A new friend. Meet Skip", substring = true).performScrollTo().performClick()
+        compose.onNodeWithContentDescription("Skip is waiting with a big story").performScrollTo().performClick()
+        assertEquals(listOf(big, big, big), read)
     }
 }

@@ -68,37 +68,42 @@ extension HomeScreen {
 
   @ViewBuilder var waitingFriend: some View {
     if let newFriend = store.state.newFriend, let story = store.state.bigStoryWaiting {
-      WaitingFriend(friend: newFriend) { store.send(.storyTapped(story)) }
-        .offset(x: 118)
+      WaitingFriend(friend: newFriend, height: Self.friendHeight) {
+        store.send(.storyTapped(story))
+      }
+        .frame(maxWidth: .infinity)
     }
   }
 }
 
 struct WaitingFriend: View {
   let friend: Friend
+  let height: CGFloat
   let action: () -> Void
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
-  @State private var bobbing = false
 
   var body: some View {
     Button(action: action) {
-      VStack(spacing: 4) {
-        Text("New!")
-          .font(Typography.ui(13, weight: .bold))
-          .foregroundStyle(Paper.onRed)
-          .padding(.horizontal, 10)
-          .padding(.vertical, 4)
-          .background(Paper.red, in: Capsule())
-          .offset(y: bobbing ? -4 : 0)
-        IdleFriend(friend, look: nil, height: 104)
-          .shadow(color: Paper.shadow, radius: 5, y: 3)
-      }
+      IdleFriend(friend, look: nil, height: height)
+        .shadow(color: Paper.shadow, radius: 6, y: 4)
+        .overlay(alignment: .top) { tag }
     }
     .buttonStyle(.plain)
     .accessibilityLabel("\(friend.name) is waiting with a big story")
-    .onAppear {
-      guard !reduceMotion else { return }
-      withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) { bobbing = true }
-    }
+  }
+
+  private var tag: some View {
+    Text("New!")
+      .font(Typography.ui(13, weight: .bold))
+      .foregroundStyle(Paper.onRed)
+      .padding(.horizontal, 10)
+      .padding(.vertical, 4)
+      .background(Paper.red, in: Capsule())
+      .phaseAnimator(reduceMotion ? [0] : [0, -4]) { content, lift in
+        content.offset(y: lift)
+      } animation: { _ in
+        .easeInOut(duration: 0.9)
+      }
+      .offset(y: -26)
   }
 }

@@ -141,6 +141,7 @@ fun HomeScreen(
     val standings = progress.shelf(library)
     val keepGoing = standings.filterNot { isLocked(it.story) }.keepGoing(friend.startingStoryID(library))
         ?: bigStoryWaiting?.let { StoryStanding.of(it, progress) }
+    val newFriend = bigStoryWaiting?.let { progress.journey.nextFriend }
     val outfit = progress.outfit(friend, wardrobe)
     BoxWithConstraints(Modifier.fillMaxSize().background(paper.page)) {
         val fullHeight = maxHeight
@@ -204,13 +205,20 @@ fun HomeScreen(
                         },
                     )
                     Spacer(Modifier.height(maxOf(0.dp, (screen * HomeLayout.SHEET_TOP).dp - top - 330.dp)))
-                    IdleFriend(
-                        friend,
-                        outfit.firstOrNull()?.id,
-                        HomeLayout.FRIEND_HEIGHT.dp,
-                        Modifier.alpha(if (standsAside) 0f else 1f).popsIn(arrival),
-                        shadow = paper.shadow,
-                    )
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+                        Box(Modifier.weight(1f), contentAlignment = Alignment.BottomCenter) {
+                            IdleFriend(
+                                friend,
+                                outfit.firstOrNull()?.id,
+                                HomeLayout.FRIEND_HEIGHT.dp,
+                                Modifier.alpha(if (standsAside) 0f else 1f).popsIn(arrival),
+                                shadow = paper.shadow,
+                            )
+                        }
+                        if (!standsAside && newFriend != null && bigStoryWaiting != null) {
+                            WaitingFriend(newFriend, HomeLayout.FRIEND_HEIGHT.dp, Modifier.weight(1f)) { onStory(bigStoryWaiting) }
+                        }
+                    }
                     Spacer(Modifier.height(14.dp))
                     LevelChip(
                         library,
@@ -227,7 +235,11 @@ fun HomeScreen(
                         .graphicsLayer { translationY = HomeLayout.SHEET_RISE.dp.toPx() * arrival.sheet.value },
                     bottomInset = bottom,
                 ) {
-                    if (keepGoing != null) KeepGoingCard(keepGoing) { onStory(keepGoing.story) }
+                    when {
+                        keepGoing == null -> Unit
+                        newFriend != null && keepGoing.story.isBigStory -> NewFriendCard(newFriend) { onStory(keepGoing.story) }
+                        else -> KeepGoingCard(keepGoing) { onStory(keepGoing.story) }
+                    }
                     StickerButtons(progress, wardrobe, onFriends, onWardrobe, onBook)
                     Text(
                         "More stories",
@@ -508,7 +520,7 @@ private fun KeepGoingCard(standing: StoryStanding, onClick: () -> Unit) {
 }
 
 @Composable
-private fun PlayGlyph(colour: Color, modifier: Modifier) {
+internal fun PlayGlyph(colour: Color, modifier: Modifier) {
     Canvas(modifier) {
         val play = Path().apply {
             moveTo(size.width * 0.15f, 0f)

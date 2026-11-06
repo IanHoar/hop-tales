@@ -309,10 +309,11 @@ public struct HomeScreen: View {
   private func friendOnThePath(standsAside: Bool) -> some View {
     let journey = store.progress.journey
     return VStack(spacing: 14) {
-      friend
-        .overlay(alignment: .bottomTrailing) {
-          if !standsAside { waitingFriend }
-        }
+      HStack(alignment: .bottom, spacing: 0) {
+        friend
+          .frame(maxWidth: .infinity)
+        if !standsAside { waitingFriend }
+      }
         .opacity(standsAside ? 0 : 1)
         .accessibilityHidden(standsAside)
       LevelChip(journey: journey) { store.send(.journeyTapped) }
