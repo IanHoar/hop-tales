@@ -385,7 +385,7 @@ private fun LevelChip(library: StoryLibrary, journey: Journey, onClick: () -> Un
     val title = if (next == null) {
         "Level ${journey.level} · ${journey.activeFriend.friendName}"
     } else if (journey.isPathFull(library)) {
-        "Level ${journey.level} · ${next.friendName}'s big story is ready"
+        "Ready for Level ${next.level} with ${next.friendName}"
     } else {
         "Level ${journey.level} · ${journey.steps.toInt()} of ${journey.goal(library).toInt()} to ${next.friendName}"
     }
