@@ -1339,24 +1339,31 @@ p {
 }
 
 .friends__list {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  align-items: start;
-  gap: 18px;
-  max-width: 1160px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 28px 24px;
+  max-width: 1180px;
   margin: 54px auto 0;
   padding: 0;
   list-style: none;
   text-align: center;
 }
 
+.friend {
+  flex: 0 0 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 20px 26px;
+}
+
 .friend img {
   width: 100%;
-  max-width: 150px;
-  height: 130px;
+  max-width: 160px;
+  height: 120px;
   object-fit: contain;
   object-position: bottom;
-  margin-inline: auto;
 }
 
 .friend__name {
@@ -1373,7 +1380,10 @@ p {
 }
 
 .friend__skill {
-  margin-top: 6px;
+  width: 100%;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 2px dashed var(--shade);
   font-size: 14px;
   font-weight: 600;
   line-height: 1.3;
@@ -1405,28 +1415,15 @@ p {
   }
 
   .friends__list {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    row-gap: 28px;
+    gap: 16px;
+  }
+
+  .friend {
+    flex-basis: calc((100% - 16px) / 2);
+    padding: 20px 14px 22px;
   }
 
   .friend img {
     height: 96px;
-  }
-}
-
-@media (max-width: 560px) {
-  .friends__list {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    column-gap: 8px;
-  }
-
-  .friend {
-    flex: 0 0 calc((100% - 16px) / 3);
-  }
-
-  .friend__name {
-    font-size: 17px;
   }
 }
