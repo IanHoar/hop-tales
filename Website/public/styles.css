@@ -619,18 +619,13 @@ p {
 
 
 .parents {
-  padding: 110px 0 300px;
-  background-color: #8A7BAE;
-  background-image: url("assets/art/dusk.jpg");
-  background-image: image-set(url("assets/art/dusk.webp") type("image/webp"), url("assets/art/dusk.jpg") type("image/jpeg"));
-  background-position: center bottom;
-  background-size: cover;
+  padding: 110px 0 120px;
+  background: #7D6FA6;
 }
 
 .parents__title {
   text-align: center;
   color: var(--paper);
-  text-shadow: 0 2px 14px rgba(40, 30, 70, 0.45);
 }
 
 .features {
@@ -1227,7 +1222,7 @@ p {
 
 
   .parents {
-    padding: 70px 0 200px;
+    padding: 70px 0 80px;
   }
 
   .parents__title {
