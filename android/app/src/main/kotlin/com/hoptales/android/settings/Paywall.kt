@@ -63,6 +63,7 @@ import androidx.compose.ui.unit.sp
 import com.hoptales.android.billing.PlusOffer
 import com.hoptales.android.billing.PlusSource
 import com.hoptales.android.billing.PurchaseOutcome
+import com.hoptales.android.design.ConfettiCannon
 import com.hoptales.android.design.Deckle
 import com.hoptales.android.design.Glyphs
 import com.hoptales.android.design.LocalPaper
@@ -73,7 +74,6 @@ import com.hoptales.android.design.Press
 import com.hoptales.android.design.paperField
 import com.hoptales.android.design.pressable
 import com.hoptales.android.home.DoneChip
-import com.hoptales.android.reading.PaperConfetti
 import com.hoptales.android.world.IdleFriend
 import com.hoptales.android.world.MeadowBackdrop
 import com.hoptales.content.Friend
@@ -227,7 +227,7 @@ fun Paywall(
                 }
             }
         }
-        if (state.subscribed) PaperConfetti(delayMillis = 200)
+        if (state.subscribed) ConfettiCannon(delaySeconds = 0.15f)
     }
 }
 
