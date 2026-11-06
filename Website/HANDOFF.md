@@ -106,7 +106,7 @@ Letter-spacing on Lilita is 0.01em. For outlined headings, use `-webkit-text-str
 - Phones: `inkheard` 320 wide, rotated −4°, at (840, 120), in front. `inkdragon` 290 wide, rotated 7°, at (1052, 150), behind.
 
 **See it in action** (`#watch`, `--page`, between the hero and How it works)
-- H2 "See it in action" centred, sub "Thirty-five seconds in the meadow, word by word." in muted 20.
+- H2 "See it in action" centred, with no sub.
 - The 35 s promo (YouTube `uiITPBejQWE`, 16:9, music, no voiceover) in a paper card (`paper--c`, 960 max, padding 20/20/16, 50 below the heading) with a gold tape strip across the top edge, like the about photo.
 - **Click-to-load facade.** The page shows a local poster (`assets/art/promo-poster-{800,1600}.webp`, JPEG fallback; the end card at 33.5 s of `promo/hop-tales-promo.mp4`) and a 96 px red play disc with a 5 px white ring (68 px on mobile). The whole poster is one `<button>` labelled "Play the Hop Tales video". `video.js` swaps in the iframe on click, from `https://www.youtube-nocookie.com/embed/uiITPBejQWE?autoplay=1&rel=0&modestbranding=1&playsinline=1`, titled "Hop Tales promo video", and moves focus to it. Nothing contacts YouTube before the click. Without JS a `<noscript>` link goes to the video on YouTube.
 - The disc's hover/focus scale sits behind `prefers-reduced-motion: no-preference`. If a Content-Security-Policy is ever added, it needs `frame-src https://www.youtube-nocookie.com`.
