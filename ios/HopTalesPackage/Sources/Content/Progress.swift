@@ -47,12 +47,14 @@ public struct Progress: Codable, Hashable, Sendable {
     outfits = try container.decodeIfPresent([Friend: [Slot: String]].self, forKey: .outfits) ?? [:]
     levelOneCelebrated =
       try container.decodeIfPresent(Bool.self, forKey: .levelOneCelebrated) ?? false
-    if journey.storiesRead.isEmpty {
-      journey.storiesRead = Set(
-        StoryLibrary.stories(at: journey.level)
-          .filter { (completedSentences[$0.id] ?? 0) >= $0.sentences.count }
-          .map(\.id)
-      )
-    }
+    creditFinishedStories()
+  }
+
+  public mutating func creditFinishedStories() {
+    let finished = StoryLibrary.stories(at: journey.level)
+      .filter { (completedSentences[$0.id] ?? 0) >= $0.sentences.count }
+      .map(\.id)
+    journey.storiesRead.formUnion(finished)
+    if journey.isPathFull { journey.steps = journey.goal }
   }
 }

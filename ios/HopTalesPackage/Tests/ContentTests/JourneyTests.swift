@@ -70,6 +70,27 @@ struct JourneyTests {
     #expect(last.last == .bigStoryReady(.hare))
   }
 
+  @Test func storiesFinishedBeforeTheyWereCountedStillFillThePath() {
+    let stories = StoryLibrary.stories(at: 1)
+    var progress = Content.Progress(
+      completedSentences: Dictionary(uniqueKeysWithValues: stories.map { ($0.id, 6) })
+    )
+    progress.journey.storiesRead = [stories[0].id]
+    progress.journey.steps = progress.journey.goal - 1
+    progress.creditFinishedStories()
+    #expect(progress.journey.storiesRead == Set(stories.map(\.id)))
+    #expect(progress.journey.isPathFull)
+    #expect(progress.journey.steps == progress.journey.goal)
+  }
+
+  @Test func onlyFinishedStoriesAreCredited() {
+    let stories = StoryLibrary.stories(at: 1)
+    var progress = Content.Progress(completedSentences: [stories[0].id: 6, stories[1].id: 2])
+    progress.creditFinishedStories()
+    #expect(progress.journey.storiesRead == [stories[0].id])
+    #expect(!progress.journey.isPathFull)
+  }
+
   @Test func readingTheBigStoryWellMeetsTheNextFriend() {
     var journey = Journey(starting: .bunny)
     Self.everyStoryRead(&journey)

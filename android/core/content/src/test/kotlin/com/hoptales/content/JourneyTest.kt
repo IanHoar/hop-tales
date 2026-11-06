@@ -227,15 +227,34 @@ class JourneyTest {
             {"completedSentences":{"bob-bug":6,"meadow-walk":2},"stars":4,"wordsRead":{},
             "journey":$journey}
         """.trimIndent()
-        val progress = StoryLibrary.json.decodeFromString(Progress.serializer(), json).restoringStoriesRead(library)
+        val progress = StoryLibrary.json.decodeFromString(Progress.serializer(), json).creditingFinishedStories(library)
         assertEquals(40.0, progress.journey.steps, 0.0)
         assertEquals(setOf("bob-bug"), progress.journey.storiesRead)
     }
 
     @Test
+    fun storiesFinishedBeforeTheyWereCountedStillFillThePath() {
+        val stories = library.stories(1)
+        val base = Progress(completedSentences = stories.associate { it.id to 6 })
+        val partial = base.copy(journey = base.journey.copy(storiesRead = setOf(stories[0].id), steps = base.journey.goal(library) - 1))
+        val progress = partial.creditingFinishedStories(library)
+        assertEquals(stories.map { it.id }.toSet(), progress.journey.storiesRead)
+        assertTrue(progress.journey.isPathFull(library))
+        assertEquals(progress.journey.goal(library), progress.journey.steps, 0.0)
+    }
+
+    @Test
+    fun onlyFinishedStoriesAreCredited() {
+        val stories = library.stories(1)
+        val progress = Progress(completedSentences = mapOf(stories[0].id to 6, stories[1].id to 2)).creditingFinishedStories(library)
+        assertEquals(setOf(stories[0].id), progress.journey.storiesRead)
+        assertFalse(progress.journey.isPathFull(library))
+    }
+
+    @Test
     fun aProgressFileFromBeforeTheJourneyStartsFresh() {
         val json = """{"completedSentences":{},"stars":4,"wordsRead":{}}"""
-        val progress = StoryLibrary.json.decodeFromString(Progress.serializer(), json).restoringStoriesRead(library)
+        val progress = StoryLibrary.json.decodeFromString(Progress.serializer(), json).creditingFinishedStories(library)
         assertEquals(Journey(), progress.journey)
         assertEquals(4, progress.stars)
     }
@@ -243,7 +262,7 @@ class JourneyTest {
     @Test
     fun anAndroidProgressFileFromBeforeTheJourneyKeepsItsStarsAndSentences() {
         val json = """{"stars":31,"completedSentences":{"meadow-walk":6,"golden-hour":2},"wordsRead":{"meadow-walk":30}}"""
-        val progress = StoryLibrary.json.decodeFromString(Progress.serializer(), json).restoringStoriesRead(library)
+        val progress = StoryLibrary.json.decodeFromString(Progress.serializer(), json).creditingFinishedStories(library)
         assertEquals(31, progress.stars)
         assertEquals(mapOf("meadow-walk" to 6, "golden-hour" to 2), progress.completedSentences)
         assertEquals(mapOf("meadow-walk" to 30), progress.wordsRead)

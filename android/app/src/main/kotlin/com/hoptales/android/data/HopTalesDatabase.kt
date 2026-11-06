@@ -31,7 +31,7 @@ class HopTalesDatabase(
         }
         val progressFile = File(legacy, LEGACY_PROGRESS)
         read(progressFile, Progress.serializer())?.let {
-            ProgressTable.write(db, library?.let(it::restoringStoriesRead) ?: it, existing = null)
+            ProgressTable.write(db, library?.let(it::creditingFinishedStories) ?: it, existing = null)
             imported += progressFile
         }
     }
