@@ -48,8 +48,8 @@ data class HareSheets(val idle: SpriteSheet, val hop: SpriteSheet) {
 
     companion object {
         val hare = HareSheets(
-            SpriteSheet.idle("hare-idle-frames", 260 to 373, 142f to 361f),
-            SpriteSheet.hop("hare-hop", 363 to 346, 194f to 334f, standing = 322f),
+            SpriteSheet.idle("hare-idle-frames", 260 to 373, 142f to 361f, size = 1.2f),
+            SpriteSheet.hop("hare-hop", 363 to 346, 194f to 334f, standing = 322f, size = 1.2f),
         )
 
         private val sheets = mapOf(

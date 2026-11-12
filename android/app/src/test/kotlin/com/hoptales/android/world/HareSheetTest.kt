@@ -31,9 +31,16 @@ class HareSheetTest {
 
     @Test
     fun theHopIsScaledToTheRestingHeight() {
-        assertEquals(1f, HareSheets.hare.idle.scale)
-        assertEquals(345f / 322f, HareSheets.hare.hop.scale, 1e-6f)
+        assertEquals(1f, HareSheets.of(Friend.BUNNY).idle.scale)
+        assertEquals(345f / 323f, HareSheets.of(Friend.BUNNY).hop.scale, 1e-6f)
         assertEquals(345f / 166f, HareSheets.of(Friend.GRASSHOPPER).hop.scale, 1e-6f)
+    }
+
+    @Test
+    fun skipStandsALittleTallerThanBob() {
+        val skip = HareSheets.of(Friend.HARE)
+        assertEquals(1.2f, skip.idle.scale)
+        assertEquals(345f / 322f * 1.2f, skip.hop.scale, 1e-6f)
     }
 
     @Test
