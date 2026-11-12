@@ -80,16 +80,16 @@ struct PlusSettingsTests {
         gate: ParentGate.State.DebugSnapshot(seed: 1)
       )
     }
-    store.send(.grownUp(.gate(.digitTapped(1)))) { $0.grownUp?.gate?.entry = "1" }
-    store.send(.grownUp(.gate(.digitTapped(5)))) { $0.grownUp?.gate?.entry = "15" }
-    store.send(.grownUp(.gate(.answerTapped)))
-    await store.receive(\.grownUp.gate.passed) {
+    store.send(to: \.grownUp, .gate(.digitTapped(1))) { $0.grownUp?.gate?.entry = "1" }
+    store.send(to: \.grownUp, .gate(.digitTapped(5))) { $0.grownUp?.gate?.entry = "15" }
+    store.send(to: \.grownUp, .gate(.answerTapped))
+    await store.receive(from: \.grownUp, \.gate.passed) {
       $0.grownUp?.paywall = Paywall.State.DebugSnapshot()
     }
-    await store.receive(\.grownUp.paywall.offersLoaded) {
+    await store.receive(from: \.grownUp, \.paywall.offersLoaded) {
       $0.grownUp?.paywall?.offers = .loaded(PlusOffer.samples)
     }
-    store.send(.grownUp(.paywall(.closeTapped))) { $0.grownUp = nil }
+    store.send(to: \.grownUp, .paywall(.closeTapped)) { $0.grownUp = nil }
     await store.dismount()
   }
 
