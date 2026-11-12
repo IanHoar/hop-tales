@@ -53,7 +53,7 @@ struct LockedStoryTests {
         .dependency(ProgressStore(load: { saved }, save: { _ in }))
     }
     let story = StoryLibrary.bigStory(at: Friend.frog.level)!
-    await store.send(.journeyMap(.stopTapped(.frog))) {
+    await store.send(to: \.journeyMap, .stopTapped(.frog)) {
       $0.journeyMap = nil
       $0.home.locked = LockedStory.State.DebugSnapshot(
         standing: StoryStanding(story: story, progress: saved)

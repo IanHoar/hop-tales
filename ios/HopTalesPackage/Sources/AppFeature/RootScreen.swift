@@ -43,14 +43,10 @@ import SwiftUI
 
   public enum Action {
     case home(Home.Action)
-    case intro(Intro.Action)
     case onboarding(Onboarding.Action)
     case path(Path.State.ID, Path.Action)
     case settings(Settings.Action)
-    case journeyMap(JourneyMap.Action)
-    case wardrobe(Wardrobe.Action)
     case friends(Friends.Action)
-    case book(Book.Action)
   }
 
   @Dependency(\.locale) var locale
@@ -88,23 +84,17 @@ import SwiftUI
         case .friends(.journeyTapped):
           state.friends = nil
           state.journeyMap = JourneyMap.State()
-        case .friends, .book:
+        case .friends:
           break
         case .home(.wardrobeTapped):
           state.wardrobe = Wardrobe.State(friend: progressStore.load().journey.activeFriend)
-        case .wardrobe:
-          break
         case .home(.journeyTapped):
           state.journeyMap = JourneyMap.State()
-        case .journeyMap:
-          break
         case .home(.grownUpsTapped):
           state.settings = Settings.State()
         case let .settings(.themePicked(theme)):
           state.theme = theme
         case .home(.grownUp), .home(.locked), .home(.levelTapped), .home(.plusChanged):
-          break
-        case .intro:
           break
         case let .onboarding(.finished(answered)):
           let profile = profileStore.load() ?? answered

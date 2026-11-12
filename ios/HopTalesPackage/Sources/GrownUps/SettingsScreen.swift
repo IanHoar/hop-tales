@@ -50,7 +50,6 @@ import World
     case doneTapped
     case deleteCloudCopy(DeleteCloudCopy.Action)
     case gate(ParentGate.Action)
-    case grownUp(GrownUpPaywall.Action)
     case hearVoiceTapped
     case nameChanged(String)
     case nameSubmitted
@@ -170,7 +169,7 @@ import World
         state.gate = nil
         gatedRequest = nil
 
-      case .gate, .grownUp:
+      case .gate:
         break
 
       case let .subscription(action):
