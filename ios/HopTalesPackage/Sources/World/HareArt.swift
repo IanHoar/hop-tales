@@ -55,10 +55,13 @@ public struct SpriteSheet: Equatable, Sendable {
   private typealias Pair = (idle: SpriteSheet, hop: SpriteSheet)
 
   private static let hare: Pair = (
-    .idle("hare-idle-frames", cell: CGSize(width: 260, height: 373), feet: CGPoint(x: 142, y: 361)),
+    .idle(
+      "hare-idle-frames", cell: CGSize(width: 260, height: 373), feet: CGPoint(x: 142, y: 361),
+      size: 1.2
+    ),
     .hop(
       "hare-hop", cell: CGSize(width: 363, height: 346), feet: CGPoint(x: 194, y: 334),
-      standing: 322
+      standing: 322, size: 1.2
     )
   )
 

@@ -205,12 +205,13 @@ fun HomeScreen(
                         },
                     )
                     Spacer(Modifier.height(maxOf(0.dp, (screen * HomeLayout.SHEET_TOP).dp - top - 330.dp)))
+                    val newFriendWaits = !standsAside && newFriend != null && bigStoryWaiting != null
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
                         Box(Modifier.weight(1f), contentAlignment = Alignment.BottomCenter) {
                             IdleFriend(
                                 friend,
                                 outfit.firstOrNull()?.id,
-                                HomeLayout.FRIEND_HEIGHT.dp,
+                                HomeLayout.FRIEND_HEIGHT.dp * if (newFriendWaits) HomeLayout.BESIDE_NEW_FRIEND else 1f,
                                 Modifier.alpha(if (standsAside) 0f else 1f).popsIn(arrival),
                                 shadow = paper.shadow,
                             )
@@ -281,6 +282,7 @@ private object HomeLayout {
     const val FEET_ABOVE_SHEET = 100f
     const val LAND_SCALE = 0.6f
     const val FRIEND_HEIGHT = 170f
+    const val BESIDE_NEW_FRIEND = 0.88f
     const val COLUMN_WIDTH = 560f
     const val WIDE_LAYOUT = 760f
     const val SHEET_RISE = 160f

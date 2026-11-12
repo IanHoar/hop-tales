@@ -168,6 +168,7 @@ public struct HomeScreen: View {
   static let feetAboveSheet: CGFloat = 100
   static let landScale: CGFloat = 0.6
   static let friendHeight: CGFloat = 170
+  static let besideNewFriend: CGFloat = 0.88
   static let columnWidth: CGFloat = 560
   static let wideLayout: CGFloat = 760
   static let tornEdge: CGFloat = 6
@@ -204,7 +205,7 @@ public struct HomeScreen: View {
         .frame(maxHeight: .infinity, alignment: .bottom)
         .ignoresSafeArea()
         if standsAside {
-          friend
+          friend()
             .position(
               x: fold?.stage(in: proxy.size).midX ?? (proxy.size.width - Self.columnWidth) / 4,
               y: screen * horizon - Self.feetAboveSheet - Self.friendHeight / 2
@@ -291,12 +292,12 @@ public struct HomeScreen: View {
     .padding(.horizontal, 20)
   }
 
-  private var friend: some View {
+  private func friend(scale: CGFloat = 1) -> some View {
     let friend = store.progress.journey.activeFriend
     return IdleFriend(
       friend,
       look: store.progress.outfit(for: friend).first?.id,
-      height: Self.friendHeight
+      height: Self.friendHeight * scale
     )
     .shadow(color: Paper.shadow, radius: 6, y: 4)
     .animation(.spring(duration: 0.5, bounce: 0.45).delay(0.25)) { content in
@@ -308,9 +309,10 @@ public struct HomeScreen: View {
 
   private func friendOnThePath(standsAside: Bool) -> some View {
     let journey = store.progress.journey
+    let newFriendWaits = store.state.newFriend != nil && store.state.bigStoryWaiting != nil
     return VStack(spacing: 14) {
       HStack(alignment: .bottom, spacing: 0) {
-        friend
+        friend(scale: !standsAside && newFriendWaits ? Self.besideNewFriend : 1)
           .frame(maxWidth: .infinity)
         if !standsAside { waitingFriend }
       }
