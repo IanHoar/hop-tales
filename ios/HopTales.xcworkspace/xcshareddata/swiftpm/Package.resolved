@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/groue/GRDB.swift",
       "state" : {
-        "revision" : "b83108d10f42680d78f23fe4d4d80fc88dab3212",
-        "version" : "7.11.1"
+        "revision" : "92a554cd0d5e8d67cb18993c6054e73fe42c066c",
+        "version" : "7.12.0"
       }
     },
     {
@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-collections",
       "state" : {
-        "revision" : "844289ac455816e193f1dbbe014f3c4dbe429410",
-        "version" : "1.7.4"
+        "revision" : "88754449ab766a739610b660e117762115fabc9c",
+        "version" : "1.7.6"
       }
     },
     {
@@ -115,7 +115,7 @@
       "location" : "https://github.com/pointfreeco/swift-navigation",
       "state" : {
         "branch" : "case-paths-2",
-        "revision" : "c4344194c0f9abace6782c349bab48f513ade8e4"
+        "revision" : "f3a16a9d9bd9a9a87304c3fff6959fa8d452c73b"
       }
     },
     {
@@ -169,7 +169,7 @@
       "location" : "https://github.com/pointfreeco/TCA26",
       "state" : {
         "branch" : "main",
-        "revision" : "167d7fc3a019fe472ec8e473cef9ffc14f529f81"
+        "revision" : "8ae0968eca600f33a8a27e33aef6597b074dc528"
       }
     }
   ],

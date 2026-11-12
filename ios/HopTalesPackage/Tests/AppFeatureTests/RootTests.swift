@@ -38,7 +38,7 @@ struct RootTests {
         Root()
       }
     }
-    await store.send(.intro(.skipTapped)) {
+    await store.send(to: \.intro, .skipTapped) {
       $0.intro = nil
     }?.value
     await store.dismount()
@@ -157,7 +157,7 @@ struct RootTests {
     await store.receive(\.path) {
       try? $0.path[0].modify(\.reading) { $0.authorization = .authorized }
     }
-    await store.send(.wardrobe(.doneTapped)) {
+    await store.send(to: \.wardrobe, .doneTapped) {
       $0.wardrobe = nil
       try? $0.path[0].modify(\.reading) { $0.look = item.id }
     }?.value

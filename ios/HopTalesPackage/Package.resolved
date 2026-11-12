@@ -1,5 +1,5 @@
 {
-  "originHash" : "c4b62e054e711034ca602a78cb220517dd509f37b146f11d821dc2e5b7e191d9",
+  "originHash" : "aaa1765d4f0fce2516c1cdfe814788c5aa0d981350f8a4cf5e50f2f9bfdd3641",
   "pins" : [
     {
       "identity" : "combine-schedulers",
@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-collections",
       "state" : {
-        "revision" : "f96b909e1a9e469620bc5037c1e24e00153f376f",
-        "version" : "1.7.5"
+        "revision" : "88754449ab766a739610b660e117762115fabc9c",
+        "version" : "1.7.6"
       }
     },
     {
@@ -115,7 +115,7 @@
       "location" : "https://github.com/pointfreeco/swift-navigation",
       "state" : {
         "branch" : "case-paths-2",
-        "revision" : "c4344194c0f9abace6782c349bab48f513ade8e4"
+        "revision" : "f3a16a9d9bd9a9a87304c3fff6959fa8d452c73b"
       }
     },
     {
@@ -169,7 +169,7 @@
       "location" : "https://github.com/pointfreeco/TCA26",
       "state" : {
         "branch" : "main",
-        "revision" : "167d7fc3a019fe472ec8e473cef9ffc14f529f81"
+        "revision" : "8ae0968eca600f33a8a27e33aef6597b074dc528"
       }
     }
   ],
